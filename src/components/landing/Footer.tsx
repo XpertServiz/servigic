@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { getLocale } from "next-intl/server";
+import type { Locale } from "@/i18n/request";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
-export function Footer() {
+export async function Footer() {
+  const locale = (await getLocale()) as Locale;
   return (
     <footer className="mt-16 border-t border-border-subtle py-16">
       <div className="mx-auto max-w-[1200px] px-6">
@@ -50,10 +54,7 @@ export function Footer() {
         </div>
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border-subtle pt-6 text-[13px] text-text-dim text-text-muted">
           <span>© 2026 Servigic. All rights reserved.</span>
-          <div className="flex gap-2">
-            <span className="rounded-md border border-border-subtle px-2.5 py-1">EN</span>
-            <span className="rounded-md border border-border-subtle px-2.5 py-1">اردو</span>
-          </div>
+          <LanguageSwitcher current={locale} />
         </div>
       </div>
     </footer>

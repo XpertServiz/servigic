@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { ServiceCategory, SubService } from "@prisma/client";
 import { UploadDropzone } from "@/lib/uploadthing";
+import { LIVE_CITIES as CITIES } from "@/lib/markets";
 
 type CategoryWithSub = ServiceCategory & { subServices: SubService[] };
-
-const CITIES = ["Karachi", "Lahore", "Islamabad", "Rawalpindi"];
 const URGENCY_OPTIONS = [
   { value: "EMERGENCY", label: "🚨 Emergency — now" },
   { value: "TODAY", label: "Today" },

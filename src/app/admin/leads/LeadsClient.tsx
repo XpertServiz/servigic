@@ -7,8 +7,7 @@ import type { Lead } from "@prisma/client";
 import { TRADES } from "@/lib/validation/provider";
 import { TRADE_LABELS } from "@/lib/trades";
 import { buildOutreachMessage } from "@/lib/outreach";
-
-const CITIES = ["Karachi", "Lahore", "Islamabad", "Rawalpindi"];
+import { LIVE_CITIES as CITIES } from "@/lib/markets";
 const STATUSES = ["NEW", "CONTACTED", "INTERESTED", "ONBOARDED", "NOT_INTERESTED", "CALLBACK"] as const;
 
 type AiResult = { priorityScore: number; likelySoloOperator: boolean; outreachMessage: string };

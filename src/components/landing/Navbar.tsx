@@ -1,14 +1,16 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/Button";
 
-const LINKS = [
-  { href: "#how", label: "How It Works" },
-  { href: "#services", label: "Services" },
-  { href: "#pros", label: "For Pros" },
-  { href: "#faq", label: "FAQ" },
-];
+export async function Navbar() {
+  const t = await getTranslations("nav");
+  const LINKS = [
+    { href: "#how", label: t("howItWorks") },
+    { href: "#services", label: t("services") },
+    { href: "#pros", label: t("forPros") },
+    { href: "#faq", label: t("faq") },
+  ];
 
-export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-border-subtle bg-bg/85 backdrop-blur-md">
       <nav className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4">
@@ -25,11 +27,11 @@ export function Navbar() {
             </a>
           ))}
           <Link href="/login" className="hover:text-text">
-            Login
+            {t("login")}
           </Link>
         </div>
         <Button href="/signup?role=customer" size="md">
-          Post a Job →
+          {t("postJob")} →
         </Button>
       </nav>
     </header>

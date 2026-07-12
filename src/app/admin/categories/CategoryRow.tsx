@@ -8,7 +8,15 @@ import { clsx } from "clsx";
 
 type CategoryWithSub = ServiceCategory & { subServices: SubService[] };
 
-export function CategoryRow({ category, launchCities }: { category: CategoryWithSub; launchCities: string[] }) {
+export function CategoryRow({
+  category,
+  launchCities,
+  comingSoonCities = [],
+}: {
+  category: CategoryWithSub;
+  launchCities: string[];
+  comingSoonCities?: string[];
+}) {
   const router = useRouter();
   const [minPrice, setMinPrice] = useState(category.minPricePKR ?? 0);
   const [maxPrice, setMaxPrice] = useState(category.maxPricePKR ?? 0);
@@ -82,6 +90,15 @@ export function CategoryRow({ category, launchCities }: { category: CategoryWith
           >
             {city}
           </button>
+        ))}
+        {comingSoonCities.map((city) => (
+          <span
+            key={city}
+            title="GCC expansion — needs multi-currency support first (see GCC_EXPANSION.md)"
+            className="cursor-not-allowed rounded-full border border-dashed border-border-subtle px-3 py-1 text-xs font-semibold text-text-dim text-text-muted opacity-50"
+          >
+            {city} · Soon
+          </span>
         ))}
       </div>
 

@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { LIVE_CITIES, COMING_SOON_CITIES } from "@/lib/markets";
 import { CategoryRow } from "./CategoryRow";
-
-const LAUNCH_CITIES = ["Karachi", "Lahore", "Islamabad", "Rawalpindi"];
 
 export default async function AdminCategoriesPage() {
   const categories = await prisma.serviceCategory.findMany({
@@ -16,7 +15,7 @@ export default async function AdminCategoriesPage() {
 
       <div className="flex flex-col gap-4">
         {categories.map((c) => (
-          <CategoryRow key={c.id} category={c} launchCities={LAUNCH_CITIES} />
+          <CategoryRow key={c.id} category={c} launchCities={LIVE_CITIES} comingSoonCities={COMING_SOON_CITIES} />
         ))}
       </div>
     </div>

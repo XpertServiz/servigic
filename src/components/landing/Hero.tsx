@@ -1,29 +1,30 @@
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/landing/Eyebrow";
 import { DispatchSimulation } from "@/components/landing/DispatchSimulation";
 
-export function Hero() {
+export async function Hero() {
+  const t = await getTranslations("hero");
+
   return (
     <section className="relative bg-[radial-gradient(ellipse_80%_60%_at_30%_0%,rgba(255,176,32,.16),transparent_60%),radial-gradient(ellipse_60%_50%_at_90%_20%,rgba(34,197,94,.08),transparent_60%)] pb-20 pt-24">
       <div className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-14 px-6 lg:grid-cols-[1.1fr_1fr]">
         <div>
-          <Eyebrow>⚡ Pros bid in minutes — you pick the price</Eyebrow>
+          <Eyebrow>⚡ {t("eyebrow")}</Eyebrow>
           <h1 className="font-display text-[clamp(48px,9vw,108px)] font-bold uppercase leading-[1.02] tracking-tight">
-            BROKEN?
+            {t("line1")}
             <br />
-            FIXED
+            {t("line2")}
             <br />
-            <span className="text-accent">TODAY.</span>
+            <span className="text-accent">{t("line3")}</span>
           </h1>
-          <p className="my-6 max-w-[520px] text-lg text-text-muted">
-            Post your job. Verified pros race to bid. Your money stays protected in escrow until the work is done.
-          </p>
+          <p className="my-6 max-w-[520px] text-lg text-text-muted">{t("sub")}</p>
           <div className="mb-9 flex flex-wrap gap-4">
             <Button href="/signup?role=customer" size="lg">
-              Post a Job — Get Bids in Minutes
+              {t("ctaPrimary")}
             </Button>
             <Button href="#demo" variant="ghost" size="lg">
-              ▶ Watch How It Works — 60 sec
+              ▶ {t("ctaSecondary")}
             </Button>
           </div>
           <div className="flex items-center gap-3">

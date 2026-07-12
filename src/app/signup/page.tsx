@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { clsx } from "clsx";
-
-const CITIES = ["Karachi", "Lahore", "Islamabad", "Rawalpindi"];
+import { LIVE_CITIES as CITIES } from "@/lib/markets";
 
 export default function SignupPage() {
   const router = useRouter();
