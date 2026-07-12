@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Separate projects with their own lint/type setup (React Native, Python):
+    "mobile/**",
+    "ai-service/**",
   ]),
 ]);
 
