@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/landing/Eyebrow";
 import { DispatchSimulation } from "@/components/landing/DispatchSimulation";
 
-export async function Hero() {
+export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
   const t = await getTranslations("hero");
 
   return (
@@ -20,9 +20,15 @@ export async function Hero() {
           </h1>
           <p className="my-6 max-w-[520px] text-lg text-text-muted">{t("sub")}</p>
           <div className="mb-9 flex flex-wrap gap-4">
-            <Button href="/signup?role=customer" size="lg">
-              {t("ctaPrimary")}
-            </Button>
+            {isLive ? (
+              <Button href="/signup?role=customer" size="lg">
+                {t("ctaPrimary")}
+              </Button>
+            ) : (
+              <Button href="#waitlist" size="lg">
+                Join the Waitlist →
+              </Button>
+            )}
             <Button href="#demo" variant="ghost" size="lg">
               ▶ {t("ctaSecondary")}
             </Button>
@@ -32,7 +38,7 @@ export async function Hero() {
               {["AK", "SR", "MF", "HZ"].map((initials, i) => (
                 <span
                   key={initials}
-                  className="-ml-2.5 flex h-[34px] w-[34px] items-center justify-center rounded-full border-2 border-bg bg-gradient-to-br from-[#333] to-[#555] text-[12px] font-bold first:ml-0"
+                  className="-ms-2.5 flex h-[34px] w-[34px] items-center justify-center rounded-full border-2 border-bg bg-gradient-to-br from-[#333] to-[#555] text-[12px] font-bold first:ms-0"
                   style={{ zIndex: 10 - i }}
                 >
                   {initials}

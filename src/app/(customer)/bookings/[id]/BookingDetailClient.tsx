@@ -6,8 +6,22 @@ import { toast } from "sonner";
 import { StatusTimeline } from "@/components/booking/StatusTimeline";
 import { LiveMap } from "@/components/booking/LiveMap";
 import { ChatBox } from "@/components/booking/ChatBox";
-import { UploadDropzone } from "@/lib/uploadthing";
+import { PhotoUploadField } from "@/components/ui/PhotoUploadField";
+import { PhotoGallery } from "@/components/ui/PhotoGallery";
+import { LegalDisclaimer } from "@/components/ui/LegalDisclaimer";
 import { CUSTOMER_REVIEW_TAGS } from "@/lib/validation/booking";
+import { estimateEtaMinutes } from "@/lib/eta";
+
+const TRACKED_STATUSES = ["ON_MY_WAY", "ARRIVED", "WORKING"];
+
+type ChangeOrderView = {
+  id: string;
+  description: string;
+  photoUrl: string | null;
+  extraAmountPKR: number;
+  status: string;
+  proofImageUrl: string | null;
+};
 
 type BookingView = {
   id: string;
@@ -25,6 +39,7 @@ type BookingView = {
   hasReview: boolean;
   dispute: { resolution: string | null } | null;
   unlocked: boolean;
+  changeOrders: ChangeOrderView[];
 };
 
 const PAYMENT_METHODS = [
@@ -33,12 +48,20 @@ const PAYMENT_METHODS = [
   { value: "BANK_TRANSFER", label: "Bank Transfer" },
 ] as const;
 
-export function BookingDetailClient({ booking, currentUserId }: { booking: BookingView; currentUserId: string }) {
+export function BookingDetailClient({
+  booking,
+  currentUserId,
+  legalDisclaimer,
+}: {
+  booking: BookingView;
+  currentUserId: string;
+  legalDisclaimer: string;
+}) {
   const router = useRouter();
   const [proLocation, setProLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
-    if (booking.status !== "ON_MY_WAY") return;
+    if (!TRACKED_STATUSES.includes(booking.status)) return;
     async function poll() {
       const res = await fetch(`/api/bookings/${booking.id}/location`);
       if (res.ok) {
@@ -46,10 +69,18 @@ export function BookingDetailClient({ booking, currentUserId }: { booking: Booki
         if (data.ping) setProLocation({ lat: data.ping.lat, lng: data.ping.lng });
       }
     }
-    poll();
+    poll(); // always fetch the last known position once, even after tracking has stopped
+    // Only keep polling for new positions while the pro is actually en route —
+    // they stop sending pings once Arrived, so repeat-polling after that is wasted.
+    if (booking.status !== "ON_MY_WAY") return;
     const interval = setInterval(poll, 15000);
     return () => clearInterval(interval);
   }, [booking.id, booking.status]);
+
+  const etaMinutes =
+    booking.status === "ON_MY_WAY" && proLocation
+      ? estimateEtaMinutes(proLocation.lat, proLocation.lng, booking.jobLat, booking.jobLng)
+      : null;
 
   return (
     <div className="max-w-3xl">
@@ -75,9 +106,23 @@ export function BookingDetailClient({ booking, currentUserId }: { booking: Booki
         </div>
       )}
 
-      {["ON_MY_WAY", "ARRIVED", "WORKING"].includes(booking.status) && (
+      {TRACKED_STATUSES.includes(booking.status) && (
         <div className="mb-6">
-          <LiveMap destLat={booking.jobLat} destLng={booking.jobLng} proLat={proLocation?.lat} proLng={proLocation?.lng} />
+          <LiveMap
+            destLat={booking.jobLat}
+            destLng={booking.jobLng}
+            proLat={proLocation?.lat}
+            proLng={proLocation?.lng}
+            etaMinutes={etaMinutes}
+          />
+        </div>
+      )}
+
+      {booking.changeOrders.length > 0 && (
+        <div className="mb-6 flex flex-col gap-3">
+          {booking.changeOrders.map((co) => (
+            <ChangeOrderCard key={co.id} changeOrder={co} />
+          ))}
         </div>
       )}
 
@@ -156,21 +201,16 @@ export function BookingDetailClient({ booking, currentUserId }: { booking: Booki
             </button>
           ))}
         </div>
-        {proofUrl ? (
-          <div className="mb-4 rounded-[8px] border border-secondary/40 bg-secondary/10 px-4 py-2 text-sm font-semibold text-secondary">
-            Proof uploaded ✓
-          </div>
-        ) : (
-          <div className="mb-4">
-            <UploadDropzone
-              endpoint="paymentProof"
-              onClientUploadComplete={(res) => res[0] && setProofUrl(res[0].ufsUrl)}
-              onUploadError={(e) => {
-                toast.error(e.message);
-              }}
-            />
-          </div>
-        )}
+        <div className="mb-4">
+          <PhotoUploadField
+            endpoint="paymentProof"
+            urls={proofUrl ? [proofUrl] : []}
+            maxCount={1}
+            label="Payment proof"
+            thumbClassName="h-24 w-24"
+            onAdd={(newUrls) => newUrls[0] && setProofUrl(newUrls[0])}
+          />
+        </div>
         <button
           onClick={submit}
           disabled={pending || !proofUrl}
@@ -178,9 +218,136 @@ export function BookingDetailClient({ booking, currentUserId }: { booking: Booki
         >
           {pending ? "Submitting…" : "Submit Payment"}
         </button>
+        {legalDisclaimer && <LegalDisclaimer text={legalDisclaimer} className="mt-3" />}
       </div>
     );
   }
+}
+
+function ChangeOrderCard({ changeOrder }: { changeOrder: ChangeOrderView }) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [method, setMethod] = useState<(typeof PAYMENT_METHODS)[number]["value"]>("EASYPAISA");
+  const [proofUrl, setProofUrl] = useState("");
+
+  async function respond(action: "APPROVE" | "DECLINE") {
+    setPending(true);
+    try {
+      const res = await fetch(`/api/change-orders/${changeOrder.id}/respond`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(action === "APPROVE" ? "Approved — pay the difference to fund it" : "Declined");
+      router.refresh();
+    } catch {
+      toast.error("Failed to respond");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function submitPayment() {
+    if (!proofUrl) {
+      toast.error("Upload your payment proof screenshot first");
+      return;
+    }
+    setPending(true);
+    try {
+      const res = await fetch(`/api/change-orders/${changeOrder.id}/pay`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ method, proofImageUrl: proofUrl }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Payment submitted for verification");
+      router.refresh();
+    } catch {
+      toast.error("Failed to submit payment");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <div className="rounded-[14px] border border-accent/30 bg-accent/10 p-5">
+      <h3 className="mb-1 font-bold">Your pro proposed extra work</h3>
+      <p className="mb-3 text-sm text-text-muted">{changeOrder.description}</p>
+      {changeOrder.photoUrl && (
+        <div className="mb-3">
+          <PhotoGallery urls={[changeOrder.photoUrl]} label="Extra work photo" thumbClassName="h-20 w-20" />
+        </div>
+      )}
+      <div className="mb-4 font-display text-xl font-bold text-accent">
+        + PKR {changeOrder.extraAmountPKR.toLocaleString()}
+      </div>
+
+      {changeOrder.status === "PENDING" && (
+        <div className="flex gap-2">
+          <button
+            onClick={() => respond("APPROVE")}
+            disabled={pending}
+            className="rounded-[8px] bg-accent px-4 py-2 text-sm font-bold text-accent-foreground disabled:opacity-60"
+          >
+            Approve & Pay
+          </button>
+          <button
+            onClick={() => respond("DECLINE")}
+            disabled={pending}
+            className="rounded-[8px] border border-danger/40 px-4 py-2 text-sm font-semibold text-danger disabled:opacity-60"
+          >
+            Decline
+          </button>
+        </div>
+      )}
+
+      {changeOrder.status === "DECLINED" && <p className="text-sm text-danger">You declined this extra work.</p>}
+
+      {changeOrder.status === "AWAITING_PAYMENT" && (
+        <div>
+          <div className="mb-3 flex gap-2">
+            {PAYMENT_METHODS.map((m) => (
+              <button
+                key={m.value}
+                onClick={() => setMethod(m.value)}
+                className={`rounded-[8px] border px-3 py-1.5 text-xs font-semibold ${
+                  method === m.value ? "border-accent bg-accent/10" : "border-border-subtle"
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+          <div className="mb-3">
+            <PhotoUploadField
+              endpoint="paymentProof"
+              urls={proofUrl ? [proofUrl] : []}
+              maxCount={1}
+              label="Payment proof"
+              thumbClassName="h-20 w-20"
+              onAdd={(newUrls) => newUrls[0] && setProofUrl(newUrls[0])}
+            />
+          </div>
+          <button
+            onClick={submitPayment}
+            disabled={pending || !proofUrl}
+            className="rounded-[8px] bg-accent px-4 py-2 text-sm font-bold text-accent-foreground disabled:opacity-60"
+          >
+            {pending ? "Submitting…" : "Submit Payment"}
+          </button>
+        </div>
+      )}
+
+      {changeOrder.status === "PAID" && (
+        <p className="text-sm font-semibold text-accent">Payment submitted — awaiting admin verification.</p>
+      )}
+
+      {changeOrder.status === "CONFIRMED" && (
+        <p className="text-sm font-semibold text-secondary">✓ Funded — your pro can go ahead with the extra work.</p>
+      )}
+    </div>
+  );
 }
 
 function ConfirmDisputeSection({ bookingId }: { bookingId: string }) {

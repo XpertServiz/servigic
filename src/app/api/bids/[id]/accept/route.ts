@@ -25,6 +25,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   const commissionPKR = Math.round((bid.pricePKR * commissionPct) / 100);
   const payoutPKR = bid.pricePKR - commissionPKR;
   const paymentDeadline = new Date(Date.now() + PAYMENT_WINDOW_HOURS * 60 * 60 * 1000);
+  const isInstantMatch = Boolean(bid.itemized && typeof bid.itemized === "object" && (bid.itemized as { instantMatch?: boolean }).instantMatch);
 
   const booking = await prisma.$transaction(async (tx) => {
     const created = await tx.booking.create({
@@ -37,6 +38,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
         totalPKR: bid.pricePKR,
         commissionPKR,
         payoutPKR,
+        matchType: isInstantMatch ? "INSTANT" : "BID",
         paymentDeadline,
         timeline: { PENDING_PAYMENT: new Date().toISOString() },
       },

@@ -9,7 +9,7 @@ export const registerSchema = z.object({
   role: z.enum(["CUSTOMER", "PROVIDER"]),
   name: z.string().trim().min(2, "Name is too short").max(80),
   phone: phoneSchema,
-  email: z.string().trim().email().optional().or(z.literal("")),
+  email: z.string().trim().email("Enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   city: z.string().trim().min(2).optional(),
 });

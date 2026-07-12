@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { ServiceCategory, SubService } from "@prisma/client";
-import { UploadDropzone } from "@/lib/uploadthing";
+import { PhotoUploadField } from "@/components/ui/PhotoUploadField";
 import { LIVE_CITIES as CITIES } from "@/lib/markets";
+
+interface PriceBenchmarkHint {
+  sampleSize: number;
+  minPKR: number;
+  maxPKR: number;
+}
 
 type CategoryWithSub = ServiceCategory & { subServices: SubService[] };
 const URGENCY_OPTIONS = [
@@ -33,8 +39,22 @@ export function PostJobForm({ categories, aiTriageEnabled }: { categories: Categ
   });
   const [pending, setPending] = useState(false);
   const [aiPending, setAiPending] = useState(false);
+  const [priceBenchmark, setPriceBenchmark] = useState<PriceBenchmarkHint | null>(null);
 
   const selectedCategory = categories.find((c) => c.id === form.categoryId);
+
+  useEffect(() => {
+    if (!form.categoryId || !form.city) return;
+    let cancelled = false;
+    fetch(`/api/market/price-benchmark?categoryId=${form.categoryId}&city=${encodeURIComponent(form.city)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled) setPriceBenchmark(data.benchmark);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [form.categoryId, form.city]);
 
   function useMyLocation() {
     if (!navigator.geolocation) return;
@@ -172,22 +192,12 @@ export function PostJobForm({ categories, aiTriageEnabled }: { categories: Categ
 
       <div>
         <label className="mb-2 block text-sm font-semibold text-text-muted">Photos (up to 6)</label>
-        {form.photos.length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-2">
-            {form.photos.map((url) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img key={url} src={url} alt="" className="h-16 w-16 rounded-[8px] object-cover" />
-            ))}
-          </div>
-        )}
-        <UploadDropzone
+        <PhotoUploadField
           endpoint="jobPhotos"
-          onClientUploadComplete={(res) => {
-            setForm((f) => ({ ...f, photos: [...f.photos, ...res.map((r) => r.ufsUrl)] }));
-          }}
-          onUploadError={(e) => {
-            toast.error(e.message);
-          }}
+          urls={form.photos}
+          maxCount={6}
+          label="Photo"
+          onAdd={(newUrls) => setForm((f) => ({ ...f, photos: [...f.photos, ...newUrls] }))}
         />
       </div>
 
@@ -271,6 +281,15 @@ export function PostJobForm({ categories, aiTriageEnabled }: { categories: Categ
           onChange={(e) => setForm({ ...form, budgetPKR: e.target.value })}
           className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
         />
+        {priceBenchmark && (
+          <p className="mt-2 text-xs text-text-muted">
+            Most {selectedCategory?.name} jobs in {form.city} close between{" "}
+            <b className="text-accent">
+              PKR {priceBenchmark.minPKR.toLocaleString()}–{priceBenchmark.maxPKR.toLocaleString()}
+            </b>{" "}
+            ({priceBenchmark.sampleSize} recent jobs) — you can still set your own budget.
+          </p>
+        )}
       </div>
 
       <button

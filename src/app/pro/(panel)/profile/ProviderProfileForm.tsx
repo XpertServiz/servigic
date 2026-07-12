@@ -6,13 +6,16 @@ import { toast } from "sonner";
 import type { ProviderProfile } from "@prisma/client";
 import { TRADE_LABELS } from "@/lib/trades";
 import { TRADES } from "@/lib/validation/provider";
-import { UploadButton } from "@/lib/uploadthing";
+import { PhotoUploadField } from "@/components/ui/PhotoUploadField";
+import { SelfieUploadField } from "@/components/ui/SelfieUploadField";
+import { VerificationBadge } from "@/components/ui/VerificationBadge";
+import { ProviderAvatar } from "@/components/ui/ProviderAvatar";
 
 const VERIFICATION_LABELS: Record<number, string> = {
-  0: "Unverified — submit documents below",
-  1: "Level 1 — Approved, can bid",
-  2: "Level 2 — Verified Pro",
-  3: "Level 3 — Gold Ustad",
+  0: "Submit documents below to get verified",
+  1: "Approved — you can bid on jobs",
+  2: "Priority dispatch + badge on your bid cards",
+  3: "10+ completed jobs at 4.5★+ — lowest commission tier",
 };
 
 export function ProviderProfileForm({ initial }: { initial: ProviderProfile | null }) {
@@ -26,6 +29,7 @@ export function ProviderProfileForm({ initial }: { initial: ProviderProfile | nu
     baseLng: initial?.baseLng ?? 67.0011,
     cnicUrl: initial?.cnicUrl ?? "",
     selfieUrl: initial?.selfieUrl ?? "",
+    photoQualityOk: initial?.photoQualityOk ?? false,
     policeCertUrl: initial?.policeCertUrl ?? "",
     payoutMethod: initial?.payoutMethod ?? "EASYPAISA",
     payoutAccount: initial?.payoutAccount ?? "",
@@ -75,7 +79,8 @@ export function ProviderProfileForm({ initial }: { initial: ProviderProfile | nu
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <div className="rounded-[10px] border border-accent/30 bg-accent/10 px-4 py-3 text-sm font-semibold text-accent">
+      <div className="flex items-center gap-3 rounded-[10px] border border-accent/30 bg-accent/10 px-4 py-3 text-sm font-semibold text-accent">
+        <VerificationBadge level={initial?.verificationLevel ?? 0} size="md" />
         {VERIFICATION_LABELS[initial?.verificationLevel ?? 0]}
       </div>
 
@@ -136,18 +141,30 @@ export function ProviderProfileForm({ initial }: { initial: ProviderProfile | nu
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">
+          Profile photo <span className="text-text-dim">(square crop required — this is what customers see)</span>
+        </label>
+        <div className="flex items-center gap-4">
+          <ProviderAvatar
+            photoUrl={form.selfieUrl}
+            photoQualityOk={form.photoQualityOk}
+            verificationLevel={initial?.verificationLevel ?? 0}
+            size="lg"
+          />
+          <SelfieUploadField
+            url={form.selfieUrl}
+            onUploaded={(url, photoQualityOk) => setForm({ ...form, selfieUrl: url, photoQualityOk })}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
         <DocUploadField
           label="CNIC"
           url={form.cnicUrl}
           endpoint="providerDocs"
           onUploaded={(url) => setForm({ ...form, cnicUrl: url })}
-        />
-        <DocUploadField
-          label="Selfie"
-          url={form.selfieUrl}
-          endpoint="providerDocs"
-          onUploaded={(url) => setForm({ ...form, selfieUrl: url })}
         />
         <DocUploadField
           label="Police cert. (optional)"
@@ -216,19 +233,14 @@ function DocUploadField({
   return (
     <div>
       <label className="mb-1.5 block text-xs font-semibold text-text-muted">{label}</label>
-      {url ? (
-        <div className="flex h-20 items-center justify-center rounded-[8px] border border-secondary/40 bg-secondary/10 text-xs font-semibold text-secondary">
-          Uploaded ✓
-        </div>
-      ) : (
-        <UploadButton
-          endpoint={endpoint}
-          onClientUploadComplete={(res) => res[0] && onUploaded(res[0].ufsUrl)}
-          onUploadError={(e) => {
-            toast.error(e.message);
-          }}
-        />
-      )}
+      <PhotoUploadField
+        endpoint={endpoint}
+        urls={url ? [url] : []}
+        maxCount={1}
+        label={label}
+        thumbClassName="h-20 w-20"
+        onAdd={(newUrls) => newUrls[0] && onUploaded(newUrls[0])}
+      />
     </div>
   );
 }

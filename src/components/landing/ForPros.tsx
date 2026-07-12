@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/Button";
 import { EarningsCalculator } from "@/components/landing/EarningsCalculator";
 
@@ -9,7 +10,18 @@ const PERKS = [
   "Badge levels = lower commission",
 ];
 
-export function ForPros() {
+// Real count only — hidden below threshold rather than showing a fabricated
+// number (same rule ProofTicker follows: Master Brief §7A/§12, no fake stats).
+const MIN_PROVIDERS_TO_SHOW = 5;
+
+async function getActiveProviderCount() {
+  return prisma.providerProfile.count({ where: { verificationLevel: { gte: 1 } } });
+}
+
+export async function ForPros() {
+  const activeProviders = await getActiveProviderCount();
+  const showCount = activeProviders >= MIN_PROVIDERS_TO_SHOW;
+
   return (
     <section id="pros" className="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_1.2fr]">
@@ -22,6 +34,16 @@ export function ForPros() {
         </div>
         <div className="rounded-[14px] border border-accent/40 bg-gradient-to-br from-accent/[0.08] to-bg-elevated p-8">
           <h3 className="mb-4.5 font-display text-2xl font-bold uppercase">Earn more. Keep 88%.</h3>
+
+          <div className="mb-6 rounded-[12px] border border-secondary/30 bg-secondary/10 p-5">
+            <div className="font-display text-4xl font-bold text-secondary">PKR 0</div>
+            <div className="mt-1 text-sm text-text-muted">
+              {showCount
+                ? `Spent on leads by our ${activeProviders} active providers this month`
+                : "Spent on leads. Ever. Every other platform charges you just to see a job — we don't."}
+            </div>
+          </div>
+
           <ul className="mb-6 flex flex-col gap-3">
             {PERKS.map((p) => (
               <li key={p} className="flex items-start gap-2.5 text-sm text-text-muted">

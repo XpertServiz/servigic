@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "uploadthing/tw/v4" theme(reference);
 
 /* ─── Servigic design tokens (§7A brand system + 4-preset theme switcher) ─── */
 :root,

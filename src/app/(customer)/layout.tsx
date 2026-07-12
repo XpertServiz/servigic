@@ -5,6 +5,7 @@ const NAV = [
   { href: "/dashboard", label: "My Jobs" },
   { href: "/jobs/new", label: "Post a Job" },
   { href: "/bookings", label: "Bookings" },
+  { href: "/dashboard/plans", label: "Maintenance Plans" },
 ];
 
 export default async function CustomerLayout({ children }: { children: React.ReactNode }) {

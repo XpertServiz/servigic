@@ -42,6 +42,18 @@ export function HowItWorks() {
           </div>
         ))}
       </div>
+
+      <div className="mt-8 rounded-[14px] border border-accent bg-accent/[0.06] p-8">
+        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-accent">For Emergencies</p>
+        <h3 className="mb-2.5 text-xl font-bold">Or Skip the Wait — Instant Match</h3>
+        <p className="mb-5 max-w-2xl text-[15px] text-text-muted">
+          Burst pipe at 2am? Get matched to the nearest verified pro in seconds — still fully escrow-protected. No
+          waiting for bids to come in.
+        </p>
+        <div className="rounded-[10px] border border-accent/30 bg-bg-elevated-2 p-3.5 text-xs text-text-muted">
+          🚨 Instant Match · Ahmed (Verified Pro, 4.8★) · PKR 2,875 · ETA 12 min · 90s to accept
+        </div>
+      </div>
     </section>
   );
 }

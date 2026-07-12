@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { firstNameOnly, distanceBand } from "@/lib/anon";
 import { haversineKm } from "@/lib/geo";
 import { getFeatureFlags } from "@/lib/featureFlags";
+import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import { BidForm } from "./BidForm";
 
 export default async function ProviderJobDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -40,11 +41,8 @@ export default async function ProviderJobDetailPage({ params }: { params: Promis
           Customer: {firstNameOnly(job.customer.name)} · Contact unlocks after payment.
         </p>
         {job.photos.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {job.photos.map((url) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img key={url} src={url} alt="" className="h-24 w-24 rounded-[10px] object-cover" />
-            ))}
+          <div className="mt-4">
+            <PhotoGallery urls={job.photos} label="Job photo" thumbClassName="h-24 w-24" />
           </div>
         )}
       </div>

@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DECLINE_REASONS } from "@/lib/validation/bid";
+import { VerificationBadge } from "@/components/ui/VerificationBadge";
+import { ProviderAvatar } from "@/components/ui/ProviderAvatar";
 
 type BidView = {
   id: string;
@@ -17,10 +19,10 @@ type BidView = {
   ratingCount: number;
   jobsCompleted: number;
   verificationLevel: number;
+  tradeIcon: string;
   distanceBand: string;
 };
 
-const LEVEL_LABEL: Record<number, string> = { 0: "Unverified", 1: "Verified", 2: "Verified Pro", 3: "Gold Ustad" };
 type SortKey = "price" | "rating" | "eta" | "distance";
 
 export function BidList({ bids, jobStatus }: { bids: BidView[]; jobStatus: string }) {
@@ -128,11 +130,16 @@ export function BidList({ bids, jobStatus }: { bids: BidView[]; jobStatus: strin
         {sorted.map((bid) => (
           <div key={bid.id} className="rounded-[14px] border border-border-subtle bg-bg-elevated p-5">
             <div className="mb-2 flex items-center justify-between">
-              <div>
-                <div className="font-bold">{bid.proLabel}</div>
-                <div className="text-xs text-text-muted">
-                  {LEVEL_LABEL[bid.verificationLevel]} · {bid.ratingCount > 0 ? `${bid.ratingAvg.toFixed(1)}★` : "New"} ·{" "}
-                  {bid.jobsCompleted} jobs · {bid.distanceBand}
+              <div className="flex items-center gap-3">
+                <ProviderAvatar verificationLevel={bid.verificationLevel} fallbackIcon={bid.tradeIcon} size="md" />
+                <div>
+                  <div className="mb-1 flex items-center gap-2">
+                    <span className="font-bold">{bid.proLabel}</span>
+                    <VerificationBadge level={bid.verificationLevel} />
+                  </div>
+                  <div className="text-xs text-text-muted">
+                    {bid.ratingCount > 0 ? `${bid.ratingAvg.toFixed(1)}★` : "New"} · {bid.jobsCompleted} jobs · {bid.distanceBand}
+                  </div>
                 </div>
               </div>
               <div className="text-right">

@@ -15,6 +15,7 @@ export default async function ProviderBookingPage({ params }: { params: Promise<
       job: { include: { category: true } },
       customer: { select: { name: true, phone: true } },
       customerReview: true,
+      changeOrders: { orderBy: { createdAt: "desc" } },
     },
   });
 
@@ -38,6 +39,12 @@ export default async function ProviderBookingPage({ params }: { params: Promise<
         customerPhone: unlocked ? booking.customer.phone : null,
         hasReview: Boolean(booking.customerReview),
         unlocked,
+        changeOrders: booking.changeOrders.map((c) => ({
+          id: c.id,
+          description: c.description,
+          extraAmountPKR: c.extraAmountPKR,
+          status: c.status,
+        })),
       }}
     />
   );

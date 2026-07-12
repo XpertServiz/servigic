@@ -12,6 +12,15 @@ const NAV = [
   { href: "/admin/leads", label: "Leads" },
   { href: "/admin/users", label: "Users" },
   { href: "/admin/analytics", label: "Analytics" },
+  { href: "/admin/exchange-rates", label: "Exchange Rates" },
+  { href: "/admin/locales", label: "Countries & Localization" },
+  { href: "/admin/price-benchmarks", label: "Price Benchmarks" },
+  { href: "/admin/maintenance-plans", label: "Maintenance Plans" },
+  { href: "/admin/business-waitlist", label: "Business Waitlist" },
+  { href: "/admin/accounting/chart-of-accounts", label: "Chart of Accounts" },
+  { href: "/admin/accounting/journal", label: "General Journal" },
+  { href: "/admin/accounting/ledger", label: "General Ledger" },
+  { href: "/admin/accounting/reports", label: "Financial Reports" },
   { href: "/admin/settings", label: "Settings" },
 ];
 

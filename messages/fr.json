@@ -1,0 +1,36 @@
+{
+  "nav": {
+    "howItWorks": "Comment ça marche",
+    "services": "Services",
+    "forPros": "Pour les pros",
+    "faq": "FAQ",
+    "login": "Connexion",
+    "postJob": "Publier une tâche"
+  },
+  "hero": {
+    "eyebrow": "Les pros font une offre en quelques minutes — vous choisissez le prix",
+    "line1": "EN PANNE?",
+    "line2": "RÉPARÉ",
+    "line3": "AUJOURD'HUI.",
+    "sub": "Publiez votre tâche. Des pros vérifiés se disputent l'offre. Votre argent reste protégé en séquestre jusqu'à la fin des travaux.",
+    "ctaPrimary": "Publier une tâche — Recevez des offres en minutes",
+    "ctaSecondary": "Voir comment ça marche — 60 sec"
+  },
+  "common": {
+    "appName": "Servigic"
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "DES QUESTIONS? DES RÉPONSES.",
+    "items": [
+      { "q": "Est-ce gratuit de publier une tâche?", "a": "Oui — publier une tâche est toujours gratuit. Vous ne payez qu'une fois une offre acceptée, et ce paiement va directement dans un séquestre protégé." },
+      { "q": "Comment le séquestre me protège-t-il?", "a": "Votre paiement est détenu par Servigic, pas par le professionnel, jusqu'à ce que vous confirmiez la fin des travaux. En cas de problème, vous pouvez ouvrir un litige avant la libération des fonds." },
+      { "q": "Que se passe-t-il si le professionnel trouve des travaux supplémentaires sur place?", "a": "Il soumet un ordre de modification avec photo et prix — vous l'approuvez (et payez la différence dans le séquestre) avant que les travaux supplémentaires ne commencent." },
+      { "q": "Que se passe-t-il si je ne suis pas satisfait?", "a": "Chaque tâche bénéficie d'une garantie de 7 jours sur la qualité du travail. Ouvrez un litige et notre équipe examine les photos des deux parties pour libérer, rembourser partiellement ou intégralement votre paiement." },
+      { "q": "Pourquoi ne puis-je pas voir le numéro de téléphone du professionnel avant de payer?", "a": "Les coordonnées restent masquées jusqu'à ce que le paiement soit sécurisé — cela empêche les accords hors plateforme qui vous laissent sans aucune protection." },
+      { "q": "À quelle vitesse les offres arrivent-elles?", "a": "Pour les tâches urgentes, la plupart des clients reçoivent leur première offre en moins de 10 minutes, car chaque professionnel proche et compatible est alerté instantanément." },
+      { "q": "Comment les professionnels sont-ils payés?", "a": "Directement par EasyPaisa, JazzCash ou virement bancaire après votre confirmation de fin de travaux, moins la commission de 12% de Servigic." },
+      { "q": "Quelles villes?", "a": "Lancement à Karachi, puis Lahore et Islamabad/Rawalpindi, suivis du Golfe et de l'Amérique du Nord." }
+    ]
+  }
+}

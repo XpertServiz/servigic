@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       role,
       name,
       phone,
-      email: email || null,
+      email,
       passwordHash,
       city,
     },
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     });
   }
 
-  await issueOtp(user.id, user.phone);
+  await issueOtp(user.id, user.phone, "PHONE_VERIFY", user.email);
 
   return NextResponse.json({ userId: user.id, phone: user.phone });
 }

@@ -6,6 +6,7 @@ const NAV = [
   { href: "/pro/jobs", label: "Job Feed" },
   { href: "/pro/bookings", label: "Bookings" },
   { href: "/pro/earnings", label: "Earnings" },
+  { href: "/pro/plans", label: "Recurring Customers" },
   { href: "/pro/profile", label: "Profile" },
 ];
 

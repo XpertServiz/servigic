@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Dispute, Booking, Job } from "@prisma/client";
+import { PhotoGallery } from "@/components/ui/PhotoGallery";
 
 type DisputeWithRelations = Dispute & {
   booking: Booking & { job: Job; customer: { name: string }; providerUser: { name: string } };
@@ -71,11 +72,8 @@ export function DisputeRow({ dispute, aiSummarizerEnabled }: { dispute: DisputeW
       </div>
       <p className="mb-3 text-sm text-text-muted">{dispute.reason}</p>
       {dispute.photos.length > 0 && (
-        <div className="mb-3 flex flex-wrap gap-2">
-          {dispute.photos.map((url) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={url} src={url} alt="" className="h-20 w-20 rounded-[8px] object-cover" />
-          ))}
+        <div className="mb-3">
+          <PhotoGallery urls={dispute.photos} label="Dispute photo" thumbClassName="h-20 w-20" />
         </div>
       )}
 

@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation";
 import type { Locale } from "@/i18n/request";
 
 const LANGUAGES: { code: Locale; label: string }[] = [
-  { code: "en", label: "EN" },
+  { code: "en", label: "English" },
   { code: "ur", label: "اردو" },
   { code: "ar", label: "عربي" },
+  { code: "de", label: "Deutsch" },
+  { code: "fr", label: "Français" },
+  { code: "pl", label: "Polski" },
 ];
 
 export function LanguageSwitcher({ current }: { current: Locale }) {
@@ -24,19 +27,17 @@ export function LanguageSwitcher({ current }: { current: Locale }) {
   }
 
   return (
-    <div className="flex gap-2">
+    <select
+      value={current}
+      onChange={(e) => setLocale(e.target.value as Locale)}
+      disabled={pending}
+      className="rounded-md border border-border-subtle bg-bg-elevated px-2.5 py-1 text-[13px] text-text-muted disabled:opacity-60"
+    >
       {LANGUAGES.map((lang) => (
-        <button
-          key={lang.code}
-          onClick={() => setLocale(lang.code)}
-          disabled={pending}
-          className={`rounded-md border px-2.5 py-1 disabled:opacity-60 ${
-            current === lang.code ? "border-accent text-accent" : "border-border-subtle text-text-muted"
-          }`}
-        >
+        <option key={lang.code} value={lang.code}>
           {lang.label}
-        </button>
+        </option>
       ))}
-    </div>
+    </select>
   );
 }

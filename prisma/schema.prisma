@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -25,6 +26,25 @@ enum Language {
   en
   ur
   ar
+  de
+  fr
+  pl
+}
+
+// Display-only currencies (Master Brief §11 / GCC_EXPANSION.md). Every
+// transactional amount in this schema (Job.budgetPKR, Bid.pricePKR,
+// Booking.totalPKR, etc.) stays in PKR — these are for converting PKR
+// figures into an approximate local-currency figure for browsing/SEO
+// display only, since no non-PKR payment gateway is wired yet.
+enum Currency {
+  PKR
+  USD
+  CAD
+  EUR
+  PLN
+  SAR
+  AED
+  QAR
 }
 
 enum Trade {
@@ -40,6 +60,16 @@ enum Trade {
   CLEANER
   MASON
   HANDYMAN
+  PEST_CONTROL
+  ROOFING
+  LOCKSMITH
+  GARDENING
+  TILING
+  GENERATOR_REPAIR
+  WATER_TANK_CLEANING
+  GLASS_REPAIR
+  WELDING
+  UPHOLSTERY
 }
 
 enum PayoutMethod {
@@ -83,6 +113,23 @@ enum BookingStatus {
   CANCELLED
   EXPIRED
   DISPUTED
+}
+
+enum MatchType {
+  BID
+  INSTANT
+}
+
+enum PlanFrequency {
+  MONTHLY
+  QUARTERLY
+  BIANNUAL
+}
+
+enum PlanStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
 }
 
 enum PaymentMethod {
@@ -162,68 +209,73 @@ model User {
 
   providerProfile ProviderProfile?
 
-  jobsPosted      Job[]              @relation("CustomerJobs")
-  bookingsAsCustomer Booking[]       @relation("CustomerBookings")
-  bookingsAsProvider Booking[]       @relation("ProviderBookings")
-  bids            Bid[]
-  reviewsGiven    Review[]           @relation("ReviewAuthor")
-  reviewsReceived Review[]           @relation("ReviewTarget")
-  customerReviewsGiven    CustomerReview[] @relation("CustomerReviewAuthor")
-  customerReviewsReceived CustomerReview[] @relation("CustomerReviewTarget")
-  messages        Message[]
-  notifications   Notification[]
-  disputesOpened  Dispute[]          @relation("DisputeOpener")
-  otpCodes        OtpCode[]
+  jobsPosted              Job[]             @relation("CustomerJobs")
+  bookingsAsCustomer      Booking[]         @relation("CustomerBookings")
+  bookingsAsProvider      Booking[]         @relation("ProviderBookings")
+  bids                    Bid[]
+  reviewsGiven            Review[]          @relation("ReviewAuthor")
+  reviewsReceived         Review[]          @relation("ReviewTarget")
+  customerReviewsGiven    CustomerReview[]  @relation("CustomerReviewAuthor")
+  customerReviewsReceived CustomerReview[]  @relation("CustomerReviewTarget")
+  messages                Message[]
+  notifications           Notification[]
+  disputesOpened          Dispute[]         @relation("DisputeOpener")
+  otpCodes                OtpCode[]
+  journalEntriesPosted    JournalEntry[]    @relation("JournalEntryPoster")
+  changeOrdersProposed    ChangeOrder[]     @relation("ChangeOrderProposer")
+  maintenancePlans        MaintenancePlan[] @relation("MaintenancePlanCustomer")
 
   @@index([role])
   @@index([city])
 }
 
 model OtpCode {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  code      String
-  purpose   String   @default("PHONE_VERIFY")
-  expiresAt DateTime
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code       String
+  purpose    String    @default("PHONE_VERIFY")
+  expiresAt  DateTime
   consumedAt DateTime?
-  createdAt DateTime @default(now())
+  createdAt  DateTime  @default(now())
 
   @@index([userId])
 }
 
 model ProviderProfile {
-  id                String       @id @default(cuid())
-  userId            String       @unique
-  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  displayName       String
-  serialNumber      Int          @unique @default(autoincrement())
-  trades            Trade[]      @default([])
-  skillsNote        String?
-  serviceRadiusKm   Int          @default(10)
-  baseLat           Float?
-  baseLng           Float?
-  geohash           String?
-  isOnline          Boolean      @default(false)
-  verificationLevel Int          @default(0) // 0 unverified, 1 approved, 2 verified pro, 3 gold ustad
-  cnicUrl           String?
-  selfieUrl         String?
-  policeCertUrl     String?
-  isVerified        Boolean      @default(false)
-  verifiedAt        DateTime?
-  ratingAvg         Float        @default(0)
-  ratingCount       Int          @default(0)
-  jobsCompleted     Int          @default(0)
-  payoutMethod      PayoutMethod?
-  payoutAccount     String?
-  commissionPct     Float        @default(12)
+  id                  String        @id @default(cuid())
+  userId              String        @unique
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName         String
+  serialNumber        Int           @unique @default(autoincrement())
+  trades              Trade[]       @default([])
+  skillsNote          String?
+  serviceRadiusKm     Int           @default(10)
+  baseLat             Float?
+  baseLng             Float?
+  geohash             String?
+  isOnline            Boolean       @default(false)
+  verificationLevel   Int           @default(0) // 0 unverified, 1 approved, 2 verified pro, 3 gold ustad
+  cnicUrl             String?
+  selfieUrl           String?
+  photoQualityOk      Boolean       @default(false) // Provider Photo Standardization Addendum v3 — set automatically at upload time (square crop + min resolution passed), never by manual review
+  policeCertUrl       String?
+  isVerified          Boolean       @default(false)
+  verifiedAt          DateTime?
+  ratingAvg           Float         @default(0)
+  ratingCount         Int           @default(0)
+  jobsCompleted       Int           @default(0)
+  payoutMethod        PayoutMethod?
+  payoutAccount       String?
+  commissionPct       Float         @default(12)
   agreementAcceptedAt DateTime?
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 
-  bids     Bid[]
-  bookings Booking[] @relation("ProviderProfileBookings")
-  payouts  Payout[]
+  bids              Bid[]
+  bookings          Booking[]         @relation("ProviderProfileBookings")
+  payouts           Payout[]
+  preferredForPlans MaintenancePlan[]
 
   @@index([geohash])
   @@index([isOnline])
@@ -231,48 +283,117 @@ model ProviderProfile {
 }
 
 model ServiceCategory {
-  id          String   @id @default(cuid())
-  trade       Trade    @unique
-  name        String
-  slug        String   @unique
-  icon        String
-  description String?
+  id           String   @id @default(cuid())
+  trade        Trade    @unique
+  name         String
+  slug         String   @unique
+  icon         String
+  description  String?
   activeCities String[] @default([])
-  minPricePKR Int?
-  maxPricePKR Int?
-  createdAt   DateTime @default(now())
+  minPricePKR  Int?
+  maxPricePKR  Int?
+  createdAt    DateTime @default(now())
 
-  subServices SubService[]
-  jobs        Job[]
+  subServices      SubService[]
+  jobs             Job[]
+  priceBenchmarks  PriceBenchmark[]
+  maintenancePlans MaintenancePlan[]
 }
 
 model SubService {
-  id          String   @id @default(cuid())
+  id          String          @id @default(cuid())
   categoryId  String
   category    ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   name        String
   slug        String
-  active      Boolean  @default(true)
+  active      Boolean         @default(true)
   minPricePKR Int?
   maxPricePKR Int?
 
-  jobs Job[]
+  jobs            Job[]
+  priceBenchmarks PriceBenchmark[]
 
   @@unique([categoryId, slug])
 }
 
+// Nightly-recomputed cache of real winning-bid price ranges per
+// (category, subService?, city, window) — Competitive Edge Addendum §2.1.
+// Rebuilt wholesale on each recompute (delete-then-insert), never partially
+// upserted, so a row existing here always means it met MIN_SAMPLE_SIZE.
+model PriceBenchmark {
+  id               String          @id @default(cuid())
+  categoryId       String
+  category         ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  subServiceId     String?
+  subService       SubService?     @relation(fields: [subServiceId], references: [id], onDelete: Cascade)
+  city             String
+  windowDays       Int
+  sampleSize       Int
+  avgWinningPKR    Int
+  medianWinningPKR Int
+  minPKR           Int
+  maxPKR           Int
+  updatedAt        DateTime        @updatedAt
+
+  @@index([categoryId, city, windowDays])
+}
+
+// Recurring service subscriptions (AC servicing, generator checkup, water
+// tank cleaning) — Competitive Edge Addendum §2.6. Reuses the existing
+// Job/Booking/bidding pipeline entirely: each due cycle just creates a
+// normal Job (pricePerVisitPKR seeds that Job's budgetPKR as a starting
+// estimate, not a fixed charge — the job still goes through real bidding
+// or Instant Match like any other job).
+model MaintenancePlan {
+  id                  String           @id @default(cuid())
+  customerId          String
+  customer            User             @relation("MaintenancePlanCustomer", fields: [customerId], references: [id])
+  categoryId          String
+  category            ServiceCategory  @relation(fields: [categoryId], references: [id])
+  city                String
+  areaLabel           String
+  exactAddress        String
+  lat                 Float
+  lng                 Float
+  frequency           PlanFrequency
+  preferredProviderId String?
+  preferredProvider   ProviderProfile? @relation(fields: [preferredProviderId], references: [id])
+  pricePerVisitPKR    Int
+  nextDueDate         DateTime
+  status              PlanStatus       @default(ACTIVE)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  visits PlanVisit[]
+
+  @@index([status, nextDueDate])
+  @@index([customerId])
+}
+
+model PlanVisit {
+  id            String          @id @default(cuid())
+  planId        String
+  plan          MaintenancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  scheduledDate DateTime
+  jobId         String?         @unique
+  job           Job?            @relation(fields: [jobId], references: [id])
+  createdAt     DateTime        @default(now())
+
+  @@index([planId])
+}
+
 model Job {
-  id              String    @id @default(cuid())
+  id              String          @id @default(cuid())
   customerId      String
-  customer        User      @relation("CustomerJobs", fields: [customerId], references: [id])
+  customer        User            @relation("CustomerJobs", fields: [customerId], references: [id])
   categoryId      String
   category        ServiceCategory @relation(fields: [categoryId], references: [id])
   subServiceId    String?
-  subService      SubService? @relation(fields: [subServiceId], references: [id])
+  subService      SubService?     @relation(fields: [subServiceId], references: [id])
   title           String
   description     String
-  photos          String[]  @default([])
-  urgency         Urgency   @default(TODAY)
+  photos          String[]        @default([])
+  urgency         Urgency         @default(TODAY)
   scheduledAt     DateTime?
   city            String
   areaLabel       String
@@ -281,14 +402,15 @@ model Job {
   lng             Float
   geohash         String
   budgetPKR       Int?
-  status          JobStatus @default(OPEN)
+  status          JobStatus       @default(OPEN)
   biddingClosesAt DateTime
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
-  bids         Bid[]
-  booking      Booking?
+  bids           Bid[]
+  booking        Booking?
   dispatchAlerts DispatchAlert[]
+  planVisit      PlanVisit?
 
   @@index([status])
   @@index([geohash])
@@ -309,22 +431,22 @@ model DispatchAlert {
 }
 
 model Bid {
-  id              String   @id @default(cuid())
+  id              String          @id @default(cuid())
   jobId           String
-  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  job             Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
   providerId      String
   provider        ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
   userId          String
-  user            User     @relation(fields: [userId], references: [id])
+  user            User            @relation(fields: [userId], references: [id])
   pricePKR        Int
   etaMinutes      Int
   message         String?
   itemized        Json?
-  status          BidStatus @default(PENDING)
+  status          BidStatus       @default(PENDING)
   declineReason   String?
   counterPricePKR Int?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   booking Booking?
 
@@ -334,67 +456,101 @@ model Bid {
 }
 
 model Booking {
-  id            String   @id @default(cuid())
-  jobId         String   @unique
-  job           Job      @relation(fields: [jobId], references: [id])
-  bidId         String   @unique
-  bid           Bid      @relation(fields: [bidId], references: [id])
-  customerId    String
-  customer      User     @relation("CustomerBookings", fields: [customerId], references: [id])
-  providerUserId String
-  providerUser  User     @relation("ProviderBookings", fields: [providerUserId], references: [id])
-  providerId    String
+  id              String          @id @default(cuid())
+  jobId           String          @unique
+  job             Job             @relation(fields: [jobId], references: [id])
+  bidId           String          @unique
+  bid             Bid             @relation(fields: [bidId], references: [id])
+  customerId      String
+  customer        User            @relation("CustomerBookings", fields: [customerId], references: [id])
+  providerUserId  String
+  providerUser    User            @relation("ProviderBookings", fields: [providerUserId], references: [id])
+  providerId      String
   providerProfile ProviderProfile @relation("ProviderProfileBookings", fields: [providerId], references: [id])
-  totalPKR      Int
-  commissionPKR Int
-  payoutPKR     Int
-  status        BookingStatus @default(PENDING_PAYMENT)
+  totalPKR        Int
+  commissionPKR   Int
+  payoutPKR       Int
+  status          BookingStatus   @default(PENDING_PAYMENT)
+  matchType       MatchType       @default(BID)
   paymentDeadline DateTime
-  timeline      Json     @default("{}")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  timeline        Json            @default("{}")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
-  payment       Payment?
-  payout        Payout?
-  locationPings LocationPing[]
-  review        Review?
+  payment        Payment?
+  payout         Payout?
+  locationPings  LocationPing[]
+  review         Review?
   customerReview CustomerReview?
-  messages      Message[]
-  dispute       Dispute?
+  messages       Message[]
+  dispute        Dispute?
+  changeOrders   ChangeOrder[]
 
   @@index([status])
   @@index([customerId])
   @@index([providerUserId])
 }
 
+enum ChangeOrderStatus {
+  PENDING
+  DECLINED
+  AWAITING_PAYMENT
+  PAID
+  CONFIRMED
+}
+
+// Provider proposes extra on-site work + price; customer approves and pays
+// the difference into escrow before the extra work happens (Master Brief
+// FAQ already promises this flow — Competitive Edge Addendum §2.3).
+model ChangeOrder {
+  id             String            @id @default(cuid())
+  bookingId      String
+  booking        Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  proposedById   String
+  proposedBy     User              @relation("ChangeOrderProposer", fields: [proposedById], references: [id])
+  description    String
+  photoUrl       String?
+  extraAmountPKR Int
+  status         ChangeOrderStatus @default(PENDING)
+  paymentMethod  PaymentMethod?
+  proofImageUrl  String?
+  verifiedAt     DateTime?
+  verifiedBy     String?
+  createdAt      DateTime          @default(now())
+  respondedAt    DateTime?
+
+  @@index([bookingId])
+  @@index([status])
+}
+
 model Payment {
-  id            String   @id @default(cuid())
-  bookingId     String   @unique
-  booking       Booking  @relation(fields: [bookingId], references: [id])
+  id            String        @id @default(cuid())
+  bookingId     String        @unique
+  booking       Booking       @relation(fields: [bookingId], references: [id])
   amountPKR     Int
   method        PaymentMethod
   proofImageUrl String?
   status        PaymentStatus @default(SUBMITTED)
   verifiedAt    DateTime?
   verifiedBy    String?
-  createdAt     DateTime @default(now())
+  createdAt     DateTime      @default(now())
 
   @@index([status])
 }
 
 model Payout {
-  id         String   @id @default(cuid())
-  bookingId  String   @unique
-  booking    Booking  @relation(fields: [bookingId], references: [id])
+  id         String          @id @default(cuid())
+  bookingId  String          @unique
+  booking    Booking         @relation(fields: [bookingId], references: [id])
   providerId String
   provider   ProviderProfile @relation(fields: [providerId], references: [id])
   amountPKR  Int
   method     PayoutMethod
   accountRef String?
-  status     PayoutStatus @default(QUEUED)
+  status     PayoutStatus    @default(QUEUED)
   sentAt     DateTime?
   adminNote  String?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime        @default(now())
 
   @@index([status])
   @@index([providerId])
@@ -487,26 +643,139 @@ model Lead {
   @@index([trade, city])
 }
 
-model Dispute {
+// Waitlist capture only for now — Competitive Edge Addendum §2.7/§3.6:
+// full property-manager role, bulk job posting, and consolidated invoicing
+// are scoped as a separate future GTM motion, not a launch deliverable.
+model BusinessWaitlistEntry {
   id          String   @id @default(cuid())
-  bookingId   String   @unique
-  booking     Booking  @relation(fields: [bookingId], references: [id])
-  openedById  String
-  openedBy    User     @relation("DisputeOpener", fields: [openedById], references: [id])
-  reason      String
-  photos      String[] @default([])
-  resolution  DisputeResolution?
-  resolvedBy  String?
+  companyName String
+  contactName String
+  phone       String
+  email       String?
+  unitCount   Int?
+  city        String?
   notes       String?
   createdAt   DateTime @default(now())
-  resolvedAt  DateTime?
+}
+
+model Dispute {
+  id         String             @id @default(cuid())
+  bookingId  String             @unique
+  booking    Booking            @relation(fields: [bookingId], references: [id])
+  openedById String
+  openedBy   User               @relation("DisputeOpener", fields: [openedById], references: [id])
+  reason     String
+  photos     String[]           @default([])
+  resolution DisputeResolution?
+  resolvedBy String?
+  notes      String?
+  createdAt  DateTime           @default(now())
+  resolvedAt DateTime?
 }
 
 model SiteSettings {
-  id                  String   @id @default("singleton")
-  activeTheme         String   @default("electric-amber")
-  defaultCommissionPct Float   @default(12)
+  id                    String   @id @default("singleton")
+  activeTheme           String   @default("electric-amber")
+  defaultCommissionPct  Float    @default(12)
   whatsappSupportNumber String?
-  featureFlags        Json     @default("{}")
+  featureFlags          Json     @default("{}")
+  updatedAt             DateTime @updatedAt
+}
+
+// Display-only FX rates, admin-editable (no paid FX API wired). Rate is
+// "units of this currency per 1 PKR" — e.g. USD rate 0.0036 means
+// PKR 1,000 displays as ~$3.60.
+model ExchangeRate {
+  currency   Currency @id
+  ratePerPKR Float
+  updatedAt  DateTime @updatedAt
+}
+
+// Geo-Localized Landing Page Addendum v5 — one admin-editable row per
+// country, replacing the hardcoded COUNTRY_MARKETS map in geoDetect.ts.
+// Deliberately does NOT duplicate an exchange rate here — currency is
+// shared across countries (DE/AT/CH all use EUR) so the rate stays owned
+// by ExchangeRate.currency, joined via this row's `currency` field.
+model LocaleConfig {
+  countryCode         String   @id // ISO 3166-1 alpha-2, e.g. "PK"
+  countryName         String
+  language            Language @default(en)
+  direction           String   @default("ltr") // "ltr" | "rtl"
+  currency            Currency @default(PKR)
+  paymentMethodsShown String[] @default([])
+  legalDisclaimer     String   @default("")
+  isLive              Boolean  @default(false)
+  citiesLive          String[] @default([])
   updatedAt           DateTime @updatedAt
+}
+
+// Country-level "notify me when you launch here" capture for LocaleConfig
+// rows with isLive = false — distinct from BusinessWaitlistEntry (that one
+// is B2B property-manager-specific with different required fields).
+model CountryWaitlistEntry {
+  id          String   @id @default(cuid())
+  countryCode String
+  email       String
+  name        String?
+  city        String?
+  createdAt   DateTime @default(now())
+
+  @@index([countryCode])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Accounting — double-entry bookkeeping (Chart of Accounts, General Journal,
+// General Ledger). All amounts are whole PKR, matching every other money
+// field in this schema. Auto-posted on payment verification, payout
+// mark-sent, and dispute full-refund resolution (see src/lib/accounting/);
+// admins can also post manual entries directly from /admin/accounting.
+// ─────────────────────────────────────────────────────────────────────────
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+model Account {
+  id        String      @id @default(cuid())
+  code      String      @unique
+  name      String
+  type      AccountType
+  isSystem  Boolean     @default(false) // system accounts are used by auto-posting and can't be deleted
+  createdAt DateTime    @default(now())
+
+  lines JournalLine[]
+}
+
+model JournalEntry {
+  id          String   @id @default(cuid())
+  date        DateTime @default(now())
+  memo        String
+  source      String // "AUTO_PAYMENT_VERIFIED" | "AUTO_PAYOUT_SENT" | "AUTO_DISPUTE_REFUND" | "MANUAL"
+  referenceId String? // bookingId / paymentId / payoutId / disputeId for auto entries
+  createdById String?
+  createdBy   User?    @relation("JournalEntryPoster", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+
+  lines JournalLine[]
+
+  @@index([date])
+  @@index([source])
+}
+
+model JournalLine {
+  id        String       @id @default(cuid())
+  entryId   String
+  entry     JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  accountId String
+  account   Account      @relation(fields: [accountId], references: [id])
+  debitPKR  Int          @default(0)
+  creditPKR Int          @default(0)
+  createdAt DateTime     @default(now())
+
+  @@index([accountId])
+  @@index([entryId])
 }

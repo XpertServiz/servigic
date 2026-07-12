@@ -4,7 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { runExpirySweep } from "@/lib/expiry";
 import { haversineKm } from "@/lib/geo";
 import { distanceBand, proSerial } from "@/lib/anon";
+import { TRADE_LABELS } from "@/lib/trades";
 import { BidList } from "./BidList";
+import { InstantMatchOffer } from "./InstantMatchOffer";
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await runExpirySweep();
@@ -37,6 +39,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     ratingCount: bid.provider.ratingCount,
     jobsCompleted: bid.provider.jobsCompleted,
     verificationLevel: bid.provider.verificationLevel,
+    tradeIcon: TRADE_LABELS[bid.provider.trades[0]]?.icon ?? "👤",
     distanceBand:
       bid.provider.baseLat && bid.provider.baseLng
         ? distanceBand(haversineKm(job.lat, job.lng, bid.provider.baseLat, bid.provider.baseLng))
@@ -55,6 +58,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           {job.status.replace("_", " ")}
         </span>
       </div>
+
+      {job.urgency === "EMERGENCY" && job.status === "OPEN" && <InstantMatchOffer jobId={job.id} />}
 
       <BidList bids={bids} jobStatus={job.status} />
     </div>

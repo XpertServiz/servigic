@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { disputeResolveSchema } from "@/lib/validation/booking";
 import { notify } from "@/lib/notify";
+import { postJournalEntry, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole("ADMIN");
@@ -57,6 +58,23 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         ]
       : []),
   ]);
+
+  // FULL_REFUND never creates a Payout row (nothing goes to the provider), so
+  // unlike RELEASE/PARTIAL_REFUND — which post via the payout mark-sent
+  // route once admin actually sends that money — this is the only place the
+  // full-refund cash movement gets recorded. Zero commission recognized.
+  if (resolution === "FULL_REFUND") {
+    await postJournalEntry({
+      memo: `Full refund to customer — dispute on booking ${dispute.bookingId.slice(0, 8)}`,
+      source: "AUTO_DISPUTE_REFUND",
+      referenceId: dispute.bookingId,
+      createdById: auth.session.user.id,
+      lines: [
+        { accountCode: SYSTEM_ACCOUNTS.ESCROW_PAYABLE, debitPKR: dispute.booking.totalPKR },
+        { accountCode: SYSTEM_ACCOUNTS.CASH, creditPKR: dispute.booking.totalPKR },
+      ],
+    });
+  }
 
   await Promise.allSettled([
     notify({

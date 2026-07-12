@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Payment, Booking, Job } from "@prisma/client";
+import { PhotoGallery } from "@/components/ui/PhotoGallery";
 
 type PaymentWithBooking = Payment & {
   booking: Booking & { job: Job; customer: { name: string; phone: string } };
@@ -39,8 +40,9 @@ export function PaymentRow({ payment }: { payment: PaymentWithBooking }) {
         <div className="font-display text-xl font-bold text-accent">PKR {payment.amountPKR.toLocaleString()}</div>
       </div>
       {payment.proofImageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={payment.proofImageUrl} alt="Payment proof" className="mb-3 max-h-64 rounded-[10px] border border-border-subtle" />
+        <div className="mb-3">
+          <PhotoGallery urls={[payment.proofImageUrl]} label="Payment proof" thumbClassName="h-24 w-24" />
+        </div>
       )}
       <div className="flex gap-2">
         <button

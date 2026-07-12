@@ -23,7 +23,7 @@ export function FinalCta() {
         <div className="flex flex-wrap justify-center gap-6 text-[13px] text-text-dim text-text-muted">
           {["Free to post", "Escrow protected", "Verified pros", "7-day warranty"].map((c) => (
             <span key={c}>
-              <span className="mr-1 text-secondary">✓</span>
+              <span className="me-1 text-secondary">✓</span>
               {c}
             </span>
           ))}

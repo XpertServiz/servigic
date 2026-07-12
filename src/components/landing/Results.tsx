@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Eyebrow } from "@/components/landing/Eyebrow";
+import { detectMarket } from "@/lib/geoDetect";
+import { formatApproxFromPKR } from "@/lib/currency";
 
 const MIN_COMPLETED_JOBS = 20;
 
@@ -21,8 +23,9 @@ async function getStats() {
 }
 
 export async function Results() {
-  const { completedJobs, payoutTotal, reviews } = await getStats();
+  const [{ completedJobs, payoutTotal, reviews }, market] = await Promise.all([getStats(), detectMarket()]);
   const belowThreshold = completedJobs < MIN_COMPLETED_JOBS;
+  const payoutLabel = belowThreshold ? "—" : await formatApproxFromPKR(payoutTotal, market.currency);
 
   return (
     <section className="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
@@ -44,9 +47,7 @@ export async function Results() {
           <div className="mt-1.5 text-sm text-text-muted">Jobs completed</div>
         </div>
         <div className="rounded-[14px] border border-border-subtle bg-bg-elevated p-7 text-center">
-          <div className="font-display text-4xl font-bold text-accent">
-            {belowThreshold ? "—" : `PKR ${payoutTotal.toLocaleString()}`}
-          </div>
+          <div className="font-display text-4xl font-bold text-accent">{payoutLabel}</div>
           <div className="mt-1.5 text-sm text-text-muted">Paid out to pros</div>
         </div>
         <div className="rounded-[14px] border border-border-subtle bg-bg-elevated p-7 text-center">

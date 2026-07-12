@@ -81,6 +81,7 @@ export default function SignupPage() {
             <label className="mb-1.5 block text-sm font-semibold text-text-muted">Full name</label>
             <input
               required
+              autoComplete="name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 text-text outline-none focus:border-accent"
@@ -90,6 +91,7 @@ export default function SignupPage() {
             <label className="mb-1.5 block text-sm font-semibold text-text-muted">Phone number</label>
             <input
               required
+              autoComplete="tel"
               placeholder="03001234567"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -97,9 +99,11 @@ export default function SignupPage() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-text-muted">Email (optional)</label>
+            <label className="mb-1.5 block text-sm font-semibold text-text-muted">Email</label>
             <input
               type="email"
+              required
+              autoComplete="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 text-text outline-none focus:border-accent"
@@ -124,6 +128,7 @@ export default function SignupPage() {
             <input
               type="password"
               required
+              autoComplete="new-password"
               minLength={8}
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}

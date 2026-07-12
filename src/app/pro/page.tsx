@@ -1,8 +1,20 @@
 import type { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/Button";
 import { EarningsCalculator } from "@/components/landing/EarningsCalculator";
+import { VerificationBadge } from "@/components/ui/VerificationBadge";
+
+// Real count only — hidden below threshold rather than showing a fabricated
+// number (same rule ProofTicker follows: Master Brief §7A/§12, no fake stats).
+const MIN_PROVIDERS_TO_SHOW = 5;
+
+const COMPARISON_ROWS = [
+  { feature: "Cost to view or bid on a job", servigic: "PKR 0", competitor: "Charged per lead, regardless of outcome" },
+  { feature: "Cost if you don't win the job", servigic: "PKR 0", competitor: "You still paid for the lead" },
+  { feature: "Commission on completed jobs", servigic: "10–12%", competitor: "N/A — already paid up front" },
+];
 
 export const metadata: Metadata = {
   title: "Become a Servigic Pro — No Lead Fees, Ever",
@@ -10,12 +22,15 @@ export const metadata: Metadata = {
 };
 
 const LADDER = [
-  { level: "Level 1", title: "Approved", desc: "CNIC + selfie uploaded, admin-approved. You can bid on jobs.", commission: "12%" },
-  { level: "Level 2", title: "Verified Pro", desc: "Police verification certificate. Priority dispatch + badge on your bid cards.", commission: "11%" },
-  { level: "Level 3", title: "Gold Ustad", desc: "10 completed jobs at 4.5★ or higher.", commission: "10%" },
+  { badgeLevel: 1, level: "Level 1", title: "Approved", desc: "CNIC + selfie uploaded, admin-approved. You can bid on jobs.", commission: "12%" },
+  { badgeLevel: 2, level: "Level 2", title: "Verified Pro", desc: "Police verification certificate. Priority dispatch + badge on your bid cards.", commission: "11%" },
+  { badgeLevel: 3, level: "Level 3", title: "Gold Ustad", desc: "10 completed jobs at 4.5★ or higher.", commission: "10%" },
 ];
 
-export default function ProLandingPage() {
+export default async function ProLandingPage() {
+  const activeProviders = await prisma.providerProfile.count({ where: { verificationLevel: { gte: 1 } } });
+  const showCount = activeProviders >= MIN_PROVIDERS_TO_SHOW;
+
   return (
     <>
       <Navbar />
@@ -33,6 +48,42 @@ export default function ProLandingPage() {
           </Button>
         </section>
 
+        <section className="mx-auto max-w-[700px] px-6 pt-16 text-center">
+          <div className="rounded-[16px] border border-secondary/30 bg-secondary/10 p-8">
+            <div className="font-display text-5xl font-bold text-secondary">PKR 0</div>
+            <p className="mt-2 text-sm text-text-muted">
+              {showCount
+                ? `Spent on leads by our ${activeProviders} active providers last month`
+                : "Spent on leads. Ever. Every other platform charges you just to see a job — we don't."}
+            </p>
+          </div>
+
+          <div className="mt-8 overflow-x-auto">
+            <table className="w-full min-w-[480px] border-collapse text-sm">
+              <thead>
+                <tr>
+                  <th className="border-b border-border-subtle p-3 text-left" />
+                  <th className="border-b border-border-subtle p-3 text-left text-xs font-semibold uppercase tracking-wide text-accent">
+                    Servigic
+                  </th>
+                  <th className="border-b border-border-subtle p-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
+                    Typical lead-gen platform
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON_ROWS.map((r) => (
+                  <tr key={r.feature}>
+                    <td className="border-b border-border-subtle p-3 text-left font-semibold text-text-muted">{r.feature}</td>
+                    <td className="border-b border-border-subtle p-3 text-left font-bold text-secondary">{r.servigic}</td>
+                    <td className="border-b border-border-subtle p-3 text-left text-danger">{r.competitor}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
         <section className="mx-auto max-w-[1000px] px-6 py-20" id="earnings">
           <h2 className="mb-8 text-center font-display text-3xl font-bold uppercase">Earnings Calculator</h2>
           <div className="mx-auto max-w-md rounded-[16px] border border-accent/30 bg-bg-elevated p-8">
@@ -45,7 +96,10 @@ export default function ProLandingPage() {
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {LADDER.map((l) => (
               <div key={l.level} className="rounded-[14px] border border-border-subtle bg-bg-elevated p-6">
-                <div className="mb-1 text-xs font-bold uppercase tracking-wide text-accent">{l.level}</div>
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wide text-accent">{l.level}</span>
+                  <VerificationBadge level={l.badgeLevel} />
+                </div>
                 <h3 className="mb-2 text-lg font-bold">{l.title}</h3>
                 <p className="mb-4 text-sm text-text-muted">{l.desc}</p>
                 <div className="font-display text-2xl font-bold text-secondary">{l.commission}</div>

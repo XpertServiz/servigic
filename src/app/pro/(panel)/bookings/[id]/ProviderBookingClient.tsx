@@ -6,7 +6,10 @@ import { toast } from "sonner";
 import { StatusTimeline } from "@/components/booking/StatusTimeline";
 import { LiveMap } from "@/components/booking/LiveMap";
 import { ChatBox } from "@/components/booking/ChatBox";
+import { PhotoUploadField } from "@/components/ui/PhotoUploadField";
 import { PROVIDER_REVIEW_TAGS } from "@/lib/validation/booking";
+
+type ChangeOrderView = { id: string; description: string; extraAmountPKR: number; status: string };
 
 type BookingView = {
   id: string;
@@ -21,6 +24,15 @@ type BookingView = {
   customerPhone: string | null;
   hasReview: boolean;
   unlocked: boolean;
+  changeOrders: ChangeOrderView[];
+};
+
+const CHANGE_ORDER_STATUS_LABEL: Record<string, string> = {
+  PENDING: "Waiting on customer response",
+  DECLINED: "Declined by customer",
+  AWAITING_PAYMENT: "Approved — waiting on customer payment",
+  PAID: "Payment submitted — awaiting admin verification",
+  CONFIRMED: "Funded — go ahead",
 };
 
 const NEXT_ACTION: Record<string, { next: string; label: string } | undefined> = {
@@ -138,6 +150,25 @@ export function ProviderBookingClient({ booking, currentUserId }: { booking: Boo
         </button>
       )}
 
+      {["ON_MY_WAY", "ARRIVED", "WORKING"].includes(booking.status) && (
+        <div className="mb-6">
+          {booking.changeOrders.length > 0 && (
+            <div className="mb-3 flex flex-col gap-2">
+              {booking.changeOrders.map((co) => (
+                <div key={co.id} className="rounded-[10px] border border-border-subtle bg-bg-elevated p-4 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">{co.description}</span>
+                    <span className="font-display font-bold text-accent">+PKR {co.extraAmountPKR.toLocaleString()}</span>
+                  </div>
+                  <div className="mt-1 text-xs text-text-muted">{CHANGE_ORDER_STATUS_LABEL[co.status]}</div>
+                </div>
+              ))}
+            </div>
+          )}
+          <ProposeChangeOrderForm bookingId={booking.id} />
+        </div>
+      )}
+
       {booking.status === "DONE" && (
         <div className="mb-6 rounded-[12px] border border-border-subtle bg-bg-elevated p-4 text-sm text-text-muted">
           Waiting for the customer to confirm the job is done.
@@ -151,6 +182,93 @@ export function ProviderBookingClient({ booking, currentUserId }: { booking: Boo
           <ChatBox bookingId={booking.id} currentUserId={currentUserId} unlocked={booking.unlocked} />
         </div>
       )}
+    </div>
+  );
+}
+
+function ProposeChangeOrderForm({ bookingId }: { bookingId: string }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [pending, setPending] = useState(false);
+
+  async function submit() {
+    if (!description.trim() || !amount) return;
+    setPending(true);
+    try {
+      const res = await fetch(`/api/bookings/${bookingId}/change-orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: description.trim(), extraAmountPKR: Number(amount), photoUrl: photoUrl || undefined }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Failed to propose extra work");
+        return;
+      }
+      toast.success("Change order sent to customer");
+      setOpen(false);
+      setDescription("");
+      setAmount("");
+      setPhotoUrl("");
+      router.refresh();
+    } finally {
+      setPending(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="rounded-[8px] border border-accent/40 px-4 py-2 text-sm font-semibold text-accent"
+      >
+        + Found extra work on-site? Propose a Change Order
+      </button>
+    );
+  }
+
+  return (
+    <div className="rounded-[12px] border border-accent/30 bg-accent/10 p-4">
+      <h4 className="mb-3 font-bold">Propose extra work</h4>
+      <textarea
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        placeholder="What extra work is needed?"
+        rows={2}
+        className="mb-3 w-full rounded-[8px] border border-border-subtle bg-bg-elevated px-3 py-2 text-sm outline-none focus:border-accent"
+      />
+      <input
+        type="number"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        placeholder="Extra amount in PKR"
+        className="mb-3 w-full rounded-[8px] border border-border-subtle bg-bg-elevated px-3 py-2 text-sm outline-none focus:border-accent"
+      />
+      <div className="mb-3">
+        <PhotoUploadField
+          endpoint="jobPhotos"
+          urls={photoUrl ? [photoUrl] : []}
+          maxCount={1}
+          label="Photo"
+          thumbClassName="h-16 w-16"
+          onAdd={(newUrls) => newUrls[0] && setPhotoUrl(newUrls[0])}
+        />
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={submit}
+          disabled={pending || !description.trim() || !amount}
+          className="rounded-[8px] bg-accent px-4 py-2 text-sm font-bold text-accent-foreground disabled:opacity-60"
+        >
+          {pending ? "Sending…" : "Send to Customer"}
+        </button>
+        <button onClick={() => setOpen(false)} className="rounded-[8px] border border-border-subtle px-4 py-2 text-sm font-semibold">
+          Cancel
+        </button>
+      </div>
     </div>
   );
 }

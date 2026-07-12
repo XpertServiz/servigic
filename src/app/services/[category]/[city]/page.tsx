@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/Button";
+import { detectMarket } from "@/lib/geoDetect";
+import { formatApproxFromPKR } from "@/lib/currency";
+import { getPriceBenchmark } from "@/lib/priceBenchmark";
 
 export const dynamic = "force-dynamic";
 
@@ -22,20 +25,13 @@ async function getData(categorySlug: string, city: string) {
   if (!category) return null;
 
   const cityLabel = titleCase(city);
-  const weekAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-  const [acceptedBids, jobCount] = await Promise.all([
-    prisma.bid.findMany({
-      where: { status: "ACCEPTED", job: { categoryId: category.id, city: cityLabel }, createdAt: { gte: weekAgo } },
-      select: { pricePKR: true },
-    }),
+  const [benchmark, jobCount] = await Promise.all([
+    getPriceBenchmark(category.id, cityLabel),
     prisma.job.count({ where: { categoryId: category.id, city: cityLabel } }),
   ]);
 
-  const avgWinningBid =
-    acceptedBids.length >= 5 ? Math.round(acceptedBids.reduce((s, b) => s + b.pricePKR, 0) / acceptedBids.length) : null;
-
-  return { category, cityLabel, avgWinningBid, jobCount };
+  return { category, cityLabel, benchmark, jobCount };
 }
 
 export async function generateMetadata({
@@ -62,8 +58,13 @@ const FAQ_TEMPLATE = (categoryName: string, cityLabel: string) => [
 
 export default async function ServiceCityPage({ params }: { params: Promise<{ category: string; city: string }> }) {
   const { category, city } = await params;
-  const data = await getData(category, city);
+  const [data, market] = await Promise.all([getData(category, city), detectMarket()]);
   if (!data) notFound();
+
+  const [avgWinningBidLabel, minPriceLabel] = await Promise.all([
+    data.benchmark ? formatApproxFromPKR(data.benchmark.avgWinningPKR, market.currency) : Promise.resolve(null),
+    data.category.minPricePKR ? formatApproxFromPKR(data.category.minPricePKR, market.currency) : Promise.resolve(null),
+  ]);
 
   const faqs = FAQ_TEMPLATE(data.category.name, data.cityLabel);
   const faqJsonLd = {
@@ -95,18 +96,16 @@ export default async function ServiceCityPage({ params }: { params: Promise<{ ca
 
           <div className="mb-10 flex flex-wrap gap-6">
             <div className="rounded-[12px] border border-border-subtle bg-bg-elevated px-5 py-4">
-              <div className="font-display text-2xl font-bold text-accent">
-                {data.avgWinningBid ? `PKR ${data.avgWinningBid.toLocaleString()}` : "Get real bids"}
-              </div>
+              <div className="font-display text-2xl font-bold text-accent">{avgWinningBidLabel ?? "Get real bids"}</div>
               <div className="text-xs text-text-muted">
-                {data.avgWinningBid ? "Avg. winning bid (30 days)" : "Price varies by job — post to compare"}
+                {avgWinningBidLabel
+                  ? `Avg. winning bid (${data.benchmark!.sampleSize} jobs, ${data.benchmark!.windowDays} days)`
+                  : "Price varies by job — post to compare"}
               </div>
             </div>
-            {data.category.minPricePKR && (
+            {minPriceLabel && (
               <div className="rounded-[12px] border border-border-subtle bg-bg-elevated px-5 py-4">
-                <div className="font-display text-2xl font-bold text-accent">
-                  PKR {data.category.minPricePKR.toLocaleString()}+
-                </div>
+                <div className="font-display text-2xl font-bold text-accent">{minPriceLabel}+</div>
                 <div className="text-xs text-text-muted">Typical starting price</div>
               </div>
             )}

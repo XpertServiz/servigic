@@ -1,0 +1,36 @@
+{
+  "nav": {
+    "howItWorks": "So funktioniert's",
+    "services": "Dienstleistungen",
+    "forPros": "Für Profis",
+    "faq": "FAQ",
+    "login": "Anmelden",
+    "postJob": "Auftrag einstellen"
+  },
+  "hero": {
+    "eyebrow": "Profis bieten in Minuten — Sie wählen den Preis",
+    "line1": "KAPUTT?",
+    "line2": "REPARIERT",
+    "line3": "HEUTE.",
+    "sub": "Stellen Sie Ihren Auftrag ein. Geprüfte Profis bieten sofort mit. Ihr Geld bleibt treuhänderisch geschützt, bis die Arbeit erledigt ist.",
+    "ctaPrimary": "Auftrag einstellen — Angebote in Minuten",
+    "ctaSecondary": "So funktioniert's ansehen — 60 Sek."
+  },
+  "common": {
+    "appName": "Servigic"
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "FRAGEN? HIER SIND DIE ANTWORTEN.",
+    "items": [
+      { "q": "Ist das Einstellen eines Auftrags kostenlos?", "a": "Ja — das Einstellen eines Auftrags ist immer kostenlos. Sie zahlen erst, wenn Sie ein Angebot annehmen, und diese Zahlung geht direkt in ein geschütztes Treuhandkonto." },
+      { "q": "Wie schützt mich das Treuhandkonto?", "a": "Ihre Zahlung wird von Servigic verwahrt, nicht vom Profi, bis Sie die Fertigstellung des Auftrags bestätigen. Bei Problemen können Sie vor der Freigabe der Mittel einen Streitfall eröffnen." },
+      { "q": "Was, wenn der Profi vor Ort zusätzliche Arbeiten feststellt?", "a": "Er reicht einen Änderungsauftrag mit Foto und Preis ein — Sie genehmigen ihn (und zahlen die Differenz ins Treuhandkonto), bevor zusätzliche Arbeiten beginnen." },
+      { "q": "Was, wenn ich nicht zufrieden bin?", "a": "Jeder Auftrag hat eine 7-tägige Gewährleistung auf die Ausführung. Eröffnen Sie einen Streitfall — unser Team prüft Fotos beider Seiten und entscheidet über Freigabe, teilweise oder vollständige Rückerstattung." },
+      { "q": "Warum sehe ich die Telefonnummer des Profis nicht vor der Zahlung?", "a": "Kontaktdaten bleiben verborgen, bis die Zahlung gesichert ist — das verhindert Geschäfte außerhalb der Plattform, bei denen Sie ohne jeglichen Schutz dastehen würden." },
+      { "q": "Wie schnell treffen Angebote ein?", "a": "Bei Notfall-Aufträgen erhalten die meisten Kunden ihr erstes Angebot in weniger als 10 Minuten, da jeder passende Profi in der Nähe sofort benachrichtigt wird." },
+      { "q": "Wie werden Profis bezahlt?", "a": "Direkt per EasyPaisa, JazzCash oder Banküberweisung, nachdem Sie die Fertigstellung bestätigt haben, abzüglich der 12% Provision von Servigic." },
+      { "q": "In welchen Städten?", "a": "Start in Karatschi, dann Lahore und Islamabad/Rawalpindi, gefolgt vom Golf-Raum und Nordamerika." }
+    ]
+  }
+}

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { runExpirySweep } from "@/lib/expiry";
+import { detectMarket } from "@/lib/geoDetect";
 import { BookingDetailClient } from "./BookingDetailClient";
 
 const UNLOCKED_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE", "COMPLETED"];
@@ -9,7 +10,7 @@ const UNLOCKED_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE
 export default async function CustomerBookingPage({ params }: { params: Promise<{ id: string }> }) {
   await runExpirySweep();
   const { id } = await params;
-  const session = await auth();
+  const [session, market] = await Promise.all([auth(), detectMarket()]);
 
   const booking = await prisma.booking.findUnique({
     where: { id },
@@ -20,6 +21,7 @@ export default async function CustomerBookingPage({ params }: { params: Promise<
       payment: true,
       dispute: true,
       review: true,
+      changeOrders: { orderBy: { createdAt: "desc" } },
     },
   });
 
@@ -46,7 +48,16 @@ export default async function CustomerBookingPage({ params }: { params: Promise<
         hasReview: Boolean(booking.review),
         dispute: booking.dispute ? { resolution: booking.dispute.resolution } : null,
         unlocked,
+        changeOrders: booking.changeOrders.map((c) => ({
+          id: c.id,
+          description: c.description,
+          photoUrl: c.photoUrl,
+          extraAmountPKR: c.extraAmountPKR,
+          status: c.status,
+          proofImageUrl: c.proofImageUrl,
+        })),
       }}
+      legalDisclaimer={market.legalDisclaimer}
     />
   );
 }

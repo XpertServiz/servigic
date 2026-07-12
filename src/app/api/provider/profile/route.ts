@@ -21,7 +21,7 @@ export async function PUT(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
-  const { agreementAccepted, ...data } = parsed.data;
+  const { agreementAccepted, cnicUrl, selfieUrl, policeCertUrl, photoQualityOk, ...data } = parsed.data;
   const geohash = encodeGeohash(data.baseLat, data.baseLng);
 
   const profile = await prisma.providerProfile.update({
@@ -29,6 +29,13 @@ export async function PUT(req: Request) {
     data: {
       ...data,
       geohash,
+      // "" means "nothing new uploaded" — leave whatever was already saved.
+      ...(cnicUrl ? { cnicUrl } : {}),
+      // photoQualityOk only ever flips alongside a genuinely new compliant
+      // upload (SelfieUploadField always sends both together) — never
+      // settable independently of an actual selfieUrl change.
+      ...(selfieUrl ? { selfieUrl, photoQualityOk: Boolean(photoQualityOk) } : {}),
+      ...(policeCertUrl ? { policeCertUrl } : {}),
       ...(agreementAccepted ? { agreementAcceptedAt: new Date() } : {}),
     },
   });

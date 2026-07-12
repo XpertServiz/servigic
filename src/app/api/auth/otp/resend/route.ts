@@ -15,6 +15,6 @@ export async function POST(req: Request) {
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
-  await issueOtp(user.id, user.phone);
+  await issueOtp(user.id, user.phone, "PHONE_VERIFY", user.email);
   return NextResponse.json({ sent: true });
 }

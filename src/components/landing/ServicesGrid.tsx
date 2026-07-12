@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Eyebrow } from "@/components/landing/Eyebrow";
+import { detectMarket } from "@/lib/geoDetect";
+import { formatApproxFromPKR } from "@/lib/currency";
 
 const TRADE_ICONS: Record<string, string> = {
   PLUMBER: "🔧",
@@ -43,8 +45,12 @@ async function getCategories() {
 }
 
 export async function ServicesGrid() {
-  const categories = await getCategories();
+  const [categories, market] = await Promise.all([getCategories(), detectMarket()]);
   const defaultCity = "karachi";
+
+  const priceLabels = await Promise.all(
+    categories.map((c) => (c.minPricePKR ? formatApproxFromPKR(c.minPricePKR, market.currency) : Promise.resolve(null)))
+  );
 
   return (
     <section id="services" className="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
@@ -53,7 +59,7 @@ export async function ServicesGrid() {
         <h2 className="font-display text-[clamp(32px,5vw,52px)] font-bold uppercase leading-tight">12 TRADES. ONE APP.</h2>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-        {categories.map((c) => (
+        {categories.map((c, i) => (
           <Link
             key={c.trade}
             href={`/services/${c.slug}/${defaultCity}`}
@@ -64,7 +70,7 @@ export async function ServicesGrid() {
             </div>
             <h4 className="text-[15px] font-bold">{c.name}</h4>
             <small className="text-xs text-text-dim text-text-muted">
-              {c.minPricePKR ? `From PKR ${c.minPricePKR.toLocaleString()}` : "See pricing"}
+              {priceLabels[i] ? `From ${priceLabels[i]}` : "See pricing"}
             </small>
           </Link>
         ))}

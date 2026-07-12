@@ -36,3 +36,18 @@ export const PROVIDER_REVIEW_TAGS = ["Professional", "On time", "Clean work", "G
 export const messageSchema = z.object({
   body: z.string().trim().min(1).max(1000),
 });
+
+export const proposeChangeOrderSchema = z.object({
+  description: z.string().trim().min(5).max(500),
+  photoUrl: z.string().url().optional(),
+  extraAmountPKR: z.number().int().positive().max(1_000_000),
+});
+
+export const respondChangeOrderSchema = z.object({
+  action: z.enum(["APPROVE", "DECLINE"]),
+});
+
+export const payChangeOrderSchema = z.object({
+  method: z.enum(["JAZZCASH", "EASYPAISA", "BANK_TRANSFER", "CARD"]),
+  proofImageUrl: z.string().url(),
+});

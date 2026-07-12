@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { ProviderProfile } from "@prisma/client";
 import { TRADE_LABELS } from "@/lib/trades";
+import { ImageLightbox, type LightboxImage } from "@/components/ui/ImageLightbox";
+import { VerificationBadge } from "@/components/ui/VerificationBadge";
+import { ProviderAvatar } from "@/components/ui/ProviderAvatar";
 
 type ProviderWithUser = ProviderProfile & {
   user: { name: string; phone: string; city: string | null; createdAt: Date };
@@ -13,6 +16,13 @@ type ProviderWithUser = ProviderProfile & {
 export function ProviderRow({ provider }: { provider: ProviderWithUser }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const docs: LightboxImage[] = [
+    provider.cnicUrl ? { url: provider.cnicUrl, label: "CNIC" } : null,
+    provider.selfieUrl ? { url: provider.selfieUrl, label: "Selfie" } : null,
+    provider.policeCertUrl ? { url: provider.policeCertUrl, label: "Police Certificate" } : null,
+  ].filter((d): d is LightboxImage => d !== null);
 
   async function setLevel(level: number) {
     setPending(true);
@@ -46,11 +56,27 @@ export function ProviderRow({ provider }: { provider: ProviderWithUser }) {
     }
   }
 
+  function openDoc(label: string) {
+    const index = docs.findIndex((d) => d.label === label);
+    if (index >= 0) setLightboxIndex(index);
+  }
+
   return (
     <tr className="border-t border-border-subtle">
       <td className="p-4">
-        <div className="font-semibold">{provider.displayName || provider.user.name}</div>
-        <div className="text-xs text-text-muted">Pro #{provider.serialNumber}</div>
+        <div className="flex items-center gap-3">
+          <ProviderAvatar
+            photoUrl={provider.selfieUrl}
+            photoQualityOk={provider.photoQualityOk}
+            verificationLevel={provider.verificationLevel}
+            fallbackIcon={TRADE_LABELS[provider.trades[0]]?.icon ?? "👤"}
+            size="sm"
+          />
+          <div>
+            <div className="font-semibold">{provider.displayName || provider.user.name}</div>
+            <div className="text-xs text-text-muted">Pro #{provider.serialNumber}</div>
+          </div>
+        </div>
       </td>
       <td className="p-4 text-text-muted">
         {provider.user.phone}
@@ -61,16 +87,14 @@ export function ProviderRow({ provider }: { provider: ProviderWithUser }) {
         {provider.trades.map((t) => TRADE_LABELS[t]?.icon ?? "").join(" ") || "—"}
       </td>
       <td className="p-4">
-        <div className="flex gap-1 text-xs">
-          <span className={provider.cnicUrl ? "text-secondary" : "text-text-dim"}>CNIC</span>
-          <span className={provider.selfieUrl ? "text-secondary" : "text-text-dim"}>Selfie</span>
-          <span className={provider.policeCertUrl ? "text-secondary" : "text-text-dim"}>Police</span>
+        <div className="flex gap-2 text-xs">
+          <DocLink label="CNIC" available={Boolean(provider.cnicUrl)} onClick={() => openDoc("CNIC")} />
+          <DocLink label="Selfie" available={Boolean(provider.selfieUrl)} onClick={() => openDoc("Selfie")} />
+          <DocLink label="Police" available={Boolean(provider.policeCertUrl)} onClick={() => openDoc("Police Certificate")} />
         </div>
       </td>
       <td className="p-4">
-        <span className="rounded-full border border-border-subtle px-2.5 py-1 text-xs font-bold">
-          L{provider.verificationLevel}
-        </span>
+        <VerificationBadge level={provider.verificationLevel} />
       </td>
       <td className="p-4 text-text-muted">
         {provider.ratingCount > 0 ? `${provider.ratingAvg.toFixed(1)}★ (${provider.jobsCompleted})` : "—"}
@@ -96,6 +120,19 @@ export function ProviderRow({ provider }: { provider: ProviderWithUser }) {
           </button>
         </div>
       </td>
+
+      <ImageLightbox images={docs} openIndex={lightboxIndex} onClose={() => setLightboxIndex(null)} onNavigate={setLightboxIndex} />
     </tr>
+  );
+}
+
+function DocLink({ label, available, onClick }: { label: string; available: boolean; onClick: () => void }) {
+  if (!available) {
+    return <span className="text-text-dim">{label}</span>;
+  }
+  return (
+    <button onClick={onClick} className="font-semibold text-secondary underline-offset-2 hover:underline">
+      {label}
+    </button>
   );
 }
