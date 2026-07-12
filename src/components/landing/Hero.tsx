@@ -29,8 +29,8 @@ export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
       <style>{`
         @keyframes heroBgCycle {
           0% { opacity: 0; }
-          2% { opacity: 0.5; }
-          ${Math.round((100 * (SLOT_SECONDS - 0.6)) / CYCLE_SECONDS)}% { opacity: 0.5; }
+          2% { opacity: 0.7; }
+          ${Math.round((100 * (SLOT_SECONDS - 0.6)) / CYCLE_SECONDS)}% { opacity: 0.7; }
           ${Math.round((100 * SLOT_SECONDS) / CYCLE_SECONDS)}% { opacity: 0; }
           100% { opacity: 0; }
         }
