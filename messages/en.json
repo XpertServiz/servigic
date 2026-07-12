@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "howItWorks": "How It Works",
+    "services": "Services",
+    "forPros": "For Pros",
+    "faq": "FAQ",
+    "login": "Login",
+    "postJob": "Post a Job"
+  },
+  "hero": {
+    "eyebrow": "Pros bid in minutes — you pick the price",
+    "line1": "BROKEN?",
+    "line2": "FIXED",
+    "line3": "TODAY.",
+    "sub": "Post your job. Verified pros race to bid. Your money stays protected in escrow until the work is done.",
+    "ctaPrimary": "Post a Job — Get Bids in Minutes",
+    "ctaSecondary": "Watch How It Works — 60 sec"
+  },
+  "common": {
+    "appName": "Servigic"
+  }
+}

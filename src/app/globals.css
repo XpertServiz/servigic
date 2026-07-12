@@ -1,26 +1,91 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─── Servigic design tokens (§7A brand system + 4-preset theme switcher) ─── */
+:root,
+[data-theme="electric-amber"] {
+  --bg: #0a0b0f;
+  --bg-elevated: #12141a;
+  --bg-elevated-2: #171a22;
+  --border-subtle: #1f2330;
+  --text: #f5f5f7;
+  --text-muted: #9ca0ae;
+  --accent: #ffb020;
+  --accent-foreground: #0a0b0f;
+  --accent-glow: rgba(255, 176, 32, 0.35);
+  --secondary: #22c55e;
+  --secondary-foreground: #06170d;
+  --secondary-glow: rgba(34, 197, 94, 0.3);
+  --danger: #ef4444;
+}
+
+[data-theme="ocean-blue"] {
+  --accent: #3b82f6;
+  --accent-foreground: #06101f;
+  --accent-glow: rgba(59, 130, 246, 0.35);
+}
+
+[data-theme="crimson-pulse"] {
+  --accent: #fb4141;
+  --accent-foreground: #1a0505;
+  --accent-glow: rgba(251, 65, 65, 0.35);
+}
+
+[data-theme="violet-nova"] {
+  --accent: #a855f7;
+  --accent-foreground: #150a1f;
+  --accent-glow: rgba(168, 85, 247, 0.35);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-elevated-2: var(--bg-elevated-2);
+  --color-border-subtle: var(--border-subtle);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-danger: var(--danger);
+  --font-display: var(--font-space-grotesk);
+  --font-sans: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), Arial, Helvetica, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
 }

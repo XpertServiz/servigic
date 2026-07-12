@@ -1,0 +1,512 @@
+// Servigic — Prisma schema (Master Brief v1.1 §6)
+// Postgres via Supabase (or local Postgres for dev — see docker-compose.yml)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────────────────
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+  SUPPORT
+}
+
+enum Language {
+  en
+  ur
+  ar
+}
+
+enum Trade {
+  PLUMBER
+  ELECTRICIAN
+  AC_TECHNICIAN
+  SOLAR_INSTALLER
+  CARPENTER
+  PAINTER
+  APPLIANCE_REPAIR
+  CAR_MECHANIC
+  MOVERS
+  CLEANER
+  MASON
+  HANDYMAN
+}
+
+enum PayoutMethod {
+  EASYPAISA
+  JAZZCASH
+  BANK
+}
+
+enum Urgency {
+  EMERGENCY
+  TODAY
+  SCHEDULED
+}
+
+enum JobStatus {
+  OPEN
+  BOOKED
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+  CANCELLED
+  DISPUTED
+}
+
+enum BidStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  WITHDRAWN
+  COUNTERED
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  ON_MY_WAY
+  ARRIVED
+  WORKING
+  DONE
+  COMPLETED
+  CANCELLED
+  EXPIRED
+  DISPUTED
+}
+
+enum PaymentMethod {
+  JAZZCASH
+  EASYPAISA
+  BANK_TRANSFER
+  CARD
+}
+
+enum PaymentStatus {
+  SUBMITTED
+  VERIFIED
+  REJECTED
+}
+
+enum PayoutStatus {
+  QUEUED
+  SENT
+  CONFIRMED
+  FAILED
+}
+
+enum LeadSource {
+  GOOGLE_PLACES
+  MANUAL
+  REFERRAL
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  INTERESTED
+  ONBOARDED
+  NOT_INTERESTED
+  CALLBACK
+}
+
+enum DisputeResolution {
+  RELEASE
+  PARTIAL_REFUND
+  FULL_REFUND
+}
+
+enum NotificationType {
+  DISPATCH_ALERT
+  BID_RECEIVED
+  BID_ACCEPTED
+  BID_DECLINED
+  BID_COUNTERED
+  PAYMENT_VERIFIED
+  STATUS_UPDATE
+  JOB_COMPLETED
+  PAYOUT_SENT
+  DISPUTE_OPENED
+  DISPUTE_RESOLVED
+  SYSTEM
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Core
+// ─────────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(cuid())
+  role          Role     @default(CUSTOMER)
+  name          String
+  email         String?  @unique
+  phone         String   @unique
+  phoneVerified Boolean  @default(false)
+  passwordHash  String
+  avatarUrl     String?
+  city          String?
+  language      Language @default(en)
+  fcmTokens     String[] @default([])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  providerProfile ProviderProfile?
+
+  jobsPosted      Job[]              @relation("CustomerJobs")
+  bookingsAsCustomer Booking[]       @relation("CustomerBookings")
+  bookingsAsProvider Booking[]       @relation("ProviderBookings")
+  bids            Bid[]
+  reviewsGiven    Review[]           @relation("ReviewAuthor")
+  reviewsReceived Review[]           @relation("ReviewTarget")
+  customerReviewsGiven    CustomerReview[] @relation("CustomerReviewAuthor")
+  customerReviewsReceived CustomerReview[] @relation("CustomerReviewTarget")
+  messages        Message[]
+  notifications   Notification[]
+  disputesOpened  Dispute[]          @relation("DisputeOpener")
+  otpCodes        OtpCode[]
+
+  @@index([role])
+  @@index([city])
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  purpose   String   @default("PHONE_VERIFY")
+  expiresAt DateTime
+  consumedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model ProviderProfile {
+  id                String       @id @default(cuid())
+  userId            String       @unique
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName       String
+  serialNumber      Int          @unique @default(autoincrement())
+  trades            Trade[]      @default([])
+  skillsNote        String?
+  serviceRadiusKm   Int          @default(10)
+  baseLat           Float?
+  baseLng           Float?
+  geohash           String?
+  isOnline          Boolean      @default(false)
+  verificationLevel Int          @default(0) // 0 unverified, 1 approved, 2 verified pro, 3 gold ustad
+  cnicUrl           String?
+  selfieUrl         String?
+  policeCertUrl     String?
+  isVerified        Boolean      @default(false)
+  verifiedAt        DateTime?
+  ratingAvg         Float        @default(0)
+  ratingCount       Int          @default(0)
+  jobsCompleted     Int          @default(0)
+  payoutMethod      PayoutMethod?
+  payoutAccount     String?
+  commissionPct     Float        @default(12)
+  agreementAcceptedAt DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  bids     Bid[]
+  bookings Booking[] @relation("ProviderProfileBookings")
+  payouts  Payout[]
+
+  @@index([geohash])
+  @@index([isOnline])
+  @@index([isVerified])
+}
+
+model ServiceCategory {
+  id          String   @id @default(cuid())
+  trade       Trade    @unique
+  name        String
+  slug        String   @unique
+  icon        String
+  description String?
+  activeCities String[] @default([])
+  minPricePKR Int?
+  maxPricePKR Int?
+  createdAt   DateTime @default(now())
+
+  subServices SubService[]
+  jobs        Job[]
+}
+
+model SubService {
+  id          String   @id @default(cuid())
+  categoryId  String
+  category    ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String
+  active      Boolean  @default(true)
+  minPricePKR Int?
+  maxPricePKR Int?
+
+  jobs Job[]
+
+  @@unique([categoryId, slug])
+}
+
+model Job {
+  id              String    @id @default(cuid())
+  customerId      String
+  customer        User      @relation("CustomerJobs", fields: [customerId], references: [id])
+  categoryId      String
+  category        ServiceCategory @relation(fields: [categoryId], references: [id])
+  subServiceId    String?
+  subService      SubService? @relation(fields: [subServiceId], references: [id])
+  title           String
+  description     String
+  photos          String[]  @default([])
+  urgency         Urgency   @default(TODAY)
+  scheduledAt     DateTime?
+  city            String
+  areaLabel       String
+  exactAddress    String
+  lat             Float
+  lng             Float
+  geohash         String
+  budgetPKR       Int?
+  status          JobStatus @default(OPEN)
+  biddingClosesAt DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  bids         Bid[]
+  booking      Booking?
+  dispatchAlerts DispatchAlert[]
+
+  @@index([status])
+  @@index([geohash])
+  @@index([city])
+  @@index([customerId])
+}
+
+model DispatchAlert {
+  id         String   @id @default(cuid())
+  jobId      String
+  job        Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  providerId String
+  channels   String[] @default([])
+  createdAt  DateTime @default(now())
+
+  @@index([jobId])
+  @@index([providerId])
+}
+
+model Bid {
+  id              String   @id @default(cuid())
+  jobId           String
+  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  providerId      String
+  provider        ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  pricePKR        Int
+  etaMinutes      Int
+  message         String?
+  itemized        Json?
+  status          BidStatus @default(PENDING)
+  declineReason   String?
+  counterPricePKR Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  booking Booking?
+
+  @@unique([jobId, providerId])
+  @@index([jobId])
+  @@index([providerId])
+}
+
+model Booking {
+  id            String   @id @default(cuid())
+  jobId         String   @unique
+  job           Job      @relation(fields: [jobId], references: [id])
+  bidId         String   @unique
+  bid           Bid      @relation(fields: [bidId], references: [id])
+  customerId    String
+  customer      User     @relation("CustomerBookings", fields: [customerId], references: [id])
+  providerUserId String
+  providerUser  User     @relation("ProviderBookings", fields: [providerUserId], references: [id])
+  providerId    String
+  providerProfile ProviderProfile @relation("ProviderProfileBookings", fields: [providerId], references: [id])
+  totalPKR      Int
+  commissionPKR Int
+  payoutPKR     Int
+  status        BookingStatus @default(PENDING_PAYMENT)
+  paymentDeadline DateTime
+  timeline      Json     @default("{}")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  payment       Payment?
+  payout        Payout?
+  locationPings LocationPing[]
+  review        Review?
+  customerReview CustomerReview?
+  messages      Message[]
+  dispute       Dispute?
+
+  @@index([status])
+  @@index([customerId])
+  @@index([providerUserId])
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  bookingId     String   @unique
+  booking       Booking  @relation(fields: [bookingId], references: [id])
+  amountPKR     Int
+  method        PaymentMethod
+  proofImageUrl String?
+  status        PaymentStatus @default(SUBMITTED)
+  verifiedAt    DateTime?
+  verifiedBy    String?
+  createdAt     DateTime @default(now())
+
+  @@index([status])
+}
+
+model Payout {
+  id         String   @id @default(cuid())
+  bookingId  String   @unique
+  booking    Booking  @relation(fields: [bookingId], references: [id])
+  providerId String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id])
+  amountPKR  Int
+  method     PayoutMethod
+  accountRef String?
+  status     PayoutStatus @default(QUEUED)
+  sentAt     DateTime?
+  adminNote  String?
+  createdAt  DateTime @default(now())
+
+  @@index([status])
+  @@index([providerId])
+}
+
+model LocationPing {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  lat       Float
+  lng       Float
+  createdAt DateTime @default(now())
+
+  @@index([bookingId, createdAt])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  authorId  String
+  author    User     @relation("ReviewAuthor", fields: [authorId], references: [id])
+  targetId  String
+  target    User     @relation("ReviewTarget", fields: [targetId], references: [id])
+  rating    Int
+  tags      String[] @default([])
+  comment   String?
+  createdAt DateTime @default(now())
+}
+
+model CustomerReview {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  authorId  String
+  author    User     @relation("CustomerReviewAuthor", fields: [authorId], references: [id])
+  targetId  String
+  target    User     @relation("CustomerReviewTarget", fields: [targetId], references: [id])
+  rating    Int
+  tags      String[] @default([])
+  comment   String?
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([bookingId, createdAt])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  linkUrl   String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead])
+}
+
+model Lead {
+  id           String     @id @default(cuid())
+  businessName String
+  personName   String?
+  phone        String     @unique
+  whatsapp     String?
+  trade        Trade
+  city         String
+  areaLabel    String?
+  rating       Float?
+  source       LeadSource @default(MANUAL)
+  status       LeadStatus @default(NEW)
+  outreachLog  Json       @default("[]")
+  callbackDate DateTime?
+  notes        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([status])
+  @@index([trade, city])
+}
+
+model Dispute {
+  id          String   @id @default(cuid())
+  bookingId   String   @unique
+  booking     Booking  @relation(fields: [bookingId], references: [id])
+  openedById  String
+  openedBy    User     @relation("DisputeOpener", fields: [openedById], references: [id])
+  reason      String
+  photos      String[] @default([])
+  resolution  DisputeResolution?
+  resolvedBy  String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  resolvedAt  DateTime?
+}
+
+model SiteSettings {
+  id                  String   @id @default("singleton")
+  activeTheme         String   @default("electric-amber")
+  defaultCommissionPct Float   @default(12)
+  whatsappSupportNumber String?
+  featureFlags        Json     @default("{}")
+  updatedAt           DateTime @updatedAt
+}
