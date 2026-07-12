@@ -7,13 +7,19 @@ import { authConfig } from "@/lib/auth.config";
 // never import @/lib/auth (Prisma) here, it will break the Edge bundle.
 const { auth } = NextAuth(authConfig);
 
-const ROLE_PREFIXES: Record<string, "CUSTOMER" | "PROVIDER" | "ADMIN"> = {
-  "/dashboard": "CUSTOMER",
-  "/jobs/new": "CUSTOMER",
-  "/bookings": "CUSTOMER",
-  "/pro": "PROVIDER",
-  "/admin": "ADMIN",
-};
+// Note: "/pro" itself is the public provider-acquisition landing page (§7)
+// and is intentionally NOT in this list — only the panel sub-routes are gated.
+const PROTECTED_PREFIXES: { prefix: string; role: "CUSTOMER" | "PROVIDER" | "ADMIN" }[] = [
+  { prefix: "/dashboard", role: "CUSTOMER" },
+  { prefix: "/jobs/new", role: "CUSTOMER" },
+  { prefix: "/bookings", role: "CUSTOMER" },
+  { prefix: "/pro/dashboard", role: "PROVIDER" },
+  { prefix: "/pro/jobs", role: "PROVIDER" },
+  { prefix: "/pro/bookings", role: "PROVIDER" },
+  { prefix: "/pro/earnings", role: "PROVIDER" },
+  { prefix: "/pro/profile", role: "PROVIDER" },
+  { prefix: "/admin", role: "ADMIN" },
+];
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
@@ -24,12 +30,8 @@ export default auth((req) => {
     return NextResponse.redirect(new URL(home, req.nextUrl.origin));
   }
 
-  const matchedPrefix = Object.keys(ROLE_PREFIXES).find(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-  );
-  if (!matchedPrefix) return NextResponse.next();
-
-  const requiredRole = ROLE_PREFIXES[matchedPrefix];
+  const matched = PROTECTED_PREFIXES.find(({ prefix }) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+  if (!matched) return NextResponse.next();
 
   if (!user) {
     const loginUrl = new URL("/login", req.nextUrl.origin);
@@ -37,7 +39,7 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (user.role !== requiredRole && user.role !== "ADMIN") {
+  if (user.role !== matched.role && user.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/", req.nextUrl.origin));
   }
 
@@ -45,5 +47,17 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/jobs/new", "/bookings/:path*", "/pro/:path*", "/admin/:path*", "/login", "/signup"],
+  matcher: [
+    "/dashboard/:path*",
+    "/jobs/new",
+    "/bookings/:path*",
+    "/pro/dashboard/:path*",
+    "/pro/jobs/:path*",
+    "/pro/bookings/:path*",
+    "/pro/earnings/:path*",
+    "/pro/profile/:path*",
+    "/admin/:path*",
+    "/login",
+    "/signup",
+  ],
 };

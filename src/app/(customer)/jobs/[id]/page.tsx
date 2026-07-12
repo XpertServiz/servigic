@@ -56,7 +56,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         </span>
       </div>
 
-      <BidList jobId={job.id} bids={bids} jobStatus={job.status} />
+      <BidList bids={bids} jobStatus={job.status} />
     </div>
   );
 }

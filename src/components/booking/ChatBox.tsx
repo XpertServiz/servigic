@@ -21,8 +21,9 @@ export function ChatBox({ bookingId, currentUserId, unlocked }: { bookingId: str
 
   useEffect(() => {
     if (!unlocked) return;
-    load();
     const interval = setInterval(load, 8000);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- polling fetch on mount is intentional here
+    void load();
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unlocked]);

@@ -23,7 +23,7 @@ type BidView = {
 const LEVEL_LABEL: Record<number, string> = { 0: "Unverified", 1: "Verified", 2: "Verified Pro", 3: "Gold Ustad" };
 type SortKey = "price" | "rating" | "eta" | "distance";
 
-export function BidList({ jobId, bids, jobStatus }: { jobId: string; bids: BidView[]; jobStatus: string }) {
+export function BidList({ bids, jobStatus }: { bids: BidView[]; jobStatus: string }) {
   const router = useRouter();
   const [sortKey, setSortKey] = useState<SortKey>("price");
   const [pendingId, setPendingId] = useState<string | null>(null);

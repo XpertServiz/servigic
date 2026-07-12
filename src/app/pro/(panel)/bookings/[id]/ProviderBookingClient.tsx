@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { StatusTimeline } from "@/components/booking/StatusTimeline";
@@ -36,7 +36,6 @@ export function ProviderBookingClient({ booking, currentUserId }: { booking: Boo
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const watchRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (booking.status !== "ON_MY_WAY" || !navigator.geolocation) return;

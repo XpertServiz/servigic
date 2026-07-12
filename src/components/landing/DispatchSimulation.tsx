@@ -25,7 +25,7 @@ export function DispatchSimulation() {
       return;
     }
 
-    let timers: ReturnType<typeof setTimeout>[] = [];
+    const timers: ReturnType<typeof setTimeout>[] = [];
     function runLoop() {
       setVisibleBids(0);
       setWon(false);
