@@ -4,31 +4,52 @@ import { Eyebrow } from "@/components/landing/Eyebrow";
 import { DispatchSimulation } from "@/components/landing/DispatchSimulation";
 
 // Real trades, free-license stock (Pexels), resized+compressed via Pexels'
-// own query params so 9 photos don't bloat the hero's load weight. Behind a
-// low-opacity grid + a dark gradient so headline contrast never suffers.
+// own query params. Full-bleed crossfade, one photo visible at a time (much
+// clearer than a low-opacity grid) — pure CSS animation via staggered
+// negative animation-delay, no client JS needed in this server component.
 const HERO_BG_PHOTOS = [
-  "https://images.pexels.com/photos/32588548/pexels-photo-32588548.jpeg?auto=compress&cs=tinysrgb&w=600", // plumber
-  "https://images.pexels.com/photos/9875418/pexels-photo-9875418.jpeg?auto=compress&cs=tinysrgb&w=600", // solar installer
-  "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=600", // mechanic
-  "https://images.pexels.com/photos/5463581/pexels-photo-5463581.jpeg?auto=compress&cs=tinysrgb&w=600", // AC technician
-  "https://images.pexels.com/photos/17514177/pexels-photo-17514177/free-photo-of-woman-holding-smart-phone-applications.jpeg?auto=compress&cs=tinysrgb&w=600", // customer booking on app
-  "https://images.pexels.com/photos/33531830/pexels-photo-33531830.jpeg?auto=compress&cs=tinysrgb&w=600", // electrician
-  "https://images.pexels.com/photos/8817851/pexels-photo-8817851.jpeg?auto=compress&cs=tinysrgb&w=600", // carpenter
-  "https://images.pexels.com/photos/7218579/pexels-photo-7218579.jpeg?auto=compress&cs=tinysrgb&w=600", // painter
-  "https://images.pexels.com/photos/6196566/pexels-photo-6196566.jpeg?auto=compress&cs=tinysrgb&w=600", // cleaner
+  "https://images.pexels.com/photos/32588548/pexels-photo-32588548.jpeg?auto=compress&cs=tinysrgb&w=1200", // plumber
+  "https://images.pexels.com/photos/9875418/pexels-photo-9875418.jpeg?auto=compress&cs=tinysrgb&w=1200", // solar installer
+  "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=1200", // mechanic
+  "https://images.pexels.com/photos/5463581/pexels-photo-5463581.jpeg?auto=compress&cs=tinysrgb&w=1200", // AC technician
+  "https://images.pexels.com/photos/17514177/pexels-photo-17514177/free-photo-of-woman-holding-smart-phone-applications.jpeg?auto=compress&cs=tinysrgb&w=1200", // customer booking on app
+  "https://images.pexels.com/photos/33531830/pexels-photo-33531830.jpeg?auto=compress&cs=tinysrgb&w=1200", // electrician
+  "https://images.pexels.com/photos/8817851/pexels-photo-8817851.jpeg?auto=compress&cs=tinysrgb&w=1200", // carpenter
+  "https://images.pexels.com/photos/7218579/pexels-photo-7218579.jpeg?auto=compress&cs=tinysrgb&w=1200", // painter
+  "https://images.pexels.com/photos/6196566/pexels-photo-6196566.jpeg?auto=compress&cs=tinysrgb&w=1200", // cleaner
 ];
+const SLOT_SECONDS = 4;
+const CYCLE_SECONDS = HERO_BG_PHOTOS.length * SLOT_SECONDS;
 
 export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
   const t = await getTranslations("hero");
 
   return (
     <section className="relative overflow-hidden bg-[radial-gradient(ellipse_80%_60%_at_30%_0%,rgba(255,176,32,.16),transparent_60%),radial-gradient(ellipse_60%_50%_at_90%_20%,rgba(34,197,94,.08),transparent_60%)] pb-20 pt-24">
-      <div className="absolute inset-0 grid grid-cols-3 gap-px opacity-[0.16] sm:grid-cols-5" aria-hidden="true">
-        {HERO_BG_PHOTOS.map((src) => (
-          <div key={src} className="bg-cover bg-center grayscale-[10%]" style={{ backgroundImage: `url(${src})` }} />
+      <style>{`
+        @keyframes heroBgCycle {
+          0% { opacity: 0; }
+          2% { opacity: 0.5; }
+          ${Math.round((100 * (SLOT_SECONDS - 0.6)) / CYCLE_SECONDS)}% { opacity: 0.5; }
+          ${Math.round((100 * SLOT_SECONDS) / CYCLE_SECONDS)}% { opacity: 0; }
+          100% { opacity: 0; }
+        }
+        .hero-bg-photo { animation: heroBgCycle ${CYCLE_SECONDS}s linear infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-bg-photo { animation: none; opacity: 0.35; }
+          .hero-bg-photo:not(:first-child) { display: none; }
+        }
+      `}</style>
+      <div className="absolute inset-0" aria-hidden="true">
+        {HERO_BG_PHOTOS.map((src, i) => (
+          <div
+            key={src}
+            className="hero-bg-photo absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${src})`, animationDelay: `-${i * SLOT_SECONDS}s` }}
+          />
         ))}
       </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-bg/90 via-bg/85 to-bg" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-r from-bg from-15% via-bg/85 via-45% to-bg/45" aria-hidden="true" />
       <div className="relative mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-14 px-6 lg:grid-cols-[1.1fr_1fr]">
         <div>
           <Eyebrow>⚡ {t("eyebrow")}</Eyebrow>
