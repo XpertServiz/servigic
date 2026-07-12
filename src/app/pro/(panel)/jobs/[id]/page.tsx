@@ -3,18 +3,20 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { firstNameOnly, distanceBand } from "@/lib/anon";
 import { haversineKm } from "@/lib/geo";
+import { getFeatureFlags } from "@/lib/featureFlags";
 import { BidForm } from "./BidForm";
 
 export default async function ProviderJobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await auth();
 
-  const [job, profile] = await Promise.all([
+  const [job, profile, flags] = await Promise.all([
     prisma.job.findUnique({
       where: { id },
       include: { category: true, customer: { select: { name: true } } },
     }),
     prisma.providerProfile.findUnique({ where: { userId: session!.user.id } }),
+    getFeatureFlags(),
   ]);
 
   if (!job || !profile) notFound();
@@ -47,7 +49,13 @@ export default async function ProviderJobDetailPage({ params }: { params: Promis
         )}
       </div>
 
-      <BidForm jobId={job.id} jobStatus={job.status} existingBid={myBid} verificationLevel={profile.verificationLevel} />
+      <BidForm
+        jobId={job.id}
+        jobStatus={job.status}
+        existingBid={myBid}
+        verificationLevel={profile.verificationLevel}
+        bidWinHintEnabled={flags.aiBidWinHint}
+      />
     </div>
   );
 }

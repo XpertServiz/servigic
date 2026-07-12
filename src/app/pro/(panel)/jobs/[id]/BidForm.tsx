@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Bid } from "@prisma/client";
@@ -10,17 +10,41 @@ export function BidForm({
   jobStatus,
   existingBid,
   verificationLevel,
+  bidWinHintEnabled,
 }: {
   jobId: string;
   jobStatus: string;
   existingBid: Bid | null;
   verificationLevel: number;
+  bidWinHintEnabled: boolean;
 }) {
   const router = useRouter();
   const [price, setPrice] = useState(existingBid?.pricePKR?.toString() ?? "");
   const [eta, setEta] = useState(existingBid?.etaMinutes?.toString() ?? "");
   const [message, setMessage] = useState(existingBid?.message ?? "");
   const [pending, setPending] = useState(false);
+  const [winHint, setWinHint] = useState<{ winProbability: number; isHeuristic: boolean } | null>(null);
+
+  useEffect(() => {
+    if (!bidWinHintEnabled || !price || !eta || Number(price) <= 0 || Number(eta) <= 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clearing a stale hint when inputs become invalid
+      setWinHint(null);
+      return;
+    }
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/ai/bids/win-probability", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jobId, pricePKR: Number(price), etaMinutes: Number(eta) }),
+        });
+        if (res.ok) setWinHint(await res.json());
+      } catch {
+        // silent — this is a nice-to-have hint, not a blocking action
+      }
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [bidWinHintEnabled, jobId, price, eta]);
 
   if (verificationLevel < 1) {
     return (
@@ -135,6 +159,12 @@ export function BidForm({
           />
         </div>
       </div>
+      {winHint && (
+        <div className="rounded-[8px] border border-accent/30 bg-accent/10 px-3 py-2 text-xs font-semibold text-accent">
+          💡 Price to win: ~{Math.round(winHint.winProbability * 100)}% chance
+          {winHint.isHeuristic ? " (estimate)" : ""}
+        </div>
+      )}
       <div>
         <label className="mb-1.5 block text-sm font-semibold text-text-muted">Message (optional)</label>
         <textarea

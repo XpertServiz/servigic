@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { CityHeatChart } from "./CityHeatChart";
+import { DemandHeatmap } from "./DemandHeatmap";
 
 export default async function AdminAnalyticsPage() {
   const [completedBookings, totalJobs, jobsWithBids, jobsWithFirstBid, cityCounts] = await Promise.all([
@@ -40,9 +41,15 @@ export default async function AdminAnalyticsPage() {
         <StatCard label="Avg time-to-first-bid" value={avgTimeToFirstBid !== null ? `${avgTimeToFirstBid} min` : "—"} />
       </div>
 
-      <div className="rounded-[14px] border border-border-subtle bg-bg-elevated p-6">
+      <div className="mb-8 rounded-[14px] border border-border-subtle bg-bg-elevated p-6">
         <h2 className="mb-4 font-bold">City heat</h2>
         <CityHeatChart data={cityHeat} />
+      </div>
+
+      <div className="rounded-[14px] border border-border-subtle bg-bg-elevated p-6">
+        <h2 className="mb-1 font-bold">Demand Forecast (ML)</h2>
+        <p className="mb-4 text-xs text-text-muted">Top zone/hour slots by forecasted job volume — PyTorch ridge regression on trailing 30 days.</p>
+        <DemandHeatmap />
       </div>
     </div>
   );
