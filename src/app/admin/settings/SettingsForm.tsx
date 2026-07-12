@@ -4,11 +4,19 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { THEME_PRESETS, type ThemeName } from "@/lib/theme";
+import type { FeatureFlags } from "@/lib/featureFlags";
+
+const FLAG_LABELS: Record<keyof FeatureFlags, { label: string; desc: string }> = {
+  aiJobTriage: { label: "Job Triage Agent", desc: "\"Suggest category, urgency & budget\" on the job post form" },
+  aiLeadQualifier: { label: "Lead Qualifier Agent", desc: "\"AI Qualify\" priority score + drafted outreach in Leads CRM" },
+  aiDisputeSummarizer: { label: "Dispute Summarizer Agent", desc: "\"Summarize with AI\" on the admin disputes queue" },
+  aiBidWinHint: { label: "Bid-Win Probability (ML)", desc: "\"Price to win\" hint shown to providers on the bid form" },
+};
 
 export function SettingsForm({
   initial,
 }: {
-  initial: { activeTheme: string; defaultCommissionPct: number; whatsappSupportNumber: string };
+  initial: { activeTheme: string; defaultCommissionPct: number; whatsappSupportNumber: string; featureFlags: FeatureFlags };
 }) {
   const router = useRouter();
   const [form, setForm] = useState(initial);
@@ -78,6 +86,33 @@ export function SettingsForm({
           placeholder="+923001234567"
           className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
         />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">AI Agents (P8/P9)</label>
+        <p className="mb-3 text-xs text-text-dim text-text-muted">
+          Off here hides the feature in the UI regardless of AI_SERVICE_URL. Also fully off whenever AI_SERVICE_URL
+          isn&apos;t configured — these flags are for staged rollout once it is.
+        </p>
+        <div className="flex flex-col gap-2">
+          {(Object.keys(FLAG_LABELS) as (keyof FeatureFlags)[]).map((key) => (
+            <label
+              key={key}
+              className="flex items-center justify-between gap-3 rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3"
+            >
+              <div>
+                <div className="text-sm font-semibold">{FLAG_LABELS[key].label}</div>
+                <div className="text-xs text-text-muted">{FLAG_LABELS[key].desc}</div>
+              </div>
+              <input
+                type="checkbox"
+                checked={form.featureFlags[key]}
+                onChange={(e) => setForm({ ...form, featureFlags: { ...form.featureFlags, [key]: e.target.checked } })}
+                className="h-5 w-5 flex-none accent-accent"
+              />
+            </label>
+          ))}
+        </div>
       </div>
 
       <button

@@ -8,6 +8,14 @@ const schema = z.object({
   activeTheme: z.string().refine(isThemeName, "Unknown theme"),
   defaultCommissionPct: z.number().min(0).max(50),
   whatsappSupportNumber: z.string().trim().max(20).optional(),
+  featureFlags: z
+    .object({
+      aiJobTriage: z.boolean(),
+      aiLeadQualifier: z.boolean(),
+      aiDisputeSummarizer: z.boolean(),
+      aiBidWinHint: z.boolean(),
+    })
+    .optional(),
 });
 
 export async function PUT(req: Request) {

@@ -11,5 +11,15 @@ services:
     volumes:
       - servigic_pgdata:/var/lib/postgresql/data
 
+  # Opt-in: `docker compose --profile ai up -d` (plain `docker compose up` stays Postgres-only)
+  ai-service:
+    build: ./ai-service
+    restart: unless-stopped
+    profiles: ["ai"]
+    env_file:
+      - ./ai-service/.env
+    ports:
+      - "8000:8000"
+
 volumes:
   servigic_pgdata:

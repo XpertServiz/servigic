@@ -16,9 +16,13 @@ const RESOLUTIONS = [
   { value: "FULL_REFUND", label: "Full refund" },
 ] as const;
 
-export function DisputeRow({ dispute }: { dispute: DisputeWithRelations }) {
+type AiSummary = { summary: string; suggestedResolution: string; reasoning: string };
+
+export function DisputeRow({ dispute, aiSummarizerEnabled }: { dispute: DisputeWithRelations; aiSummarizerEnabled: boolean }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const [aiSummary, setAiSummary] = useState<AiSummary | null>(null);
+  const [aiPending, setAiPending] = useState(false);
 
   async function resolve(resolution: (typeof RESOLUTIONS)[number]["value"]) {
     setPending(true);
@@ -35,6 +39,21 @@ export function DisputeRow({ dispute }: { dispute: DisputeWithRelations }) {
       toast.error("Failed to resolve");
     } finally {
       setPending(false);
+    }
+  }
+
+  async function summarizeWithAi() {
+    setAiPending(true);
+    try {
+      const res = await fetch(`/api/ai/disputes/${dispute.id}/summarize`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "AI summarizer isn't available right now");
+        return;
+      }
+      setAiSummary(data);
+    } finally {
+      setAiPending(false);
     }
   }
 
@@ -59,6 +78,25 @@ export function DisputeRow({ dispute }: { dispute: DisputeWithRelations }) {
           ))}
         </div>
       )}
+
+      {aiSummary ? (
+        <div className="mb-3 rounded-[10px] border border-accent/30 bg-accent/10 p-3 text-xs">
+          <p className="mb-1 font-bold text-accent">✨ AI summary</p>
+          <p className="mb-1 text-text-muted">{aiSummary.summary}</p>
+          <p className="text-text-muted">
+            Suggests: <b className="text-text">{aiSummary.suggestedResolution.replace("_", " ")}</b> — {aiSummary.reasoning}
+          </p>
+        </div>
+      ) : aiSummarizerEnabled ? (
+        <button
+          onClick={summarizeWithAi}
+          disabled={aiPending}
+          className="mb-3 text-xs font-semibold text-accent disabled:opacity-60"
+        >
+          {aiPending ? "Summarizing…" : "✨ Summarize with AI"}
+        </button>
+      ) : null}
+
       <div className="flex flex-wrap gap-2">
         {RESOLUTIONS.map((r) => (
           <button

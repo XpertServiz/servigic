@@ -15,7 +15,7 @@ const URGENCY_OPTIONS = [
   { value: "SCHEDULED", label: "Schedule" },
 ] as const;
 
-export function PostJobForm({ categories }: { categories: CategoryWithSub[] }) {
+export function PostJobForm({ categories, aiTriageEnabled }: { categories: CategoryWithSub[]; aiTriageEnabled: boolean }) {
   const router = useRouter();
   const [form, setForm] = useState({
     categoryId: categories[0]?.id ?? "",
@@ -33,6 +33,7 @@ export function PostJobForm({ categories }: { categories: CategoryWithSub[] }) {
     budgetPKR: "",
   });
   const [pending, setPending] = useState(false);
+  const [aiPending, setAiPending] = useState(false);
 
   const selectedCategory = categories.find((c) => c.id === form.categoryId);
 
@@ -42,6 +43,32 @@ export function PostJobForm({ categories }: { categories: CategoryWithSub[] }) {
       setForm((f) => ({ ...f, lat: pos.coords.latitude, lng: pos.coords.longitude }));
       toast.success("Location captured");
     });
+  }
+
+  async function suggestFromDescription() {
+    setAiPending(true);
+    try {
+      const res = await fetch("/api/ai/triage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: form.description }),
+      });
+      if (!res.ok) {
+        toast.error("AI suggestions aren't available right now — pick manually");
+        return;
+      }
+      const suggestion = await res.json();
+      const matchedCategory = categories.find((c) => c.name === suggestion.suggestedCategory);
+      setForm((f) => ({
+        ...f,
+        categoryId: matchedCategory?.id ?? f.categoryId,
+        urgency: suggestion.suggestedUrgency,
+        budgetPKR: String(suggestion.suggestedBudgetMaxPKR),
+      }));
+      toast.success(suggestion.reasoning || "Suggestion applied");
+    } finally {
+      setAiPending(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -132,6 +159,16 @@ export function PostJobForm({ categories }: { categories: CategoryWithSub[] }) {
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
         />
+        {aiTriageEnabled && form.description.trim().length >= 10 && (
+          <button
+            type="button"
+            onClick={suggestFromDescription}
+            disabled={aiPending}
+            className="mt-2 rounded-[8px] border border-accent/40 px-3 py-1.5 text-xs font-semibold text-accent disabled:opacity-60"
+          >
+            {aiPending ? "Thinking…" : "✨ Suggest category, urgency & budget"}
+          </button>
+        )}
       </div>
 
       <div>
