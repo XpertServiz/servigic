@@ -3,6 +3,7 @@ import type { NotificationType } from "@prisma/client";
 import { sendEmailChannel } from "./channels/email";
 import { sendWhatsappChannel } from "./channels/whatsapp";
 import { sendSmsChannel } from "./channels/sms";
+import { sendExpoPushChannel } from "./channels/expoPush";
 
 export interface NotifyPayload {
   userId: string;
@@ -10,7 +11,9 @@ export interface NotifyPayload {
   title: string;
   body: string;
   linkUrl?: string;
-  /** Extra channels beyond the always-on in-app bell. */
+  /** Extra channels beyond the always-on in-app bell. "push" always fires
+   * when the user has registered a mobile push token — cheap and no-ops
+   * safely with zero tokens, so it isn't gated the way email/whatsapp/sms are. */
   channels?: Array<"email" | "whatsapp" | "sms">;
 }
 
@@ -23,7 +26,7 @@ export async function notify(payload: NotifyPayload) {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, phone: true, name: true, language: true },
+    select: { id: true, email: true, phone: true, name: true, language: true, fcmTokens: true },
   });
   if (!user) return;
 
@@ -32,6 +35,9 @@ export async function notify(payload: NotifyPayload) {
   });
 
   await Promise.allSettled([
+    user.fcmTokens.length > 0
+      ? sendExpoPushChannel({ tokens: user.fcmTokens, title, body, data: { linkUrl, type } })
+      : Promise.resolve(),
     channels.includes("email") && user.email
       ? sendEmailChannel({ to: user.email, subject: title, body })
       : Promise.resolve(),
