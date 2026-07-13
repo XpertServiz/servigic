@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { SignOutButton } from "@/components/dashboard/SignOutButton";
 
 export function DashboardShell({
@@ -16,9 +17,7 @@ export function DashboardShell({
     <div className="flex min-h-screen flex-1">
       <aside className="flex w-60 flex-none flex-col border-r border-border-subtle bg-bg-elevated p-5">
         <Link href="/" className="mb-8 flex items-center gap-2.5 font-display text-lg font-bold">
-          <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-gradient-to-br from-accent to-[#ff8a20] font-extrabold text-accent-foreground">
-            S
-          </span>
+          <Image src="/logo.png" alt="Servigic" width={32} height={32} className="rounded-[8px]" />
           {brand}
         </Link>
         <nav className="flex flex-1 flex-col gap-1">

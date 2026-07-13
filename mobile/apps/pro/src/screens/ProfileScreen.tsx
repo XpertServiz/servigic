@@ -5,6 +5,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as api from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { Button, Field, Card } from "../components/ui";
+import { ProviderAvatar, Chip } from "../components/ds";
 import { colors } from "../lib/theme";
 
 const TRADES = [
@@ -30,6 +31,7 @@ export default function ProfileScreen() {
   const [coords, setCoords] = useState({ lat: 24.8607, lng: 67.0011 });
   const [cnicUrl, setCnicUrl] = useState("");
   const [selfieUrl, setSelfieUrl] = useState("");
+  const [policeCertUrl, setPoliceCertUrl] = useState("");
   const [payoutAccount, setPayoutAccount] = useState("");
   const [saving, setSaving] = useState(false);
   const [verificationLevel, setVerificationLevel] = useState(0);
@@ -44,6 +46,7 @@ export default function ProfileScreen() {
       if (p.baseLat && p.baseLng) setCoords({ lat: p.baseLat as number, lng: p.baseLng as number });
       setCnicUrl((p.cnicUrl as string) ?? "");
       setSelfieUrl((p.selfieUrl as string) ?? "");
+      setPoliceCertUrl((p.policeCertUrl as string) ?? "");
       setPayoutAccount((p.payoutAccount as string) ?? "");
       setVerificationLevel((p.verificationLevel as number) ?? 0);
     });
@@ -79,6 +82,7 @@ export default function ProfileScreen() {
         baseLng: coords.lng,
         cnicUrl: cnicUrl || undefined,
         selfieUrl: selfieUrl || undefined,
+        policeCertUrl: policeCertUrl || undefined,
         payoutMethod: "EASYPAISA",
         payoutAccount,
         agreementAccepted: true,
@@ -90,31 +94,25 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 16 }}>
-      <Card style={{ marginBottom: 16 }}>
-        <Text style={{ color: colors.text, fontWeight: "700" }}>{user?.name}</Text>
-        <Text style={{ color: colors.textMuted, marginTop: 2 }}>{user?.phone}</Text>
-        <Text style={{ color: colors.accent, marginTop: 6, fontSize: 12 }}>Verification level: {verificationLevel}</Text>
-      </Card>
+      <Text style={{ color: colors.text, fontSize: 22, fontWeight: "800", marginBottom: 16 }}>Account</Text>
+
+      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}>
+        <ProviderAvatar name={user?.name ?? "?"} ratingAvg={5} size={64} />
+        <View style={{ marginLeft: 14 }}>
+          <Text style={{ color: colors.text, fontWeight: "800", fontSize: 17 }}>{user?.name}</Text>
+          <Text style={{ color: colors.textMuted, marginTop: 2 }}>{user?.phone}</Text>
+          <Text style={{ color: colors.accent, marginTop: 4, fontSize: 12, fontWeight: "700" }}>
+            Verification level {verificationLevel}
+          </Text>
+        </View>
+      </View>
 
       <Field label="Display name" value={displayName} onChangeText={setDisplayName} />
 
       <Text style={{ color: colors.textMuted, fontSize: 13, fontWeight: "600", marginBottom: 8 }}>Trades</Text>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
         {TRADES.map((t) => (
-          <Pressable
-            key={t}
-            onPress={() => toggleTrade(t)}
-            style={{
-              borderWidth: 1,
-              borderColor: trades.includes(t) ? colors.accent : colors.border,
-              backgroundColor: trades.includes(t) ? "rgba(255,176,32,0.1)" : "transparent",
-              borderRadius: 8,
-              paddingHorizontal: 10,
-              paddingVertical: 8,
-            }}
-          >
-            <Text style={{ color: trades.includes(t) ? colors.accent : colors.textMuted, fontSize: 12 }}>{t.replace("_", " ")}</Text>
-          </Pressable>
+          <Chip key={t} label={t.replace("_", " ")} active={trades.includes(t)} onPress={() => toggleTrade(t)} />
         ))}
       </View>
 
@@ -131,6 +129,11 @@ export default function ProfileScreen() {
         <Pressable onPress={() => pickDoc(setSelfieUrl)}>
           <Text style={{ color: selfieUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>
             {selfieUrl ? "Selfie ✓" : "Upload Selfie"}
+          </Text>
+        </Pressable>
+        <Pressable onPress={() => pickDoc(setPoliceCertUrl)}>
+          <Text style={{ color: policeCertUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>
+            {policeCertUrl ? "Police Cert ✓" : "Upload Police Cert (optional)"}
           </Text>
         </Pressable>
       </View>

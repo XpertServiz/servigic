@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getLocale } from "next-intl/server";
 import type { Locale } from "@/i18n/request";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -14,9 +15,7 @@ export async function Footer() {
         <div className="mb-12 grid grid-cols-2 gap-8 md:grid-cols-5">
           <div>
             <Link href="/" className="mb-3 flex items-center gap-2.5 font-display text-xl font-bold">
-              <span className="flex h-[34px] w-[34px] items-center justify-center rounded-[9px] bg-gradient-to-br from-accent to-[#ff8a20] font-extrabold text-accent-foreground">
-                S
-              </span>
+              <Image src="/logo.png" alt="Servigic" width={34} height={34} className="rounded-[9px]" />
               Servigic
             </Link>
             <p className="max-w-[260px] text-[13px] text-text-dim text-text-muted">

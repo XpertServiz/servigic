@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import type { RootStackParamList } from "../navigation/RootNavigator";
+import type { AuthStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
 import { Button, Field } from "../components/ui";
 import { colors } from "../lib/theme";
 
-type Props = NativeStackScreenProps<RootStackParamList, "VerifyOtp">;
+type Props = NativeStackScreenProps<AuthStackParamList, "VerifyOtp">;
 
 export default function VerifyOtpScreen({ route, navigation }: Props) {
   const { userId } = route.params;

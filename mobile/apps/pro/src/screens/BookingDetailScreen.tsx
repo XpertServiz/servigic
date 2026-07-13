@@ -1,23 +1,26 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, Linking } from "react-native";
+import { View, Text, ScrollView, StyleSheet, Pressable, Linking } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import type { RootStackParamList } from "../navigation/RootNavigator";
+import type { JobsStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
 import { Button, Card } from "../components/ui";
-import { colors } from "../lib/theme";
+import { StatusPillTimeline, PriceText, haptic } from "../components/ds";
+import { colors, mapStyle, radius } from "../lib/theme";
 
-type Props = NativeStackScreenProps<RootStackParamList, "BookingDetail">;
+type Props = NativeStackScreenProps<JobsStackParamList, "BookingDetail">;
 
 const NEXT_ACTION: Record<string, { next: "ON_MY_WAY" | "ARRIVED" | "WORKING" | "DONE"; label: string } | undefined> = {
-  CONFIRMED: { next: "ON_MY_WAY", label: "On My Way" },
-  ON_MY_WAY: { next: "ARRIVED", label: "Arrived" },
-  ARRIVED: { next: "WORKING", label: "Start Working" },
-  WORKING: { next: "DONE", label: "Mark Done" },
+  CONFIRMED: { next: "ON_MY_WAY", label: "START DRIVING →" },
+  ON_MY_WAY: { next: "ARRIVED", label: "I'VE ARRIVED" },
+  ARRIVED: { next: "WORKING", label: "START WORK" },
+  WORKING: { next: "DONE", label: "JOB DONE ✓" },
 };
 
+const TIMELINE_STEPS = ["Confirmed", "On the way", "Arrived", "Working", "Done"];
+const TIMELINE_STATUS_ORDER = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE"];
 const REVIEW_TAGS = ["Professional", "On time", "Clean work", "Good communication"];
 const PING_INTERVAL_MS = 45000;
 
@@ -67,6 +70,7 @@ export default function BookingDetailScreen({ route }: Props) {
     setBusy(true);
     try {
       await api.updateBookingStatus(bookingId, action.next);
+      haptic.success();
       load();
     } finally {
       setBusy(false);
@@ -86,13 +90,21 @@ export default function BookingDetailScreen({ route }: Props) {
   if (!booking) return null;
   const action = status ? NEXT_ACTION[status] : undefined;
   const tracked = ["ON_MY_WAY", "ARRIVED", "WORKING"].includes(status ?? "");
+  const timelineIndex = status ? TIMELINE_STATUS_ORDER.indexOf(status) : -1;
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 16 }}>
       <Text style={{ color: colors.text, fontSize: 20, fontWeight: "800" }}>{booking.jobTitle as string}</Text>
-      <Text style={{ color: colors.textMuted, marginTop: 4 }}>
-        Payout PKR {(booking.payoutPKR as number).toLocaleString()} · {(status ?? "").replace("_", " ")}
-      </Text>
+      <View style={{ marginTop: 6, flexDirection: "row", alignItems: "center", gap: 10 }}>
+        <PriceText pkr={booking.payoutPKR as number} size="md" color={colors.secondary} />
+        <Text style={{ color: colors.textMuted, fontWeight: "600" }}>{(status ?? "").replace("_", " ")}</Text>
+      </View>
+
+      {timelineIndex >= 0 && (
+        <Card style={{ marginTop: 16, paddingVertical: 20 }}>
+          <StatusPillTimeline steps={TIMELINE_STEPS} activeIndex={timelineIndex} />
+        </Card>
+      )}
 
       {Boolean(booking.unlocked) && (
         <Card style={{ marginTop: 16 }}>
@@ -106,7 +118,7 @@ export default function BookingDetailScreen({ route }: Props) {
                 Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${booking.jobLat},${booking.jobLng}`)
               }
             >
-              <Text style={{ color: colors.accent, fontWeight: "700", marginTop: 8 }}>Open in Google Maps →</Text>
+              <Text style={{ color: colors.accent, fontWeight: "700", marginTop: 8 }}>Navigate →</Text>
             </Pressable>
           )}
         </Card>
@@ -114,7 +126,8 @@ export default function BookingDetailScreen({ route }: Props) {
 
       {tracked && (
         <MapView
-          style={{ height: 220, borderRadius: 14, marginTop: 16 }}
+          style={{ height: 220, borderRadius: radius.card, marginTop: 16 }}
+          customMapStyle={mapStyle}
           initialRegion={{
             latitude: booking.jobLat as number,
             longitude: booking.jobLng as number,
@@ -128,7 +141,7 @@ export default function BookingDetailScreen({ route }: Props) {
       )}
 
       {action && (
-        <View style={{ marginTop: 16 }}>
+        <View style={{ marginTop: 20 }}>
           <Button title={action.label} onPress={advanceStatus} loading={busy} />
         </View>
       )}
