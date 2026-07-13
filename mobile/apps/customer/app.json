@@ -26,9 +26,14 @@
       "predictiveBackGestureEnabled": false,
       "config": {
         "googleMaps": {
-          "apiKey": "REPLACE_WITH_GOOGLE_MAPS_ANDROID_KEY"
+          "apiKey": "AIzaSyDUNVlPXrrOVsSpwQ59KQQ8t8QnqLalrAg"
         }
-      }
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -47,6 +52,18 @@
           "photosPermission": "Servigic needs access to your photos to attach job photos and payment proof."
         }
       ]
-    ]
+    ],
+    "owner": "xpertserviz-786",
+    "extra": {
+      "eas": {
+        "projectId": "33d8f4e9-8c36-4a3d-a933-22ef65847614"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/33d8f4e9-8c36-4a3d-a933-22ef65847614"
+    }
   }
 }

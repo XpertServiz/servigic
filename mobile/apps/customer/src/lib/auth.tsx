@@ -33,15 +33,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
-  async function registerForPush() {
-    try {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== "granted") return;
-      const { data: token } = await Notifications.getExpoPushTokenAsync();
-      await api.registerPushToken(token);
-    } catch {
-      // Push registration is best-effort — never block the app on it.
-    }
+  // Best-effort and fully isolated from app startup/login: push credentials
+  // (FCM on Android) may not be fully provisioned yet, and a misconfigured
+  // native module here must never be able to take the whole app down.
+  // Deferred one tick past sign-in so it can never block/crash the
+  // navigation transition itself, and every native call is independently
+  // guarded so one failing step doesn't skip the others.
+  function registerForPush() {
+    setTimeout(async () => {
+      try {
+        const { status } = await Notifications.requestPermissionsAsync();
+        if (status !== "granted") return;
+
+        let token: string | undefined;
+        try {
+          const result = await Notifications.getExpoPushTokenAsync();
+          token = result.data;
+        } catch (e) {
+          console.warn("[push] getExpoPushTokenAsync failed, skipping push registration", e);
+          return;
+        }
+        if (!token) return;
+
+        try {
+          await api.registerPushToken(token);
+        } catch (e) {
+          console.warn("[push] failed to register token with backend", e);
+        }
+      } catch (e) {
+        console.warn("[push] registration failed", e);
+      }
+    }, 0);
   }
 
   async function signIn(phone: string, password: string) {

@@ -6,14 +6,21 @@ import { AuthProvider } from "./src/lib/auth";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { configureApiClient } from "./src/lib/api";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// Guarded: this runs before any component mounts, so a native-module issue
+// here (e.g. notifications not fully provisioned yet) must never be able to
+// take down the whole app before it even has a chance to render.
+try {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+} catch (e) {
+  console.warn("[push] setNotificationHandler failed", e);
+}
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
 

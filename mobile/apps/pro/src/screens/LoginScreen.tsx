@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import type { RootStackParamList } from "../navigation/RootNavigator";
+import type { AuthStackParamList } from "../navigation/RootNavigator";
 import { useAuth } from "../lib/auth";
 import { Button, Field } from "../components/ui";
 import { colors } from "../lib/theme";
 
-type Props = NativeStackScreenProps<RootStackParamList, "Login">;
+type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
 export default function LoginScreen({ navigation }: Props) {
   const { signIn } = useAuth();

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function VerifyOtpPage() {
   const router = useRouter();
@@ -51,9 +52,7 @@ export default function VerifyOtpPage() {
     <main className="flex flex-1 items-center justify-center px-6 py-20">
       <div className="w-full max-w-[420px] text-center">
         <Link href="/" className="mb-8 inline-flex items-center gap-2.5 font-display text-xl font-bold">
-          <span className="flex h-[34px] w-[34px] items-center justify-center rounded-[9px] bg-gradient-to-br from-accent to-[#ff8a20] font-extrabold text-accent-foreground">
-            S
-          </span>
+          <Image src="/logo.png" alt="Servigic" width={34} height={34} className="rounded-[9px]" />
           Servigic
         </Link>
         <h1 className="mb-2 font-display text-3xl font-bold">Verify your phone</h1>

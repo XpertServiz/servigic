@@ -1,13 +1,14 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import type { RootStackParamList } from "../navigation/RootNavigator";
+import type { HomeStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
 import { Button, Card, Badge } from "../components/ui";
+import { PriceText, ProviderAvatar, SegmentedControl, EmptyState } from "../components/ds";
 import { colors } from "../lib/theme";
 
-type Props = NativeStackScreenProps<RootStackParamList, "JobDetail">;
+type Props = NativeStackScreenProps<HomeStackParamList, "JobDetail">;
 
 interface BidView {
   id: string;
@@ -22,12 +23,19 @@ interface BidView {
 }
 
 const DECLINE_REASONS = ["Too expensive", "ETA too long", "Low rating", "Other"];
+type Sort = "PRICE" | "RATING" | "ETA";
+const SORT_OPTIONS: { value: Sort; label: string }[] = [
+  { value: "PRICE", label: "Price" },
+  { value: "RATING", label: "Rating" },
+  { value: "ETA", label: "ETA" },
+];
 
 export default function JobDetailScreen({ route, navigation }: Props) {
   const { jobId } = route.params;
   const [job, setJob] = useState<Record<string, unknown> | null>(null);
   const [bids, setBids] = useState<BidView[]>([]);
   const [busyBidId, setBusyBidId] = useState<string | null>(null);
+  const [sort, setSort] = useState<Sort>("PRICE");
 
   const load = useCallback(() => {
     api.getJobDetail(jobId).then(({ job: j, bids: b }) => {
@@ -37,6 +45,14 @@ export default function JobDetailScreen({ route, navigation }: Props) {
   }, [jobId]);
 
   useFocusEffect(load);
+
+  const sortedBids = useMemo(() => {
+    const copy = [...bids];
+    if (sort === "PRICE") copy.sort((a, b) => a.pricePKR - b.pricePKR);
+    else if (sort === "RATING") copy.sort((a, b) => b.ratingAvg - a.ratingAvg);
+    else copy.sort((a, b) => a.etaMinutes - b.etaMinutes);
+    return copy;
+  }, [bids, sort]);
 
   async function accept(bidId: string) {
     setBusyBidId(bidId);
@@ -77,14 +93,26 @@ export default function JobDetailScreen({ route, navigation }: Props) {
       <Text style={styles.desc}>{job.description as string}</Text>
       <Badge label={(job.status as string).replace("_", " ")} tone="muted" />
 
-      <Text style={styles.sectionTitle}>Bids ({bids.length})</Text>
-      {bids.length === 0 && <Text style={{ color: colors.textMuted }}>No bids yet — pros are being notified.</Text>}
-      {bids.map((bid) => (
-        <Card key={bid.id} style={{ marginTop: 10 }}>
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <Text style={{ color: colors.text, fontWeight: "700" }}>{bid.proLabel}</Text>
-            <Text style={{ color: colors.accent, fontWeight: "800" }}>PKR {bid.pricePKR.toLocaleString()}</Text>
+      <View style={styles.sortRow}>
+        <Text style={styles.sectionTitle}>Bids ({bids.length})</Text>
+        {bids.length > 1 && (
+          <View style={{ width: 200 }}>
+            <SegmentedControl options={SORT_OPTIONS} value={sort} onChange={setSort} />
           </View>
+        )}
+      </View>
+
+      {bids.length === 0 && (
+        <EmptyState icon="📡" title="Notifying nearby pros…" subtitle="Bids will start racing in shortly." />
+      )}
+
+      {sortedBids.map((bid) => (
+        <Card key={bid.id} style={{ marginTop: 10 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <PriceText pkr={bid.pricePKR} size="lg" color={colors.accent} />
+            <ProviderAvatar name={bid.proLabel} ratingAvg={bid.ratingAvg} size={40} />
+          </View>
+          <Text style={{ color: colors.text, fontWeight: "700", marginTop: 6 }}>{bid.proLabel}</Text>
           <Text style={{ color: colors.textMuted, marginTop: 2, fontSize: 12 }}>
             {bid.ratingCount > 0 ? `${bid.ratingAvg.toFixed(1)}★` : "New"} · {bid.distanceBand} · ETA {bid.etaMinutes} min
           </Text>
@@ -95,7 +123,7 @@ export default function JobDetailScreen({ route, navigation }: Props) {
                 <Button title="Accept" onPress={() => accept(bid.id)} loading={busyBidId === bid.id} />
               </View>
               <View style={{ flex: 1 }}>
-                <Button title="Decline" variant="danger" onPress={() => decline(bid.id)} />
+                <Button title="Decline" variant="ghost" onPress={() => decline(bid.id)} />
               </View>
             </View>
           )}
@@ -108,5 +136,6 @@ export default function JobDetailScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 22, fontWeight: "800", marginBottom: 8 },
   desc: { color: colors.textMuted, marginBottom: 10 },
-  sectionTitle: { color: colors.text, fontSize: 16, fontWeight: "700", marginTop: 20, marginBottom: 4 },
+  sortRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 20, marginBottom: 4 },
+  sectionTitle: { color: colors.text, fontSize: 16, fontWeight: "700" },
 });
