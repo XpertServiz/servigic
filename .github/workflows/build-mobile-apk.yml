@@ -30,6 +30,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # A hung Gradle daemon (see GRADLE_OPTS below) previously sat "in
+    # progress" for 4+ hours instead of failing — cap it so a future hang
+    # fails fast instead of silently burning CI minutes.
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -60,6 +64,17 @@ jobs:
       - name: Build APK locally
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          # The Kotlin/Gradle daemon ran out of Metaspace on the runner's
+          # default JVM settings and got stuck retrying forever instead of
+          # failing (that's what caused the earlier 4+ hour hang). Cap
+          # heap/metaspace explicitly, turn off the daemon (nothing reuses
+          # it in a one-shot CI build anyway) and disable parallelism so
+          # there's only ever one JVM competing for the runner's ~7GB RAM.
+          GRADLE_OPTS: >-
+            -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=768m"
+            -Dorg.gradle.daemon=false
+            -Dorg.gradle.parallel=false
+            -Dorg.gradle.workers.max=1
         run: eas build --local --platform android --profile ${{ github.event.inputs.profile }} --non-interactive --output ./build-${{ matrix.app }}.apk
 
       - uses: actions/upload-artifact@v4
