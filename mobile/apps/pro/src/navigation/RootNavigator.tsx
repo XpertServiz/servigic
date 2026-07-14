@@ -1,14 +1,16 @@
-import React from "react";
-import { Text } from "react-native";
-import { NavigationContainer, DarkTheme } from "@react-navigation/native";
+import React, { useEffect, useRef, useState } from "react";
+import { View, Text } from "react-native";
+import { NavigationContainer, DarkTheme, createNavigationContainerRef } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../lib/auth";
 import { colors } from "../lib/theme";
 import * as api from "../lib/api";
 import { SplashScreen } from "../screens/SplashScreen";
 import KycOnboardingScreen from "../screens/KycOnboardingScreen";
 import AwaitingApprovalScreen from "../screens/AwaitingApprovalScreen";
+import IncomingJobRing, { type IncomingJob } from "../screens/IncomingJobRing";
 
 import LoginScreen from "../screens/LoginScreen";
 import SignupScreen from "../screens/SignupScreen";
@@ -17,6 +19,7 @@ import HomeScreen from "../screens/HomeScreen";
 import JobsScreen from "../screens/JobsScreen";
 import JobDetailScreen from "../screens/JobDetailScreen";
 import BookingDetailScreen from "../screens/BookingDetailScreen";
+import MessageThreadScreen from "../screens/MessageThreadScreen";
 import EarningsScreen from "../screens/EarningsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
@@ -34,6 +37,7 @@ export type JobsStackParamList = {
   Jobs: undefined;
   JobDetail: { jobId: string };
   BookingDetail: { bookingId: string };
+  MessageThread: { bookingId: string; otherPartyName: string };
 };
 
 export type EarningsStackParamList = {
@@ -52,6 +56,8 @@ const JobsStack = createNativeStackNavigator<JobsStackParamList>();
 const EarningsStack = createNativeStackNavigator<EarningsStackParamList>();
 const AccountStack = createNativeStackNavigator<AccountStackParamList>();
 const Tab = createBottomTabNavigator();
+const navigationRef = createNavigationContainerRef();
+const JOB_POLL_MS = 15000;
 
 const navTheme = {
   ...DarkTheme,
@@ -79,6 +85,11 @@ function JobsStackNavigator() {
       <JobsStack.Screen name="Jobs" component={JobsScreen} options={{ headerShown: false }} />
       <JobsStack.Screen name="JobDetail" component={JobDetailScreen} options={{ title: "Job" }} />
       <JobsStack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ title: "Booking" }} />
+      <JobsStack.Screen
+        name="MessageThread"
+        component={MessageThreadScreen}
+        options={({ route }) => ({ title: route.params.otherPartyName })}
+      />
     </JobsStack.Navigator>
   );
 }
@@ -102,22 +113,85 @@ function AccountStackNavigator() {
 const TAB_ICONS: Record<string, string> = { HomeTab: "🏠", JobsTab: "🧰", EarningsTab: "💰", AccountTab: "👤" };
 
 function MainTabs() {
+  const insets = useSafeAreaInsets();
+  const [incomingJob, setIncomingJob] = useState<IncomingJob | null>(null);
+  const seenIds = useRef<Set<string>>(new Set());
+  const seeded = useRef(false);
+
+  // App-wide "new job" watcher — deliberately independent of which tab is
+  // focused, so the ring can appear from Home/Earnings/Account too, not
+  // just while sitting on the Jobs tab. A true lockscreen full-screen-intent
+  // ring needs a bare/dev-client native module (see mobile/README.md); this
+  // is the closest managed-workflow equivalent while the app is foregrounded.
+  useEffect(() => {
+    let cancelled = false;
+    async function poll() {
+      try {
+        const { jobs, isOnline } = await api.getProviderJobFeed();
+        if (cancelled) return;
+        if (!seeded.current) {
+          jobs.forEach((j) => seenIds.current.add(j.id));
+          seeded.current = true;
+          return;
+        }
+        if (isOnline) {
+          const fresh = jobs.find((j) => !seenIds.current.has(j.id));
+          if (fresh) setIncomingJob(fresh);
+        }
+        jobs.forEach((j) => seenIds.current.add(j.id));
+      } catch {
+        // Best-effort background poll — the Jobs tab's own fetch surfaces real errors.
+      }
+    }
+    poll();
+    const interval = setInterval(poll, JOB_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarActiveTintColor: colors.secondary,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: { backgroundColor: colors.bgElevated, borderTopColor: colors.border, height: 62, paddingBottom: 8, paddingTop: 6 },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: "700" },
-        tabBarIcon: ({ color }) => <Text style={{ fontSize: 18, color }}>{TAB_ICONS[route.name]}</Text>,
-      })}
-    >
-      <Tab.Screen name="HomeTab" component={HomeStackNavigator} options={{ title: "Home" }} />
-      <Tab.Screen name="JobsTab" component={JobsStackNavigator} options={{ title: "Jobs" }} />
-      <Tab.Screen name="EarningsTab" component={EarningsStackNavigator} options={{ title: "Earnings" }} />
-      <Tab.Screen name="AccountTab" component={AccountStackNavigator} options={{ title: "Account" }} />
-    </Tab.Navigator>
+    <View style={{ flex: 1 }}>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarActiveTintColor: colors.secondary,
+          tabBarInactiveTintColor: colors.textMuted,
+          tabBarStyle: {
+            backgroundColor: colors.bgElevated,
+            borderTopColor: colors.border,
+            height: 56 + insets.bottom,
+            paddingBottom: insets.bottom + 6,
+            paddingTop: 8,
+          },
+          tabBarLabelStyle: { fontSize: 11, fontWeight: "700" },
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 18, color }}>{TAB_ICONS[route.name]}</Text>,
+        })}
+      >
+        <Tab.Screen name="HomeTab" component={HomeStackNavigator} options={{ title: "Home" }} />
+        <Tab.Screen name="JobsTab" component={JobsStackNavigator} options={{ title: "Jobs" }} />
+        <Tab.Screen name="EarningsTab" component={EarningsStackNavigator} options={{ title: "Earnings" }} />
+        <Tab.Screen name="AccountTab" component={AccountStackNavigator} options={{ title: "Account" }} />
+      </Tab.Navigator>
+
+      {incomingJob && (
+        <IncomingJobRing
+          job={incomingJob}
+          onView={() => {
+            const jobId = incomingJob.id;
+            setIncomingJob(null);
+            if (navigationRef.isReady()) {
+              (navigationRef.navigate as (name: string, params: unknown) => void)("JobsTab", {
+                screen: "JobDetail",
+                params: { jobId },
+              });
+            }
+          }}
+          onDismiss={() => setIncomingJob(null)}
+        />
+      )}
+    </View>
   );
 }
 
@@ -152,7 +226,7 @@ export function RootNavigator() {
   if (loading) return <SplashScreen />;
 
   return (
-    <NavigationContainer theme={navTheme}>
+    <NavigationContainer ref={navigationRef} theme={navTheme}>
       {!user ? (
         <AuthStack.Navigator screenOptions={screenOptions}>
           <AuthStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />

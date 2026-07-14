@@ -4,6 +4,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as api from "../lib/api";
 import { Button } from "../components/ui";
 import { colors } from "../lib/theme";
+import { useAuth } from "../lib/auth";
 
 // Same real-trades stock photography as the web landing hero, for visual
 // consistency between the marketing site and the app's first real screen.
@@ -20,6 +21,7 @@ const BG_PHOTOS = [
 const SLOT_MS = 4500;
 
 export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () => void }) {
+  const { signOut } = useAuth();
   const [photoIndex, setPhotoIndex] = useState(0);
   const fade = useRef(new Animated.Value(1)).current;
 
@@ -118,6 +120,10 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
             disabled={!cnicUrl || !selfieUrl}
           />
         </View>
+
+        <Pressable onPress={signOut} style={{ marginTop: 20 }}>
+          <Text style={styles.signOut}>Not ready? Sign out</Text>
+        </Pressable>
       </ScrollView>
     </View>
   );
@@ -156,4 +162,5 @@ const styles = StyleSheet.create({
   docStatus: { color: colors.accent, fontWeight: "700", fontSize: 13 },
   docStatusDone: { color: colors.secondary },
   error: { color: colors.danger, marginTop: 4, textAlign: "center" },
+  signOut: { color: colors.textMuted, fontWeight: "600", fontSize: 13, textAlign: "center" },
 });

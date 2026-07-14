@@ -13,6 +13,7 @@
 // by src/lib/requireRole.ts checking for an Authorization header first.
 
 import * as SecureStore from "expo-secure-store";
+import * as FileSystem from "expo-file-system/legacy";
 
 const TOKEN_KEY = "servigic_token";
 
@@ -264,17 +265,32 @@ export function getBidWinProbability(jobId: string, pricePKR: number, etaMinutes
 }
 
 // ─── File upload (photos, KYC docs, payment proof) ───
+// Uses expo-file-system's native multipart uploader instead of RN's
+// fetch()+FormData bridge — the latter throws a native "Unsupported
+// FormDataPart implementation" error on some Android devices/RN versions
+// when appending a { uri, name, type } file part. uploadAsync talks to the
+// same /api/mobile/upload route via a dedicated native upload task, which
+// doesn't go through that bridge codepath at all.
 export async function uploadFile(fileUri: string, fileName: string, mimeType: string): Promise<string> {
-  const formData = new FormData();
-  // React Native's FormData accepts this { uri, name, type } shape for files.
-  formData.append("file", { uri: fileUri, name: fileName, type: mimeType } as unknown as Blob);
-
-  const res = await fetch(`${apiBaseUrl}/api/mobile/upload`, {
-    method: "POST",
-    headers: { ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) },
-    body: formData,
+  const result = await FileSystem.uploadAsync(`${apiBaseUrl}/api/mobile/upload`, fileUri, {
+    httpMethod: "POST",
+    uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+    fieldName: "file",
+    mimeType,
+    parameters: { name: fileName },
+    headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
   });
-  const data = await res.json();
-  if (!res.ok) throw new ApiError(data.error ?? "Upload failed", res.status);
+
+  let data: { url?: string; error?: string } = {};
+  try {
+    data = JSON.parse(result.body);
+  } catch {
+    // Non-JSON body (e.g. a plain-text 502 from an upstream failure) — fall
+    // through and let the status-code check below produce the real error.
+  }
+  if (result.status < 200 || result.status >= 300) {
+    throw new ApiError(data.error ?? `Upload failed (${result.status})`, result.status);
+  }
+  if (!data.url) throw new ApiError("Upload succeeded but no URL was returned", result.status);
   return data.url;
 }

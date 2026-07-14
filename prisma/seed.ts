@@ -69,7 +69,7 @@ const LOCALE_CONFIGS: {
     currency: "PKR",
     paymentMethodsShown: ["JAZZCASH", "EASYPAISA", "BANK_TRANSFER"],
     legalDisclaimer:
-      "Payments are held in Servigic escrow via JazzCash, EasyPaisa, or bank transfer and released to your pro only after you confirm the job is done.",
+      "Payments are held safely by Servigic via JazzCash, EasyPaisa, or bank transfer and released to your pro only after you confirm the job is done.",
     isLive: true,
     citiesLive: LAUNCH_CITIES,
   },

@@ -39,8 +39,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         userId: a.id,
         type: "PAYMENT_VERIFIED",
         title: "Payment proof submitted",
-        body: `Booking ${id.slice(0, 8)} — PKR ${booking.totalPKR.toLocaleString()}`,
+        body: `Booking ${id.slice(0, 8)} — PKR ${booking.totalPKR.toLocaleString()} awaiting verification.`,
         linkUrl: `/admin/payments`,
+        // In-app + push alone aren't reliable for admin (no mobile app, no
+        // push token) — email is the channel that actually reaches them
+        // the instant a customer submits payment proof.
+        channels: ["email"],
       })
     )
   );

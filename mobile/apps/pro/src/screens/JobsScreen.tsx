@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, Text, FlatList, Pressable, RefreshControl, StyleSheet } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import * as Notifications from "expo-notifications";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { JobsStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
@@ -28,19 +27,13 @@ export default function JobsScreen({ navigation }: Props) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isOnline, setIsOnline] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const lastCount = useRef(0);
 
+  // New-job alerting itself is handled app-wide by the ring overlay in
+  // RootNavigator (works from any tab) — this screen just renders the list.
   const load = useCallback(async (silent = false) => {
     if (!silent) setRefreshing(true);
     try {
       const [feed, { bookings: fetchedBookings }] = await Promise.all([api.getProviderJobFeed(), api.getMyBookings()]);
-      if (feed.jobs.length > lastCount.current) {
-        Notifications.scheduleNotificationAsync({
-          content: { title: "New job available", body: "A job matching your trade just opened up.", sound: true },
-          trigger: null,
-        });
-      }
-      lastCount.current = feed.jobs.length;
       setJobs(feed.jobs);
       setIsOnline(feed.isOnline);
       setBookings(fetchedBookings);
@@ -56,11 +49,6 @@ export default function JobsScreen({ navigation }: Props) {
       return () => clearInterval(interval);
     }, [load])
   );
-
-  useEffect(() => {
-    const sub = Notifications.addNotificationResponseReceivedListener(() => load(true));
-    return () => sub.remove();
-  }, [load]);
 
   const bookedList = bookings.filter((b) => BOOKED_STATUSES.includes(b.status));
   const doneList = bookings.filter((b) => b.status === "COMPLETED");
@@ -90,16 +78,19 @@ export default function JobsScreen({ navigation }: Props) {
             ListEmptyComponent={<EmptyState icon="📡" title="No matching jobs right now" subtitle="We'll alert you the moment one opens up." />}
             renderItem={({ item }) => (
               <Pressable onPress={() => navigation.navigate("JobDetail", { jobId: item.id })}>
-                <Card>
+                <Card style={item.alreadyBid ? { borderColor: colors.secondary } : undefined}>
                   <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                     <Text style={{ color: colors.text, fontWeight: "700" }}>
                       {item.categoryIcon} {item.title}
                     </Text>
-                    <Badge label={item.urgency} tone={item.urgency === "EMERGENCY" ? "danger" : "accent"} />
+                    {item.alreadyBid ? (
+                      <Badge label="Bid sent ✓" tone="secondary" />
+                    ) : (
+                      <Badge label={item.urgency} tone={item.urgency === "EMERGENCY" ? "danger" : "accent"} />
+                    )}
                   </View>
                   <Text style={{ color: colors.textMuted, marginTop: 4 }}>
                     {item.areaLabel} · {item.categoryName}
-                    {item.alreadyBid ? " · Bid sent" : ""}
                   </Text>
                 </Card>
               </Pressable>

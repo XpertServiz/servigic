@@ -22,13 +22,16 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
   const { agreementAccepted, cnicUrl, selfieUrl, policeCertUrl, photoQualityOk, ...data } = parsed.data;
-  const geohash = encodeGeohash(data.baseLat, data.baseLng);
+  // Only re-derive the geohash when a new location was actually sent —
+  // partial submissions (e.g. the KYC screen's docs-only update) must not
+  // clobber the existing location with encodeGeohash(undefined, undefined).
+  const geohash = data.baseLat !== undefined && data.baseLng !== undefined ? encodeGeohash(data.baseLat, data.baseLng) : undefined;
 
   const profile = await prisma.providerProfile.update({
     where: { userId: auth.session.user.id },
     data: {
       ...data,
-      geohash,
+      ...(geohash ? { geohash } : {}),
       // "" means "nothing new uploaded" — leave whatever was already saved.
       ...(cnicUrl ? { cnicUrl } : {}),
       // photoQualityOk only ever flips alongside a genuinely new compliant

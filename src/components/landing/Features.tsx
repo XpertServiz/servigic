@@ -39,10 +39,10 @@ export function Features() {
         </div>
       </div>
 
-      {/* Escrow Shield */}
+      {/* Payment Protection Shield */}
       <div className="grid grid-cols-1 items-center gap-16 border-t border-border-subtle py-20 md:grid-cols-2">
         <div>
-          <Eyebrow tone="secondary">Escrow Shield</Eyebrow>
+          <Eyebrow tone="secondary">Payment Protection</Eyebrow>
           <h3 className="mb-4 font-display text-[clamp(26px,3.4vw,38px)] font-bold uppercase">
             Your money doesn&apos;t move until the job is done.
           </h3>

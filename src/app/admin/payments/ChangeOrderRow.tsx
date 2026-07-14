@@ -19,7 +19,7 @@ export function ChangeOrderRow({ changeOrder }: { changeOrder: ChangeOrderWithBo
     try {
       const res = await fetch(`/api/admin/change-orders/${changeOrder.id}/verify`, { method: "POST" });
       if (!res.ok) throw new Error();
-      toast.success("Change order verified — extra escrow added");
+      toast.success("Change order verified — extra payment added to Payment Protection");
       router.refresh();
     } catch {
       toast.error("Action failed");

@@ -2,7 +2,7 @@
 
 Two Expo apps sharing the same Next.js backend as the web app — no backend duplication, per the master brief (§10).
 
-- `apps/customer` — post jobs, compare bids, pay into escrow, track live, rate
+- `apps/customer` — post jobs, compare bids, pay into Payment Protection, track live, rate
 - `apps/pro` — go online, dispatch feed, bid, navigate, status buttons, earnings
 - `packages/api-client/src/index.ts` — canonical copy of the API client (see note below)
 
@@ -33,7 +33,7 @@ Mobile doesn't use NextAuth's cookie-based session (no persistent cookie jar acr
 - Full auth flow (signup → OTP → login → JWT persistence)
 - Job posting with photos, category picker, geolocation
 - Bid comparison, accept/decline/counter
-- Escrow payment with proof photo upload
+- Payment Protection with proof photo upload
 - Live status timeline, map (react-native-maps + Apple/Google Maps)
 - Location pings while ON_MY_WAY (provider) and polling display (customer)
 - Two-way ratings

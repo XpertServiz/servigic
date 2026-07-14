@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, Pressable, Linking } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
@@ -8,6 +8,7 @@ import type { JobsStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
 import { Button, Card } from "../components/ui";
 import { StatusPillTimeline, PriceText, haptic } from "../components/ds";
+import { sound } from "../lib/sound";
 import { colors, mapStyle, radius } from "../lib/theme";
 
 type Props = NativeStackScreenProps<JobsStackParamList, "BookingDetail">;
@@ -23,20 +24,38 @@ const TIMELINE_STEPS = ["Confirmed", "On the way", "Arrived", "Working", "Done"]
 const TIMELINE_STATUS_ORDER = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE"];
 const REVIEW_TAGS = ["Professional", "On time", "Clean work", "Good communication"];
 const PING_INTERVAL_MS = 45000;
+const STATUS_POLL_MS = 6000;
 
-export default function BookingDetailScreen({ route }: Props) {
+export default function BookingDetailScreen({ route, navigation }: Props) {
   const { bookingId } = route.params;
   const [booking, setBooking] = useState<Record<string, unknown> | null>(null);
   const [busy, setBusy] = useState(false);
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [rating, setRating] = useState(5);
   const [tags, setTags] = useState<string[]>([]);
+  const prevStatusRef = useRef<string | null>(null);
 
   const load = useCallback(() => {
-    api.getBookingDetail(bookingId).then(({ booking: b }) => setBooking(b));
+    api.getBookingDetail(bookingId).then(({ booking: b }) => {
+      const newStatus = b.status as string;
+      if (prevStatusRef.current && prevStatusRef.current !== newStatus) {
+        sound.statusChanged();
+        haptic.success();
+      }
+      prevStatusRef.current = newStatus;
+      setBooking(b);
+    });
   }, [bookingId]);
 
-  useFocusEffect(load);
+  // Polls while focused so a customer confirming the job, or an admin
+  // verifying payment, shows up here immediately without a manual refresh.
+  useFocusEffect(
+    useCallback(() => {
+      load();
+      const interval = setInterval(load, STATUS_POLL_MS);
+      return () => clearInterval(interval);
+    }, [load])
+  );
 
   const status = booking?.status as string | undefined;
 
@@ -112,7 +131,19 @@ export default function BookingDetailScreen({ route }: Props) {
           <Text style={{ color: colors.textMuted, marginTop: 4 }}>
             {booking.otherPartyName as string} · {booking.otherPartyPhone as string}
           </Text>
-          {Boolean(booking.exactAddress) && (
+          <View style={{ flexDirection: "row", gap: 20, marginTop: 10 }}>
+            <Pressable onPress={() => Linking.openURL(`tel:${booking.otherPartyPhone}`)}>
+              <Text style={{ color: colors.accent, fontWeight: "700" }}>📞 Call</Text>
+            </Pressable>
+            <Pressable
+              onPress={() =>
+                navigation.navigate("MessageThread", { bookingId, otherPartyName: booking.otherPartyName as string })
+              }
+            >
+              <Text style={{ color: colors.accent, fontWeight: "700" }}>💬 Message</Text>
+            </Pressable>
+          </View>
+          {Boolean(booking.exactAddress) && status !== "COMPLETED" && (
             <Pressable
               onPress={() =>
                 Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${booking.jobLat},${booking.jobLng}`)

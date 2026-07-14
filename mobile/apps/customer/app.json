@@ -51,7 +51,8 @@
         {
           "photosPermission": "Servigic needs access to your photos to attach job photos and payment proof."
         }
-      ]
+      ],
+      "expo-audio"
     ],
     "owner": "xpertserviz-786",
     "extra": {

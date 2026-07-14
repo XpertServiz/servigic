@@ -1,6 +1,6 @@
 # Servigic
 
-The Uber of home services: post a job, verified pros race to bid, money stays protected in escrow until the work is done.
+The Uber of home services: post a job, verified pros race to bid, money stays safely held until the work is done.
 
 Built per `servigic-master-brief-v1.1.md` — every phase P1–P11 has code, from the core web marketplace through the Python AI/ML layer to the two Expo mobile apps. See [What's real vs. simplified](#whats-real-vs-simplified) for the honest breakdown of what's fully tested vs. what needed graceful degradation because a real account/credential/device wasn't available in this environment.
 
@@ -66,7 +66,7 @@ Copy `.env.example` → `.env` (already done for local dev) and fill in real val
 **Web app (P1–P7) — complete, sellable marketplace:**
 - Auth & RBAC (3 roles, phone+OTP, edge-safe `proxy.ts`), 4-preset theme system, working EN/UR/AR language switcher with RTL
 - World-class landing page ported from the binding `servigic-landing-prototype.html` design contract, with real DB-backed proof/stats sections
-- Core loop: job posting → geohash dispatch fan-out → bidding (upsert, decline-with-reason, counter-offer, contact scrubbing) → accept → escrow payment (3 methods + proof) → admin verify → live status timeline + MapLibre tracking → confirm/auto-confirm → two-way ratings → payout queue
+- Core loop: job posting → geohash dispatch fan-out → bidding (upsert, decline-with-reason, counter-offer, contact scrubbing) → accept → Payment Protection (3 methods + proof) → admin verify → live status timeline + MapLibre tracking → confirm/auto-confirm → two-way ratings → payout queue
 - Disputes (open with photos, admin resolve: release/partial/full refund)
 - Admin cockpit: providers, categories, jobs, payments, payouts (+CSV export), disputes, users, analytics, settings, leads CRM
 - Programmatic SEO pages, `/pro` acquisition page

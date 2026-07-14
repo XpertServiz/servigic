@@ -23,9 +23,9 @@
     "eyebrow": "FAQ",
     "title": "PYTANIA? MAMY ODPOWIEDZI.",
     "items": [
-      { "q": "Czy dodanie zlecenia jest bezpłatne?", "a": "Tak — dodanie zlecenia jest zawsze bezpłatne. Płacisz dopiero po zaakceptowaniu oferty, a płatność trafia bezpośrednio na chroniony depozyt escrow." },
-      { "q": "Jak depozyt escrow mnie chroni?", "a": "Twoja płatność jest przechowywana przez Servigic, a nie przez fachowca, dopóki nie potwierdzisz zakończenia pracy. W razie problemów możesz otworzyć spór przed zwolnieniem środków." },
-      { "q": "Co jeśli fachowiec znajdzie dodatkową pracę na miejscu?", "a": "Składa zlecenie zmiany ze zdjęciem i ceną — zatwierdzasz je (i dopłacasz różnicę na escrow), zanim rozpocznie się dodatkowa praca." },
+      { "q": "Czy dodanie zlecenia jest bezpłatne?", "a": "Tak — dodanie zlecenia jest zawsze bezpłatne. Płacisz dopiero po zaakceptowaniu oferty, a płatność trafia bezpośrednio do Ochrony Płatności." },
+      { "q": "Jak Ochrona Płatności mnie chroni?", "a": "Twoja płatność jest przechowywana przez Servigic, a nie przez fachowca, dopóki nie potwierdzisz zakończenia pracy. W razie problemów możesz otworzyć spór przed zwolnieniem środków." },
+      { "q": "Co jeśli fachowiec znajdzie dodatkową pracę na miejscu?", "a": "Składa zlecenie zmiany ze zdjęciem i ceną — zatwierdzasz je (i dopłacasz różnicę do Ochrony Płatności), zanim rozpocznie się dodatkowa praca." },
       { "q": "Co jeśli nie jestem zadowolony?", "a": "Każde zlecenie objęte jest 7-dniową gwarancją jakości wykonania. Otwórz spór, a nasz zespół przeanalizuje zdjęcia obu stron, aby zwolnić środki, zwrócić częściowo lub w całości." },
       { "q": "Dlaczego nie widzę numeru telefonu fachowca przed zapłatą?", "a": "Dane kontaktowe pozostają ukryte, dopóki płatność nie zostanie zabezpieczona — to zapobiega transakcjom poza platformą, które pozostawiłyby Cię bez żadnej ochrony." },
       { "q": "Jak szybko pojawiają się oferty?", "a": "W przypadku zleceń awaryjnych większość klientów otrzymuje pierwszą ofertę w mniej niż 10 minut, ponieważ każdy pasujący pobliski fachowiec jest natychmiast powiadamiany." },

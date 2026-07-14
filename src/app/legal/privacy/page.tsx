@@ -16,7 +16,7 @@ export default function PrivacyPage() {
       </div>
       <div>
         <h2>How We Use It</h2>
-        <p>To operate the marketplace: matching jobs to providers, verifying identity, processing escrow, and sending job-related notifications.</p>
+        <p>To operate the marketplace: matching jobs to providers, verifying identity, processing payments, and sending job-related notifications.</p>
       </div>
       <div>
         <h2>Location Data</h2>

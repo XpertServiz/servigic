@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Lead } from "@prisma/client";
@@ -21,6 +21,69 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
   const [lastResult, setLastResult] = useState<{ found: number; saved: number; skipped: number } | null>(null);
   const [aiResults, setAiResults] = useState<Record<string, AiResult>>({});
   const [aiPendingId, setAiPendingId] = useState<string | null>(null);
+
+  // Table filters — separate from the "Fetch from Google Places" trade/city
+  // above, which only control what gets *fetched*, not what's *displayed*.
+  const [filterTrade, setFilterTrade] = useState<(typeof TRADES)[number] | "ALL">("ALL");
+  const [filterCity, setFilterCity] = useState<string | "ALL">("ALL");
+  const [filterStatus, setFilterStatus] = useState<(typeof STATUSES)[number] | "ALL">("ALL");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const filteredLeads = useMemo(
+    () =>
+      initialLeads.filter(
+        (l) =>
+          (filterTrade === "ALL" || l.trade === filterTrade) &&
+          (filterCity === "ALL" || l.city === filterCity) &&
+          (filterStatus === "ALL" || l.status === filterStatus)
+      ),
+    [initialLeads, filterTrade, filterCity, filterStatus]
+  );
+
+  const allFilteredSelected = filteredLeads.length > 0 && filteredLeads.every((l) => selected.has(l.id));
+
+  function toggleSelectAll() {
+    setSelected((cur) => {
+      if (allFilteredSelected) return new Set();
+      return new Set(filteredLeads.map((l) => l.id));
+    });
+  }
+
+  function toggleSelect(id: string) {
+    setSelected((cur) => {
+      const next = new Set(cur);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function selectedOrFilteredLeads() {
+    return selected.size > 0 ? filteredLeads.filter((l) => selected.has(l.id)) : filteredLeads;
+  }
+
+  async function copyNumbers() {
+    const leads = selectedOrFilteredLeads();
+    const numbers = leads.map((l) => l.phone).join("\n");
+    await navigator.clipboard.writeText(numbers);
+    toast.success(`Copied ${leads.length} number${leads.length === 1 ? "" : "s"} — paste into WhatsApp's "New broadcast" contact picker.`);
+  }
+
+  function exportCsv() {
+    const leads = selectedOrFilteredLeads();
+    const rows = [
+      ["Business", "Phone", "Trade", "City", "Status"],
+      ...leads.map((l) => [l.businessName, l.phone, TRADE_LABELS[l.trade]?.name ?? l.trade, l.city, l.status]),
+    ];
+    const csv = rows.map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `servigic-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   async function fetchLeads() {
     setFetching(true);
@@ -116,10 +179,87 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
         )}
       </div>
 
+      <div className="mb-4 flex flex-wrap items-end gap-3 rounded-[14px] border border-border-subtle bg-bg-elevated p-5">
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-text-muted">Filter: Trade</label>
+          <select
+            value={filterTrade}
+            onChange={(e) => setFilterTrade(e.target.value as typeof filterTrade)}
+            className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm"
+          >
+            <option value="ALL">All trades</option>
+            {TRADES.map((t) => (
+              <option key={t} value={t}>
+                {TRADE_LABELS[t].name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-text-muted">Filter: City</label>
+          <select
+            value={filterCity}
+            onChange={(e) => setFilterCity(e.target.value)}
+            className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm"
+          >
+            <option value="ALL">All cities</option>
+            {CITIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-text-muted">Filter: Status</label>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
+            className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm"
+          >
+            <option value="ALL">All statuses</option>
+            {STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+        <span className="text-xs text-text-muted">
+          {filteredLeads.length} lead{filteredLeads.length === 1 ? "" : "s"}
+          {selected.size > 0 ? ` · ${selected.size} selected` : ""}
+        </span>
+        <div className="ml-auto flex gap-2">
+          <button
+            onClick={copyNumbers}
+            disabled={filteredLeads.length === 0}
+            className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-4 py-2 text-xs font-semibold disabled:opacity-40"
+          >
+            📋 Copy numbers
+          </button>
+          <button
+            onClick={exportCsv}
+            disabled={filteredLeads.length === 0}
+            className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-4 py-2 text-xs font-semibold disabled:opacity-40"
+          >
+            ⬇ Export CSV
+          </button>
+        </div>
+      </div>
+      <p className="mb-4 text-xs text-text-muted">
+        WhatsApp doesn&apos;t allow one-click bulk sending to numbers that haven&apos;t saved your contact or opted in —
+        that&apos;s a platform rule, not a limit of this page. Use <strong>Copy numbers</strong> to paste into WhatsApp
+        Business App&apos;s own &quot;New broadcast&quot; contact picker (reaches contacts who&apos;ve saved your
+        number), or <strong>Export CSV</strong> for the Cloud API template-message route once that&apos;s set up.
+      </p>
+
       <div className="overflow-x-auto rounded-[14px] border border-border-subtle">
         <table className="w-full min-w-[1000px] text-sm">
           <thead className="bg-bg-elevated text-left text-xs uppercase tracking-wide text-text-muted">
             <tr>
+              <th className="p-4">
+                <input type="checkbox" checked={allFilteredSelected} onChange={toggleSelectAll} />
+              </th>
               <th className="p-4">Business</th>
               <th className="p-4">Phone</th>
               <th className="p-4">Trade / City</th>
@@ -129,11 +269,14 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
             </tr>
           </thead>
           <tbody>
-            {initialLeads.map((lead) => {
+            {filteredLeads.map((lead) => {
               const ai = aiResults[lead.id];
               const message = ai?.outreachMessage ?? buildOutreachMessage(lead.businessName, TRADE_LABELS[lead.trade]?.name ?? lead.trade, lead.city);
               return (
                 <tr key={lead.id} className="border-t border-border-subtle">
+                  <td className="p-4">
+                    <input type="checkbox" checked={selected.has(lead.id)} onChange={() => toggleSelect(lead.id)} />
+                  </td>
                   <td className="p-4 font-semibold">{lead.businessName}</td>
                   <td className="p-4 text-text-muted">{lead.phone}</td>
                   <td className="p-4 text-text-muted">
@@ -182,10 +325,10 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
                 </tr>
               );
             })}
-            {initialLeads.length === 0 && (
+            {filteredLeads.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-6 text-center text-text-muted">
-                  No leads yet — fetch some above.
+                <td colSpan={7} className="p-6 text-center text-text-muted">
+                  {initialLeads.length === 0 ? "No leads yet — fetch some above." : "No leads match these filters."}
                 </td>
               </tr>
             )}

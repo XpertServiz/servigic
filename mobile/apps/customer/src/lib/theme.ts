@@ -28,15 +28,16 @@ export const radius = {
 // map matches the brand instead of showing default OSM/Google styling —
 // the single change the redesign spec calls "50% of the Uber feel."
 export const mapStyle = [
-  { elementType: "geometry", stylers: [{ color: "#0D0F14" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#0D0F14" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#5C6178" }] },
-  { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#1F2330" }] },
+  { elementType: "geometry", stylers: [{ color: "#161822" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#161822" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#8B90A3" }] },
+  { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#2A2F40" }] },
   { featureType: "poi", stylers: [{ visibility: "off" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#1C202B" }] },
-  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#1C202B" }] },
-  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#20242F" }] },
-  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#262B38" }] },
+  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#161822" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#333B4D" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#333B4D" }] },
+  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#3D4860" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#FFB020" }, { lightness: -55 }] },
   { featureType: "transit", stylers: [{ visibility: "off" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0A1220" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0F1826" }] },
 ];

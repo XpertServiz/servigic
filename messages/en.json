@@ -12,7 +12,7 @@
     "line1": "BROKEN?",
     "line2": "FIXED",
     "line3": "TODAY.",
-    "sub": "Post your job. Verified pros race to bid. Your money stays protected in escrow until the work is done.",
+    "sub": "Post your job. Verified pros race to bid. Your money stays safely held until the work is done.",
     "ctaPrimary": "Post a Job — Get Bids in Minutes",
     "ctaSecondary": "Watch How It Works — 60 sec"
   },
@@ -23,9 +23,9 @@
     "eyebrow": "FAQ",
     "title": "QUESTIONS? ANSWERED.",
     "items": [
-      { "q": "Is posting a job free?", "a": "Yes — posting a job is always free. You only pay once you accept a bid, and that payment goes straight into protected escrow." },
-      { "q": "How does escrow protect me?", "a": "Your payment is held by Servigic, not the pro, until you confirm the job is done. If something's wrong, you can open a dispute before funds are released." },
-      { "q": "What if the pro finds extra work on-site?", "a": "They submit a Change Order with a photo and price — you approve (and pay the difference into escrow) before any extra work happens." },
+      { "q": "Is posting a job free?", "a": "Yes — posting a job is always free. You only pay once you accept a bid, and that payment goes straight into Payment Protection." },
+      { "q": "How does Payment Protection protect me?", "a": "Your payment is held by Servigic, not the pro, until you confirm the job is done. If something's wrong, you can open a dispute before funds are released." },
+      { "q": "What if the pro finds extra work on-site?", "a": "They submit a Change Order with a photo and price — you approve (and pay the difference into Payment Protection) before any extra work happens." },
       { "q": "What if I'm not satisfied?", "a": "Every job carries a 7-day workmanship warranty. Open a dispute and our team reviews photos from both sides to release, partially refund, or fully refund your payment." },
       { "q": "Why can't I see the pro's phone number before paying?", "a": "Contact details stay masked until payment is secured — this stops off-platform deals that leave you with zero protection." },
       { "q": "How fast do bids arrive?", "a": "For Emergency jobs, most customers see their first bid in under 10 minutes since every matching nearby pro is alerted instantly." },

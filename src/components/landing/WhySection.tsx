@@ -5,7 +5,7 @@ import { Eyebrow } from "@/components/landing/Eyebrow";
 
 const FEATURES = [
   "Real price competition (bidding)",
-  "Full-amount escrow protection",
+  "Full-amount Payment Protection",
   "Live Uber-style tracking",
   "Zero lead fees for pros",
   "Public verified badge ladder",

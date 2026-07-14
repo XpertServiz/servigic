@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Text } from "react-native";
+import * as Notifications from "expo-notifications";
 import { NavigationContainer, DarkTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../lib/auth";
+import * as api from "../lib/api";
+import { sound } from "../lib/sound";
+import { haptic } from "../components/ds";
 import { colors } from "../lib/theme";
 import { SplashScreen } from "../screens/SplashScreen";
 
@@ -30,12 +35,14 @@ export type HomeStackParamList = {
   PostJob: { categoryId?: string; urgency?: "EMERGENCY" | "TODAY" | "SCHEDULED" } | undefined;
   JobDetail: { jobId: string };
   BookingDetail: { bookingId: string };
+  MessageThread: { bookingId: string; otherPartyName: string };
 };
 
 export type JobsStackParamList = {
   MyJobs: undefined;
   JobDetail: { jobId: string };
   BookingDetail: { bookingId: string };
+  MessageThread: { bookingId: string; otherPartyName: string };
 };
 
 export type MessagesStackParamList = {
@@ -76,6 +83,11 @@ function HomeStackNavigator() {
       <HomeStack.Screen name="PostJob" component={PostJobScreen} options={{ headerShown: false }} />
       <HomeStack.Screen name="JobDetail" component={JobDetailScreen} options={{ title: "Bids" }} />
       <HomeStack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ title: "Booking" }} />
+      <HomeStack.Screen
+        name="MessageThread"
+        component={MessageThreadScreen}
+        options={({ route }) => ({ title: route.params.otherPartyName })}
+      />
     </HomeStack.Navigator>
   );
 }
@@ -86,6 +98,11 @@ function JobsStackNavigator() {
       <JobsStack.Screen name="MyJobs" component={MyJobsScreen} options={{ headerShown: false }} />
       <JobsStack.Screen name="JobDetail" component={JobDetailScreen} options={{ title: "Bids" }} />
       <JobsStack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ title: "Booking" }} />
+      <JobsStack.Screen
+        name="MessageThread"
+        component={MessageThreadScreen}
+        options={({ route }) => ({ title: route.params.otherPartyName })}
+      />
     </JobsStack.Navigator>
   );
 }
@@ -112,15 +129,57 @@ function AccountStackNavigator() {
 }
 
 const TAB_ICONS: Record<string, string> = { HomeTab: "🏠", JobsTab: "📋", MessagesTab: "💬", AccountTab: "👤" };
+const BID_POLL_MS = 15000;
 
 function MainTabs() {
+  const insets = useSafeAreaInsets();
+  const lastBidCount = useRef<number | null>(null);
+
+  // App-wide "new bid" watcher — fires regardless of which tab is open, so
+  // the customer hears/feels it even if they're not sitting on a job's bid
+  // board. Tracks the total bid count across open jobs rather than diffing
+  // per-job, since that's all a single cheap poll of getMyJobs() gives us.
+  useEffect(() => {
+    let cancelled = false;
+    async function poll() {
+      try {
+        const { jobs } = await api.getMyJobs();
+        if (cancelled) return;
+        const total = jobs.filter((j) => j.status === "OPEN").reduce((sum, j) => sum + j._count.bids, 0);
+        if (lastBidCount.current !== null && total > lastBidCount.current) {
+          sound.statusChanged();
+          haptic.success();
+          Notifications.scheduleNotificationAsync({
+            content: { title: "New bid received", body: "A pro just bid on your job.", sound: true },
+            trigger: null,
+          });
+        }
+        lastBidCount.current = total;
+      } catch {
+        // Best-effort background poll — JobDetailScreen's own fetch surfaces real errors.
+      }
+    }
+    poll();
+    const interval = setInterval(poll, BID_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: { backgroundColor: colors.bgElevated, borderTopColor: colors.border, height: 62, paddingBottom: 8, paddingTop: 6 },
+        tabBarStyle: {
+          backgroundColor: colors.bgElevated,
+          borderTopColor: colors.border,
+          height: 56 + insets.bottom,
+          paddingBottom: insets.bottom + 6,
+          paddingTop: 8,
+        },
         tabBarLabelStyle: { fontSize: 11, fontWeight: "700" },
         tabBarIcon: ({ color }) => <Text style={{ fontSize: 18, color }}>{TAB_ICONS[route.name]}</Text>,
       })}

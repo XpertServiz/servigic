@@ -24,7 +24,7 @@ export default function HowItWorksPage() {
       <div>
         <h2>03 — Pay Safe, Track Live, Release</h2>
         <p>
-          Accept a bid and pay the full amount into Servigic escrow via JazzCash, EasyPaisa, or bank transfer. Once
+          Accept a bid and pay the full amount into Servigic Payment Protection via JazzCash, EasyPaisa, or bank transfer. Once
           our team verifies your payment proof, contact details and your exact address unlock, and in-app chat opens.
         </p>
       </div>

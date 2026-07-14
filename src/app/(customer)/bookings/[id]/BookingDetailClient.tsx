@@ -48,6 +48,18 @@ const PAYMENT_METHODS = [
   { value: "BANK_TRANSFER", label: "Bank Transfer" },
 ] as const;
 
+// Placeholder numbers until real business accounts are swapped in via env —
+// see .env.example for what to replace.
+const PAYMENT_ACCOUNTS: Record<(typeof PAYMENT_METHODS)[number]["value"], { label: string; value: string }[]> = {
+  JAZZCASH: [{ label: "JazzCash number", value: process.env.NEXT_PUBLIC_JAZZCASH_NUMBER ?? "Not configured yet" }],
+  EASYPAISA: [{ label: "EasyPaisa number", value: process.env.NEXT_PUBLIC_EASYPAISA_NUMBER ?? "Not configured yet" }],
+  BANK_TRANSFER: [
+    { label: "Account title", value: process.env.NEXT_PUBLIC_BANK_ACCOUNT_TITLE ?? "Not configured yet" },
+    { label: "Account number", value: process.env.NEXT_PUBLIC_BANK_ACCOUNT_NUMBER ?? "Not configured yet" },
+    { label: "Bank", value: process.env.NEXT_PUBLIC_BANK_NAME ?? "Not configured yet" },
+  ],
+};
+
 export function BookingDetailClient({
   booking,
   currentUserId,
@@ -183,7 +195,7 @@ export function BookingDetailClient({
 
     return (
       <div className="mb-6 rounded-[14px] border border-border-subtle bg-bg-elevated p-5">
-        <h3 className="mb-1 font-bold">Pay into escrow</h3>
+        <h3 className="mb-1 font-bold">Secure Payment</h3>
         <p className="mb-4 text-sm text-text-muted">
           PKR {booking.totalPKR.toLocaleString()} — held safely until you confirm the job is done. Deadline:{" "}
           {new Date(booking.paymentDeadline).toLocaleString()}
@@ -199,6 +211,15 @@ export function BookingDetailClient({
             >
               {m.label}
             </button>
+          ))}
+        </div>
+        <div className="mb-4 rounded-[10px] border border-border-subtle bg-bg-elevated-2 p-4">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">Send payment to</p>
+          {PAYMENT_ACCOUNTS[method].map((row) => (
+            <div key={row.label} className="flex items-center justify-between py-1 text-sm">
+              <span className="text-text-muted">{row.label}</span>
+              <span className="font-mono font-semibold">{row.value}</span>
+            </div>
           ))}
         </div>
         <div className="mb-4">

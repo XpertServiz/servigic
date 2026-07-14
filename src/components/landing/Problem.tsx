@@ -28,7 +28,7 @@ export function Problem() {
         ))}
       </div>
       <p className="mt-8 font-display text-xl font-bold text-accent">
-        Servigic fixes all five — with bidding, escrow, and live tracking.
+        Servigic fixes all five — with bidding, Payment Protection, and live tracking.
       </p>
     </section>
   );

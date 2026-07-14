@@ -28,7 +28,7 @@ export async function ForPros() {
         <div className="rounded-[14px] border border-border-subtle bg-bg-elevated p-8">
           <h3 className="mb-4 text-xl font-bold">Customer?</h3>
           <p className="mb-5 text-sm text-text-muted">
-            Post a job free, get bids in minutes, pay only into protected escrow.
+            Post a job free, get bids in minutes, pay only into Payment Protection.
           </p>
           <Button href="/signup?role=customer">Post a Job →</Button>
         </div>

@@ -45,13 +45,13 @@ export async function generateMetadata({
   const cityLabel = titleCase(city);
   return {
     title: `${data.category.name} in ${cityLabel} — Bids in Minutes | Servigic`,
-    description: `Post a ${data.category.name.toLowerCase()} job in ${cityLabel} and get bids from verified pros in minutes. Money protected in escrow until the work is done.`,
+    description: `Post a ${data.category.name.toLowerCase()} job in ${cityLabel} and get bids from verified pros in minutes. Money held safely until the work is done.`,
   };
 }
 
 const FAQ_TEMPLATE = (categoryName: string, cityLabel: string) => [
   { q: `How much does a ${categoryName.toLowerCase()} cost in ${cityLabel}?`, a: `Prices vary by job — post your job free and compare real bids from verified pros in ${cityLabel} before you pay anything.` },
-  { q: "Is my payment protected?", a: "Yes — your payment sits in Servigic escrow and is only released to the pro after you confirm the job is done." },
+  { q: "Is my payment protected?", a: "Yes — your payment is held safely by Servigic and is only released to the pro after you confirm the job is done." },
   { q: "How fast will I get bids?", a: "Emergency jobs typically get a first bid in under 10 minutes since every matching nearby pro is alerted instantly." },
   { q: "Are the pros verified?", a: "All providers submit CNIC and a selfie for Level 1 approval; Level 2 pros are police-verified." },
 ];
@@ -91,7 +91,7 @@ export default async function ServiceCityPage({ params }: { params: Promise<{ ca
           </h1>
           <p className="mb-8 max-w-2xl text-lg text-text-muted">
             Post your {data.category.name.toLowerCase()} job and verified pros in {data.cityLabel} race to bid. Compare
-            price, rating, and ETA — pay only into protected escrow.
+            price, rating, and ETA — pay only into Payment Protection.
           </p>
 
           <div className="mb-10 flex flex-wrap gap-6">

@@ -2,13 +2,13 @@ import React, { useCallback, useRef, useState } from "react";
 import { View, Text, FlatList, StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import type { MessagesStackParamList } from "../navigation/RootNavigator";
+import type { JobsStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
 import { colors } from "../lib/theme";
 import { useAuth } from "../lib/auth";
 import { haptic } from "../components/ds";
 
-type Props = NativeStackScreenProps<MessagesStackParamList, "MessageThread">;
+type Props = NativeStackScreenProps<JobsStackParamList, "MessageThread">;
 type Message = Awaited<ReturnType<typeof api.getMessages>>["messages"][number];
 
 const POLL_MS = 8000;
@@ -96,7 +96,7 @@ export default function MessageThreadScreen({ route }: Props) {
 const styles = StyleSheet.create({
   bubbleRow: { flexDirection: "row" },
   bubble: { maxWidth: "78%", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10 },
-  bubbleMine: { backgroundColor: colors.accent, borderBottomRightRadius: 4 },
+  bubbleMine: { backgroundColor: colors.secondary, borderBottomRightRadius: 4 },
   bubbleTheirs: { backgroundColor: colors.bgElevated, borderBottomLeftRadius: 4, borderWidth: 1, borderColor: colors.border },
   inputRow: {
     flexDirection: "row",
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.secondary,
     alignItems: "center",
     justifyContent: "center",
   },

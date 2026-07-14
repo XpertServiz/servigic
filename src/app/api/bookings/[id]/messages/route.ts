@@ -3,7 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { messageSchema } from "@/lib/validation/booking";
 
-const UNLOCKED_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE", "COMPLETED"];
+// COMPLETED is deliberately excluded — once the customer confirms the job
+// is done, the relationship is over and messaging locks, matching Trust &
+// Safety's "chat unlocks after payment" / closes-on-completion model.
+const UNLOCKED_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE"];
 
 async function loadParticipantBooking(id: string, userId: string, role: string) {
   const booking = await prisma.booking.findUnique({ where: { id } });

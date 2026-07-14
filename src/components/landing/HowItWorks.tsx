@@ -16,8 +16,8 @@ const STEPS = [
   {
     num: "03",
     title: "Pay Safe, Track Live, Release",
-    desc: "Money sits in escrow; watch your pro drive to you Uber-style; released only when you confirm.",
-    mock: "🔒 Held in escrow · Ahmed is on the way · ETA 35 min",
+    desc: "Money is held safely until the job is done; watch your pro drive to you Uber-style; released only when you confirm.",
+    mock: "🔒 Payment Protected · Ahmed is on the way · ETA 35 min",
   },
 ];
 
@@ -47,7 +47,7 @@ export function HowItWorks() {
         <p className="mb-2 text-xs font-bold uppercase tracking-wide text-accent">For Emergencies</p>
         <h3 className="mb-2.5 text-xl font-bold">Or Skip the Wait — Instant Match</h3>
         <p className="mb-5 max-w-2xl text-[15px] text-text-muted">
-          Burst pipe at 2am? Get matched to the nearest verified pro in seconds — still fully escrow-protected. No
+          Burst pipe at 2am? Get matched to the nearest verified pro in seconds — still fully Payment Protected. No
           waiting for bids to come in.
         </p>
         <div className="rounded-[10px] border border-accent/30 bg-bg-elevated-2 p-3.5 text-xs text-text-muted">

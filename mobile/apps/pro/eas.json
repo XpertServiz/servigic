@@ -12,14 +12,14 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://servigic.com"
+        "EXPO_PUBLIC_API_URL": "https://www.servigic.com"
       },
       "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://servigic.com"
+        "EXPO_PUBLIC_API_URL": "https://www.servigic.com"
       },
       "channel": "production"
     }

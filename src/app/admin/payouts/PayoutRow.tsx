@@ -28,16 +28,34 @@ export function PayoutRow({ payout }: { payout: PayoutWithRelations }) {
     }
   }
 
+  const missingAccount = !payout.provider.payoutAccount;
+  const whatsappMessage = `Hi ${payout.provider.displayName || payout.provider.user.name}, this is Servigic — we're ready to send your PKR ${payout.amountPKR.toLocaleString()} payout for "${payout.booking.job.title}" but don't have your EasyPaisa/JazzCash/bank account on file yet. Please reply with your payout account number so we can send it.`;
+
   return (
     <div className="flex items-center justify-between rounded-[12px] border border-border-subtle bg-bg-elevated p-5">
       <div>
         <div className="font-bold">{payout.provider.displayName || payout.provider.user.name}</div>
         <div className="text-sm text-text-muted">
-          {payout.booking.job.title} · {payout.provider.payoutMethod ?? payout.method} · {payout.provider.payoutAccount ?? "no account on file"}
+          {payout.booking.job.title} · {payout.provider.payoutMethod ?? payout.method} ·{" "}
+          {missingAccount ? (
+            <span className="text-danger">no account on file</span>
+          ) : (
+            payout.provider.payoutAccount
+          )}
         </div>
       </div>
       <div className="flex items-center gap-4">
         <div className="font-display text-lg font-bold text-accent">PKR {payout.amountPKR.toLocaleString()}</div>
+        {missingAccount && (
+          <a
+            href={`https://wa.me/${payout.provider.user.phone.replace(/[^\d]/g, "")}?text=${encodeURIComponent(whatsappMessage)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-[8px] border border-secondary px-4 py-2 text-sm font-semibold text-secondary"
+          >
+            WhatsApp →
+          </a>
+        )}
         <button
           onClick={markSent}
           disabled={pending}

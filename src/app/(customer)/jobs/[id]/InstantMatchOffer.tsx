@@ -74,7 +74,7 @@ export function InstantMatchOffer({ jobId }: { jobId: string }) {
       >
         <div className="font-bold text-accent">🚨 Instant Match — skip bidding, book now</div>
         <div className="text-sm text-text-muted">
-          {loading ? "Finding the nearest available pro…" : "Get matched to the nearest verified pro in seconds, still fully escrow-protected."}
+          {loading ? "Finding the nearest available pro…" : "Get matched to the nearest verified pro in seconds, still fully Payment Protected."}
         </div>
       </button>
     );

@@ -12,14 +12,24 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://servigic.com"
+        "EXPO_PUBLIC_API_URL": "https://www.servigic.com",
+        "EXPO_PUBLIC_JAZZCASH_NUMBER": "0300-0000000",
+        "EXPO_PUBLIC_EASYPAISA_NUMBER": "0300-0000000",
+        "EXPO_PUBLIC_BANK_ACCOUNT_TITLE": "Servigic (Pvt) Ltd",
+        "EXPO_PUBLIC_BANK_ACCOUNT_NUMBER": "0000-0000000000-00",
+        "EXPO_PUBLIC_BANK_NAME": "Meezan Bank"
       },
       "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://servigic.com"
+        "EXPO_PUBLIC_API_URL": "https://www.servigic.com",
+        "EXPO_PUBLIC_JAZZCASH_NUMBER": "0300-0000000",
+        "EXPO_PUBLIC_EASYPAISA_NUMBER": "0300-0000000",
+        "EXPO_PUBLIC_BANK_ACCOUNT_TITLE": "Servigic (Pvt) Ltd",
+        "EXPO_PUBLIC_BANK_ACCOUNT_NUMBER": "0000-0000000000-00",
+        "EXPO_PUBLIC_BANK_NAME": "Meezan Bank"
       },
       "channel": "production"
     }

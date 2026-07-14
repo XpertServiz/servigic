@@ -21,7 +21,7 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "Servigic — Post a Job. Pros Race to Bid. Fixed Today.",
   description:
-    "The Uber of home services. Post your job, verified pros race to bid, your money stays protected in escrow until the work is done.",
+    "The Uber of home services. Post your job, verified pros race to bid, your money stays safely held until the work is done.",
 };
 
 export default async function RootLayout({

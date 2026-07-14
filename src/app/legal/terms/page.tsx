@@ -18,7 +18,7 @@ export default function TermsPage() {
         </p>
       </div>
       <div>
-        <h2>2. Escrow &amp; Payments</h2>
+        <h2>2. Payment Protection</h2>
         <p>
           Customer payments are held by Servigic and released to the pro upon customer confirmation or
           auto-confirmation, less Servigic&apos;s commission, subject to the dispute process described in Trust &amp;
@@ -34,7 +34,7 @@ export default function TermsPage() {
       </div>
       <div>
         <h2>4. Limitation of Liability</h2>
-        <p>Servigic is not liable for the quality of work performed by independent providers beyond the escrow and dispute process.</p>
+        <p>Servigic is not liable for the quality of work performed by independent providers beyond the Payment Protection and dispute process.</p>
       </div>
     </InfoPageShell>
   );

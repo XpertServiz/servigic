@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { View, Text, FlatList, Pressable, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { HomeStackParamList } from "../navigation/RootNavigator";
@@ -15,6 +16,7 @@ type Booking = Awaited<ReturnType<typeof api.getMyBookings>>["bookings"][number]
 const ACTIVE_BOOKING_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE"];
 
 export default function HomeScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,8 +44,8 @@ export default function HomeScreen({ navigation }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-        <View style={styles.header}>
-          <Text style={styles.greeting}>Salam 👋</Text>
+        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+          <Text style={styles.greeting}>Hello 👋</Text>
           <Text style={styles.headerSub}>What do you need fixed today?</Text>
         </View>
 

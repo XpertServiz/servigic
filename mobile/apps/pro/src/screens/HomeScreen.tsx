@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable, Animated, Easing } from "react-nativ
 import MapView from "react-native-maps";
 import * as Location from "expo-location";
 import { useFocusEffect } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { HomeStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
@@ -21,6 +22,7 @@ interface ProviderProfile {
 }
 
 export default function HomeScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const [profile, setProfile] = useState<ProviderProfile | null>(null);
   const [togglingOnline, setTogglingOnline] = useState(false);
   const [region, setRegion] = useState({ latitude: 24.8607, longitude: 67.0011, latitudeDelta: 0.08, longitudeDelta: 0.08 });
@@ -86,13 +88,19 @@ export default function HomeScreen({ navigation }: Props) {
       </MapView>
       {!online && <View style={styles.dimOverlay} pointerEvents="none" />}
 
-      <View style={[styles.statusBar, online && { backgroundColor: "rgba(34,197,94,0.16)", borderColor: colors.secondary }]}>
+      <View
+        style={[
+          styles.statusBar,
+          { top: insets.top + 16 },
+          online && { backgroundColor: "rgba(34,197,94,0.16)", borderColor: colors.secondary },
+        ]}
+      >
         <Text style={[styles.statusText, online && { color: colors.secondary }]}>
           {online ? `You're online · listening for jobs in ${profile.jobsCompleted >= 0 ? "your area" : ""}` : "You're offline"}
         </Text>
       </View>
 
-      <View style={styles.earningsCard}>
+      <View style={[styles.earningsCard, { top: insets.top + 68 }]}>
         <Text style={styles.earningsLabel}>Today</Text>
         <PriceText pkr={todayTotal} size="md" color={online ? colors.secondary : colors.textMuted} />
       </View>

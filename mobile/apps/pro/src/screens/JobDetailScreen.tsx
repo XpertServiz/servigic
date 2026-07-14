@@ -6,6 +6,7 @@ import type { JobsStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
 import { Button, Card, Field } from "../components/ui";
 import { PriceText, Chip, haptic } from "../components/ds";
+import { sound } from "../lib/sound";
 import { colors } from "../lib/theme";
 
 type Props = NativeStackScreenProps<JobsStackParamList, "JobDetail">;
@@ -61,6 +62,7 @@ export default function JobDetailScreen({ route }: Props) {
     try {
       await api.submitBid({ jobId, pricePKR: price, etaMinutes: Number(eta), message: message || undefined });
       haptic.success();
+      sound.bidSent();
       load();
     } catch (e) {
       Alert.alert("Error", e instanceof Error ? e.message : "Failed to submit bid");

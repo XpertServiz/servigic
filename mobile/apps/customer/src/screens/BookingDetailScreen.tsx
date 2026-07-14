@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, Pressable, Alert } from "react-native";
+import { View, Text, ScrollView, StyleSheet, Pressable, Alert, Linking } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect } from "@react-navigation/native";
@@ -8,17 +8,30 @@ import type { HomeStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
 import { Button, Card, Field } from "../components/ui";
 import { StatusPillTimeline, PriceText, RatingStars, ConfettiBurst, haptic } from "../components/ds";
+import { sound } from "../lib/sound";
 import { colors, mapStyle, radius } from "../lib/theme";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "BookingDetail">;
 
 const PAYMENT_METHODS = ["JAZZCASH", "EASYPAISA", "BANK_TRANSFER"] as const;
+
+// Placeholder numbers until real business accounts are swapped into .env.
+const PAYMENT_ACCOUNTS: Record<(typeof PAYMENT_METHODS)[number], { label: string; value: string }[]> = {
+  JAZZCASH: [{ label: "JazzCash number", value: process.env.EXPO_PUBLIC_JAZZCASH_NUMBER ?? "Not configured yet" }],
+  EASYPAISA: [{ label: "EasyPaisa number", value: process.env.EXPO_PUBLIC_EASYPAISA_NUMBER ?? "Not configured yet" }],
+  BANK_TRANSFER: [
+    { label: "Account title", value: process.env.EXPO_PUBLIC_BANK_ACCOUNT_TITLE ?? "Not configured yet" },
+    { label: "Account number", value: process.env.EXPO_PUBLIC_BANK_ACCOUNT_NUMBER ?? "Not configured yet" },
+    { label: "Bank", value: process.env.EXPO_PUBLIC_BANK_NAME ?? "Not configured yet" },
+  ],
+};
 const REVIEW_TAGS = ["Professional", "On time", "Clean work", "Cooperative"];
 const TRACKED_STATUSES = ["ON_MY_WAY", "ARRIVED", "WORKING"];
 const TIMELINE_STEPS = ["Confirmed", "On the way", "Arrived", "Working", "Done"];
 const TIMELINE_STATUS_ORDER = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE"];
+const STATUS_POLL_MS = 6000;
 
-export default function BookingDetailScreen({ route }: Props) {
+export default function BookingDetailScreen({ route, navigation }: Props) {
   const { bookingId } = route.params;
   const [booking, setBooking] = useState<Record<string, unknown> | null>(null);
   const [method, setMethod] = useState<(typeof PAYMENT_METHODS)[number]>("EASYPAISA");
@@ -31,12 +44,30 @@ export default function BookingDetailScreen({ route }: Props) {
   const [proLocation, setProLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [confettiTrigger, setConfettiTrigger] = useState(0);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const prevStatusRef = useRef<string | null>(null);
 
   const load = useCallback(() => {
-    api.getBookingDetail(bookingId).then(({ booking: b }) => setBooking(b));
+    api.getBookingDetail(bookingId).then(({ booking: b }) => {
+      const newStatus = b.status as string;
+      if (prevStatusRef.current && prevStatusRef.current !== newStatus) {
+        sound.statusChanged();
+        haptic.success();
+      }
+      prevStatusRef.current = newStatus;
+      setBooking(b);
+    });
   }, [bookingId]);
 
-  useFocusEffect(load);
+  // Polls while this screen is focused so status/payment changes made by
+  // the pro or admin show up immediately, without the user having to back
+  // out and reopen the booking to force a refresh.
+  useFocusEffect(
+    useCallback(() => {
+      load();
+      const interval = setInterval(load, STATUS_POLL_MS);
+      return () => clearInterval(interval);
+    }, [load])
+  );
 
   useEffect(() => {
     if (!booking || !TRACKED_STATUSES.includes(booking.status as string)) return;
@@ -122,12 +153,21 @@ export default function BookingDetailScreen({ route }: Props) {
 
         {status === "PENDING_PAYMENT" && !booking.paymentStatus && (
           <Card style={{ marginTop: 16 }}>
-            <Text style={styles.cardTitle}>Pay into escrow</Text>
+            <Text style={styles.cardTitle}>Secure Payment</Text>
             <View style={{ flexDirection: "row", gap: 8, marginVertical: 10 }}>
               {PAYMENT_METHODS.map((m) => (
                 <Pressable key={m} onPress={() => setMethod(m)} style={[styles.chip, method === m && styles.chipActive]}>
                   <Text style={{ color: method === m ? colors.accent : colors.textMuted, fontSize: 12 }}>{m}</Text>
                 </Pressable>
+              ))}
+            </View>
+            <View style={styles.accountCard}>
+              <Text style={styles.accountCardTitle}>Send payment to</Text>
+              {PAYMENT_ACCOUNTS[method].map((row) => (
+                <View key={row.label} style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 4 }}>
+                  <Text style={{ color: colors.textMuted, fontSize: 13 }}>{row.label}</Text>
+                  <Text style={{ color: colors.text, fontWeight: "700", fontSize: 13 }}>{row.value}</Text>
+                </View>
               ))}
             </View>
             {proofUrl ? (
@@ -153,7 +193,19 @@ export default function BookingDetailScreen({ route }: Props) {
             <Text style={{ color: colors.textMuted, marginTop: 4 }}>
               {booking.otherPartyName as string} · {booking.otherPartyPhone as string}
             </Text>
-            {Boolean(booking.exactAddress) && <Text style={{ color: colors.textMuted }}>{booking.exactAddress as string}</Text>}
+            <View style={{ flexDirection: "row", gap: 20, marginTop: 10 }}>
+              <Pressable onPress={() => Linking.openURL(`tel:${booking.otherPartyPhone}`)}>
+                <Text style={{ color: colors.accent, fontWeight: "700" }}>📞 Call</Text>
+              </Pressable>
+              <Pressable
+                onPress={() =>
+                  navigation.navigate("MessageThread", { bookingId, otherPartyName: booking.otherPartyName as string })
+                }
+              >
+                <Text style={{ color: colors.accent, fontWeight: "700" }}>💬 Message</Text>
+              </Pressable>
+            </View>
+            {Boolean(booking.exactAddress) && <Text style={{ color: colors.textMuted, marginTop: 8 }}>{booking.exactAddress as string}</Text>}
           </Card>
         )}
 
@@ -239,4 +291,6 @@ const styles = StyleSheet.create({
   cardTitle: { color: colors.text, fontWeight: "700", fontSize: 15 },
   chip: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
   chipActive: { borderColor: colors.accent, backgroundColor: "rgba(255,176,32,0.1)" },
+  accountCard: { backgroundColor: colors.bgElevated2, borderRadius: 10, borderWidth: 1, borderColor: colors.border, padding: 12, marginBottom: 12 },
+  accountCardTitle: { color: colors.textMuted, fontSize: 11, fontWeight: "700", textTransform: "uppercase", marginBottom: 4 },
 });

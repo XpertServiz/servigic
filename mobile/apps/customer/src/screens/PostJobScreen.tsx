@@ -29,6 +29,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
   const [areaLabel, setAreaLabel] = useState("");
   const [exactAddress, setExactAddress] = useState("");
   const [coords, setCoords] = useState({ lat: 24.8607, lng: 67.0011 });
+  const [locating, setLocating] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,8 +45,27 @@ export default function PostJobScreen({ navigation, route }: Props) {
   async function useMyLocation() {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") return;
-    const pos = await Location.getCurrentPositionAsync({});
-    setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+    setLocating(true);
+    try {
+      const pos = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = pos.coords;
+      setCoords({ lat: latitude, lng: longitude });
+      try {
+        const [place] = await Location.reverseGeocodeAsync({ latitude, longitude });
+        if (place) {
+          const formatted = [place.streetNumber, place.street, place.district ?? place.subregion, place.city]
+            .filter(Boolean)
+            .join(", ");
+          if (formatted) setExactAddress(formatted);
+          if (!areaLabel && (place.district || place.subregion)) setAreaLabel(place.district ?? place.subregion ?? "");
+        }
+      } catch {
+        // Reverse geocoding is best-effort — coords are already set above,
+        // so the job can still be posted even if we can't produce a label.
+      }
+    } finally {
+      setLocating(false);
+    }
   }
 
   async function pickPhoto() {
@@ -117,8 +137,10 @@ export default function PostJobScreen({ navigation, route }: Props) {
 
         <Field label="Area" placeholder="e.g. Gulshan-e-Iqbal" value={areaLabel} onChangeText={setAreaLabel} />
         <Field label="Exact address (hidden until paid) 🔒" value={exactAddress} onChangeText={setExactAddress} />
-        <Pressable onPress={useMyLocation} style={{ marginBottom: 20 }}>
-          <Text style={{ color: colors.accent, fontWeight: "700" }}>📍 Use my current location</Text>
+        <Pressable onPress={useMyLocation} disabled={locating} style={{ marginBottom: 20 }}>
+          <Text style={{ color: colors.accent, fontWeight: "700" }}>
+            {locating ? "Locating…" : "📍 Use my current location"}
+          </Text>
         </Pressable>
 
         <View style={styles.benchmarkCard}>

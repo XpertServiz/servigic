@@ -13,7 +13,10 @@
       "bundleIdentifier": "com.servigic.pro",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Servigic Pro shares your location with the customer while you're on the way to a job.",
-        "UIBackgroundModes": ["location", "remote-notification"]
+        "UIBackgroundModes": [
+          "location",
+          "remote-notification"
+        ]
       }
     },
     "android": {
@@ -52,7 +55,8 @@
         {
           "photosPermission": "Servigic Pro needs access to your photos to upload verification documents."
         }
-      ]
+      ],
+      "expo-audio"
     ],
     "extra": {
       "eas": {

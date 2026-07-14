@@ -18,7 +18,7 @@ export default function BusinessPage() {
       </p>
       <p>
         Built for villa management companies, condo and apartment complex managers, and DHA-style community
-        management — the same escrow protection and verified-pro network as every other Servigic job, just organized
+        management — the same Payment Protection and verified-pro network as every other Servigic job, just organized
         for scale.
       </p>
       <p className="text-sm text-text-dim">
