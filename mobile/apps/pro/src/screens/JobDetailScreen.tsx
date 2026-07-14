@@ -18,7 +18,7 @@ const ETA_CHIPS = [
 ];
 const PRICE_STEP = 100;
 
-export default function JobDetailScreen({ route }: Props) {
+export default function JobDetailScreen({ route, navigation }: Props) {
   const { jobId } = route.params;
   const [job, setJob] = useState<Record<string, unknown> | null>(null);
   const [myBid, setMyBid] = useState<Record<string, unknown> | null>(null);
@@ -31,6 +31,14 @@ export default function JobDetailScreen({ route }: Props) {
 
   const load = useCallback(() => {
     api.getProviderJobDetail(jobId).then((data) => {
+      // Once the customer accepts this bid, there's nothing left to do on
+      // the job screen — the booking (contact, map, chat, status buttons)
+      // is the real destination, so jump straight there instead of
+      // stranding the pro on a dead "Bid status: ACCEPTED" card.
+      if (data.bookingId) {
+        navigation.replace("BookingDetail", { bookingId: data.bookingId });
+        return;
+      }
       setJob(data.job);
       setMyBid(data.myBid);
       setVerificationLevel(data.verificationLevel);
@@ -39,7 +47,7 @@ export default function JobDetailScreen({ route }: Props) {
         setEta(String((data.myBid as { etaMinutes: number }).etaMinutes));
       }
     });
-  }, [jobId]);
+  }, [jobId, navigation]);
 
   useFocusEffect(load);
 

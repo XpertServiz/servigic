@@ -17,6 +17,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   const myBid = await prisma.bid.findUnique({ where: { jobId_providerId: { jobId: job.id, providerId: profile.id } } });
 
+  // Once a bid is accepted, the job detail screen is a dead end — the pro
+  // needs the booking (contact, map, message thread, status buttons)
+  // instead, so hand back its id for the mobile app to redirect to.
+  const booking = myBid ? await prisma.booking.findUnique({ where: { bidId: myBid.id }, select: { id: true } }) : null;
+
   const distance =
     profile.baseLat && profile.baseLng ? distanceBand(haversineKm(job.lat, job.lng, profile.baseLat, profile.baseLng)) : "—";
 
@@ -34,6 +39,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       distanceBand: distance,
     },
     myBid,
+    bookingId: booking?.id ?? null,
     verificationLevel: profile.verificationLevel,
   });
 }

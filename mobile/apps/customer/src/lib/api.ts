@@ -150,9 +150,12 @@ export function getProviderJobFeed() {
 }
 
 export function getProviderJobDetail(jobId: string) {
-  return request<{ job: Record<string, unknown>; myBid: Record<string, unknown> | null; verificationLevel: number }>(
-    `/api/mobile/provider/jobs/${jobId}`
-  );
+  return request<{
+    job: Record<string, unknown>;
+    myBid: Record<string, unknown> | null;
+    bookingId: string | null;
+    verificationLevel: number;
+  }>(`/api/mobile/provider/jobs/${jobId}`);
 }
 
 export function submitBid(input: { jobId: string; pricePKR: number; etaMinutes: number; message?: string }) {
