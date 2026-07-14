@@ -249,7 +249,7 @@ function ProposeChangeOrderForm({ bookingId }: { bookingId: string }) {
       />
       <div className="mb-3">
         <PhotoUploadField
-          endpoint="jobPhotos"
+          endpoint="changeOrderPhoto"
           urls={photoUrl ? [photoUrl] : []}
           maxCount={1}
           label="Photo"

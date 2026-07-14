@@ -37,6 +37,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         title: "New dispute opened",
         body: parsed.data.reason.slice(0, 100),
         linkUrl: "/admin/disputes",
+        channels: ["email"],
       })
     )
   );

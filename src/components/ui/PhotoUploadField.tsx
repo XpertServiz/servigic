@@ -13,7 +13,7 @@ export function PhotoUploadField({
   label,
   thumbClassName = "h-16 w-16",
 }: {
-  endpoint: "jobPhotos" | "paymentProof" | "providerDocs" | "disputePhotos";
+  endpoint: "jobPhotos" | "paymentProof" | "providerDocs" | "disputePhotos" | "changeOrderPhoto";
   urls: string[];
   onAdd: (newUrls: string[]) => void;
   maxCount: number;

@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 
-const UNLOCKED_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE", "COMPLETED"];
+// DISPUTED/CANCELLED included — contact was already unlocked before a
+// dispute could even be opened (only allowed from an already-unlocked
+// status), so a dispute must never re-lock it. That would cut off contact
+// and messaging exactly when resolving things needs them most.
+const UNLOCKED_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE", "COMPLETED", "DISPUTED", "CANCELLED"];
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole("CUSTOMER", "PROVIDER");
@@ -54,6 +58,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       otherPartyPhone: unlocked ? (isCustomer ? booking.providerUser.phone : booking.customer.phone) : null,
       hasReview: isCustomer ? Boolean(booking.review) : Boolean(booking.customerReview),
       unlocked,
+      dispute: booking.dispute
+        ? {
+            reason: booking.dispute.reason,
+            resolution: booking.dispute.resolution,
+            notes: booking.dispute.notes,
+            openedById: booking.dispute.openedById,
+          }
+        : null,
     },
   });
 }
