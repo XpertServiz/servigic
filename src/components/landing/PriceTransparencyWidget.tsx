@@ -14,6 +14,7 @@ interface Benchmark {
   avgWinningPKR: number;
   minPKR: number;
   maxPKR: number;
+  isEstimate: boolean;
 }
 
 export function PriceTransparencyWidget({ categories, cities }: { categories: CategoryOption[]; cities: string[] }) {
@@ -84,8 +85,14 @@ export function PriceTransparencyWidget({ categories, cities }: { categories: Ca
               PKR {benchmark.minPKR.toLocaleString()}–{benchmark.maxPKR.toLocaleString()}
             </div>
             <p className="mt-1 text-sm text-text-muted">
-              Typical price for {selectedCategory?.name} in {city} · based on {benchmark.sampleSize} completed jobs ·
-              avg PKR {benchmark.avgWinningPKR.toLocaleString()}
+              {benchmark.isEstimate ? (
+                <>Starting-price estimate for {selectedCategory?.name} in {city} — updates to real completed-job data once enough jobs finish.</>
+              ) : (
+                <>
+                  Typical price for {selectedCategory?.name} in {city} · based on {benchmark.sampleSize} completed jobs ·
+                  avg PKR {benchmark.avgWinningPKR.toLocaleString()}
+                </>
+              )}
             </p>
           </>
         )}

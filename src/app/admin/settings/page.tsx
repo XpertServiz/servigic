@@ -17,6 +17,8 @@ export default async function AdminSettingsPage() {
           activeTheme: settings?.activeTheme ?? "electric-amber",
           defaultCommissionPct: settings?.defaultCommissionPct ?? 12,
           whatsappSupportNumber: settings?.whatsappSupportNumber ?? "",
+          demoVideoCustomerUrl: settings?.demoVideoCustomerUrl ?? "",
+          demoVideoProUrl: settings?.demoVideoProUrl ?? "",
           featureFlags,
         }}
       />

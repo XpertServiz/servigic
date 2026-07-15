@@ -3,6 +3,7 @@ import { LIVE_CITIES } from "@/lib/markets";
 import { detectMarket } from "@/lib/geoDetect";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
+import { LiveRefresher } from "@/components/landing/LiveRefresher";
 import { CountryWaitlistSection } from "@/components/landing/CountryWaitlistSection";
 import { ProofTicker } from "@/components/landing/ProofTicker";
 import { PriceTransparencyWidget } from "@/components/landing/PriceTransparencyWidget";
@@ -57,6 +58,7 @@ export default async function LandingPage() {
   return (
     <>
       <Navbar />
+      <LiveRefresher />
       <main className="flex-1">
         <Hero isLive={market.isLive} />
         {!market.isLive && <CountryWaitlistSection countryCode={market.country} countryName={market.countryName} />}

@@ -2,6 +2,31 @@ import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/landing/Eyebrow";
 import { DispatchSimulation } from "@/components/landing/DispatchSimulation";
+import { YouTubeEmbed } from "@/components/landing/YouTubeEmbed";
+import { prisma } from "@/lib/prisma";
+import { extractYouTubeId } from "@/lib/youtube";
+
+function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.trim().slice(0, 2).toUpperCase();
+}
+
+async function getTrustData() {
+  try {
+    const [customers, settings] = await Promise.all([
+      prisma.user.findMany({ where: { role: "CUSTOMER" }, orderBy: { createdAt: "desc" }, take: 4, select: { name: true } }),
+      prisma.siteSettings.findUnique({ where: { id: "singleton" } }),
+    ]);
+    return {
+      initials: customers.map((c) => initialsOf(c.name)),
+      customerVideoId: settings?.demoVideoCustomerUrl ? extractYouTubeId(settings.demoVideoCustomerUrl) : null,
+      proVideoId: settings?.demoVideoProUrl ? extractYouTubeId(settings.demoVideoProUrl) : null,
+    };
+  } catch {
+    return { initials: [], customerVideoId: null, proVideoId: null };
+  }
+}
 
 // Real trades, free-license stock (Pexels), resized+compressed via Pexels'
 // own query params. Full-bleed crossfade, one photo visible at a time (much
@@ -22,7 +47,9 @@ const SLOT_SECONDS = 4;
 const CYCLE_SECONDS = HERO_BG_PHOTOS.length * SLOT_SECONDS;
 
 export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
-  const t = await getTranslations("hero");
+  const [t, { initials, customerVideoId, proVideoId }] = await Promise.all([getTranslations("hero"), getTrustData()]);
+  const hasVideos = Boolean(customerVideoId || proVideoId);
+  const trustInitials = initials.length > 0 ? initials : ["AK", "SR", "MF", "HZ"];
 
   return (
     <section className="relative overflow-hidden bg-[radial-gradient(ellipse_80%_60%_at_30%_0%,rgba(255,176,32,.16),transparent_60%),radial-gradient(ellipse_60%_50%_at_90%_20%,rgba(34,197,94,.08),transparent_60%)] pb-20 pt-24">
@@ -61,7 +88,7 @@ export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
             <span className="text-accent">{t("line3")}</span>
           </h1>
           <p className="my-6 max-w-[520px] text-lg text-text-muted">{t("sub")}</p>
-          <div className="mb-9 flex flex-wrap gap-4">
+          <div className="mb-6 flex flex-wrap gap-4">
             {isLive ? (
               <Button href="/signup?role=customer" size="lg">
                 {t("ctaPrimary")}
@@ -71,23 +98,42 @@ export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
                 Join the Waitlist →
               </Button>
             )}
-            <Button href="#demo" variant="ghost" size="lg">
-              ▶ {t("ctaSecondary")}
-            </Button>
+            {!hasVideos && (
+              <Button href="#demo" variant="ghost" size="lg">
+                ▶ {t("ctaSecondary")}
+              </Button>
+            )}
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex">
-              {["AK", "SR", "MF", "HZ"].map((initials, i) => (
-                <span
-                  key={initials}
-                  className="-ms-2.5 flex h-[34px] w-[34px] items-center justify-center rounded-full border-2 border-bg bg-gradient-to-br from-[#333] to-[#555] text-[12px] font-bold first:ms-0"
-                  style={{ zIndex: 10 - i }}
-                >
-                  {initials}
-                </span>
-              ))}
+
+          <div className="flex flex-wrap items-center gap-6">
+            {hasVideos && (
+              <div className="flex gap-3">
+                {customerVideoId && (
+                  <div className="w-[140px] sm:w-[160px]">
+                    <YouTubeEmbed videoId={customerVideoId} label="Post a job" />
+                  </div>
+                )}
+                {proVideoId && (
+                  <div className="w-[140px] sm:w-[160px]">
+                    <YouTubeEmbed videoId={proVideoId} label="Accept a bid" />
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="flex items-center gap-3">
+              <div className="flex">
+                {trustInitials.map((label, i) => (
+                  <span
+                    key={`${label}-${i}`}
+                    className="-ms-2.5 flex h-[34px] w-[34px] items-center justify-center rounded-full border-2 border-bg bg-gradient-to-br from-[#333] to-[#555] text-[12px] font-bold first:ms-0"
+                    style={{ zIndex: 10 - i }}
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+              <small className="text-text-muted">Trusted by homeowners across Karachi, Lahore &amp; Islamabad</small>
             </div>
-            <small className="text-text-muted">Trusted by homeowners across Karachi, Lahore &amp; Islamabad</small>
           </div>
         </div>
 

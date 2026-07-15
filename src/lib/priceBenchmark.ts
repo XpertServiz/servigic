@@ -85,7 +85,30 @@ function addToGroup(
 }
 
 export async function getPriceBenchmark(categoryId: string, city: string, subServiceId?: string | null, windowDays = 30) {
-  return prisma.priceBenchmark.findFirst({
+  const real = await prisma.priceBenchmark.findFirst({
     where: { categoryId, city, subServiceId: subServiceId ?? null, windowDays },
   });
+  if (real) return { ...real, isEstimate: false };
+
+  // Below MIN_SAMPLE_SIZE real completed jobs — rather than showing nothing
+  // (which reads as "this platform has no activity"), fall back to the
+  // admin-configured min/max for the category (Admin → Price Benchmarks).
+  // Clearly labeled as an estimate in the API response so the UI never
+  // presents it as real data — same "no fabricated stats" rule, just with
+  // an honest starting-point number instead of a blank apology.
+  const category = await prisma.serviceCategory.findUnique({ where: { id: categoryId } });
+  if (!category?.minPricePKR) return null;
+
+  return {
+    categoryId,
+    subServiceId: subServiceId ?? null,
+    city,
+    windowDays,
+    sampleSize: 0,
+    avgWinningPKR: Math.round((category.minPricePKR + (category.maxPricePKR ?? category.minPricePKR)) / 2),
+    medianWinningPKR: null,
+    minPKR: category.minPricePKR,
+    maxPKR: category.maxPricePKR ?? category.minPricePKR,
+    isEstimate: true,
+  };
 }

@@ -8,6 +8,8 @@ const schema = z.object({
   activeTheme: z.string().refine(isThemeName, "Unknown theme"),
   defaultCommissionPct: z.number().min(0).max(50),
   whatsappSupportNumber: z.string().trim().max(20).optional(),
+  demoVideoCustomerUrl: z.string().trim().max(200).optional(),
+  demoVideoProUrl: z.string().trim().max(200).optional(),
   featureFlags: z
     .object({
       aiJobTriage: z.boolean(),

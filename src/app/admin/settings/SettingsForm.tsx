@@ -16,7 +16,14 @@ const FLAG_LABELS: Record<keyof FeatureFlags, { label: string; desc: string }> =
 export function SettingsForm({
   initial,
 }: {
-  initial: { activeTheme: string; defaultCommissionPct: number; whatsappSupportNumber: string; featureFlags: FeatureFlags };
+  initial: {
+    activeTheme: string;
+    defaultCommissionPct: number;
+    whatsappSupportNumber: string;
+    demoVideoCustomerUrl: string;
+    demoVideoProUrl: string;
+    featureFlags: FeatureFlags;
+  };
 }) {
   const router = useRouter();
   const [form, setForm] = useState(initial);
@@ -86,6 +93,33 @@ export function SettingsForm({
           placeholder="+923001234567"
           className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
         />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Landing page demo videos</label>
+        <p className="mb-3 text-xs text-text-muted">
+          Paste a YouTube URL or bare video ID. Leave blank to hide that video slot on the landing page.
+        </p>
+        <div className="flex flex-col gap-3">
+          <div>
+            <label className="mb-1 block text-xs text-text-muted">&quot;How a customer posts a job&quot; video</label>
+            <input
+              value={form.demoVideoCustomerUrl}
+              onChange={(e) => setForm({ ...form, demoVideoCustomerUrl: e.target.value })}
+              placeholder="https://youtube.com/watch?v=..."
+              className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-text-muted">&quot;How a pro accepts a bid&quot; video</label>
+            <input
+              value={form.demoVideoProUrl}
+              onChange={(e) => setForm({ ...form, demoVideoProUrl: e.target.value })}
+              placeholder="https://youtube.com/watch?v=..."
+              className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+            />
+          </div>
+        </div>
       </div>
 
       <div>

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { publicAreaLabel } from "@/lib/anon";
 
 // Real DB events only — hidden entirely below thresholds (Master Brief §7A, §12: no fake stats).
 const MIN_EVENTS_TO_SHOW = 5;
@@ -19,7 +20,7 @@ async function getTickerItems(): Promise<string[]> {
 
   const items: string[] = [];
   for (const bid of recentBids) {
-    items.push(`${bid.job.category.name} bid PKR ${bid.pricePKR.toLocaleString()} in ${bid.job.areaLabel}`);
+    items.push(`${bid.job.category.name} bid PKR ${bid.pricePKR.toLocaleString()} in ${publicAreaLabel(bid.job.areaLabel)}`);
   }
   if (completedJobs > 0) items.push(`${completedJobs} jobs completed this week`);
   if (payoutSum._sum.amountPKR) items.push(`PKR ${payoutSum._sum.amountPKR.toLocaleString()} paid out to pros this week`);
