@@ -3,6 +3,7 @@ import { Eyebrow } from "@/components/landing/Eyebrow";
 import { detectMarket } from "@/lib/geoDetect";
 import { formatApproxFromPKR } from "@/lib/currency";
 import { publicAreaLabel } from "@/lib/anon";
+import { ReviewsCarousel } from "@/components/landing/ReviewsCarousel";
 
 // Lowered from 20 — at launch, waiting for 20 real completed jobs before
 // showing any numbers means the section stays blank for weeks. 3 is still
@@ -39,7 +40,7 @@ async function getStats() {
       prisma.payout.aggregate({ where: { status: { in: ["SENT", "CONFIRMED"] } }, _sum: { amountPKR: true } }),
       prisma.review.findMany({
         orderBy: { createdAt: "desc" },
-        take: 3,
+        take: 30,
         include: { booking: { include: { job: { include: { category: true } } } } },
       }),
       getAvgTimeToFirstBidMinutes(),
@@ -97,17 +98,17 @@ export async function Results() {
       </div>
 
       {!belowThreshold && reviews.length > 0 && (
-        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-          {reviews.map((r) => (
-            <div key={r.id} className="rounded-[14px] border border-border-subtle bg-bg-elevated p-6">
-              <div className="mb-2.5 text-[13px] text-accent">{"★".repeat(r.rating)}</div>
-              <p className="mb-4 text-sm text-text-muted">&quot;{r.comment}&quot;</p>
-              <div className="text-[13px] font-bold">
-                {publicAreaLabel(r.booking.job.areaLabel)} · {r.booking.job.category.name}
-              </div>
-            </div>
-          ))}
-        </div>
+        <ReviewsCarousel
+          reviews={reviews
+            .filter((r) => r.comment)
+            .map((r) => ({
+              id: r.id,
+              rating: r.rating,
+              comment: r.comment as string,
+              areaLabel: publicAreaLabel(r.booking.job.areaLabel),
+              categoryName: r.booking.job.category.name,
+            }))}
+        />
       )}
     </section>
   );
