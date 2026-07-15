@@ -11,6 +11,9 @@
     },
     "preview": {
       "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://www.servigic.com",
         "EXPO_PUBLIC_JAZZCASH_NUMBER": "0300-0000000",
@@ -23,6 +26,9 @@
     },
     "production": {
       "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://www.servigic.com",
         "EXPO_PUBLIC_JAZZCASH_NUMBER": "0300-0000000",

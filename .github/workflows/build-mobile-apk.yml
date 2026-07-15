@@ -63,12 +63,26 @@ jobs:
         if: matrix.app != 'admin'
         run: npm install -g eas-cli
 
+      # preview builds an installable .apk (sideload-friendly); production
+      # builds a Play Console-ready .aab (eas.json's android.buildType per
+      # profile — see that file's comments). Computed once here so both the
+      # build step's --output filename and the upload-artifact step below
+      # agree on the extension.
+      - name: Determine build output extension
+        id: ext
+        run: |
+          if [ "${{ matrix.app }}" != "admin" ] && [ "${{ github.event.inputs.profile }}" = "production" ]; then
+            echo "ext=aab" >> "$GITHUB_OUTPUT"
+          else
+            echo "ext=apk" >> "$GITHUB_OUTPUT"
+          fi
+
       # customer/pro reuse the project's existing EAS-managed remote Android
       # signing keystore (needed for real Play Store / update continuity).
       # admin is an internal-only sideloaded tool with no EAS project
       # registered, so it skips EAS entirely and just does a plain Gradle
       # debug build (auto-signed with the runner's throwaway debug keystore).
-      - name: Build APK locally (EAS, customer/pro)
+      - name: Build APK/AAB locally (EAS, customer/pro)
         if: matrix.app != 'admin'
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -83,7 +97,7 @@ jobs:
             -Dorg.gradle.daemon=false
             -Dorg.gradle.parallel=false
             -Dorg.gradle.workers.max=1
-        run: eas build --local --platform android --profile ${{ github.event.inputs.profile }} --non-interactive --output ./build-${{ matrix.app }}.apk
+        run: eas build --local --platform android --profile ${{ github.event.inputs.profile }} --non-interactive --output ./build-${{ matrix.app }}.${{ steps.ext.outputs.ext }}
 
       - name: Prebuild native Android project (admin)
         if: matrix.app == 'admin'
@@ -112,6 +126,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: servigic-${{ matrix.app }}-${{ github.event.inputs.profile }}.apk
-          path: mobile/apps/${{ matrix.app }}/build-${{ matrix.app }}.apk
+          name: servigic-${{ matrix.app }}-${{ github.event.inputs.profile }}.${{ steps.ext.outputs.ext }}
+          path: mobile/apps/${{ matrix.app }}/build-${{ matrix.app }}.${{ steps.ext.outputs.ext }}
           retention-days: 30
