@@ -26,6 +26,7 @@ export default function JobDetailScreen({ route, navigation }: Props) {
   const [price, setPrice] = useState(1500);
   const [eta, setEta] = useState("");
   const [message, setMessage] = useState("");
+  const [partsNote, setPartsNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [winHint, setWinHint] = useState<{ winProbability: number; isHeuristic: boolean } | null>(null);
 
@@ -45,6 +46,7 @@ export default function JobDetailScreen({ route, navigation }: Props) {
       if (data.myBid) {
         setPrice((data.myBid as { pricePKR: number }).pricePKR);
         setEta(String((data.myBid as { etaMinutes: number }).etaMinutes));
+        setPartsNote((data.myBid as { estimatedPartsNote?: string | null }).estimatedPartsNote ?? "");
       }
     });
   }, [jobId, navigation]);
@@ -69,7 +71,13 @@ export default function JobDetailScreen({ route, navigation }: Props) {
     const isFirstSubmit = !myBid;
     setBusy(true);
     try {
-      await api.submitBid({ jobId, pricePKR: price, etaMinutes: Number(eta), message: message || undefined });
+      await api.submitBid({
+        jobId,
+        pricePKR: price,
+        etaMinutes: Number(eta),
+        message: message || undefined,
+        estimatedPartsNote: partsNote || undefined,
+      });
       haptic.success();
       sound.bidSent();
       if (isFirstSubmit) {
@@ -170,6 +178,15 @@ export default function JobDetailScreen({ route, navigation }: Props) {
               💡 Price to win: ~{Math.round(winHint.winProbability * 100)}% {winHint.isHeuristic ? "(estimate)" : ""}
             </Text>
           )}
+          <Field
+            label="Estimated parts/materials cost (optional)"
+            value={partsNote}
+            onChangeText={setPartsNote}
+            placeholder="e.g. ~PKR 1,500 for pipe fittings"
+          />
+          <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: -10, marginBottom: 14 }}>
+            Shown to the customer as an estimate only — Servigic never collects this.
+          </Text>
           <Field label="Message (optional)" multiline numberOfLines={3} value={message} onChangeText={setMessage} />
           <Button title={myBid ? "Update Bid" : "Send Bid"} onPress={submitBid} loading={busy} disabled={!price || !eta} />
         </Card>

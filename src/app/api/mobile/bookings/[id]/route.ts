@@ -18,6 +18,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     where: { id },
     include: {
       job: { include: { category: true } },
+      bid: { select: { estimatedPartsNote: true } },
       providerProfile: true,
       providerUser: { select: { name: true, phone: true } },
       customer: { select: { name: true, phone: true } },
@@ -41,6 +42,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       id: booking.id,
       status: booking.status,
       totalPKR: booking.totalPKR,
+      estimatedPartsNote: booking.bid.estimatedPartsNote,
       payoutPKR: booking.payoutPKR,
       jobTitle: booking.job.title,
       categoryIcon: booking.job.category.icon,

@@ -33,6 +33,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     pricePKR: bid.pricePKR,
     etaMinutes: bid.etaMinutes,
     message: bid.message,
+    estimatedPartsNote: bid.estimatedPartsNote,
     status: bid.status,
     counterPricePKR: bid.counterPricePKR,
     ratingAvg: bid.provider.ratingAvg,

@@ -27,6 +27,7 @@ type BookingView = {
   id: string;
   status: string;
   totalPKR: number;
+  estimatedPartsNote: string | null;
   jobTitle: string;
   categoryIcon: string;
   exactAddress: string | null;
@@ -221,10 +222,21 @@ export function BookingDetailClient({
     return (
       <div className="mb-6 rounded-[14px] border border-border-subtle bg-bg-elevated p-5">
         <h3 className="mb-1 font-bold">Secure Payment</h3>
-        <p className="mb-4 text-sm text-text-muted">
-          PKR {booking.totalPKR.toLocaleString()} — held safely until you confirm the job is done. Deadline:{" "}
-          {new Date(booking.paymentDeadline).toLocaleString()}
+        <p className="mb-3 text-sm text-text-muted">
+          PKR {booking.totalPKR.toLocaleString()} · Deadline: {new Date(booking.paymentDeadline).toLocaleString()}
         </p>
+        <div className="mb-3 flex items-start gap-2.5 rounded-[10px] border border-secondary/30 bg-secondary/10 px-4 py-3">
+          <span className="mt-0.5 text-secondary" aria-hidden="true">🔒</span>
+          <p className="text-sm font-semibold text-secondary">
+            Your payment is held safely and only released to the provider once you confirm the job is done.
+          </p>
+        </div>
+        {booking.estimatedPartsNote && (
+          <p className="mb-4 text-xs text-text-muted">
+            Estimated parts/materials: <span className="font-semibold">{booking.estimatedPartsNote}</span> — this is
+            not collected by Servigic. Please arrange payment for parts directly with your pro.
+          </p>
+        )}
         <div className="mb-4 flex gap-2">
           {PAYMENT_METHODS.map((m) => (
             <button

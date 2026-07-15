@@ -20,6 +20,7 @@ export default async function CustomerBookingPage({ params }: { params: Promise<
     where: { id },
     include: {
       job: { include: { category: true } },
+      bid: { select: { estimatedPartsNote: true } },
       providerProfile: true,
       providerUser: { select: { name: true, phone: true } },
       payment: true,
@@ -40,6 +41,7 @@ export default async function CustomerBookingPage({ params }: { params: Promise<
         id: booking.id,
         status: booking.status,
         totalPKR: booking.totalPKR,
+        estimatedPartsNote: booking.bid.estimatedPartsNote,
         jobTitle: booking.job.title,
         categoryIcon: booking.job.category.icon,
         exactAddress: unlocked ? booking.job.exactAddress : null,

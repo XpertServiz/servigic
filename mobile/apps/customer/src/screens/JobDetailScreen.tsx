@@ -16,6 +16,7 @@ interface BidView {
   pricePKR: number;
   etaMinutes: number;
   message: string | null;
+  estimatedPartsNote: string | null;
   status: string;
   ratingAvg: number;
   ratingCount: number;
@@ -109,13 +110,23 @@ export default function JobDetailScreen({ route, navigation }: Props) {
       {sortedBids.map((bid) => (
         <Card key={bid.id} style={{ marginTop: 10 }}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <PriceText pkr={bid.pricePKR} size="lg" color={colors.accent} />
+            <View>
+              <Text style={{ color: colors.textMuted, fontSize: 10, fontWeight: "800", textTransform: "uppercase" }}>
+                Labor · protected
+              </Text>
+              <PriceText pkr={bid.pricePKR} size="lg" color={colors.accent} />
+            </View>
             <ProviderAvatar name={bid.proLabel} ratingAvg={bid.ratingAvg} size={40} />
           </View>
           <Text style={{ color: colors.text, fontWeight: "700", marginTop: 6 }}>{bid.proLabel}</Text>
           <Text style={{ color: colors.textMuted, marginTop: 2, fontSize: 12 }}>
             {bid.ratingCount > 0 ? `${bid.ratingAvg.toFixed(1)}★` : "New"} · {bid.distanceBand} · ETA {bid.etaMinutes} min
           </Text>
+          {bid.estimatedPartsNote && (
+            <Text style={{ color: colors.textMuted, marginTop: 6, fontSize: 12 }}>
+              🔧 Estimated parts: {bid.estimatedPartsNote} — pay your pro directly, not collected by Servigic.
+            </Text>
+          )}
           {bid.message && <Text style={{ color: colors.textMuted, marginTop: 6 }}>{bid.message}</Text>}
           {bid.status === "PENDING" && (
             <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>

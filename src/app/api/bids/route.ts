@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
-  const { jobId, pricePKR, etaMinutes, message } = parsed.data;
+  const { jobId, pricePKR, etaMinutes, message, estimatedPartsNote } = parsed.data;
 
   const profile = await prisma.providerProfile.findUnique({ where: { userId: auth.session.user.id } });
   if (!profile || profile.verificationLevel < 1) {
@@ -30,8 +30,16 @@ export async function POST(req: Request) {
 
   const bid = await prisma.bid.upsert({
     where: { jobId_providerId: { jobId, providerId: profile.id } },
-    update: { pricePKR, etaMinutes, message: safeMessage, status: "PENDING" },
-    create: { jobId, providerId: profile.id, userId: auth.session.user.id, pricePKR, etaMinutes, message: safeMessage },
+    update: { pricePKR, etaMinutes, message: safeMessage, estimatedPartsNote, status: "PENDING" },
+    create: {
+      jobId,
+      providerId: profile.id,
+      userId: auth.session.user.id,
+      pricePKR,
+      etaMinutes,
+      message: safeMessage,
+      estimatedPartsNote,
+    },
   });
 
   await notify({

@@ -447,6 +447,11 @@ model Bid {
   etaMinutes      Int
   message         String?
   itemized        Json?
+  // Display-only, informational estimate of parts/materials cost — never
+  // processed, held, or referenced in any payment/commission calculation.
+  // Parts money is settled directly between customer and provider, entirely
+  // outside Servigic's payment flow (servigic-parts-payment-copy-changes-v1.1 §1).
+  estimatedPartsNote String?
   status          BidStatus       @default(PENDING)
   declineReason   String?
   counterPricePKR Int?

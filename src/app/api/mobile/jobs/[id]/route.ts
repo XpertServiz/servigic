@@ -31,6 +31,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     pricePKR: bid.pricePKR,
     etaMinutes: bid.etaMinutes,
     message: bid.message,
+    estimatedPartsNote: bid.estimatedPartsNote,
     status: bid.status,
     counterPricePKR: bid.counterPricePKR,
     ratingAvg: bid.provider.ratingAvg,

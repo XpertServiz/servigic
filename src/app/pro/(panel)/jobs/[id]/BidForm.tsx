@@ -22,6 +22,7 @@ export function BidForm({
   const [price, setPrice] = useState(existingBid?.pricePKR?.toString() ?? "");
   const [eta, setEta] = useState(existingBid?.etaMinutes?.toString() ?? "");
   const [message, setMessage] = useState(existingBid?.message ?? "");
+  const [partsNote, setPartsNote] = useState(existingBid?.estimatedPartsNote ?? "");
   const [pending, setPending] = useState(false);
   const [winHint, setWinHint] = useState<{ winProbability: number; isHeuristic: boolean } | null>(null);
 
@@ -65,7 +66,13 @@ export function BidForm({
       const res = await fetch("/api/bids", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId, pricePKR: Number(price), etaMinutes: Number(eta), message: message || undefined }),
+        body: JSON.stringify({
+          jobId,
+          pricePKR: Number(price),
+          etaMinutes: Number(eta),
+          message: message || undefined,
+          estimatedPartsNote: partsNote || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -165,6 +172,20 @@ export function BidForm({
           {winHint.isHeuristic ? " (estimate)" : ""}
         </div>
       )}
+      <div>
+        <label className="mb-1.5 block text-sm font-semibold text-text-muted">Estimated parts/materials cost (optional)</label>
+        <input
+          type="text"
+          value={partsNote}
+          onChange={(e) => setPartsNote(e.target.value)}
+          placeholder="e.g. ~PKR 1,500 for pipe fittings"
+          className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated-2 px-4 py-3 outline-none focus:border-accent"
+        />
+        <p className="mt-1.5 text-xs text-text-dim">
+          Shown to the customer as an estimate only — Servigic never collects this. You&apos;ll settle parts payment
+          directly with them.
+        </p>
+      </div>
       <div>
         <label className="mb-1.5 block text-sm font-semibold text-text-muted">Message (optional)</label>
         <textarea

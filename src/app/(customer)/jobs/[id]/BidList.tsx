@@ -13,6 +13,7 @@ type BidView = {
   pricePKR: number;
   etaMinutes: number;
   message: string | null;
+  estimatedPartsNote: string | null;
   status: string;
   counterPricePKR: number | null;
   ratingAvg: number;
@@ -143,10 +144,17 @@ export function BidList({ bids, jobStatus }: { bids: BidView[]; jobStatus: strin
                 </div>
               </div>
               <div className="text-right">
+                <div className="text-[10px] font-bold uppercase tracking-wide text-text-dim">Labor · protected</div>
                 <div className="font-display text-xl font-bold text-accent">PKR {bid.pricePKR.toLocaleString()}</div>
                 <div className="text-xs text-text-muted">ETA {bid.etaMinutes} min</div>
               </div>
             </div>
+            {bid.estimatedPartsNote && (
+              <p className="mb-3 text-xs text-text-muted">
+                🔧 Estimated parts: <span className="font-semibold">{bid.estimatedPartsNote}</span> — pay your pro
+                directly, not collected by Servigic.
+              </p>
+            )}
             {bid.message && <p className="mb-3 text-sm text-text-muted">{bid.message}</p>}
             {bid.status === "COUNTERED" && (
               <p className="mb-3 text-sm font-semibold text-accent">

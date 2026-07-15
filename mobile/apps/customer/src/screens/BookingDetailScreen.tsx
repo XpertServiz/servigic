@@ -161,6 +161,18 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
         {status === "PENDING_PAYMENT" && !booking.paymentStatus && (
           <Card style={{ marginTop: 16 }}>
             <Text style={styles.cardTitle}>Secure Payment</Text>
+            <View style={styles.trustCard}>
+              <Text style={{ color: colors.secondary }}>🔒</Text>
+              <Text style={styles.trustCardText}>
+                Your payment is held safely and only released to the provider once you confirm the job is done.
+              </Text>
+            </View>
+            {Boolean(booking.estimatedPartsNote) && (
+              <Text style={styles.partsNote}>
+                Estimated parts/materials: {booking.estimatedPartsNote as string} — this is not collected by
+                Servigic. Please arrange payment for parts directly with your pro.
+              </Text>
+            )}
             <View style={{ flexDirection: "row", gap: 8, marginVertical: 10 }}>
               {PAYMENT_METHODS.map((m) => (
                 <Pressable key={m} onPress={() => setMethod(m)} style={[styles.chip, method === m && styles.chipActive]}>
@@ -320,4 +332,17 @@ const styles = StyleSheet.create({
   chipActive: { borderColor: colors.accent, backgroundColor: "rgba(255,176,32,0.1)" },
   accountCard: { backgroundColor: colors.bgElevated2, borderRadius: 10, borderWidth: 1, borderColor: colors.border, padding: 12, marginBottom: 12 },
   accountCardTitle: { color: colors.textMuted, fontSize: 11, fontWeight: "700", textTransform: "uppercase", marginBottom: 4 },
+  trustCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+    backgroundColor: "rgba(34,197,94,0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(34,197,94,0.3)",
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 6,
+  },
+  trustCardText: { color: colors.secondary, fontWeight: "700", fontSize: 13, flex: 1 },
+  partsNote: { color: colors.textMuted, fontSize: 12, marginTop: 10 },
 });

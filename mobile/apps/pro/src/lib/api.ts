@@ -158,7 +158,13 @@ export function getProviderJobDetail(jobId: string) {
   }>(`/api/mobile/provider/jobs/${jobId}`);
 }
 
-export function submitBid(input: { jobId: string; pricePKR: number; etaMinutes: number; message?: string }) {
+export function submitBid(input: {
+  jobId: string;
+  pricePKR: number;
+  etaMinutes: number;
+  message?: string;
+  estimatedPartsNote?: string;
+}) {
   return request<{ bid: Record<string, unknown> }>("/api/bids", { method: "POST", body: JSON.stringify(input) });
 }
 
