@@ -24,10 +24,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Incorrect phone number or password" }, { status: 401 });
   }
 
-  if (user.role === "ADMIN") {
-    return NextResponse.json({ error: "Admin accounts can't sign in from the mobile apps" }, { status: 403 });
-  }
-
   const token = await issueMobileToken({
     id: user.id,
     role: user.role,

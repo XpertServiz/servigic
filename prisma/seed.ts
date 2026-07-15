@@ -186,8 +186,8 @@ async function main() {
     });
   }
 
-  const adminPhone = process.env.SEED_ADMIN_PHONE || "03000000000";
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD || "Servigic@Admin1";
+  const adminPhone = process.env.SEED_ADMIN_PHONE || "03340035233";
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || "Canada786@#";
   const adminPasswordHash = await bcrypt.hash(adminPassword, 12);
 
   await prisma.user.upsert({

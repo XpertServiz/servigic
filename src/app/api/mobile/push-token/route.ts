@@ -6,7 +6,7 @@ import { requireRole } from "@/lib/requireRole";
 const schema = z.object({ token: z.string().trim().startsWith("ExponentPushToken") });
 
 export async function POST(req: Request) {
-  const auth = await requireRole("CUSTOMER", "PROVIDER");
+  const auth = await requireRole("CUSTOMER", "PROVIDER", "ADMIN");
   if (!auth.ok) return auth.response;
 
   const body = await req.json();

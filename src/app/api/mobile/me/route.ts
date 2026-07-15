@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 
 export async function GET() {
-  const auth = await requireRole("CUSTOMER", "PROVIDER");
+  const auth = await requireRole("CUSTOMER", "PROVIDER", "ADMIN");
   if (!auth.ok) return auth.response;
 
   const user = await prisma.user.findUnique({

@@ -17,6 +17,7 @@ on:
         options:
           - customer
           - pro
+          - admin
           - both
       profile:
         description: "EAS build profile"
@@ -59,9 +60,16 @@ jobs:
         run: npm ci
 
       - name: Install eas-cli
+        if: matrix.app != 'admin'
         run: npm install -g eas-cli
 
-      - name: Build APK locally
+      # customer/pro reuse the project's existing EAS-managed remote Android
+      # signing keystore (needed for real Play Store / update continuity).
+      # admin is an internal-only sideloaded tool with no EAS project
+      # registered, so it skips EAS entirely and just does a plain Gradle
+      # debug build (auto-signed with the runner's throwaway debug keystore).
+      - name: Build APK locally (EAS, customer/pro)
+        if: matrix.app != 'admin'
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           # The Kotlin/Gradle daemon ran out of Metaspace on the runner's
@@ -76,6 +84,31 @@ jobs:
             -Dorg.gradle.parallel=false
             -Dorg.gradle.workers.max=1
         run: eas build --local --platform android --profile ${{ github.event.inputs.profile }} --non-interactive --output ./build-${{ matrix.app }}.apk
+
+      - name: Prebuild native Android project (admin)
+        if: matrix.app == 'admin'
+        # customer/pro get this from eas.json's build-profile "env" block,
+        # which only applies inside `eas build`. The admin build bypasses
+        # EAS entirely (plain Gradle build), so it must be set explicitly
+        # here or the app would silently bake in the localhost:3000 fallback.
+        env:
+          EXPO_PUBLIC_API_URL: https://www.servigic.com
+        run: npx expo prebuild --platform android --non-interactive
+
+      - name: Build APK locally (Gradle debug, admin)
+        if: matrix.app == 'admin'
+        env:
+          EXPO_PUBLIC_API_URL: https://www.servigic.com
+          GRADLE_OPTS: >-
+            -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=768m"
+            -Dorg.gradle.daemon=false
+            -Dorg.gradle.parallel=false
+            -Dorg.gradle.workers.max=1
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk ../build-admin.apk
 
       - uses: actions/upload-artifact@v4
         with:
