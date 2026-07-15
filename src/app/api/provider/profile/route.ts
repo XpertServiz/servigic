@@ -21,7 +21,7 @@ export async function PUT(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
-  const { agreementAccepted, cnicUrl, selfieUrl, policeCertUrl, photoQualityOk, ...data } = parsed.data;
+  const { agreementAccepted, cnicUrl, selfieUrl, policeCertUrl, photoQualityOk, photoConsentPublic, ...data } = parsed.data;
   // Only re-derive the geohash when a new location was actually sent —
   // partial submissions (e.g. the KYC screen's docs-only update) must not
   // clobber the existing location with encodeGeohash(undefined, undefined).
@@ -40,6 +40,11 @@ export async function PUT(req: Request) {
       ...(selfieUrl ? { selfieUrl, photoQualityOk: Boolean(photoQualityOk) } : {}),
       ...(policeCertUrl ? { policeCertUrl } : {}),
       ...(agreementAccepted ? { agreementAcceptedAt: new Date() } : {}),
+      // Consent can be toggled either way; only stamp a new timestamp when it
+      // actually flips on — turning it off keeps the original consent record.
+      ...(photoConsentPublic !== undefined
+        ? { photoConsentPublic, ...(photoConsentPublic ? { photoConsentAt: new Date() } : {}) }
+        : {}),
     },
   });
 

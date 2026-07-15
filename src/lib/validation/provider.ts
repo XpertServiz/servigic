@@ -46,4 +46,5 @@ export const providerProfileSchema = z.object({
   payoutMethod: z.enum(["EASYPAISA", "JAZZCASH", "BANK"]).optional(),
   payoutAccount: z.string().trim().max(60).optional(),
   agreementAccepted: z.boolean().optional(),
+  photoConsentPublic: z.boolean().optional(),
 });

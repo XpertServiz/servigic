@@ -34,6 +34,7 @@ export function ProviderProfileForm({ initial }: { initial: ProviderProfile | nu
     payoutMethod: initial?.payoutMethod ?? "EASYPAISA",
     payoutAccount: initial?.payoutAccount ?? "",
     agreementAccepted: Boolean(initial?.agreementAcceptedAt),
+    photoConsentPublic: initial?.photoConsentPublic ?? false,
   });
   const [pending, setPending] = useState(false);
 
@@ -157,6 +158,16 @@ export function ProviderProfileForm({ initial }: { initial: ProviderProfile | nu
             onUploaded={(url, photoQualityOk) => setForm({ ...form, selfieUrl: url, photoQualityOk })}
           />
         </div>
+        <label className="mt-3 flex items-start gap-3 rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 text-sm text-text-muted">
+          <input
+            type="checkbox"
+            checked={form.photoConsentPublic}
+            onChange={(e) => setForm({ ...form, photoConsentPublic: e.target.checked })}
+            className="mt-1 accent-accent"
+          />
+          Show my photo publicly on the Servigic landing page and reviews once verified. You can turn this off
+          anytime — without it, only your initials or trade icon will be shown.
+        </label>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

@@ -262,6 +262,11 @@ model ProviderProfile {
   policeCertUrl       String?
   isVerified          Boolean       @default(false)
   verifiedAt          DateTime?
+  // Explicit opt-in, defaults off — a pro's selfie only ever appears on the
+  // public landing page/reviews if they actively consented, captured with
+  // a timestamp for compliance. Never inferred from verificationLevel.
+  photoConsentPublic  Boolean       @default(false)
+  photoConsentAt      DateTime?
   ratingAvg           Float         @default(0)
   ratingCount         Int           @default(0)
   jobsCompleted       Int           @default(0)

@@ -28,6 +28,7 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
   const [cnicUrl, setCnicUrl] = useState("");
   const [selfieUrl, setSelfieUrl] = useState("");
   const [policeCertUrl, setPoliceCertUrl] = useState("");
+  const [photoConsent, setPhotoConsent] = useState(false);
   const [busy, setBusy] = useState<"cnic" | "selfie" | "police" | "submit" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,6 +67,7 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
         selfieUrl,
         policeCertUrl: policeCertUrl || undefined,
         agreementAccepted: true,
+        photoConsentPublic: photoConsent,
       });
       onSubmitted();
     } catch (e) {
@@ -109,6 +111,19 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
           loading={busy === "police"}
           onPress={() => pickDoc("police", setPoliceCertUrl)}
         />
+
+        <Pressable
+          onPress={() => setPhotoConsent((v) => !v)}
+          style={styles.consentRow}
+        >
+          <View style={[styles.checkbox, photoConsent && styles.checkboxChecked]}>
+            {photoConsent && <Text style={styles.checkboxTick}>✓</Text>}
+          </View>
+          <Text style={styles.consentText}>
+            Show my photo publicly on the Servigic landing page and reviews once verified. You can turn this off
+            anytime from your profile — without it, only your initials or trade icon will be shown.
+          </Text>
+        </Pressable>
 
         {error && <Text style={styles.error}>{error}</Text>}
 
@@ -161,6 +176,31 @@ const styles = StyleSheet.create({
   docLabel: { color: colors.text, fontSize: 14, fontWeight: "600", flex: 1, paddingRight: 8 },
   docStatus: { color: colors.accent, fontWeight: "700", fontSize: 13 },
   docStatusDone: { color: colors.secondary },
+  consentRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: "rgba(23,26,34,0.9)",
+    borderRadius: 10,
+    padding: 14,
+    marginTop: 4,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 1,
+  },
+  checkboxChecked: { backgroundColor: colors.accent, borderColor: colors.accent },
+  checkboxTick: { color: "#000", fontSize: 13, fontWeight: "800" },
+  consentText: { color: colors.textMuted, fontSize: 12, flex: 1, lineHeight: 17 },
   error: { color: colors.danger, marginTop: 4, textAlign: "center" },
   signOut: { color: colors.textMuted, fontWeight: "600", fontSize: 13, textAlign: "center" },
 });
