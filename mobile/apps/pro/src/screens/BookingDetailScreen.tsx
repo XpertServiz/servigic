@@ -13,6 +13,13 @@ import { colors, mapStyle, radius } from "../lib/theme";
 
 type Props = NativeStackScreenProps<JobsStackParamList, "BookingDetail">;
 
+function formatDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
+  const hrs = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return mins === 0 ? `${hrs} hr` : `${hrs} hr ${mins} min`;
+}
+
 const NEXT_ACTION: Record<string, { next: "ON_MY_WAY" | "ARRIVED" | "WORKING" | "DONE"; label: string } | undefined> = {
   CONFIRMED: { next: "ON_MY_WAY", label: "START DRIVING →" },
   ON_MY_WAY: { next: "ARRIVED", label: "I'VE ARRIVED" },
@@ -180,6 +187,26 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
       {status === "DONE" && (
         <Card style={{ marginTop: 16 }}>
           <Text style={{ color: colors.textMuted }}>Waiting for the customer to confirm the job is done.</Text>
+        </Card>
+      )}
+
+      {status === "COMPLETED" && Boolean(booking.totalDurationMinutes) && (
+        <Card style={{ marginTop: 16 }}>
+          <Text style={{ color: colors.text, fontWeight: "700" }}>Job summary</Text>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 8 }}>
+            <Text style={{ color: colors.textMuted, fontSize: 13 }}>Total time</Text>
+            <Text style={{ color: colors.text, fontWeight: "700", fontSize: 13 }}>
+              {formatDuration(booking.totalDurationMinutes as number)}
+            </Text>
+          </View>
+          {Boolean(booking.workDurationMinutes) && (
+            <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 4 }}>
+              <Text style={{ color: colors.textMuted, fontSize: 13 }}>Work time</Text>
+              <Text style={{ color: colors.text, fontWeight: "700", fontSize: 13 }}>
+                {formatDuration(booking.workDurationMinutes as number)}
+              </Text>
+            </View>
+          )}
         </Card>
       )}
 

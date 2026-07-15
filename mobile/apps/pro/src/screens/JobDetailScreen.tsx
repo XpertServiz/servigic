@@ -66,11 +66,21 @@ export default function JobDetailScreen({ route, navigation }: Props) {
   }, [jobId, price, eta]);
 
   async function submitBid() {
+    const isFirstSubmit = !myBid;
     setBusy(true);
     try {
       await api.submitBid({ jobId, pricePKR: price, etaMinutes: Number(eta), message: message || undefined });
       haptic.success();
       sound.bidSent();
+      if (isFirstSubmit) {
+        // A brand-new bid has nothing left to do on this screen until the
+        // customer responds — sitting here with no next step reads as
+        // "stuck." Head back to the Jobs list where it'll show under
+        // Available with the green "Bid sent ✓" badge.
+        Alert.alert("Bid sent!", "Waiting for the customer to respond.");
+        navigation.goBack();
+        return;
+      }
       load();
     } catch (e) {
       Alert.alert("Error", e instanceof Error ? e.message : "Failed to submit bid");

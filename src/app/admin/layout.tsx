@@ -12,6 +12,7 @@ const NAV = [
   { href: "/admin/leads", label: "Leads" },
   { href: "/admin/users", label: "Users" },
   { href: "/admin/analytics", label: "Analytics" },
+  { href: "/admin/durations", label: "Job Durations" },
   { href: "/admin/exchange-rates", label: "Exchange Rates" },
   { href: "/admin/locales", label: "Countries & Localization" },
   { href: "/admin/price-benchmarks", label: "Price Benchmarks" },

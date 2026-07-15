@@ -3,9 +3,13 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { runExpirySweep } from "@/lib/expiry";
 import { detectMarket } from "@/lib/geoDetect";
+import { getTimelineDurationMinutes } from "@/lib/jobDuration";
 import { BookingDetailClient } from "./BookingDetailClient";
 
-const UNLOCKED_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE", "COMPLETED"];
+// DISPUTED/CANCELLED included — see the mobile API's identical fix: a
+// dispute must never re-lock contact info that was already unlocked
+// before it could even be opened.
+const UNLOCKED_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE", "COMPLETED", "DISPUTED", "CANCELLED"];
 
 export default async function CustomerBookingPage({ params }: { params: Promise<{ id: string }> }) {
   await runExpirySweep();
@@ -48,6 +52,8 @@ export default async function CustomerBookingPage({ params }: { params: Promise<
         hasReview: Boolean(booking.review),
         dispute: booking.dispute ? { resolution: booking.dispute.resolution } : null,
         unlocked,
+        totalDurationMinutes: getTimelineDurationMinutes(booking.timeline, "CONFIRMED", "COMPLETED"),
+        workDurationMinutes: getTimelineDurationMinutes(booking.timeline, "WORKING", "DONE"),
         changeOrders: booking.changeOrders.map((c) => ({
           id: c.id,
           description: c.description,

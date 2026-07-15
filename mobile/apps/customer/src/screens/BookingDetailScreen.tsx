@@ -13,6 +13,13 @@ import { colors, mapStyle, radius } from "../lib/theme";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "BookingDetail">;
 
+function formatDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
+  const hrs = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return mins === 0 ? `${hrs} hr` : `${hrs} hr ${mins} min`;
+}
+
 const PAYMENT_METHODS = ["JAZZCASH", "EASYPAISA", "BANK_TRANSFER"] as const;
 
 // Placeholder numbers until real business accounts are swapped into .env.
@@ -241,6 +248,26 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
               <View style={{ marginTop: 10 }}>
                 <Field label="What went wrong?" multiline numberOfLines={3} value={disputeReason} onChangeText={setDisputeReason} />
                 <Button title="Open Dispute" variant="danger" onPress={submitDispute} loading={busy} />
+              </View>
+            )}
+          </Card>
+        )}
+
+        {status === "COMPLETED" && Boolean(booking.totalDurationMinutes) && (
+          <Card style={{ marginTop: 16 }}>
+            <Text style={styles.cardTitle}>Job summary</Text>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 8 }}>
+              <Text style={{ color: colors.textMuted, fontSize: 13 }}>Total time</Text>
+              <Text style={{ color: colors.text, fontWeight: "700", fontSize: 13 }}>
+                {formatDuration(booking.totalDurationMinutes as number)}
+              </Text>
+            </View>
+            {Boolean(booking.workDurationMinutes) && (
+              <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 4 }}>
+                <Text style={{ color: colors.textMuted, fontSize: 13 }}>Work time</Text>
+                <Text style={{ color: colors.text, fontWeight: "700", fontSize: 13 }}>
+                  {formatDuration(booking.workDurationMinutes as number)}
+                </Text>
               </View>
             )}
           </Card>

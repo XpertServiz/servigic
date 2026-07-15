@@ -40,7 +40,16 @@ type BookingView = {
   dispute: { resolution: string | null } | null;
   unlocked: boolean;
   changeOrders: ChangeOrderView[];
+  totalDurationMinutes: number | null;
+  workDurationMinutes: number | null;
 };
+
+function formatDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
+  const hrs = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return mins === 0 ? `${hrs} hr` : `${hrs} hr ${mins} min`;
+}
 
 const PAYMENT_METHODS = [
   { value: "JAZZCASH", label: "JazzCash" },
@@ -139,6 +148,22 @@ export function BookingDetailClient({
       )}
 
       {booking.status === "DONE" && <ConfirmDisputeSection bookingId={booking.id} />}
+
+      {booking.status === "COMPLETED" && booking.totalDurationMinutes !== null && (
+        <div className="mb-6 rounded-[14px] border border-border-subtle bg-bg-elevated p-5">
+          <h3 className="mb-2 font-bold">Job summary</h3>
+          <div className="flex justify-between text-sm">
+            <span className="text-text-muted">Total time</span>
+            <span className="font-semibold">{formatDuration(booking.totalDurationMinutes)}</span>
+          </div>
+          {booking.workDurationMinutes !== null && (
+            <div className="mt-1 flex justify-between text-sm">
+              <span className="text-text-muted">Work time</span>
+              <span className="font-semibold">{formatDuration(booking.workDurationMinutes)}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {booking.status === "COMPLETED" && !booking.hasReview && <RatingForm bookingId={booking.id} />}
 

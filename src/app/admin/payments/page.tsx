@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { PaymentRow } from "./PaymentRow";
 import { ChangeOrderRow } from "./ChangeOrderRow";
+import { VerifyAllButton } from "./VerifyAllButton";
 
 export default async function AdminPaymentsPage() {
   const [payments, changeOrders] = await Promise.all([
@@ -18,8 +19,13 @@ export default async function AdminPaymentsPage() {
 
   return (
     <div>
-      <h1 className="mb-1 font-display text-3xl font-bold">Payments</h1>
-      <p className="mb-8 text-text-muted">Verify proof screenshots to unlock jobs — the money button.</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="mb-1 font-display text-3xl font-bold">Payments</h1>
+          <p className="text-text-muted">Verify proof screenshots to unlock jobs — the money button.</p>
+        </div>
+        <VerifyAllButton paymentIds={payments.map((p) => p.id)} />
+      </div>
 
       <div className="flex flex-col gap-3">
         {payments.map((p) => (

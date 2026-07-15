@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
+import { getTimelineDurationMinutes } from "@/lib/jobDuration";
 
 // DISPUTED/CANCELLED included — contact was already unlocked before a
 // dispute could even be opened (only allowed from an already-unlocked
@@ -58,6 +59,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       otherPartyPhone: unlocked ? (isCustomer ? booking.providerUser.phone : booking.customer.phone) : null,
       hasReview: isCustomer ? Boolean(booking.review) : Boolean(booking.customerReview),
       unlocked,
+      // Total: from admin payment confirmation to job completion. Work:
+      // from "Start Work" to "Job Done" specifically — the two spans the
+      // spec asked to surface at the rating stage.
+      totalDurationMinutes: getTimelineDurationMinutes(booking.timeline, "CONFIRMED", "COMPLETED"),
+      workDurationMinutes: getTimelineDurationMinutes(booking.timeline, "WORKING", "DONE"),
       dispute: booking.dispute
         ? {
             reason: booking.dispute.reason,
