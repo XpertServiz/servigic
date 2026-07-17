@@ -68,7 +68,7 @@ export default function LoginScreen({ navigation }: Props) {
           <Text style={styles.title}>Welcome back</Text>
           <Text style={styles.subtitle}>Go online, bid on jobs, get paid.</Text>
 
-          <Field label="Phone number" keyboardType="phone-pad" placeholder="03001234567" value={phone} onChangeText={setPhone} />
+          <Field label="Phone number" keyboardType="phone-pad" placeholder="0334-0035233" value={phone} onChangeText={setPhone} />
           <Field label="Password" secureTextEntry value={password} onChangeText={setPassword} />
 
           {error && <Text style={styles.error}>{error}</Text>}
