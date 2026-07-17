@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, ScrollView, Pressable, Linking } from "react-native";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
 import * as api from "../lib/api";
@@ -7,6 +7,13 @@ import { useAuth } from "../lib/auth";
 import { Button, Field, Card } from "../components/ui";
 import { ProviderAvatar, Chip } from "../components/ds";
 import { colors } from "../lib/theme";
+
+function requestAccountDeletion(phone?: string) {
+  const body = `Registered phone number/email:\n${phone ?? ""}\nAccount type (Customer/Pro): Pro\n`;
+  Linking.openURL(
+    `mailto:xpertserviz@gmail.com?subject=${encodeURIComponent("Servigic Account Deletion Request")}&body=${encodeURIComponent(body)}`
+  );
+}
 
 const TRADES = [
   "PLUMBER",
@@ -144,7 +151,21 @@ export default function ProfileScreen() {
         <Button title="Save Profile" onPress={save} loading={saving} />
       </View>
 
+      <Text style={{ color: colors.textMuted, fontSize: 12, fontWeight: "700", textTransform: "uppercase", marginBottom: 6 }}>
+        Legal & Support
+      </Text>
+      <Pressable onPress={() => Linking.openURL("https://www.servigic.com/privacy-policy.html")} style={{ marginBottom: 8 }}>
+        <Text style={{ color: colors.text, fontSize: 14, paddingVertical: 8 }}>Privacy Policy</Text>
+      </Pressable>
+      <Pressable onPress={() => Linking.openURL("https://www.servigic.com/delete-account.html")} style={{ marginBottom: 16 }}>
+        <Text style={{ color: colors.text, fontSize: 14, paddingVertical: 8 }}>Delete Account — How it works</Text>
+      </Pressable>
+
       <Button title="Log out" variant="danger" onPress={signOut} />
+
+      <View style={{ marginTop: 12, marginBottom: 24 }}>
+        <Button title="Delete My Account" variant="danger" onPress={() => requestAccountDeletion(user?.phone)} />
+      </View>
     </ScrollView>
   );
 }

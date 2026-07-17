@@ -1,9 +1,16 @@
 import React from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, Pressable, Linking } from "react-native";
 import { useAuth } from "../lib/auth";
 import { Button } from "../components/ui";
 import { ProviderAvatar } from "../components/ds";
 import { colors, radius } from "../lib/theme";
+
+function requestAccountDeletion(phone?: string) {
+  const body = `Registered phone number/email:\n${phone ?? ""}\nAccount type (Customer/Pro): Customer\n`;
+  Linking.openURL(
+    `mailto:xpertserviz@gmail.com?subject=${encodeURIComponent("Servigic Account Deletion Request")}&body=${encodeURIComponent(body)}`
+  );
+}
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -25,8 +32,22 @@ export default function ProfileScreen() {
         <Text style={styles.sectionLine}>WhatsApp support · Saved addresses · Payment history</Text>
       </View>
 
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Legal & Support</Text>
+        <Pressable onPress={() => Linking.openURL("https://www.servigic.com/privacy-policy.html")}>
+          <Text style={styles.linkLine}>Privacy Policy</Text>
+        </Pressable>
+        <Pressable onPress={() => Linking.openURL("https://www.servigic.com/delete-account.html")}>
+          <Text style={styles.linkLine}>Delete Account — How it works</Text>
+        </Pressable>
+      </View>
+
       <View style={{ marginTop: 28 }}>
         <Button title="Log out" variant="danger" onPress={signOut} />
+      </View>
+
+      <View style={{ marginTop: 12, marginBottom: 24 }}>
+        <Button title="Delete My Account" variant="danger" onPress={() => requestAccountDeletion(user?.phone)} />
       </View>
     </ScrollView>
   );
@@ -46,4 +67,5 @@ const styles = StyleSheet.create({
   section: { marginTop: 20 },
   sectionTitle: { color: colors.textMuted, fontSize: 12, fontWeight: "700", textTransform: "uppercase", marginBottom: 6 },
   sectionLine: { color: colors.text, fontSize: 14 },
+  linkLine: { color: colors.text, fontSize: 14, paddingVertical: 8 },
 });
