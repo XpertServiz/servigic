@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/requireRole";
 import { disputeResolveSchema } from "@/lib/validation/booking";
 import { notify } from "@/lib/notify";
 import { postJournalEntry, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
+import { recomputeCancellationRate } from "@/lib/cancellationRate";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole("ADMIN");
@@ -57,7 +58,31 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
           }),
         ]
       : []),
+    // Non-RELEASE resolutions mean the job didn't complete as promised on
+    // the provider's side (that's why the customer gets some/all money
+    // back) — log it as a provider-caused cancellation so it feeds the same
+    // 30-day cancellation-rate computation as a direct pro cancel, rather
+    // than leaving dispute-driven cancellations as a blind spot in that
+    // stat. Not attributed to the customer's own rate — disputing in good
+    // faith should never look like unreliability on their part.
+    ...(resolution !== "RELEASE"
+      ? [
+          prisma.cancellationEvent.create({
+            data: {
+              bookingId: dispute.bookingId,
+              cancelledById: dispute.booking.providerUserId,
+              cancelledByRole: "PROVIDER",
+              reasonCode: "OTHER",
+              reasonNote: `Dispute resolution: ${resolution}`,
+            },
+          }),
+        ]
+      : []),
   ]);
+
+  if (resolution !== "RELEASE") {
+    await recomputeCancellationRate(dispute.booking.providerUserId, "PROVIDER");
+  }
 
   // FULL_REFUND never creates a Payout row (nothing goes to the provider), so
   // unlike RELEASE/PARTIAL_REFUND — which post via the payout mark-sent

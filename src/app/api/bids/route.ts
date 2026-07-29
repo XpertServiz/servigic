@@ -20,6 +20,12 @@ export async function POST(req: Request) {
   if (!profile || profile.verificationLevel < 1) {
     return NextResponse.json({ error: "Complete verification before bidding" }, { status: 403 });
   }
+  if (profile.dispatchStatus === "SUSPENDED") {
+    return NextResponse.json(
+      { error: "Dispatch paused — settle your wallet balance or resolve your cancellation rate to resume" },
+      { status: 403 }
+    );
+  }
 
   const job = await prisma.job.findUnique({ where: { id: jobId } });
   if (!job || job.status !== "OPEN") {

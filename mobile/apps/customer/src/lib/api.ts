@@ -240,6 +240,17 @@ export function openDispute(bookingId: string, reason: string) {
   });
 }
 
+export function cancelBooking(bookingId: string, reasonCode: string, reasonNote?: string) {
+  return request<{ ok: true }>(`/api/bookings/${bookingId}/cancel`, {
+    method: "POST",
+    body: JSON.stringify({ reasonCode, reasonNote }),
+  });
+}
+
+export function rebookJob(bookingId: string) {
+  return request<{ job: { id: string } }>(`/api/bookings/${bookingId}/rebook`, { method: "POST" });
+}
+
 export function submitReview(bookingId: string, rating: number, tags: string[], comment?: string) {
   return request<{ review: Record<string, unknown> }>(`/api/bookings/${bookingId}/review`, {
     method: "POST",

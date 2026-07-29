@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { LIVE_CITIES } from "@/lib/markets";
 import { detectMarket } from "@/lib/geoDetect";
+import { getPaymentMode } from "@/lib/featureFlags";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
 import { LiveRefresher } from "@/components/landing/LiveRefresher";
@@ -39,7 +40,7 @@ const PLAN_TEASER_TRADES = [
 ];
 
 export default async function LandingPage() {
-  const [whatsappNumber, categories, planCategories, market] = await Promise.all([
+  const [whatsappNumber, categories, planCategories, market, paymentMode] = await Promise.all([
     getWhatsappNumber(),
     prisma.serviceCategory.findMany({ select: { id: true, name: true, icon: true }, orderBy: { name: "asc" } }),
     prisma.serviceCategory.findMany({
@@ -47,6 +48,7 @@ export default async function LandingPage() {
       select: { trade: true, name: true, icon: true, minPricePKR: true },
     }),
     detectMarket(),
+    getPaymentMode(),
   ]);
 
   const planTeaserCards = PLAN_TEASER_TRADES.map((t) => {
@@ -66,7 +68,7 @@ export default async function LandingPage() {
         <PriceTransparencyWidget categories={categories} cities={LIVE_CITIES} />
         <Problem />
         <HowItWorks />
-        <Features />
+        <Features paymentMode={paymentMode} />
         <ServicesGrid />
         <Results />
         <FeaturedPros />

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { THEME_PRESETS, type ThemeName } from "@/lib/theme";
 import type { FeatureFlags } from "@/lib/featureFlags";
 
-const FLAG_LABELS: Record<keyof FeatureFlags, { label: string; desc: string }> = {
+const FLAG_LABELS: Record<Exclude<keyof FeatureFlags, "paymentMode">, { label: string; desc: string }> = {
   aiJobTriage: { label: "Job Triage Agent", desc: "\"Suggest category, urgency & budget\" on the job post form" },
   aiLeadQualifier: { label: "Lead Qualifier Agent", desc: "\"AI Qualify\" priority score + drafted outreach in Leads CRM" },
   aiDisputeSummarizer: { label: "Dispute Summarizer Agent", desc: "\"Summarize with AI\" on the admin disputes queue" },
@@ -22,6 +22,7 @@ export function SettingsForm({
     whatsappSupportNumber: string;
     demoVideoCustomerUrl: string;
     demoVideoProUrl: string;
+    defaultWalletCeilingPKR: number;
     featureFlags: FeatureFlags;
   };
 }) {
@@ -123,13 +124,48 @@ export function SettingsForm({
       </div>
 
       <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Payment Mode</label>
+        <p className="mb-3 text-xs text-text-muted">
+          CASH_WALLET: customers pay pros directly after the job; Servigic collects its 12% commission via the
+          pro&apos;s Commission Wallet. PROTECTED: legacy upfront-escrow flow (Payment/Payout), kept for future
+          international markets.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          {(["CASH_WALLET", "PROTECTED"] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setForm({ ...form, featureFlags: { ...form.featureFlags, paymentMode: mode } })}
+              className={`rounded-[10px] border px-4 py-3 text-left text-sm font-bold ${
+                form.featureFlags.paymentMode === mode ? "border-accent bg-accent/10" : "border-border-subtle bg-bg-elevated"
+              }`}
+            >
+              {mode}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-sm font-semibold text-text-muted">Default wallet debt ceiling (PKR)</label>
+        <p className="mb-2 text-xs text-text-muted">
+          New pros&apos; Commission Wallet dispatch-block threshold (CASH_WALLET mode only) — editable per pro afterward.
+        </p>
+        <input
+          type="number"
+          value={form.defaultWalletCeilingPKR}
+          onChange={(e) => setForm({ ...form, defaultWalletCeilingPKR: Number(e.target.value) })}
+          className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+        />
+      </div>
+
+      <div>
         <label className="mb-2 block text-sm font-semibold text-text-muted">AI Agents (P8/P9)</label>
         <p className="mb-3 text-xs text-text-dim text-text-muted">
           Off here hides the feature in the UI regardless of AI_SERVICE_URL. Also fully off whenever AI_SERVICE_URL
           isn&apos;t configured — these flags are for staged rollout once it is.
         </p>
         <div className="flex flex-col gap-2">
-          {(Object.keys(FLAG_LABELS) as (keyof FeatureFlags)[]).map((key) => (
+          {(Object.keys(FLAG_LABELS) as Exclude<keyof FeatureFlags, "paymentMode">[]).map((key) => (
             <label
               key={key}
               className="flex items-center justify-between gap-3 rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3"

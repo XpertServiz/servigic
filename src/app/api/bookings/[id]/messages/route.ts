@@ -3,16 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { messageSchema } from "@/lib/validation/booking";
 import { notify } from "@/lib/notify";
-
-// COMPLETED is deliberately excluded — once the customer confirms the job
-// is done, the relationship is over and messaging locks, matching Trust &
-// Safety's "chat unlocks after payment" / closes-on-completion model.
-// DISPUTED stays unlocked — that's exactly when both sides need to keep
-// talking (and where admin relays its resolution into this same thread).
-const UNLOCKED_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE", "DISPUTED"];
+import { computeRevealStage } from "@/lib/reveal";
+import { scrubContactInfo } from "@/lib/scrub";
 
 async function loadParticipantBooking(id: string, userId: string, role: string) {
-  const booking = await prisma.booking.findUnique({ where: { id } });
+  const booking = await prisma.booking.findUnique({ where: { id }, include: { job: { select: { urgency: true } } } });
   if (!booking) return null;
   if (role !== "ADMIN" && booking.customerId !== userId && booking.providerUserId !== userId) return null;
   return booking;
@@ -42,21 +37,30 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const booking = await loadParticipantBooking(id, auth.session.user.id, auth.session.user.role);
   if (!booking) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Admin can always relay into the thread (e.g. posting a dispute
-  // resolution onto an already-CANCELLED booking) — the lock only applies
+  const revealStage = computeRevealStage(booking.status, booking.job.urgency);
+  // Chat now opens at MASKED (v7 §2.2) — CONFIRMED onward — not just once
+  // fully unlocked. COMPLETED is deliberately excluded even though it's a
+  // FULL-reveal status: once the customer confirms the job is done, the
+  // relationship is over and messaging locks. Admin can always relay into
+  // the thread (e.g. posting a dispute resolution) — the lock only applies
   // to the two participants.
-  if (auth.session.user.role !== "ADMIN" && !UNLOCKED_STATUSES.includes(booking.status)) {
-    return NextResponse.json({ error: "Chat is locked until payment is verified and the job is confirmed." }, { status: 403 });
+  const chatOpen = revealStage !== "LOCKED" && booking.status !== "COMPLETED";
+  if (auth.session.user.role !== "ADMIN" && !chatOpen) {
+    return NextResponse.json({ error: "Chat is locked until the job is confirmed." }, { status: 403 });
   }
 
   const body = await req.json();
   const parsed = messageSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Message required" }, { status: 400 });
 
-  // Chat only opens after payment confirms the relationship, so contact info
-  // is already unlocked by then — no need to scrub here (unlike bid messages).
+  // Masked stage: redact phone/email/whatsapp mentions the same way bid
+  // messages already are, since contact isn't revealed yet at this stage
+  // (non-emergency bookings between CONFIRMED and ON_MY_WAY). Full reveal
+  // means there's nothing left to hide, so skip scrubbing once there.
+  const rawBody = parsed.data.body;
+  const safeBody = revealStage === "MASKED" ? scrubContactInfo(rawBody) : rawBody;
   const message = await prisma.message.create({
-    data: { bookingId: id, senderId: auth.session.user.id, body: parsed.data.body },
+    data: { bookingId: id, senderId: auth.session.user.id, body: safeBody, scrubHit: safeBody !== rawBody },
   });
 
   // Notify whichever side(s) didn't send this message — admin posting a

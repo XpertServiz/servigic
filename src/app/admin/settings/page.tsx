@@ -19,6 +19,7 @@ export default async function AdminSettingsPage() {
           whatsappSupportNumber: settings?.whatsappSupportNumber ?? "",
           demoVideoCustomerUrl: settings?.demoVideoCustomerUrl ?? "",
           demoVideoProUrl: settings?.demoVideoProUrl ?? "",
+          defaultWalletCeilingPKR: settings?.defaultWalletCeilingPKR ?? 3000,
           featureFlags,
         }}
       />

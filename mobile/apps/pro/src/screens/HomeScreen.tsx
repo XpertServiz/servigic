@@ -26,12 +26,27 @@ export default function HomeScreen({ navigation }: Props) {
   const [profile, setProfile] = useState<ProviderProfile | null>(null);
   const [togglingOnline, setTogglingOnline] = useState(false);
   const [region, setRegion] = useState({ latitude: 24.8607, longitude: 67.0011, latitudeDelta: 0.08, longitudeDelta: 0.08 });
-  const [todayTotal, setTodayTotal] = useState(0);
+  const [earningsLabel, setEarningsLabel] = useState("Today");
+  const [earningsPKR, setEarningsPKR] = useState(0);
+  const [earningsIsDebt, setEarningsIsDebt] = useState(false);
   const pulse = useRef(new Animated.Value(0)).current;
 
   const load = useCallback(() => {
     api.getMe().then(({ user }) => setProfile(user.providerProfile as unknown as ProviderProfile));
-    api.getProviderEarnings().then((e) => setTodayTotal(e.totalSent));
+    api.getProviderEarnings().then((e) => {
+      // CASH_WALLET mode has no "sent today" concept (customers pay pros
+      // directly) — show wallet debt instead of a permanently-zero figure.
+      if (e.wallet) {
+        const debtPKR = Math.max(0, -e.wallet.balancePKR);
+        setEarningsLabel(debtPKR > 0 ? "You owe" : "Wallet");
+        setEarningsPKR(debtPKR);
+        setEarningsIsDebt(debtPKR > 0);
+      } else {
+        setEarningsLabel("Today");
+        setEarningsPKR(e.totalSent ?? 0);
+        setEarningsIsDebt(false);
+      }
+    });
   }, []);
 
   useFocusEffect(load);
@@ -101,8 +116,8 @@ export default function HomeScreen({ navigation }: Props) {
       </View>
 
       <View style={[styles.earningsCard, { top: insets.top + 68 }]}>
-        <Text style={styles.earningsLabel}>Today</Text>
-        <PriceText pkr={todayTotal} size="md" color={online ? colors.secondary : colors.textMuted} />
+        <Text style={styles.earningsLabel}>{earningsLabel}</Text>
+        <PriceText pkr={earningsPKR} size="md" color={earningsIsDebt ? colors.danger : online ? colors.secondary : colors.textMuted} />
       </View>
 
       {profile.verificationLevel < 1 && (

@@ -2,12 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { getTimelineDurationMinutes } from "@/lib/jobDuration";
-
-// DISPUTED/CANCELLED included — contact was already unlocked before a
-// dispute could even be opened (only allowed from an already-unlocked
-// status), so a dispute must never re-lock it. That would cut off contact
-// and messaging exactly when resolving things needs them most.
-const UNLOCKED_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE", "COMPLETED", "DISPUTED", "CANCELLED"];
+import { getPaymentMode } from "@/lib/featureFlags";
+import { computeRevealStage } from "@/lib/reveal";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole("CUSTOMER", "PROVIDER");
@@ -35,12 +31,15 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const unlocked = UNLOCKED_STATUSES.includes(booking.status);
+  const revealStage = computeRevealStage(booking.status, booking.job.urgency);
+  const unlocked = revealStage === "FULL";
+  const paymentMode = await getPaymentMode();
 
   return NextResponse.json({
     booking: {
       id: booking.id,
       status: booking.status,
+      paymentMode,
       totalPKR: booking.totalPKR,
       estimatedPartsNote: booking.bid.estimatedPartsNote,
       payoutPKR: booking.payoutPKR,
@@ -60,6 +59,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
           : "Customer",
       otherPartyPhone: unlocked ? (isCustomer ? booking.providerUser.phone : booking.customer.phone) : null,
       hasReview: isCustomer ? Boolean(booking.review) : Boolean(booking.customerReview),
+      revealStage,
+      // Back-compat alias — migrate every reader off this in favor of
+      // revealStage; kept only so any not-yet-updated client doesn't hard-break.
       unlocked,
       // Total: from admin payment confirmation to job completion. Work:
       // from "Start Work" to "Job Done" specifically — the two spans the

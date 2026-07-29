@@ -10,6 +10,30 @@ export async function dispatchJob(job: Job) {
   const category = await prisma.serviceCategory.findUnique({ where: { id: job.categoryId } });
   if (!category) return;
 
+  // v7 §2.5 "Book [Pro] again" — a private one-tap invite skips the normal
+  // trade/city/radius fan-out entirely and alerts only that one provider,
+  // regardless of their online/radius state (they were explicitly asked).
+  if (job.preferredProviderId) {
+    const preferred = await prisma.providerProfile.findUnique({
+      where: { id: job.preferredProviderId },
+      include: { user: { select: { id: true } } },
+    });
+    if (!preferred || preferred.dispatchStatus === "SUSPENDED") return 0;
+
+    await prisma.dispatchAlert.create({
+      data: { jobId: job.id, providerId: preferred.id, channels: ["push", "whatsapp"] },
+    });
+    await notify({
+      userId: preferred.user.id,
+      type: "DISPATCH_ALERT",
+      title: "A customer wants to book you again",
+      body: `${job.areaLabel} · ${job.title}`,
+      linkUrl: `/pro/jobs/${job.id}`,
+      channels: ["whatsapp", "sms"],
+    });
+    return 1;
+  }
+
   const candidateGeohashes = geohashNeighborhood(job.geohash);
 
   const candidates = await prisma.providerProfile.findMany({
@@ -26,6 +50,10 @@ export async function dispatchJob(job: Job) {
 
   const eligible = candidates.filter((p) => {
     if (p.user.city && p.user.city !== job.city) return false;
+    // v6/v7 addendum — a pro over their wallet debt ceiling or past the
+    // cancellation-rate threshold gets no new job alerts at all (the actual
+    // enforcement point; bid-creation also blocks them, see bids/route.ts).
+    if (p.dispatchStatus === "SUSPENDED") return false;
     const distanceKm = haversineKm(job.lat, job.lng, p.baseLat!, p.baseLng!);
     return distanceKm <= p.serviceRadiusKm;
   });

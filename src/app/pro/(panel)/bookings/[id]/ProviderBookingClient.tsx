@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { StatusTimeline } from "@/components/booking/StatusTimeline";
 import { LiveMap } from "@/components/booking/LiveMap";
 import { ChatBox } from "@/components/booking/ChatBox";
+import { CancelBookingSection } from "@/components/booking/CancelBookingSection";
 import { PhotoUploadField } from "@/components/ui/PhotoUploadField";
 import { PROVIDER_REVIEW_TAGS } from "@/lib/validation/booking";
 
@@ -23,6 +24,7 @@ type BookingView = {
   customerName: string;
   customerPhone: string | null;
   hasReview: boolean;
+  revealStage: "LOCKED" | "MASKED" | "FULL";
   unlocked: boolean;
   changeOrders: ChangeOrderView[];
 };
@@ -116,7 +118,18 @@ export function ProviderBookingClient({ booking, currentUserId }: { booking: Boo
         </div>
       )}
 
-      {booking.unlocked && (
+      {["CONFIRMED", "ON_MY_WAY", "ARRIVED"].includes(booking.status) && (
+        <CancelBookingSection bookingId={booking.id} role="PROVIDER" />
+      )}
+
+      {booking.revealStage === "MASKED" && (
+        <div className="mb-6 rounded-[12px] border border-accent/30 bg-accent/10 p-4 text-sm">
+          <p className="font-bold text-accent">Chat with your customer</p>
+          <p className="text-text-muted">Full contact details unlock once you mark On My Way.</p>
+        </div>
+      )}
+
+      {booking.revealStage === "FULL" && (
         <div className="mb-6 rounded-[12px] border border-secondary/30 bg-secondary/10 p-4 text-sm">
           <p className="font-bold text-secondary">Contact unlocked</p>
           <p className="text-text-muted">{booking.customerName} · {booking.customerPhone}</p>
@@ -177,9 +190,9 @@ export function ProviderBookingClient({ booking, currentUserId }: { booking: Boo
 
       {booking.status === "COMPLETED" && !booking.hasReview && <RateCustomerForm bookingId={booking.id} />}
 
-      {booking.unlocked && (
+      {booking.revealStage !== "LOCKED" && (
         <div className="mt-6">
-          <ChatBox bookingId={booking.id} currentUserId={currentUserId} unlocked={booking.unlocked} />
+          <ChatBox bookingId={booking.id} currentUserId={currentUserId} revealStage={booking.revealStage} />
         </div>
       )}
     </div>

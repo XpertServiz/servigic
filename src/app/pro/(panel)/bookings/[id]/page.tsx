@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { computeRevealStage } from "@/lib/reveal";
 import { ProviderBookingClient } from "./ProviderBookingClient";
-
-const UNLOCKED_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE", "COMPLETED"];
 
 export default async function ProviderBookingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,7 +20,8 @@ export default async function ProviderBookingPage({ params }: { params: Promise<
 
   if (!booking || booking.providerUserId !== session?.user.id) notFound();
 
-  const unlocked = UNLOCKED_STATUSES.includes(booking.status);
+  const revealStage = computeRevealStage(booking.status, booking.job.urgency);
+  const unlocked = revealStage === "FULL";
 
   return (
     <ProviderBookingClient
@@ -38,6 +38,7 @@ export default async function ProviderBookingPage({ params }: { params: Promise<
         customerName: unlocked ? booking.customer.name : "Customer",
         customerPhone: unlocked ? booking.customer.phone : null,
         hasReview: Boolean(booking.customerReview),
+        revealStage,
         unlocked,
         changeOrders: booking.changeOrders.map((c) => ({
           id: c.id,

@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { getPaymentMode } from "@/lib/featureFlags";
+import { recomputeAllActiveCancellationRates } from "@/lib/cancellationRate";
 
 // Auto-expiry side-effects (Master Brief §12): run as a cheap updateMany at
 // the top of the relevant page/API load instead of a scheduled cron job.
@@ -12,6 +14,10 @@ export async function expireStaleJobBidding() {
 }
 
 export async function expireUnpaidBookings() {
+  // v6 addendum: under CASH_WALLET, bookings go straight to CONFIRMED and
+  // never enter PENDING_PAYMENT, so there's nothing for this sweep to do.
+  if ((await getPaymentMode()) === "CASH_WALLET") return;
+
   const expired = await prisma.booking.findMany({
     where: { status: "PENDING_PAYMENT", paymentDeadline: { lt: new Date() } },
     select: { id: true, jobId: true },
@@ -39,5 +45,10 @@ export async function autoConfirmDoneBookings() {
 }
 
 export async function runExpirySweep() {
-  await Promise.all([expireStaleJobBidding(), expireUnpaidBookings(), autoConfirmDoneBookings()]);
+  await Promise.all([
+    expireStaleJobBidding(),
+    expireUnpaidBookings(),
+    autoConfirmDoneBookings(),
+    recomputeAllActiveCancellationRates(),
+  ]);
 }

@@ -10,12 +10,14 @@ const schema = z.object({
   whatsappSupportNumber: z.string().trim().max(20).optional(),
   demoVideoCustomerUrl: z.string().trim().max(200).optional(),
   demoVideoProUrl: z.string().trim().max(200).optional(),
+  defaultWalletCeilingPKR: z.number().min(0).optional(),
   featureFlags: z
     .object({
       aiJobTriage: z.boolean(),
       aiLeadQualifier: z.boolean(),
       aiDisputeSummarizer: z.boolean(),
       aiBidWinHint: z.boolean(),
+      paymentMode: z.enum(["CASH_WALLET", "PROTECTED"]),
     })
     .optional(),
 });

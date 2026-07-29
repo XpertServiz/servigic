@@ -12,7 +12,7 @@
     "line1": "EN PANNE?",
     "line2": "RÉPARÉ",
     "line3": "AUJOURD'HUI.",
-    "sub": "Publiez votre tâche. Des pros vérifiés se disputent l'offre. Votre argent reste protégé en séquestre jusqu'à la fin des travaux.",
+    "sub": "Publiez votre tâche. Des pros vérifiés se disputent l'offre. Payez votre pro directement une fois les travaux terminés.",
     "ctaPrimary": "Publier une tâche — Recevez des offres en minutes",
     "ctaSecondary": "Voir comment ça marche — 60 sec"
   },
@@ -23,14 +23,16 @@
     "eyebrow": "FAQ",
     "title": "DES QUESTIONS? DES RÉPONSES.",
     "items": [
-      { "q": "Est-ce gratuit de publier une tâche?", "a": "Oui — publier une tâche est toujours gratuit. Vous ne payez qu'une fois une offre acceptée, et ce paiement va directement dans un séquestre protégé." },
-      { "q": "Comment le séquestre me protège-t-il?", "a": "Votre paiement est détenu par Servigic, pas par le professionnel, jusqu'à ce que vous confirmiez la fin des travaux. En cas de problème, vous pouvez ouvrir un litige avant la libération des fonds." },
-      { "q": "Que se passe-t-il si le professionnel trouve des travaux supplémentaires sur place?", "a": "Il soumet un ordre de modification avec photo et prix — vous l'approuvez (et payez la différence dans le séquestre) avant que les travaux supplémentaires ne commencent." },
-      { "q": "Que se passe-t-il si je ne suis pas satisfait?", "a": "Chaque tâche bénéficie d'une garantie de 7 jours sur la qualité du travail. Ouvrez un litige et notre équipe examine les photos des deux parties pour libérer, rembourser partiellement ou intégralement votre paiement." },
-      { "q": "Pourquoi ne puis-je pas voir le numéro de téléphone du professionnel avant de payer?", "a": "Les coordonnées restent masquées jusqu'à ce que le paiement soit sécurisé — cela empêche les accords hors plateforme qui vous laissent sans aucune protection." },
+      { "q": "Est-ce gratuit de publier une tâche?", "a": "Oui — publier une tâche est toujours gratuit. Vous ne payez qu'une fois une offre acceptée, et vous payez votre pro directement une fois les travaux terminés — Servigic ne collecte ni ne détient jamais votre paiement." },
+      { "q": "Comment Servigic me protège-t-il si je ne paie pas à l'avance?", "a": "Au lieu de détenir votre argent, Servigic vous protège grâce à des pros vérifiés (CNIC + selfie, vérification policière aux niveaux supérieurs), des évaluations bidirectionnelles après chaque tâche, un chat intégré masqué qui ne révèle les coordonnées de votre pro qu'une fois qu'il est en route, et une équipe de médiation en cas de litige." },
+      { "q": "Que se passe-t-il si le professionnel trouve des travaux supplémentaires sur place?", "a": "Il soumet un ordre de modification avec photo et prix — vous l'approuvez avant que les travaux supplémentaires ne commencent, et le montant supplémentaire s'ajoute simplement à ce que vous payez directement à votre pro." },
+      { "q": "Que se passe-t-il si je ne suis pas satisfait?", "a": "Chaque tâche bénéficie d'un support de 7 jours sur la qualité du travail. Ouvrez un litige et notre équipe examine les photos des deux parties et aide à trouver une solution avec votre pro." },
+      { "q": "Pourquoi ne puis-je pas voir le numéro de téléphone du pro tout de suite?", "a": "Les coordonnées restent masquées dans un chat intégré jusqu'à ce que votre pro indique qu'il est en route — cela ferme la fenêtre où des accords hors plateforme se concluent, vous protégeant tous les deux. Pour les tâches urgentes, les coordonnées se débloquent immédiatement." },
       { "q": "À quelle vitesse les offres arrivent-elles?", "a": "Pour les tâches urgentes, la plupart des clients reçoivent leur première offre en moins de 10 minutes, car chaque professionnel proche et compatible est alerté instantanément." },
-      { "q": "Comment les professionnels sont-ils payés?", "a": "Directement par EasyPaisa, JazzCash ou virement bancaire après votre confirmation de fin de travaux, moins la commission de 12% de Servigic." },
-      { "q": "Quelles villes?", "a": "Lancement à Karachi, puis Lahore et Islamabad/Rawalpindi, suivis du Golfe et de l'Amérique du Nord." }
+      { "q": "Comment les professionnels sont-ils payés?", "a": "Directement par vous — en espèces, par EasyPaisa, JazzCash ou virement bancaire, comme convenu entre vous. Servigic ne touche jamais ce paiement; les pros règlent leur commission de 12% séparément via leur portefeuille de commission intégré à l'application." },
+      { "q": "Quelles villes?", "a": "Lancement à Karachi, puis Lahore et Islamabad/Rawalpindi, suivis du Golfe et de l'Amérique du Nord." },
+      { "q": "Pourquoi devrais-je réserver via Servigic plutôt que d'appeler le pro directement?", "a": "Réserver via Servigic vous donne des pros vérifiés et évalués, des avis bidirectionnels, un support en cas de litige, et une vraie concurrence des prix grâce à des offres réelles — rien de tout cela n'existe si vous contournez la plateforme. Réserver à nouveau ne prend qu'un instant avec « Réserver à nouveau »." },
+      { "q": "Que se passe-t-il si moi ou mon pro annulons une réservation?", "a": "Une annulation après confirmation d'une réservation est enregistrée — des annulations occasionnelles ne posent pas de problème, mais un taux d'annulation élevé peut suspendre temporairement votre capacité à publier des tâches (ou les alertes de travail d'un pro). Si un pro vous demande d'annuler pour travailler directement avec vous, dites-le-nous — sélectionnez ce motif et nous examinerons le pro plutôt que de le retenir contre vous." }
     ]
   }
 }

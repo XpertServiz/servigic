@@ -152,6 +152,60 @@ enum PayoutStatus {
   FAILED
 }
 
+// Cash-After-Job Payment Model + Anti-Bypass System (v6+v7 addendum)
+enum WalletDispatchStatus {
+  NORMAL
+  WARNED
+  THROTTLED
+  SUSPENDED
+}
+
+enum LedgerEntryType {
+  COMMISSION_DEBIT
+  TOPUP_CREDIT
+  ADJUSTMENT
+}
+
+enum TopUpStatus {
+  SUBMITTED
+  VERIFIED
+  REJECTED
+}
+
+enum CancelledByRole {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum CancellationReasonCode {
+  CUSTOMER_CHANGED_MIND
+  CUSTOMER_FOUND_ANOTHER_PRO
+  CUSTOMER_PRICE_TOO_HIGH
+  // Special chip — customer-side only; excluded from the customer's own
+  // rate and auto-flags the pro for admin review (v7 §2.3).
+  CUSTOMER_PRO_ASKED_TO_CANCEL
+  PROVIDER_UNAVAILABLE
+  PROVIDER_JOB_TOO_FAR
+  PROVIDER_PRICE_DISPUTE
+  OTHER
+}
+
+enum FlagType {
+  COLLUSION_ACCEPT_CANCEL_PAIR
+  COLLUSION_REBOOK_AVOIDANCE
+  CONTACT_LEAKAGE_ATTEMPTS
+  MANUAL_ADMIN
+}
+
+enum FlagStatus {
+  OPEN
+  DISMISSED
+  WARNED
+  SUSPENDED
+  DELISTED
+}
+
 enum LeadSource {
   GOOGLE_PLACES
   MANUAL
@@ -224,6 +278,13 @@ model User {
   journalEntriesPosted    JournalEntry[]    @relation("JournalEntryPoster")
   changeOrdersProposed    ChangeOrder[]     @relation("ChangeOrderProposer")
   maintenancePlans        MaintenancePlan[] @relation("MaintenancePlanCustomer")
+  cancellationEventsCaused CancellationEvent[] @relation("CancellationActor")
+  flagsAsCustomer          ProviderFlag[]      @relation("ProviderFlagCustomer")
+  // Anti-bypass anti-collusion tracking (v7 §2.3) — customer side of the
+  // same rolling-30-day cancellation-rate mechanic ProviderProfile has.
+  cancellationRate30d      Float               @default(0)
+  cancellationCount30d     Int                 @default(0)
+  postingPaused            Boolean             @default(false) // >=5 cancels/30d — job-posting paused pending review
 
   @@index([role])
   @@index([city])
@@ -274,6 +335,16 @@ model ProviderProfile {
   payoutAccount       String?
   commissionPct       Float         @default(12)
   agreementAcceptedAt DateTime?
+  // Cash-After-Job Payment Model + Anti-Bypass System (v6+v7 addendum).
+  // Single source of truth for dispatch eligibility — computed by
+  // src/lib/providerStanding.ts from the max of wallet-debt severity and
+  // cancellation-rate severity, so src/lib/dispatch.ts only checks this
+  // one field rather than two independent ones.
+  dispatchStatus       WalletDispatchStatus @default(NORMAL)
+  dispatchBlockedReason String?             // "WALLET_CEILING" | "WALLET_UNSETTLED_JOBS" | "CANCELLATION_RATE" | "ADMIN_FLAG" | null
+  suspendedUntil       DateTime?            // only set for the cancellation-rate 48h penalty; wallet-ceiling block has no expiry (cleared by topping up)
+  cancellationRate30d  Float                @default(0)
+  cancellationCount30d Int                  @default(0)
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -281,6 +352,9 @@ model ProviderProfile {
   bookings          Booking[]         @relation("ProviderProfileBookings")
   payouts           Payout[]
   preferredForPlans MaintenancePlan[]
+  wallet            ProWallet?
+  flags             ProviderFlag[]
+  preferredForJobs  Job[]             @relation("JobPreferredProvider")
 
   @@index([geohash])
   @@index([isOnline])
@@ -409,6 +483,11 @@ model Job {
   budgetPKR       Int?
   status          JobStatus       @default(OPEN)
   biddingClosesAt DateTime
+  // v7 §2.5 "Book [Pro] again" — when set, dispatchJob() sends the alert
+  // only to this provider (a private one-tap invite) instead of the normal
+  // trade/city/radius fan-out. Precedented by MaintenancePlan.preferredProviderId.
+  preferredProviderId String?
+  preferredProvider   ProviderProfile? @relation("JobPreferredProvider", fields: [preferredProviderId], references: [id])
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -482,19 +561,24 @@ model Booking {
   payoutPKR       Int
   status          BookingStatus   @default(PENDING_PAYMENT)
   matchType       MatchType       @default(BID)
-  paymentDeadline DateTime
+  // Nullable since PR#57 (v6 addendum) — only meaningful in PROTECTED
+  // payment mode (72h window to submit escrow payment proof). CASH_WALLET
+  // bookings go straight to CONFIRMED and never set this.
+  paymentDeadline DateTime?
   timeline        Json            @default("{}")
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
-  payment        Payment?
-  payout         Payout?
-  locationPings  LocationPing[]
-  review         Review?
-  customerReview CustomerReview?
-  messages       Message[]
-  dispute        Dispute?
-  changeOrders   ChangeOrder[]
+  payment                 Payment?
+  payout                  Payout?
+  locationPings           LocationPing[]
+  review                  Review?
+  customerReview          CustomerReview?
+  messages                Message[]
+  dispute                 Dispute?
+  changeOrders            ChangeOrder[]
+  commissionLedgerEntries CommissionLedgerEntry[]
+  cancellationEvent       CancellationEvent?
 
   @@index([status])
   @@index([customerId])
@@ -566,6 +650,105 @@ model Payout {
   @@index([providerId])
 }
 
+// Cash-After-Job Payment Model — Pro Commission Wallet (v6 §1.4). Under
+// PAYMENT_MODE=CASH_WALLET, Servigic never holds customer money; instead the
+// 12% commission becomes debt here, settled by the pro topping up. Kept
+// entirely separate from Payment/Payout (PROTECTED-mode escrow), which stay
+// unused-but-present so PAYMENT_MODE can be flipped back for other markets.
+model ProWallet {
+  id                String    @id @default(cuid())
+  providerId        String    @unique
+  provider          ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  balancePKR        Int       @default(0) // negative = pro owes Servigic (the common case)
+  ceilingPKR        Int       @default(3000) // debt ceiling before dispatch block; admin-editable per pro
+  unsettledJobCount Int       @default(0) // completed jobs with unpaid commission since balance last returned to >= 0
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  ledgerEntries CommissionLedgerEntry[]
+  topUps        TopUp[]
+
+  @@index([providerId])
+}
+
+model CommissionLedgerEntry {
+  id        String          @id @default(cuid())
+  walletId  String
+  wallet    ProWallet       @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  type      LedgerEntryType
+  amountPKR Int             // always positive; sign implied by `type` when applied to wallet balance
+  bookingId String?
+  booking   Booking?        @relation(fields: [bookingId], references: [id])
+  topUpId   String?         @unique
+  topUp     TopUp?          @relation(fields: [topUpId], references: [id])
+  memo      String?
+  createdAt DateTime        @default(now())
+
+  @@index([walletId])
+  @@index([bookingId])
+}
+
+model TopUp {
+  id            String      @id @default(cuid())
+  walletId      String
+  wallet        ProWallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  amountPKR     Int
+  method        PaymentMethod
+  proofImageUrl String?
+  status        TopUpStatus @default(SUBMITTED)
+  verifiedAt    DateTime?
+  verifiedBy    String?
+  createdAt     DateTime    @default(now())
+
+  ledgerEntry CommissionLedgerEntry?
+
+  @@index([status])
+  @@index([walletId])
+}
+
+// Anti-Disintermediation System — cancellation-rate engine (v7 §2.3).
+// No cancel endpoint existed before this addendum; every cancellation
+// (customer-, provider-, or admin/dispute-initiated) now writes one of
+// these, feeding src/lib/cancellationRate.ts's rolling 30-day computation.
+model CancellationEvent {
+  id                        String                 @id @default(cuid())
+  bookingId                 String                 @unique
+  booking                   Booking                @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  cancelledById             String
+  cancelledByUser           User                   @relation("CancellationActor", fields: [cancelledById], references: [id])
+  cancelledByRole           CancelledByRole
+  reasonCode                CancellationReasonCode
+  reasonNote                String?
+  // True only for CUSTOMER_PRO_ASKED_TO_CANCEL — excludes this cancellation
+  // from the customer's own rate (protects the honest reporter) and pairs
+  // with flaggedProviderId to auto-flag the pro for admin review.
+  excludedFromCancellerRate Boolean                @default(false)
+  flaggedProviderId         String?
+  createdAt                 DateTime               @default(now())
+
+  @@index([cancelledById, createdAt])
+  @@index([flaggedProviderId])
+}
+
+// Anti-Disintermediation System — collusion-pair detection (v7 §2.4).
+model ProviderFlag {
+  id         String          @id @default(cuid())
+  providerId String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  customerId String?
+  customer   User?           @relation("ProviderFlagCustomer", fields: [customerId], references: [id])
+  type       FlagType
+  evidence   Json            // bookingIds / message ids / counts gathered by the detector
+  status     FlagStatus      @default(OPEN)
+  reviewedBy String?
+  reviewNote String?
+  reviewedAt DateTime?
+  createdAt  DateTime        @default(now())
+
+  @@index([providerId, status])
+  @@index([type, status])
+}
+
 model LocationPing {
   id        String   @id @default(cuid())
   bookingId String
@@ -612,6 +795,10 @@ model Message {
   senderId  String
   sender    User     @relation(fields: [senderId], references: [id])
   body      String
+  // v7 §2.2/§2.4 — true iff scrubContactInfo() actually redacted something
+  // in this message's body (staged-reveal masking). Feeds the
+  // CONTACT_LEAKAGE_ATTEMPTS collusion heuristic in src/lib/collusionDetection.ts.
+  scrubHit  Boolean  @default(false)
   createdAt DateTime @default(now())
 
   @@index([bookingId, createdAt])
@@ -693,6 +880,9 @@ model SiteSettings {
   demoVideoCustomerUrl  String?
   demoVideoProUrl       String?
   featureFlags          Json     @default("{}")
+  // Default ProWallet.ceilingPKR for newly created wallets (v6 §1.4) — admin
+  // can still override per-pro afterward via /admin/wallets/[id].
+  defaultWalletCeilingPKR Int    @default(3000)
   updatedAt             DateTime @updatedAt
 }
 

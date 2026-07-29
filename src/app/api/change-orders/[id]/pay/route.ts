@@ -3,10 +3,19 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { payChangeOrderSchema } from "@/lib/validation/booking";
 import { notify } from "@/lib/notify";
+import { getPaymentMode } from "@/lib/featureFlags";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole("CUSTOMER");
   if (!auth.ok) return auth.response;
+
+  // Retired under CASH_WALLET — respond/route.ts confirms change orders
+  // directly with no AWAITING_PAYMENT step, so this is unreachable in that
+  // mode. Guarded explicitly rather than relying only on the state never
+  // being reached.
+  if ((await getPaymentMode()) === "CASH_WALLET") {
+    return NextResponse.json({ error: "Not applicable in this payment mode" }, { status: 410 });
+  }
 
   const { id } = await params;
   const body = await req.json();

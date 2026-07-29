@@ -12,7 +12,7 @@
     "line1": "KAPUTT?",
     "line2": "REPARIERT",
     "line3": "HEUTE.",
-    "sub": "Stellen Sie Ihren Auftrag ein. Geprüfte Profis bieten sofort mit. Ihr Geld bleibt treuhänderisch geschützt, bis die Arbeit erledigt ist.",
+    "sub": "Stellen Sie Ihren Auftrag ein. Geprüfte Profis bieten sofort mit. Zahlen Sie Ihrem Profi direkt, sobald die Arbeit erledigt ist.",
     "ctaPrimary": "Auftrag einstellen — Angebote in Minuten",
     "ctaSecondary": "So funktioniert's ansehen — 60 Sek."
   },
@@ -23,14 +23,16 @@
     "eyebrow": "FAQ",
     "title": "FRAGEN? HIER SIND DIE ANTWORTEN.",
     "items": [
-      { "q": "Ist das Einstellen eines Auftrags kostenlos?", "a": "Ja — das Einstellen eines Auftrags ist immer kostenlos. Sie zahlen erst, wenn Sie ein Angebot annehmen, und diese Zahlung geht direkt in ein geschütztes Treuhandkonto." },
-      { "q": "Wie schützt mich das Treuhandkonto?", "a": "Ihre Zahlung wird von Servigic verwahrt, nicht vom Profi, bis Sie die Fertigstellung des Auftrags bestätigen. Bei Problemen können Sie vor der Freigabe der Mittel einen Streitfall eröffnen." },
-      { "q": "Was, wenn der Profi vor Ort zusätzliche Arbeiten feststellt?", "a": "Er reicht einen Änderungsauftrag mit Foto und Preis ein — Sie genehmigen ihn (und zahlen die Differenz ins Treuhandkonto), bevor zusätzliche Arbeiten beginnen." },
-      { "q": "Was, wenn ich nicht zufrieden bin?", "a": "Jeder Auftrag hat eine 7-tägige Gewährleistung auf die Ausführung. Eröffnen Sie einen Streitfall — unser Team prüft Fotos beider Seiten und entscheidet über Freigabe, teilweise oder vollständige Rückerstattung." },
-      { "q": "Warum sehe ich die Telefonnummer des Profis nicht vor der Zahlung?", "a": "Kontaktdaten bleiben verborgen, bis die Zahlung gesichert ist — das verhindert Geschäfte außerhalb der Plattform, bei denen Sie ohne jeglichen Schutz dastehen würden." },
+      { "q": "Ist das Einstellen eines Auftrags kostenlos?", "a": "Ja — das Einstellen eines Auftrags ist immer kostenlos. Sie zahlen erst, wenn Sie ein Angebot annehmen, und Sie zahlen Ihrem Profi direkt, sobald der Auftrag erledigt ist — Servigic nimmt Ihre Zahlung nie entgegen und verwahrt sie auch nicht." },
+      { "q": "Wie schützt mich Servigic, wenn ich nicht im Voraus zahle?", "a": "Statt Ihr Geld zu verwahren, schützt Sie Servigic durch geprüfte Profis (Personalausweis + Selfie, ab höheren Stufen mit Führungszeugnis-Prüfung), gegenseitige Bewertungen nach jedem Auftrag, einen maskierten In-App-Chat, der die Kontaktdaten Ihres Profis erst freigibt, sobald er unterwegs ist, sowie ein Team für Streitschlichtung, falls etwas schiefgeht." },
+      { "q": "Was, wenn der Profi vor Ort zusätzliche Arbeiten feststellt?", "a": "Er reicht einen Änderungsauftrag mit Foto und Preis ein — Sie genehmigen ihn, bevor zusätzliche Arbeiten beginnen, und der Zusatzbetrag wird einfach zu dem hinzugefügt, was Sie Ihrem Profi direkt zahlen." },
+      { "q": "Was, wenn ich nicht zufrieden bin?", "a": "Jeder Auftrag hat eine 7-tägige Gewährleistung auf die Ausführung. Eröffnen Sie einen Streitfall — unser Team prüft Fotos beider Seiten und hilft, gemeinsam mit Ihrem Profi eine Lösung zu finden." },
+      { "q": "Warum sehe ich die Telefonnummer des Profis nicht sofort?", "a": "Kontaktdaten bleiben in einem In-App-Chat verborgen, bis Ihr Profi markiert, dass er unterwegs ist — das schließt das Zeitfenster, in dem Geschäfte außerhalb der Plattform entstehen, und schützt Sie beide. Bei Notfall-Aufträgen werden die Kontaktdaten sofort freigegeben." },
       { "q": "Wie schnell treffen Angebote ein?", "a": "Bei Notfall-Aufträgen erhalten die meisten Kunden ihr erstes Angebot in weniger als 10 Minuten, da jeder passende Profi in der Nähe sofort benachrichtigt wird." },
-      { "q": "Wie werden Profis bezahlt?", "a": "Direkt per EasyPaisa, JazzCash oder Banküberweisung, nachdem Sie die Fertigstellung bestätigt haben, abzüglich der 12% Provision von Servigic." },
-      { "q": "In welchen Städten?", "a": "Start in Karatschi, dann Lahore und Islamabad/Rawalpindi, gefolgt vom Golf-Raum und Nordamerika." }
+      { "q": "Wie werden Profis bezahlt?", "a": "Direkt von Ihnen — bar, per EasyPaisa, JazzCash oder Banküberweisung, wie Sie es vereinbaren. Servigic fasst diese Zahlung nie an; Profis begleichen ihre 12% Provision separat über ihr In-App-Guthabenkonto." },
+      { "q": "In welchen Städten?", "a": "Start in Karatschi, dann Lahore und Islamabad/Rawalpindi, gefolgt vom Golf-Raum und Nordamerika." },
+      { "q": "Warum sollte ich über Servigic buchen, statt den Profi direkt anzurufen?", "a": "Über Servigic zu buchen bringt Ihnen geprüfte und bewertete Profis, gegenseitige Bewertungen, Unterstützung bei Streitfällen und echten Preiswettbewerb durch reale Angebote — nichts davon gibt es, wenn Sie die Plattform umgehen. Erneutes Buchen ist zudem nur einen Klick entfernt mit „Erneut buchen“." },
+      { "q": "Was passiert, wenn ich oder mein Profi eine Buchung storniere?", "a": "Stornierungen nach Bestätigung einer Buchung werden erfasst — gelegentliche Stornierungen sind kein Problem, aber eine hohe Stornierungsrate kann Ihre Möglichkeit, Aufträge einzustellen (oder die Auftragsbenachrichtigungen eines Profis), vorübergehend pausieren. Wenn ein Profi Sie bittet zu stornieren, um direkt mit Ihnen zu arbeiten, sagen Sie es uns — wählen Sie diesen Grund aus, und wir prüfen den Profi, statt es Ihnen anzurechnen." }
     ]
   }
 }

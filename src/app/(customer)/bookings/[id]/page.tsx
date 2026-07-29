@@ -4,17 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { runExpirySweep } from "@/lib/expiry";
 import { detectMarket } from "@/lib/geoDetect";
 import { getTimelineDurationMinutes } from "@/lib/jobDuration";
+import { getPaymentMode } from "@/lib/featureFlags";
+import { computeRevealStage } from "@/lib/reveal";
 import { BookingDetailClient } from "./BookingDetailClient";
-
-// DISPUTED/CANCELLED included — see the mobile API's identical fix: a
-// dispute must never re-lock contact info that was already unlocked
-// before it could even be opened.
-const UNLOCKED_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE", "COMPLETED", "DISPUTED", "CANCELLED"];
 
 export default async function CustomerBookingPage({ params }: { params: Promise<{ id: string }> }) {
   await runExpirySweep();
   const { id } = await params;
-  const [session, market] = await Promise.all([auth(), detectMarket()]);
+  const [session, market, paymentMode] = await Promise.all([auth(), detectMarket(), getPaymentMode()]);
 
   const booking = await prisma.booking.findUnique({
     where: { id },
@@ -32,11 +29,13 @@ export default async function CustomerBookingPage({ params }: { params: Promise<
 
   if (!booking || booking.customerId !== session?.user.id) notFound();
 
-  const unlocked = UNLOCKED_STATUSES.includes(booking.status);
+  const revealStage = computeRevealStage(booking.status, booking.job.urgency);
+  const unlocked = revealStage === "FULL";
 
   return (
     <BookingDetailClient
       currentUserId={session.user.id}
+      paymentMode={paymentMode}
       booking={{
         id: booking.id,
         status: booking.status,
@@ -49,10 +48,11 @@ export default async function CustomerBookingPage({ params }: { params: Promise<
         jobLng: booking.job.lng,
         providerName: unlocked ? booking.providerUser.name : `Pro #${booking.providerProfile.serialNumber}`,
         providerPhone: unlocked ? booking.providerUser.phone : null,
-        paymentDeadline: booking.paymentDeadline.toISOString(),
+        paymentDeadline: booking.paymentDeadline?.toISOString() ?? null,
         payment: booking.payment ? { status: booking.payment.status } : null,
         hasReview: Boolean(booking.review),
         dispute: booking.dispute ? { resolution: booking.dispute.resolution } : null,
+        revealStage,
         unlocked,
         totalDurationMinutes: getTimelineDurationMinutes(booking.timeline, "CONFIRMED", "COMPLETED"),
         workDurationMinutes: getTimelineDurationMinutes(booking.timeline, "WORKING", "DONE"),

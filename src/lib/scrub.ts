@@ -4,5 +4,5 @@ const CONTACT_PATTERN =
   /\+?\d[\d\s\-./\\#]{5,}\d|[\w.-]+@[\w.-]+\.[a-z]{2,}|\bwhats\s?app\b/gi;
 
 export function scrubContactInfo(text: string): string {
-  return text.replace(CONTACT_PATTERN, "[contact details unlock after payment]");
+  return text.replace(CONTACT_PATTERN, "[contact details hidden until your pro is on the way]");
 }

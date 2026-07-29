@@ -4,8 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 type Message = { id: string; body: string; senderId: string; createdAt: string; sender: { name: string; role: string } };
+type RevealStage = "LOCKED" | "MASKED" | "FULL";
 
-export function ChatBox({ bookingId, currentUserId, unlocked }: { bookingId: string; currentUserId: string; unlocked: boolean }) {
+export function ChatBox({
+  bookingId,
+  currentUserId,
+  revealStage,
+}: {
+  bookingId: string;
+  currentUserId: string;
+  revealStage: RevealStage;
+}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState("");
   const [pending, setPending] = useState(false);
@@ -20,13 +29,13 @@ export function ChatBox({ bookingId, currentUserId, unlocked }: { bookingId: str
   }
 
   useEffect(() => {
-    if (!unlocked) return;
+    if (revealStage === "LOCKED") return;
     const interval = setInterval(load, 8000);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- polling fetch on mount is intentional here
     void load();
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unlocked]);
+  }, [revealStage]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -52,16 +61,21 @@ export function ChatBox({ bookingId, currentUserId, unlocked }: { bookingId: str
     }
   }
 
-  if (!unlocked) {
+  if (revealStage === "LOCKED") {
     return (
       <div className="rounded-[12px] border border-border-subtle bg-bg-elevated p-6 text-center text-sm text-text-muted">
-        🔒 Chat unlocks once payment is verified.
+        🔒 Chat unlocks once the job is confirmed.
       </div>
     );
   }
 
   return (
     <div className="flex h-80 flex-col rounded-[12px] border border-border-subtle bg-bg-elevated">
+      {revealStage === "MASKED" && (
+        <div className="border-b border-border-subtle bg-accent/10 px-4 py-2 text-xs text-accent">
+          🔒 Contact details are hidden until your pro is on the way — messages are auto-filtered.
+        </div>
+      )}
       <div className="flex-1 space-y-2 overflow-y-auto p-4">
         {messages.map((m) => {
           const isMine = m.senderId === currentUserId;

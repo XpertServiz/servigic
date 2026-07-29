@@ -216,7 +216,8 @@ export function ProviderProfileForm({ initial }: { initial: ProviderProfile | nu
           className="mt-1 accent-accent"
         />
         I agree that jobs found through Servigic close on Servigic — taking a customer off-platform after a lead is
-        grounds for delisting.
+        grounds for delisting. Asking customers to cancel a platform booking so I can work with them directly is also
+        a violation and leads to delisting.
       </label>
 
       <button

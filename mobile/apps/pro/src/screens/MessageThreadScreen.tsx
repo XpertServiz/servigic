@@ -24,7 +24,13 @@ export default function MessageThreadScreen({ route }: Props) {
 
   const load = useCallback(() => {
     api.getMessages(bookingId).then(({ messages: m }) => setMessages(m));
-    api.getBookingDetail(bookingId).then(({ booking }) => setLocked(booking.status === "COMPLETED"));
+    api.getBookingDetail(bookingId).then(({ booking }) => {
+      // Chat opens as soon as it's MASKED (v7 §2.2) — messages are already
+      // redacted server-side at that stage, so no client-side masking is
+      // needed here. COMPLETED still closes the thread regardless of reveal
+      // stage — the relationship is over once the customer confirms done.
+      setLocked(booking.revealStage === "LOCKED" || booking.status === "COMPLETED");
+    });
   }, [bookingId]);
 
   useFocusEffect(

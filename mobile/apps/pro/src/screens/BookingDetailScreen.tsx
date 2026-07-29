@@ -10,6 +10,9 @@ import { Button, Card } from "../components/ui";
 import { StatusPillTimeline, PriceText, haptic } from "../components/ds";
 import { sound } from "../lib/sound";
 import { colors, mapStyle, radius } from "../lib/theme";
+import { CancelBookingSheet } from "./CancelBookingSheet";
+
+const CANCELLABLE_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED"];
 
 type Props = NativeStackScreenProps<JobsStackParamList, "BookingDetail">;
 
@@ -40,6 +43,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [rating, setRating] = useState(5);
   const [tags, setTags] = useState<string[]>([]);
+  const [cancelSheetOpen, setCancelSheetOpen] = useState(false);
   const prevStatusRef = useRef<string | null>(null);
 
   const load = useCallback(() => {
@@ -119,6 +123,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
   const timelineIndex = status ? TIMELINE_STATUS_ORDER.indexOf(status) : -1;
 
   return (
+    <>
     <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 16 }}>
       <Text style={{ color: colors.text, fontSize: 20, fontWeight: "800" }}>{booking.jobTitle as string}</Text>
       <View style={{ marginTop: 6, flexDirection: "row", alignItems: "center", gap: 10 }}>
@@ -132,7 +137,28 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
         </Card>
       )}
 
-      {Boolean(booking.unlocked) && (
+      {status && CANCELLABLE_STATUSES.includes(status) && (
+        <Pressable onPress={() => setCancelSheetOpen(true)} style={{ marginTop: 16, alignSelf: "flex-start" }}>
+          <Text style={{ color: colors.danger, fontWeight: "700", fontSize: 13 }}>Cancel booking</Text>
+        </Pressable>
+      )}
+
+      {booking.revealStage === "MASKED" && (
+        <Card style={{ marginTop: 16 }}>
+          <Text style={{ color: colors.accent, fontWeight: "700" }}>Chat with your customer</Text>
+          <Text style={{ color: colors.textMuted, marginTop: 4 }}>Full contact details unlock once you mark On My Way.</Text>
+          <Pressable
+            onPress={() =>
+              navigation.navigate("MessageThread", { bookingId, otherPartyName: booking.otherPartyName as string })
+            }
+            style={{ marginTop: 10 }}
+          >
+            <Text style={{ color: colors.accent, fontWeight: "700" }}>💬 Message</Text>
+          </Pressable>
+        </Card>
+      )}
+
+      {booking.revealStage === "FULL" && (
         <Card style={{ marginTop: 16 }}>
           <Text style={{ color: colors.secondary, fontWeight: "700" }}>Contact unlocked</Text>
           <Text style={{ color: colors.textMuted, marginTop: 4 }}>
@@ -187,6 +213,11 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
       {status === "DONE" && (
         <Card style={{ marginTop: 16 }}>
           <Text style={{ color: colors.textMuted }}>Waiting for the customer to confirm the job is done.</Text>
+          {booking.paymentMode === "CASH_WALLET" && (
+            <Text style={{ color: colors.textMuted, marginTop: 6 }}>
+              Once confirmed, collect PKR {(booking.payoutPKR as number).toLocaleString()} directly from the customer.
+            </Text>
+          )}
         </Card>
       )}
 
@@ -242,5 +273,12 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
         </Card>
       )}
     </ScrollView>
+    <CancelBookingSheet
+      visible={cancelSheetOpen}
+      bookingId={bookingId}
+      onClose={() => setCancelSheetOpen(false)}
+      onCancelled={load}
+    />
+    </>
   );
 }

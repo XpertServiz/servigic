@@ -22,6 +22,7 @@ export default async function AdminProvidersPage() {
               <th className="p-4">Docs</th>
               <th className="p-4">Level</th>
               <th className="p-4">Rating</th>
+              <th className="p-4">Dispatch</th>
               <th className="p-4">Actions</th>
             </tr>
           </thead>
@@ -31,7 +32,7 @@ export default async function AdminProvidersPage() {
             ))}
             {providers.length === 0 && (
               <tr>
-                <td colSpan={7} className="p-6 text-center text-text-muted">
+                <td colSpan={8} className="p-6 text-center text-text-muted">
                   No providers yet.
                 </td>
               </tr>

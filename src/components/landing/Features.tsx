@@ -1,6 +1,6 @@
 import { Eyebrow } from "@/components/landing/Eyebrow";
 
-export function Features() {
+export function Features({ paymentMode }: { paymentMode: "CASH_WALLET" | "PROTECTED" }) {
   return (
     <section className="mx-auto max-w-[1200px] px-6 py-12">
       {/* The Bid Board */}
@@ -39,35 +39,72 @@ export function Features() {
         </div>
       </div>
 
-      {/* Payment Protection Shield */}
-      <div className="grid grid-cols-1 items-center gap-16 border-t border-border-subtle py-20 md:grid-cols-2">
-        <div>
-          <Eyebrow tone="secondary">Payment Protection</Eyebrow>
-          <h3 className="mb-4 font-display text-[clamp(26px,3.4vw,38px)] font-bold uppercase">
-            Your money doesn&apos;t move until the job is done.
-          </h3>
-          <p className="mb-2 text-text-muted">Paid → Held → Job Done → Released. Every job carries a 7-day workmanship warranty.</p>
-          <p className="text-text-muted">Extra work found on-site? A Change Order needs your approval first — or it doesn&apos;t happen.</p>
-        </div>
-        <div className="min-h-[260px] rounded-[18px] border border-border-subtle bg-bg-elevated p-6">
-          <div className="mb-5 flex justify-between">
-            {["Paid", "Held", "Job Done", "Released"].map((s, i) => (
-              <div key={s} className="relative flex-1 text-center">
-                <div className="mx-auto mb-2 flex h-[30px] w-[30px] items-center justify-center rounded-full bg-secondary text-[13px] font-extrabold text-secondary-foreground">
-                  {i === 2 ? "✓" : i === 3 ? "💸" : "🔒"}
+      {/* Payment model — CASH_WALLET (Pakistan launch) vs. PROTECTED (kept for future international markets) */}
+      {paymentMode === "CASH_WALLET" ? (
+        <div className="grid grid-cols-1 items-center gap-16 border-t border-border-subtle py-20 md:grid-cols-2">
+          <div>
+            <Eyebrow tone="secondary">You Pay After the Job</Eyebrow>
+            <h3 className="mb-4 font-display text-[clamp(26px,3.4vw,38px)] font-bold uppercase">
+              No advance payment. No wallet. Just pay your pro directly.
+            </h3>
+            <p className="mb-2 text-text-muted">
+              Compare bids, pick your pro, and pay them in cash — or however you agree — once the work is done.
+              Simple, familiar, fair.
+            </p>
+            <p className="text-text-muted">
+              Extra work found on-site? A Change Order still needs your approval first — you always know what
+              you&apos;re paying before it happens.
+            </p>
+          </div>
+          <div className="min-h-[260px] rounded-[18px] border border-border-subtle bg-bg-elevated p-6">
+            <div className="mb-5 flex justify-between">
+              {["Compare Bids", "Job Done", "Pay Directly"].map((s, i) => (
+                <div key={s} className="relative flex-1 text-center">
+                  <div className="mx-auto mb-2 flex h-[30px] w-[30px] items-center justify-center rounded-full bg-secondary text-[13px] font-extrabold text-secondary-foreground">
+                    {i === 1 ? "✓" : i === 2 ? "💵" : "⚖️"}
+                  </div>
+                  <span className="text-[11px] text-text-muted">{s}</span>
                 </div>
-                <span className="text-[11px] text-text-muted">{s}</span>
-              </div>
-            ))}
-          </div>
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-secondary/30 bg-secondary/10 px-3 py-1.5 text-xs font-bold text-secondary">
-            🛡 7-Day Workmanship Warranty
-          </div>
-          <div className="mt-4 rounded-[10px] border border-border-subtle bg-bg-elevated-2 p-3.5 text-xs text-text-muted">
-            Change Order: &quot;Found corroded pipe — extra PKR 800&quot; <b className="text-secondary">Approve</b>
+              ))}
+            </div>
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-secondary/30 bg-secondary/10 px-3 py-1.5 text-xs font-bold text-secondary">
+              🛠 Workmanship Support — 7 days
+            </div>
+            <div className="mt-4 rounded-[10px] border border-border-subtle bg-bg-elevated-2 p-3.5 text-xs text-text-muted">
+              Change Order: &quot;Found corroded pipe — extra PKR 800&quot; <b className="text-secondary">Approve</b>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 items-center gap-16 border-t border-border-subtle py-20 md:grid-cols-2">
+          <div>
+            <Eyebrow tone="secondary">Payment Protection</Eyebrow>
+            <h3 className="mb-4 font-display text-[clamp(26px,3.4vw,38px)] font-bold uppercase">
+              Your money doesn&apos;t move until the job is done.
+            </h3>
+            <p className="mb-2 text-text-muted">Paid → Held → Job Done → Released. Every job carries a 7-day workmanship warranty.</p>
+            <p className="text-text-muted">Extra work found on-site? A Change Order needs your approval first — or it doesn&apos;t happen.</p>
+          </div>
+          <div className="min-h-[260px] rounded-[18px] border border-border-subtle bg-bg-elevated p-6">
+            <div className="mb-5 flex justify-between">
+              {["Paid", "Held", "Job Done", "Released"].map((s, i) => (
+                <div key={s} className="relative flex-1 text-center">
+                  <div className="mx-auto mb-2 flex h-[30px] w-[30px] items-center justify-center rounded-full bg-secondary text-[13px] font-extrabold text-secondary-foreground">
+                    {i === 2 ? "✓" : i === 3 ? "💸" : "🔒"}
+                  </div>
+                  <span className="text-[11px] text-text-muted">{s}</span>
+                </div>
+              ))}
+            </div>
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-secondary/30 bg-secondary/10 px-3 py-1.5 text-xs font-bold text-secondary">
+              🛡 7-Day Workmanship Warranty
+            </div>
+            <div className="mt-4 rounded-[10px] border border-border-subtle bg-bg-elevated-2 p-3.5 text-xs text-text-muted">
+              Change Order: &quot;Found corroded pipe — extra PKR 800&quot; <b className="text-secondary">Approve</b>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Live Tracking */}
       <div className="grid grid-cols-1 items-center gap-16 border-t border-border-subtle py-20 md:grid-cols-2">

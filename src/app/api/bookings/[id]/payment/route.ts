@@ -3,10 +3,19 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { submitPaymentSchema } from "@/lib/validation/booking";
 import { notify } from "@/lib/notify";
+import { getPaymentMode } from "@/lib/featureFlags";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole("CUSTOMER");
   if (!auth.ok) return auth.response;
+
+  // Retired under CASH_WALLET (v6 addendum) — bookings never enter
+  // PENDING_PAYMENT in that mode, so there's nothing to submit proof for.
+  // 410 (not 404) signals "intentionally retired for this mode", not
+  // "never existed" — the PROTECTED-mode code below is otherwise untouched.
+  if ((await getPaymentMode()) === "CASH_WALLET") {
+    return NextResponse.json({ error: "Not applicable in this payment mode" }, { status: 410 });
+  }
 
   const { id } = await params;
   const body = await req.json();

@@ -13,6 +13,13 @@ type ProviderWithUser = ProviderProfile & {
   user: { name: string; phone: string; city: string | null; createdAt: Date };
 };
 
+const DISPATCH_STATUS_TONE: Record<string, string> = {
+  NORMAL: "text-secondary border-secondary/30 bg-secondary/10",
+  WARNED: "text-accent border-accent/30 bg-accent/10",
+  THROTTLED: "text-accent border-accent/30 bg-accent/10",
+  SUSPENDED: "text-danger border-danger/30 bg-danger/10",
+};
+
 export function ProviderRow({ provider }: { provider: ProviderWithUser }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -98,6 +105,14 @@ export function ProviderRow({ provider }: { provider: ProviderWithUser }) {
       </td>
       <td className="p-4 text-text-muted">
         {provider.ratingCount > 0 ? `${provider.ratingAvg.toFixed(1)}★ (${provider.jobsCompleted})` : "—"}
+      </td>
+      <td className="p-4">
+        <span className={`rounded-full border px-2 py-1 text-xs font-bold ${DISPATCH_STATUS_TONE[provider.dispatchStatus] ?? ""}`}>
+          {provider.dispatchStatus}
+        </span>
+        {provider.dispatchBlockedReason && (
+          <div className="mt-1 text-[10px] text-text-muted">{provider.dispatchBlockedReason}</div>
+        )}
       </td>
       <td className="p-4">
         <div className="flex flex-wrap gap-1.5">

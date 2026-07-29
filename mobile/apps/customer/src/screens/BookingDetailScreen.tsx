@@ -10,6 +10,9 @@ import { Button, Card, Field } from "../components/ui";
 import { StatusPillTimeline, PriceText, RatingStars, ConfettiBurst, haptic } from "../components/ds";
 import { sound } from "../lib/sound";
 import { colors, mapStyle, radius } from "../lib/theme";
+import { CancelBookingSheet } from "./CancelBookingSheet";
+
+const CANCELLABLE_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED"];
 
 type Props = NativeStackScreenProps<HomeStackParamList, "BookingDetail">;
 
@@ -50,6 +53,8 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
   const [tags, setTags] = useState<string[]>([]);
   const [proLocation, setProLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [confettiTrigger, setConfettiTrigger] = useState(0);
+  const [cancelSheetOpen, setCancelSheetOpen] = useState(false);
+  const [rebooking, setRebooking] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const prevStatusRef = useRef<string | null>(null);
 
@@ -129,6 +134,16 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
     }
   }
 
+  async function rebook() {
+    setRebooking(true);
+    try {
+      const { job } = await api.rebookJob(bookingId);
+      navigation.navigate("JobDetail", { jobId: job.id });
+    } finally {
+      setRebooking(false);
+    }
+  }
+
   async function submitRating() {
     setBusy(true);
     try {
@@ -158,7 +173,13 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
           </Card>
         )}
 
-        {status === "PENDING_PAYMENT" && !booking.paymentStatus && (
+        {CANCELLABLE_STATUSES.includes(status) && (
+          <Pressable onPress={() => setCancelSheetOpen(true)} style={{ marginTop: 16, alignSelf: "flex-start" }}>
+            <Text style={{ color: colors.danger, fontWeight: "700", fontSize: 13 }}>Cancel booking</Text>
+          </Pressable>
+        )}
+
+        {booking.paymentMode !== "CASH_WALLET" && status === "PENDING_PAYMENT" && !booking.paymentStatus && (
           <Card style={{ marginTop: 16 }}>
             <Text style={styles.cardTitle}>Secure Payment</Text>
             <View style={styles.trustCard}>
@@ -200,13 +221,41 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
           </Card>
         )}
 
-        {status === "PENDING_PAYMENT" && booking.paymentStatus === "SUBMITTED" && (
+        {booking.paymentMode !== "CASH_WALLET" && status === "PENDING_PAYMENT" && booking.paymentStatus === "SUBMITTED" && (
           <Card style={{ marginTop: 16 }}>
             <Text style={{ color: colors.accent }}>Payment submitted — awaiting admin verification.</Text>
           </Card>
         )}
 
-        {Boolean(booking.unlocked) && (
+        {booking.paymentMode === "CASH_WALLET" && (status === "DONE" || status === "COMPLETED") && (
+          <Card style={{ marginTop: 16 }}>
+            <Text style={styles.cardTitle}>Pay {booking.otherPartyName ? (booking.otherPartyName as string) : "your pro"} directly</Text>
+            <PriceText pkr={booking.totalPKR as number} size="md" color={colors.accent} />
+            <Text style={{ color: colors.textMuted, marginTop: 6, fontSize: 13 }}>
+              Cash, JazzCash, EasyPaisa, or bank transfer — however works for you both. Servigic does not collect this
+              payment.
+            </Text>
+          </Card>
+        )}
+
+        {booking.revealStage === "MASKED" && (
+          <Card style={{ marginTop: 16 }}>
+            <Text style={{ color: colors.accent, fontWeight: "700" }}>Chat with your pro</Text>
+            <Text style={{ color: colors.textMuted, marginTop: 4 }}>
+              {booking.otherPartyName as string} · full contact unlocks once they&apos;re on the way
+            </Text>
+            <Pressable
+              onPress={() =>
+                navigation.navigate("MessageThread", { bookingId, otherPartyName: booking.otherPartyName as string })
+              }
+              style={{ marginTop: 10 }}
+            >
+              <Text style={{ color: colors.accent, fontWeight: "700" }}>💬 Message</Text>
+            </Pressable>
+          </Card>
+        )}
+
+        {booking.revealStage === "FULL" && (
           <Card style={{ marginTop: 16 }}>
             <Text style={{ color: colors.secondary, fontWeight: "700" }}>Contact unlocked</Text>
             <Text style={{ color: colors.textMuted, marginTop: 4 }}>
@@ -285,6 +334,17 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
           </Card>
         )}
 
+        {status === "COMPLETED" && (
+          <View style={{ marginTop: 16 }}>
+            <Button
+              title={rebooking ? "Booking…" : `Book ${(booking.otherPartyName as string) ?? "your pro"} again →`}
+              variant="ghost"
+              onPress={rebook}
+              loading={rebooking}
+            />
+          </View>
+        )}
+
         {status === "COMPLETED" && !booking.hasReview && (
           <Card style={{ marginTop: 16 }}>
             <Text style={styles.cardTitle}>Rate your pro</Text>
@@ -320,6 +380,12 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
         )}
       </ScrollView>
       <ConfettiBurst trigger={confettiTrigger} />
+      <CancelBookingSheet
+        visible={cancelSheetOpen}
+        bookingId={bookingId}
+        onClose={() => setCancelSheetOpen(false)}
+        onCancelled={load}
+      />
     </View>
   );
 }

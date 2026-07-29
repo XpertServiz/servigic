@@ -12,7 +12,7 @@
     "line1": "ZEPSUTE?",
     "line2": "NAPRAWIONE",
     "line3": "DZISIAJ.",
-    "sub": "Dodaj swoje zlecenie. Zweryfikowani fachowcy rywalizują o zlecenie. Twoje pieniądze są bezpieczne w depozycie do czasu ukończenia pracy.",
+    "sub": "Dodaj swoje zlecenie. Zweryfikowani fachowcy rywalizują o zlecenie. Zapłać fachowcowi bezpośrednio, gdy praca zostanie ukończona.",
     "ctaPrimary": "Dodaj zlecenie — oferty w kilka minut",
     "ctaSecondary": "Zobacz jak to działa — 60 sek."
   },
@@ -23,14 +23,16 @@
     "eyebrow": "FAQ",
     "title": "PYTANIA? MAMY ODPOWIEDZI.",
     "items": [
-      { "q": "Czy dodanie zlecenia jest bezpłatne?", "a": "Tak — dodanie zlecenia jest zawsze bezpłatne. Płacisz dopiero po zaakceptowaniu oferty, a płatność trafia bezpośrednio do Ochrony Płatności." },
-      { "q": "Jak Ochrona Płatności mnie chroni?", "a": "Twoja płatność jest przechowywana przez Servigic, a nie przez fachowca, dopóki nie potwierdzisz zakończenia pracy. W razie problemów możesz otworzyć spór przed zwolnieniem środków." },
-      { "q": "Co jeśli fachowiec znajdzie dodatkową pracę na miejscu?", "a": "Składa zlecenie zmiany ze zdjęciem i ceną — zatwierdzasz je (i dopłacasz różnicę do Ochrony Płatności), zanim rozpocznie się dodatkowa praca." },
-      { "q": "Co jeśli nie jestem zadowolony?", "a": "Każde zlecenie objęte jest 7-dniową gwarancją jakości wykonania. Otwórz spór, a nasz zespół przeanalizuje zdjęcia obu stron, aby zwolnić środki, zwrócić częściowo lub w całości." },
-      { "q": "Dlaczego nie widzę numeru telefonu fachowca przed zapłatą?", "a": "Dane kontaktowe pozostają ukryte, dopóki płatność nie zostanie zabezpieczona — to zapobiega transakcjom poza platformą, które pozostawiłyby Cię bez żadnej ochrony." },
+      { "q": "Czy dodanie zlecenia jest bezpłatne?", "a": "Tak — dodanie zlecenia jest zawsze bezpłatne. Płacisz dopiero po zaakceptowaniu oferty, a płatność trafia bezpośrednio do fachowca po zakończeniu pracy — Servigic nigdy nie przyjmuje ani nie przechowuje Twojej płatności." },
+      { "q": "Jak Servigic mnie chroni, skoro nie płacę z góry?", "a": "Zamiast przechowywać Twoje pieniądze, Servigic chroni Cię poprzez zweryfikowanych fachowców (dowód tożsamości + selfie, weryfikacja policyjna na wyższych poziomach), obustronne oceny po każdym zleceniu, zamaskowany czat w aplikacji, który ujawnia dane kontaktowe fachowca dopiero, gdy jest w drodze, oraz zespół mediacyjny na wypadek problemów." },
+      { "q": "Co jeśli fachowiec znajdzie dodatkową pracę na miejscu?", "a": "Składa zlecenie zmiany ze zdjęciem i ceną — zatwierdzasz je, zanim rozpocznie się dodatkowa praca, a dodatkowa kwota jest po prostu doliczana do tego, co płacisz fachowcowi bezpośrednio." },
+      { "q": "Co jeśli nie jestem zadowolony?", "a": "Każde zlecenie objęte jest 7-dniowym wsparciem gwarancyjnym na jakość wykonania. Otwórz spór, a nasz zespół przeanalizuje zdjęcia obu stron i pomoże wypracować rozwiązanie z Twoim fachowcem." },
+      { "q": "Dlaczego nie widzę od razu numeru telefonu fachowca?", "a": "Dane kontaktowe pozostają ukryte w czacie w aplikacji, dopóki fachowiec nie oznaczy, że jest w drodze — to zamyka okazję do zawierania transakcji poza platformą, chroniąc obie strony. W przypadku zleceń awaryjnych dane kontaktowe odblokowują się natychmiast." },
       { "q": "Jak szybko pojawiają się oferty?", "a": "W przypadku zleceń awaryjnych większość klientów otrzymuje pierwszą ofertę w mniej niż 10 minut, ponieważ każdy pasujący pobliski fachowiec jest natychmiast powiadamiany." },
-      { "q": "Jak fachowcy otrzymują zapłatę?", "a": "Bezpośrednio przez EasyPaisa, JazzCash lub przelew bankowy po potwierdzeniu zakończenia pracy, pomniejszone o 12% prowizji Servigic." },
-      { "q": "W jakich miastach?", "a": "Start w Karaczi, następnie Lahore i Islamabad/Rawalpindi, a potem kraje Zatoki Perskiej i Ameryka Północna." }
+      { "q": "Jak fachowcy otrzymują zapłatę?", "a": "Bezpośrednio od Ciebie — gotówką, przez EasyPaisa, JazzCash lub przelewem bankowym, w sposób uzgodniony między Wami. Servigic nigdy nie dotyka tej płatności; fachowcy rozliczają swoją 12% prowizję osobno, poprzez swój portfel prowizyjny w aplikacji." },
+      { "q": "W jakich miastach?", "a": "Start w Karaczi, następnie Lahore i Islamabad/Rawalpindi, a potem kraje Zatoki Perskiej i Ameryka Północna." },
+      { "q": "Dlaczego powinienem rezerwować przez Servigic, zamiast dzwonić bezpośrednio do fachowca?", "a": "Rezerwacja przez Servigic daje Ci zweryfikowanych i ocenianych fachowców, obustronne opinie, wsparcie w sporach oraz realną konkurencję cenową dzięki prawdziwym ofertom — niczego z tego nie ma, gdy omijasz platformę. Ponowna rezerwacja to też jedno kliknięcie dzięki „Zarezerwuj ponownie”." },
+      { "q": "Co się stanie, jeśli ja lub mój fachowiec anulujemy rezerwację?", "a": "Anulowanie po potwierdzeniu rezerwacji jest rejestrowane — sporadyczne anulowania są w porządku, ale wysoki wskaźnik anulowań może tymczasowo zawiesić Twoją możliwość dodawania zleceń (lub powiadomienia o zleceniach dla fachowca). Jeśli fachowiec poprosi Cię o anulowanie, aby pracować z Tobą bezpośrednio, poinformuj nas — wybierz ten powód, a my sprawdzimy fachowca zamiast liczyć to na Twoją niekorzyść." }
     ]
   }
 }

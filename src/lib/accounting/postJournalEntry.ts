@@ -9,7 +9,14 @@ export interface JournalLineInput {
 export interface PostJournalEntryInput {
   date?: Date;
   memo: string;
-  source: "AUTO_PAYMENT_VERIFIED" | "AUTO_PAYOUT_SENT" | "AUTO_DISPUTE_REFUND" | "AUTO_CHANGE_ORDER_PAYMENT_VERIFIED" | "MANUAL";
+  source:
+    | "AUTO_PAYMENT_VERIFIED"
+    | "AUTO_PAYOUT_SENT"
+    | "AUTO_DISPUTE_REFUND"
+    | "AUTO_CHANGE_ORDER_PAYMENT_VERIFIED"
+    | "AUTO_CASH_WALLET_COMMISSION_DEBIT"
+    | "AUTO_TOPUP_VERIFIED"
+    | "MANUAL";
   referenceId?: string;
   createdById?: string;
   lines: JournalLineInput[];
@@ -66,4 +73,5 @@ export const SYSTEM_ACCOUNTS = {
   CASH: "1000",
   ESCROW_PAYABLE: "2000",
   COMMISSION_INCOME: "4000",
+  PRO_WALLET_RECEIVABLE: "1100",
 } as const;

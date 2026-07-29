@@ -9,6 +9,7 @@ const prisma = new PrismaClient();
 // src/lib/accounting/postJournalEntry.ts SYSTEM_ACCOUNTS.
 const CHART_OF_ACCOUNTS: { code: string; name: string; type: AccountType; isSystem: boolean }[] = [
   { code: "1000", name: "Cash & Bank (JazzCash/EasyPaisa/Bank)", type: "ASSET", isSystem: true },
+  { code: "1100", name: "Pro Wallet Receivable (commission owed by pros)", type: "ASSET", isSystem: true },
   { code: "2000", name: "Escrow Payable to Providers", type: "LIABILITY", isSystem: true },
   { code: "3000", name: "Owner's Equity", type: "EQUITY", isSystem: false },
   { code: "4000", name: "Commission Income", type: "REVENUE", isSystem: true },

@@ -192,11 +192,27 @@ export function updateProviderProfile(input: Record<string, unknown>) {
 
 export function getProviderEarnings() {
   return request<{
-    payouts: { id: string; amountPKR: number; status: string; jobTitle: string; categoryIcon: string }[];
-    totalSent: number;
-    totalQueued: number;
+    // PROTECTED mode (payout-received framing)
+    payouts?: { id: string; amountPKR: number; status: string; jobTitle: string; categoryIcon: string }[];
+    totalSent?: number;
+    totalQueued?: number;
+    // CASH_WALLET mode (commission-debt framing) — see v6 addendum
+    dispatchStatus?: "NORMAL" | "WARNED" | "THROTTLED" | "SUSPENDED";
+    dispatchBlockedReason?: string | null;
+    wallet?: { balancePKR: number; ceilingPKR: number; unsettledJobCount: number };
+    ledger?: { id: string; type: string; amountPKR: number; memo: string | null; jobTitle: string | null; createdAt: string }[];
+    topUps?: { id: string; amountPKR: number; status: string; createdAt: string }[];
+    // Both modes
     commissionPct: number;
+    profileValue?: { ratingAvg: number; verificationLevel: number; jobsCompleted: number };
   }>("/api/mobile/provider/earnings");
+}
+
+export function submitTopUp(amountPKR: number, method: string, proofImageUrl?: string) {
+  return request<{ topUp: Record<string, unknown> }>("/api/mobile/wallet/topup", {
+    method: "POST",
+    body: JSON.stringify({ amountPKR, method, proofImageUrl }),
+  });
 }
 
 // ─── Bookings (both roles) ───
@@ -243,6 +259,13 @@ export function openDispute(bookingId: string, reason: string) {
   return request<{ dispute: Record<string, unknown> }>(`/api/bookings/${bookingId}/dispute`, {
     method: "POST",
     body: JSON.stringify({ reason }),
+  });
+}
+
+export function cancelBooking(bookingId: string, reasonCode: string, reasonNote?: string) {
+  return request<{ ok: true }>(`/api/bookings/${bookingId}/cancel`, {
+    method: "POST",
+    body: JSON.stringify({ reasonCode, reasonNote }),
   });
 }
 

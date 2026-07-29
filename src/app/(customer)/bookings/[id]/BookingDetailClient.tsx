@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { StatusTimeline } from "@/components/booking/StatusTimeline";
 import { LiveMap } from "@/components/booking/LiveMap";
 import { ChatBox } from "@/components/booking/ChatBox";
+import { CancelBookingSection } from "@/components/booking/CancelBookingSection";
 import { PhotoUploadField } from "@/components/ui/PhotoUploadField";
 import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import { LegalDisclaimer } from "@/components/ui/LegalDisclaimer";
@@ -35,10 +36,11 @@ type BookingView = {
   jobLng: number;
   providerName: string;
   providerPhone: string | null;
-  paymentDeadline: string;
+  paymentDeadline: string | null;
   payment: { status: string } | null;
   hasReview: boolean;
   dispute: { resolution: string | null } | null;
+  revealStage: "LOCKED" | "MASKED" | "FULL";
   unlocked: boolean;
   changeOrders: ChangeOrderView[];
   totalDurationMinutes: number | null;
@@ -74,10 +76,12 @@ export function BookingDetailClient({
   booking,
   currentUserId,
   legalDisclaimer,
+  paymentMode,
 }: {
   booking: BookingView;
   currentUserId: string;
   legalDisclaimer: string;
+  paymentMode: "CASH_WALLET" | "PROTECTED";
 }) {
   const router = useRouter();
   const [proLocation, setProLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -118,9 +122,26 @@ export function BookingDetailClient({
         <StatusTimeline status={booking.status} />
       </div>
 
-      {booking.status === "PENDING_PAYMENT" && <PaymentSection booking={booking} />}
+      {["CONFIRMED", "ON_MY_WAY", "ARRIVED"].includes(booking.status) && (
+        <CancelBookingSection bookingId={booking.id} role="CUSTOMER" />
+      )}
 
-      {booking.unlocked && (
+      {paymentMode === "PROTECTED" && booking.status === "PENDING_PAYMENT" && <PaymentSection booking={booking} />}
+
+      {paymentMode === "CASH_WALLET" && (booking.status === "DONE" || booking.status === "COMPLETED") && (
+        <DirectPaySection totalPKR={booking.totalPKR} providerName={booking.providerName} />
+      )}
+
+      {booking.revealStage === "MASKED" && (
+        <div className="mb-6 rounded-[12px] border border-accent/30 bg-accent/10 p-4 text-sm">
+          <p className="font-bold text-accent">Chat with your pro</p>
+          <p className="text-text-muted">
+            {booking.providerName} — full contact details unlock once they&apos;re on the way.
+          </p>
+        </div>
+      )}
+
+      {booking.revealStage === "FULL" && (
         <div className="mb-6 rounded-[12px] border border-secondary/30 bg-secondary/10 p-4 text-sm">
           <p className="font-bold text-secondary">Contact unlocked</p>
           <p className="text-text-muted">{booking.providerName} · {booking.providerPhone}</p>
@@ -148,7 +169,7 @@ export function BookingDetailClient({
         </div>
       )}
 
-      {booking.status === "DONE" && <ConfirmDisputeSection bookingId={booking.id} />}
+      {booking.status === "DONE" && <ConfirmDisputeSection bookingId={booking.id} paymentMode={paymentMode} />}
 
       {booking.status === "COMPLETED" && booking.totalDurationMinutes !== null && (
         <div className="mb-6 rounded-[14px] border border-border-subtle bg-bg-elevated p-5">
@@ -166,6 +187,8 @@ export function BookingDetailClient({
         </div>
       )}
 
+      {booking.status === "COMPLETED" && <BookAgainButton bookingId={booking.id} providerName={booking.providerName} />}
+
       {booking.status === "COMPLETED" && !booking.hasReview && <RatingForm bookingId={booking.id} />}
 
       {booking.status === "DISPUTED" && (
@@ -174,9 +197,9 @@ export function BookingDetailClient({
         </div>
       )}
 
-      {booking.unlocked && (
+      {booking.revealStage !== "LOCKED" && (
         <div className="mt-6">
-          <ChatBox bookingId={booking.id} currentUserId={currentUserId} unlocked={booking.unlocked} />
+          <ChatBox bookingId={booking.id} currentUserId={currentUserId} revealStage={booking.revealStage} />
         </div>
       )}
     </div>
@@ -223,7 +246,8 @@ export function BookingDetailClient({
       <div className="mb-6 rounded-[14px] border border-border-subtle bg-bg-elevated p-5">
         <h3 className="mb-1 font-bold">Secure Payment</h3>
         <p className="mb-3 text-sm text-text-muted">
-          PKR {booking.totalPKR.toLocaleString()} · Deadline: {new Date(booking.paymentDeadline).toLocaleString()}
+          PKR {booking.totalPKR.toLocaleString()}
+          {booking.paymentDeadline && <> · Deadline: {new Date(booking.paymentDeadline).toLocaleString()}</>}
         </p>
         <div className="mb-3 flex items-start gap-2.5 rounded-[10px] border border-secondary/30 bg-secondary/10 px-4 py-3">
           <span className="mt-0.5 text-secondary" aria-hidden="true">🔒</span>
@@ -408,7 +432,59 @@ function ChangeOrderCard({ changeOrder }: { changeOrder: ChangeOrderView }) {
   );
 }
 
-function ConfirmDisputeSection({ bookingId }: { bookingId: string }) {
+function BookAgainButton({ bookingId, providerName }: { bookingId: string; providerName: string }) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+
+  async function rebook() {
+    setPending(true);
+    try {
+      const res = await fetch(`/api/bookings/${bookingId}/rebook`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Failed to rebook");
+        return;
+      }
+      toast.success(`Job posted — ${providerName} has been invited`);
+      router.push(`/jobs/${data.job.id}`);
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <div className="mb-6">
+      <button
+        onClick={rebook}
+        disabled={pending}
+        className="rounded-[10px] border border-accent/40 px-5 py-2.5 text-sm font-bold text-accent disabled:opacity-60"
+      >
+        {pending ? "Booking…" : `Book ${providerName} again →`}
+      </button>
+    </div>
+  );
+}
+
+function DirectPaySection({ totalPKR, providerName }: { totalPKR: number; providerName: string }) {
+  return (
+    <div className="mb-6 rounded-[14px] border border-accent/30 bg-accent/10 p-5">
+      <h3 className="mb-1 font-bold">Pay {providerName} directly</h3>
+      <p className="mb-1 font-display text-2xl font-bold text-accent">PKR {totalPKR.toLocaleString()}</p>
+      <p className="text-sm text-text-muted">
+        Cash, JazzCash, EasyPaisa, or bank transfer — however works for you both. Servigic does not collect this
+        payment.
+      </p>
+    </div>
+  );
+}
+
+function ConfirmDisputeSection({
+  bookingId,
+  paymentMode,
+}: {
+  bookingId: string;
+  paymentMode: "CASH_WALLET" | "PROTECTED";
+}) {
   const router = useRouter();
   const [showDispute, setShowDispute] = useState(false);
   const [reason, setReason] = useState("");
@@ -419,7 +495,7 @@ function ConfirmDisputeSection({ bookingId }: { bookingId: string }) {
     try {
       const res = await fetch(`/api/bookings/${bookingId}/confirm`, { method: "POST" });
       if (!res.ok) throw new Error();
-      toast.success("Job confirmed — payout queued for your pro");
+      toast.success(paymentMode === "PROTECTED" ? "Job confirmed — payout queued for your pro" : "Job confirmed");
       router.refresh();
     } catch {
       toast.error("Failed to confirm");
