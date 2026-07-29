@@ -101,7 +101,7 @@ export function registerPushToken(token: string) {
 // ─── Categories ───
 export function getCategories() {
   return request<{
-    categories: { id: string; name: string; icon: string; slug: string; subServices: { id: string; name: string }[] }[];
+    categories: { id: string; name: string; icon: string; slug: string; trade: string; subServices: { id: string; name: string }[] }[];
   }>("/api/mobile/categories");
 }
 

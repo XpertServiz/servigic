@@ -330,6 +330,65 @@ export function ConfettiBurst({ trigger }: { trigger: number }) {
   );
 }
 
+// ─── AnimatedTradeIcon: subtle looping motion for trade/category emoji icons
+// ("moving hammer", "AC cooling waves", etc.) — the glyph itself can't be
+// decomposed, so each style animates the icon as a whole (wiggle/rings/
+// flicker/bounce) rather than trying to animate parts of the emoji.
+const WIGGLE_TRADES = new Set(["PLUMBER", "CARPENTER", "HANDYMAN", "MASON", "WELDING", "TILING", "ROOFING", "UPHOLSTERY"]);
+const WAVE_TRADES = new Set(["AC_TECHNICIAN", "WATER_TANK_CLEANING", "GENERATOR_REPAIR"]);
+const FLICKER_TRADES = new Set(["ELECTRICIAN", "GLASS_REPAIR", "LOCKSMITH", "SOLAR_INSTALLER"]);
+
+export function AnimatedTradeIcon({ icon, trade, size = 30 }: { icon: string; trade?: string; size?: number }) {
+  const anim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(anim, { toValue: 1, duration: 850, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(anim, { toValue: 0, duration: 850, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [anim]);
+
+  if (trade && WIGGLE_TRADES.has(trade)) {
+    const rotate = anim.interpolate({ inputRange: [0, 1], outputRange: ["-16deg", "16deg"] });
+    return <Animated.Text style={{ fontSize: size, transform: [{ rotate }] }}>{icon}</Animated.Text>;
+  }
+
+  if (trade && WAVE_TRADES.has(trade)) {
+    const ringScale = anim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1.55] });
+    const ringOpacity = anim.interpolate({ inputRange: [0, 1], outputRange: [0.55, 0] });
+    return (
+      <View style={{ width: size * 1.7, height: size * 1.7, alignItems: "center", justifyContent: "center" }}>
+        <Animated.View
+          pointerEvents="none"
+          style={{
+            position: "absolute",
+            width: size * 1.4,
+            height: size * 1.4,
+            borderRadius: size,
+            borderWidth: 1.5,
+            borderColor: "#7dd3fc",
+            transform: [{ scale: ringScale }],
+            opacity: ringOpacity,
+          }}
+        />
+        <Text style={{ fontSize: size }}>{icon}</Text>
+      </View>
+    );
+  }
+
+  if (trade && FLICKER_TRADES.has(trade)) {
+    const opacity = anim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0.45, 1] });
+    return <Animated.Text style={{ fontSize: size, opacity }}>{icon}</Animated.Text>;
+  }
+
+  const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [0, -4] });
+  return <Animated.Text style={{ fontSize: size, transform: [{ translateY }] }}>{icon}</Animated.Text>;
+}
+
 const styles = StyleSheet.create({
   timelineRow: { flexDirection: "row", alignItems: "flex-start" },
   timelineStep: { alignItems: "center", width: 64 },

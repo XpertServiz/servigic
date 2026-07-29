@@ -23,6 +23,17 @@ function easeInOutQuad(t: number) {
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 }
 
+// Direction of travel (0-360°) from one lat/lng point to the next, used to
+// rotate the bike marker so it visually faces the way it's moving.
+function bearingBetween(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const toDeg = (r: number) => (r * 180) / Math.PI;
+  const dLng = toRad(lng2 - lng1);
+  const y = Math.sin(dLng) * Math.cos(toRad(lat2));
+  const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
 export function LiveMap({
   destLat,
   destLng,
@@ -39,6 +50,7 @@ export function LiveMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const proMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const bikeElRef = useRef<HTMLDivElement | null>(null);
   const currentPosRef = useRef<[number, number] | null>(null);
   const animationFrameRef = useRef<number | null>(null);
 
@@ -69,7 +81,10 @@ export function LiveMap({
     if (!proMarkerRef.current) {
       const el = document.createElement("div");
       el.style.cssText =
-        "width:16px;height:16px;border-radius:50%;background:#FFB020;box-shadow:0 0 0 6px rgba(255,176,32,.35)";
+        "width:34px;height:34px;border-radius:50%;background:rgba(255,176,32,.18);box-shadow:0 0 0 6px rgba(255,176,32,.2);" +
+        "display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform 1s ease-in-out;";
+      el.textContent = "🛵";
+      bikeElRef.current = el;
       proMarkerRef.current = new maplibregl.Marker({ element: el }).setLngLat([proLng, proLat]).addTo(map);
       currentPosRef.current = [proLng, proLat];
     } else {
@@ -78,6 +93,12 @@ export function LiveMap({
       const from = currentPosRef.current ?? [proLng, proLat];
       const to: [number, number] = [proLng, proLat];
       const startTime = performance.now();
+
+      // Rotate the bike to face the direction of travel between pings.
+      if (from[0] !== to[0] || from[1] !== to[1]) {
+        const bearing = bearingBetween(from[1], from[0], to[1], to[0]);
+        if (bikeElRef.current) bikeElRef.current.style.transform = `rotate(${bearing}deg)`;
+      }
 
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
 

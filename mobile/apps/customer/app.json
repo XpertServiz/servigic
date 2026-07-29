@@ -57,7 +57,9 @@
         {
           "enableBackgroundPlayback": false
         }
-      ]
+      ],
+      "expo-font",
+      "expo-splash-screen"
     ],
     "owner": "xpertserviz-786",
     "extra": {

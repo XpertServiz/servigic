@@ -56,7 +56,9 @@
           "photosPermission": "Servigic Pro needs access to your photos to upload verification documents."
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      "expo-font",
+      "expo-splash-screen"
     ],
     "extra": {
       "eas": {

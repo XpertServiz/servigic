@@ -16,6 +16,44 @@ const CANCELLABLE_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED"];
 
 type Props = NativeStackScreenProps<JobsStackParamList, "BookingDetail">;
 
+// Direction of travel (0-360°) from one lat/lng point to the next, used to
+// rotate the bike marker so it visually faces the way it's moving.
+function bearingBetween(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const toDeg = (r: number) => (r * 180) / Math.PI;
+  const dLng = toRad(lng2 - lng1);
+  const y = Math.sin(dLng) * Math.cos(toRad(lat2));
+  const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+// Slides smoothly to each new ping instead of snapping (react-native-maps'
+// imperative animateMarkerToCoordinate, not the declarative `coordinate`
+// prop — changing that prop directly just teleports the marker). The
+// `coordinate` prop is only ever set once, at mount, via the useState
+// initializer; every later move goes through the ref.
+function TrackedBikeMarker({ location }: { location: { lat: number; lng: number } }) {
+  const markerRef = useRef<InstanceType<typeof Marker>>(null);
+  const [initialCoord] = useState({ latitude: location.lat, longitude: location.lng });
+  const prevRef = useRef(location);
+  const [rotation, setRotation] = useState(0);
+
+  useEffect(() => {
+    const prev = prevRef.current;
+    if (prev.lat !== location.lat || prev.lng !== location.lng) {
+      setRotation(bearingBetween(prev.lat, prev.lng, location.lat, location.lng));
+      markerRef.current?.animateMarkerToCoordinate({ latitude: location.lat, longitude: location.lng }, 1000);
+      prevRef.current = location;
+    }
+  }, [location.lat, location.lng]);
+
+  return (
+    <Marker ref={markerRef} coordinate={initialCoord} anchor={{ x: 0.5, y: 0.5 }} flat rotation={rotation}>
+      <Text style={{ fontSize: 26 }}>🛵</Text>
+    </Marker>
+  );
+}
+
 function formatDuration(minutes: number): string {
   if (minutes < 60) return `${minutes} min`;
   const hrs = Math.floor(minutes / 60);
@@ -200,7 +238,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
           }}
         >
           <Marker coordinate={{ latitude: booking.jobLat as number, longitude: booking.jobLng as number }} pinColor={colors.secondary} />
-          {myLocation && <Marker coordinate={{ latitude: myLocation.lat, longitude: myLocation.lng }} pinColor={colors.accent} />}
+          {myLocation && <TrackedBikeMarker location={myLocation} />}
         </MapView>
       )}
 

@@ -6,7 +6,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { HomeStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
 import { Card, Badge } from "../components/ui";
-import { Chip } from "../components/ds";
+import { Chip, AnimatedTradeIcon } from "../components/ds";
 import { colors, radius } from "../lib/theme";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "Home">;
@@ -101,7 +101,7 @@ export default function HomeScreen({ navigation }: Props) {
                 style={styles.tile}
                 onPress={() => navigation.navigate("PostJob", { categoryId: item.id })}
               >
-                <Text style={styles.tileIcon}>{item.icon}</Text>
+                <AnimatedTradeIcon icon={item.icon} trade={item.trade} size={30} />
                 <Text style={styles.tileLabel} numberOfLines={2}>
                   {item.name}
                 </Text>
@@ -172,6 +172,5 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 8,
   },
-  tileIcon: { fontSize: 30 },
   tileLabel: { color: colors.text, fontSize: 12, fontWeight: "600", textAlign: "center" },
 });

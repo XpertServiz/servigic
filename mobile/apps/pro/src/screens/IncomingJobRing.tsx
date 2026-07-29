@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Animated } from "react-native";
-import { CountdownRing, haptic } from "../components/ds";
+import { CountdownRing, haptic, AnimatedTradeIcon } from "../components/ds";
 import { sound } from "../lib/sound";
 import { colors, radius } from "../lib/theme";
 
@@ -55,7 +55,7 @@ export default function IncomingJobRing({
     <Animated.View style={[styles.overlay, { opacity: fade }]}>
       <View style={styles.card}>
         <CountdownRing totalSeconds={RING_SECONDS} remainingSeconds={remaining} size={72} color={colors.secondary}>
-          <Text style={{ fontSize: 28 }}>{job.categoryIcon}</Text>
+          <AnimatedTradeIcon icon={job.categoryIcon} size={28} />
         </CountdownRing>
 
         <Text style={styles.category}>
