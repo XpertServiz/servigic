@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Lead } from "@prisma/client";
@@ -9,6 +9,7 @@ import { TRADE_LABELS } from "@/lib/trades";
 import { buildOutreachMessage } from "@/lib/outreach";
 import { LIVE_CITIES as CITIES } from "@/lib/markets";
 const STATUSES = ["NEW", "CONTACTED", "INTERESTED", "ONBOARDED", "NOT_INTERESTED", "CALLBACK"] as const;
+const PAGE_SIZE = 50;
 
 type AiResult = { priorityScore: number; likelySoloOperator: boolean; outreachMessage: string };
 
@@ -28,6 +29,7 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
   const [filterCity, setFilterCity] = useState<string | "ALL">("ALL");
   const [filterStatus, setFilterStatus] = useState<(typeof STATUSES)[number] | "ALL">("ALL");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [page, setPage] = useState(1);
 
   const filteredLeads = useMemo(
     () =>
@@ -38,6 +40,26 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
           (filterStatus === "ALL" || l.status === filterStatus)
       ),
     [initialLeads, filterTrade, filterCity, filterStatus]
+  );
+
+  const totalPages = Math.max(1, Math.ceil(filteredLeads.length / PAGE_SIZE));
+
+  // Jump back to page 1 whenever the filters narrow the result set — staying
+  // on, say, page 4 of a now-shorter list would just show a blank page.
+  useEffect(() => {
+    setPage(1);
+  }, [filterTrade, filterCity, filterStatus]);
+
+  // Clamp separately from the reset above — this also covers the list
+  // itself getting shorter (e.g. after router.refresh()) without re-running
+  // on every filter change.
+  useEffect(() => {
+    setPage((p) => Math.min(p, totalPages));
+  }, [totalPages]);
+
+  const pagedLeads = useMemo(
+    () => filteredLeads.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filteredLeads, page]
   );
 
   const allFilteredSelected = filteredLeads.length > 0 && filteredLeads.every((l) => selected.has(l.id));
@@ -263,13 +285,14 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
               <th className="p-4">Business</th>
               <th className="p-4">Phone</th>
               <th className="p-4">Trade / City</th>
+              <th className="p-4">Imported</th>
               <th className="p-4">Status</th>
               <th className="p-4">AI Priority</th>
               <th className="p-4">Outreach</th>
             </tr>
           </thead>
           <tbody>
-            {filteredLeads.map((lead) => {
+            {pagedLeads.map((lead) => {
               const ai = aiResults[lead.id];
               const message = ai?.outreachMessage ?? buildOutreachMessage(lead.businessName, TRADE_LABELS[lead.trade]?.name ?? lead.trade, lead.city);
               return (
@@ -281,6 +304,9 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
                   <td className="p-4 text-text-muted">{lead.phone}</td>
                   <td className="p-4 text-text-muted">
                     {TRADE_LABELS[lead.trade]?.name} · {lead.city}
+                  </td>
+                  <td className="p-4 whitespace-nowrap text-text-muted">
+                    {new Date(lead.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
                   </td>
                   <td className="p-4">
                     <select
@@ -327,7 +353,7 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
             })}
             {filteredLeads.length === 0 && (
               <tr>
-                <td colSpan={7} className="p-6 text-center text-text-muted">
+                <td colSpan={8} className="p-6 text-center text-text-muted">
                   {initialLeads.length === 0 ? "No leads yet — fetch some above." : "No leads match these filters."}
                 </td>
               </tr>
@@ -335,6 +361,48 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
           </tbody>
         </table>
       </div>
+
+      {filteredLeads.length > 0 && (
+        <div className="mt-4 flex items-center justify-between">
+          <span className="text-xs text-text-muted">
+            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filteredLeads.length)} of {filteredLeads.length}
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
+            >
+              ← Prev
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              // Keep the pager compact on large lead counts: always show the
+              // first/last page and a window around the current page,
+              // collapsing the rest into a "…" rather than one button per page.
+              .filter((n) => n === 1 || n === totalPages || Math.abs(n - page) <= 1)
+              .map((n, i, arr) => (
+                <span key={n} className="flex items-center gap-1">
+                  {i > 0 && arr[i - 1] !== n - 1 && <span className="px-1 text-xs text-text-muted">…</span>}
+                  <button
+                    onClick={() => setPage(n)}
+                    className={`rounded-[8px] border px-3 py-1.5 text-xs font-semibold ${
+                      n === page ? "border-accent bg-accent/10 text-accent" : "border-border-subtle bg-bg-elevated-2"
+                    }`}
+                  >
+                    {n}
+                  </button>
+                </span>
+              ))}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
