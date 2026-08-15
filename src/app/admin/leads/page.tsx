@@ -4,7 +4,10 @@ import { LeadsClient } from "./LeadsClient";
 
 export default async function AdminLeadsPage() {
   const [leads, flags] = await Promise.all([
-    prisma.lead.findMany({ orderBy: { createdAt: "desc" }, take: 200 }),
+    // No `take` cap — older leads were silently invisible once total count
+    // passed 200. Client-side pagination (LeadsClient) handles display in
+    // pages of 50 over the full set fetched here.
+    prisma.lead.findMany({ orderBy: { createdAt: "desc" } }),
     getFeatureFlags(),
   ]);
 
