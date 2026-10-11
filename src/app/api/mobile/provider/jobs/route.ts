@@ -19,10 +19,17 @@ export async function GET() {
       areaLabel: job.areaLabel,
       urgency: job.urgency,
       budgetPKR: job.budgetPKR,
+      // Rounded to 2 decimals (~1 km) — enough to drop a pin in the right
+      // neighbourhood on the map without revealing the customer's address
+      // before the booking is confirmed.
+      approxLat: Math.round(job.lat * 100) / 100,
+      approxLng: Math.round(job.lng * 100) / 100,
+      createdAt: job.createdAt,
       categoryName: job.category.name,
       categoryIcon: job.category.icon,
       alreadyBid: job.bids.length > 0,
     })),
     isOnline: profile.isOnline,
+    boostedUntil: profile.visibilityBoostUntil,
   });
 }

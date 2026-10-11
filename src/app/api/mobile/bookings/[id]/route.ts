@@ -43,6 +43,13 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       totalPKR: booking.totalPKR,
       estimatedPartsNote: booking.bid.estimatedPartsNote,
       payoutPKR: booking.payoutPKR,
+      commissionPKR: booking.commissionPKR,
+      commissionPct: booking.providerProfile.commissionPct,
+      areaLabel: booking.job.areaLabel,
+      // ISO timestamps keyed by status (CONFIRMED, ON_MY_WAY, ... ) — drives the
+      // in-progress timer and ETA on the redesigned screens.
+      timeline: booking.timeline,
+      jobsCompleted: booking.providerProfile.jobsCompleted,
       jobTitle: booking.job.title,
       categoryIcon: booking.job.category.icon,
       jobLat: booking.job.lat,

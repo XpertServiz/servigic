@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validation/auth";
 import { issueOtp } from "@/lib/otp";
+import { phoneVariants } from "@/lib/phone";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -12,7 +13,7 @@ export async function POST(req: Request) {
   }
   const { role, name, phone, email, password, city } = parsed.data;
 
-  const existing = await prisma.user.findUnique({ where: { phone } });
+  const existing = await prisma.user.findFirst({ where: { phone: { in: phoneVariants(phone) } } });
   if (existing) {
     return NextResponse.json({ error: "An account with this phone number already exists" }, { status: 409 });
   }

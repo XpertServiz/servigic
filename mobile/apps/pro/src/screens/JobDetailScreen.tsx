@@ -8,17 +8,16 @@ import { Button, Card, Field } from "../components/ui";
 import { PriceText, Chip, haptic } from "../components/ds";
 import { sound } from "../lib/sound";
 import { colors } from "../lib/theme";
+import { enumLabel } from "../lib/status";
+import { useI18n } from "../lib/i18n";
 
 type Props = NativeStackScreenProps<JobsStackParamList, "JobDetail">;
 
-const ETA_CHIPS = [
-  { label: "30 min", minutes: 30 },
-  { label: "1 hr", minutes: 60 },
-  { label: "2 hrs", minutes: 120 },
-];
+const ETA_MINUTES = [30, 60, 120];
 const PRICE_STEP = 100;
 
 export default function JobDetailScreen({ route, navigation }: Props) {
+  const { t, td } = useI18n();
   const { jobId } = route.params;
   const [job, setJob] = useState<Record<string, unknown> | null>(null);
   const [myBid, setMyBid] = useState<Record<string, unknown> | null>(null);
@@ -84,14 +83,14 @@ export default function JobDetailScreen({ route, navigation }: Props) {
         // A brand-new bid has nothing left to do on this screen until the
         // customer responds — sitting here with no next step reads as
         // "stuck." Head back to the Jobs list where it'll show under
-        // Available with the green "Bid sent ✓" badge.
-        Alert.alert("Bid sent!", "Waiting for the customer to respond.");
+        // Available with the "Bid sent" pill.
+        Alert.alert(t("bid.sentTitle"), t("bid.sentBody"));
         navigation.goBack();
         return;
       }
       load();
     } catch (e) {
-      Alert.alert("Error", e instanceof Error ? e.message : "Failed to submit bid");
+      Alert.alert(t("common.error"), e instanceof Error ? e.message : t("bid.failed"));
     } finally {
       setBusy(false);
     }
@@ -108,51 +107,48 @@ export default function JobDetailScreen({ route, navigation }: Props) {
     }
   }
 
-  if (!job) return null;
+  if (!job) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
 
   const bidStatus = myBid ? (myBid as { status: string }).status : null;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 16 }}>
-      <Text style={{ color: colors.text, fontSize: 20, fontWeight: "800" }}>{job.title as string}</Text>
-      <Text style={{ color: colors.textMuted, marginTop: 6 }}>{job.description as string}</Text>
-      <Text style={{ color: colors.textMuted, marginTop: 8, fontSize: 13 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 18, paddingBottom: 40 }}>
+      <Text style={{ color: colors.text, fontSize: 22, fontWeight: "800" }}>{job.title as string}</Text>
+      <Text style={{ color: colors.textSecondary, marginTop: 8, lineHeight: 20 }}>{job.description as string}</Text>
+      <Text style={{ color: colors.textMuted, marginTop: 10, fontSize: 13 }}>
         {job.customerFirstName as string} · {job.distanceBand as string} · {job.areaLabel as string}
       </Text>
 
       {verificationLevel < 1 ? (
-        <Card style={{ marginTop: 20, borderColor: colors.accent }}>
-          <Text style={{ color: colors.accent, fontWeight: "700" }}>Complete verification before you can bid.</Text>
+        <Card style={{ marginTop: 20, borderColor: colors.accentBorder }}>
+          <Text style={{ color: colors.accent, fontWeight: "700" }}>{t("bid.verifyFirst")}</Text>
         </Card>
       ) : bidStatus === "COUNTERED" ? (
         <Card style={{ marginTop: 20 }}>
-          <Text style={{ color: colors.text, fontWeight: "700", marginBottom: 8 }}>Customer countered with</Text>
+          <Text style={{ color: colors.text, fontWeight: "700", marginBottom: 8 }}>{t("bid.counteredWith")}</Text>
           <PriceText pkr={(myBid as { counterPricePKR: number }).counterPricePKR ?? 0} size="lg" color={colors.accent} />
           <View style={{ flexDirection: "row", gap: 8, marginTop: 14 }}>
             <View style={{ flex: 1 }}>
-              <Button title="Accept" onPress={() => respondToCounter("accept")} loading={busy} />
+              <Button title={t("common.accept")} onPress={() => respondToCounter("accept")} loading={busy} />
             </View>
             <View style={{ flex: 1 }}>
-              <Button title="Decline" variant="ghost" onPress={() => respondToCounter("decline")} loading={busy} />
+              <Button title={t("common.decline")} variant="ghost" onPress={() => respondToCounter("decline")} loading={busy} />
             </View>
           </View>
         </Card>
       ) : bidStatus && bidStatus !== "PENDING" ? (
         <Card style={{ marginTop: 20 }}>
           <Text style={{ color: colors.textMuted }}>
-            Bid status: <Text style={{ color: colors.text, fontWeight: "700" }}>{bidStatus}</Text>
+            {t("bid.status")} <Text style={{ color: colors.text, fontWeight: "700" }}>{enumLabel(td, "bid", bidStatus)}</Text>
           </Text>
         </Card>
       ) : (
         <Card style={{ marginTop: 20 }}>
-          <Text style={{ color: colors.text, fontWeight: "700", marginBottom: 14 }}>{myBid ? "Edit your bid" : "Submit a bid"}</Text>
+          <Text style={{ color: colors.text, fontWeight: "700", marginBottom: 14 }}>{myBid ? t("bid.edit") : t("bid.submit")}</Text>
 
-          <Text style={styles.label}>Price</Text>
+          <Text style={styles.label}>{t("bid.price")}</Text>
           <View style={styles.stepperRow}>
-            <Pressable
-              onPress={() => setPrice((p) => Math.max(PRICE_STEP, p - PRICE_STEP))}
-              style={styles.stepperBtn}
-            >
+            <Pressable onPress={() => setPrice((p) => Math.max(PRICE_STEP, p - PRICE_STEP))} style={styles.stepperBtn}>
               <Text style={styles.stepperBtnText}>−</Text>
             </Pressable>
             <View style={{ flex: 1, alignItems: "center" }}>
@@ -163,32 +159,30 @@ export default function JobDetailScreen({ route, navigation }: Props) {
             </Pressable>
           </View>
 
-          <Text style={[styles.label, { marginTop: 18 }]}>ETA</Text>
+          <Text style={[styles.label, { marginTop: 18 }]}>{t("bid.eta")}</Text>
           <View style={{ flexDirection: "row", gap: 8, marginBottom: 4 }}>
-            {ETA_CHIPS.map((c) => (
-              <Chip key={c.minutes} label={c.label} active={eta === String(c.minutes)} onPress={() => setEta(String(c.minutes))} />
+            {ETA_MINUTES.map((m) => (
+              <Chip
+                key={m}
+                label={m < 60 ? t("time.minutesShort", { n: m }) : t("time.hoursShort", { n: m / 60 })}
+                active={eta === String(m)}
+                onPress={() => setEta(String(m))}
+              />
             ))}
           </View>
           <View style={{ marginTop: 8 }}>
-            <Field label="Custom ETA (minutes)" keyboardType="number-pad" value={eta} onChangeText={setEta} />
+            <Field label={t("bid.customEta")} keyboardType="number-pad" value={eta} onChangeText={setEta} />
           </View>
 
           {winHint && (
             <Text style={{ color: colors.accent, fontWeight: "700", marginBottom: 10 }}>
-              💡 Price to win: ~{Math.round(winHint.winProbability * 100)}% {winHint.isHeuristic ? "(estimate)" : ""}
+              💡 {t("bid.winHint", { pct: Math.round(winHint.winProbability * 100) })} {winHint.isHeuristic ? t("bid.estimate") : ""}
             </Text>
           )}
-          <Field
-            label="Estimated parts/materials cost (optional)"
-            value={partsNote}
-            onChangeText={setPartsNote}
-            placeholder="e.g. ~PKR 1,500 for pipe fittings"
-          />
-          <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: -10, marginBottom: 14 }}>
-            Shown to the customer as an estimate only — Servigic never collects this.
-          </Text>
-          <Field label="Message (optional)" multiline numberOfLines={3} value={message} onChangeText={setMessage} />
-          <Button title={myBid ? "Update Bid" : "Send Bid"} onPress={submitBid} loading={busy} disabled={!price || !eta} />
+          <Field label={t("bid.partsLabel")} value={partsNote} onChangeText={setPartsNote} placeholder={t("bid.partsPlaceholder")} />
+          <Text style={{ color: colors.textFainter, fontSize: 11, marginTop: -10, marginBottom: 14 }}>{t("bid.partsNote")}</Text>
+          <Field label={t("bid.message")} multiline numberOfLines={3} value={message} onChangeText={setMessage} />
+          <Button title={myBid ? t("bid.update") : t("bid.send")} onPress={submitBid} loading={busy} disabled={!price || !eta} />
         </Card>
       )}
     </ScrollView>
@@ -204,7 +198,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     backgroundColor: colors.bgElevated2,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.accentBorder,
     alignItems: "center",
     justifyContent: "center",
   },

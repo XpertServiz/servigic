@@ -1,12 +1,14 @@
-// Shared design-system layer for the redesign (servigic-app-redesign-spec-v1).
-// Not a real npm workspace package — copied verbatim between
-// apps/customer/src/components/ds.tsx and apps/pro/src/components/ds.tsx.
-// If you change one, copy the change to the other.
+// Shared design-system layer for the "Premium-Dark Evolution" redesign
+// (SERVIGIC_REDESIGN_HANDOFF.md §1). Not a real npm workspace package — copied
+// verbatim between apps/customer/src/components/ds.tsx and
+// apps/pro/src/components/ds.tsx. If you change one, copy the change to the other.
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, Pressable, StyleSheet, Animated, Easing } from "react-native";
-import Svg, { Circle } from "react-native-svg";
-import { colors, radius } from "../lib/theme";
+import { View, Text, Pressable, StyleSheet, Animated, Easing, type StyleProp, type ViewStyle } from "react-native";
+import Svg, { Circle, Defs, RadialGradient, Rect, Stop } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
+import { colors, radius, accentGradient, accentGradientStops } from "../lib/theme";
 import * as Haptics from "expo-haptics";
+import { Icon } from "./Icon";
 
 // Every native haptics call is guarded — a misbehaving/unavailable haptics
 // engine on a given device must never be able to interrupt a tap handler.
@@ -28,6 +30,76 @@ export const haptic = {
   },
 };
 
+// ─── GlowBackground: subtle radial amber ambiance behind key screens ───
+// Ambiance, not a spotlight — keep opacity low.
+export function GlowBackground({
+  cx = "50%",
+  cy = "30%",
+  r = "55%",
+  opacity = 0.16,
+}: {
+  cx?: string;
+  cy?: string;
+  r?: string;
+  opacity?: number;
+}) {
+  return (
+    <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
+      <Defs>
+        <RadialGradient id="glow" cx={cx} cy={cy} r={r} gradientUnits="objectBoundingBox">
+          <Stop offset="0" stopColor={colors.accent} stopOpacity={opacity} />
+          <Stop offset="1" stopColor={colors.bg} stopOpacity={0} />
+        </RadialGradient>
+      </Defs>
+      <Rect x="0" y="0" width="100%" height="100%" fill="url(#glow)" />
+    </Svg>
+  );
+}
+
+// ─── GlassCard: floating status pills / trust cards over the map ───
+export function GlassCard({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+  return <View style={[styles.glass, style]}>{children}</View>;
+}
+
+// ─── GradientButton: the CTA. Amber 135° gradient with a soft glow ───
+export function GradientButton({
+  title,
+  onPress,
+  disabled,
+  children,
+  style,
+  compact,
+}: {
+  title?: string;
+  onPress: () => void;
+  disabled?: boolean;
+  children?: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+  compact?: boolean;
+}) {
+  return (
+    <Pressable
+      onPress={() => {
+        if (disabled) return;
+        haptic.light();
+        onPress();
+      }}
+      disabled={disabled}
+      style={({ pressed }) => [styles.ctaWrap, !disabled && styles.ctaGlow, { opacity: disabled ? 0.45 : pressed ? 0.85 : 1 }, style]}
+    >
+      <LinearGradient
+        colors={[...accentGradient]}
+        locations={[...accentGradientStops]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.cta, compact && { paddingVertical: 11, borderRadius: 11 }]}
+      >
+        {children ?? <Text style={[styles.ctaText, compact && { fontSize: 14 }]}>{title}</Text>}
+      </LinearGradient>
+    </Pressable>
+  );
+}
+
 // ─── PriceText ───
 export function PriceText({
   pkr,
@@ -42,57 +114,80 @@ export function PriceText({
   return (
     <View style={{ flexDirection: "row", alignItems: "baseline", gap: 4 }}>
       <Text style={{ color, fontSize: fontSize * 0.4, fontWeight: "700" }}>PKR</Text>
-      <Text style={{ color, fontSize, fontWeight: "800", fontVariant: ["tabular-nums"] }}>
-        {pkr.toLocaleString()}
-      </Text>
+      <Text style={{ color, fontSize, fontWeight: "800", fontVariant: ["tabular-nums"] }}>{pkr.toLocaleString()}</Text>
     </View>
   );
 }
 
-// ─── StatusPillTimeline ───
-export function StatusPillTimeline({
-  steps,
-  activeIndex,
-}: {
-  steps: string[];
-  activeIndex: number;
-}) {
+// ─── StatusStepper ───
+// The 5-step status vocabulary shared by both apps (Confirmed → On the way →
+// Arrived → Working → Done): green check = completed, pulsing amber = current,
+// dark gray = pending. `activeIndex` ≥ labels.length means everything is done.
+export function StatusStepper({ labels, activeIndex }: { labels: string[]; activeIndex: number }) {
+  const pulse = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1, duration: 1400, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0, duration: 0, useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [pulse]);
+
+  const ringScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] });
+  const ringOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] });
+  const last = labels.length - 1;
+
   return (
-    <View style={styles.timelineRow}>
-      {steps.map((label, i) => {
+    <View style={styles.stepperCard}>
+      {labels.map((label, i) => {
         const done = i < activeIndex;
-        const active = i === activeIndex;
+        const current = i === activeIndex;
         return (
-          <React.Fragment key={label}>
-            <View style={styles.timelineStep}>
+          <View key={`${i}-${label}`} style={styles.stepperItem}>
+            <View style={styles.stepperDotWrap}>
+              {current && i !== last && (
+                <Animated.View
+                  pointerEvents="none"
+                  style={[styles.stepperPulse, { transform: [{ scale: ringScale }], opacity: ringOpacity }]}
+                />
+              )}
               <View
                 style={[
-                  styles.timelineDot,
-                  done && { backgroundColor: colors.secondary },
-                  active && { backgroundColor: colors.accent },
-                  !done && !active && { backgroundColor: colors.border },
+                  styles.stepperDot,
+                  done && { backgroundColor: colors.success },
+                  current && { backgroundColor: colors.accent },
+                  current && i === last && { shadowColor: colors.accent, shadowOpacity: 0.7, shadowRadius: 8, elevation: 6 },
+                  !done && !current && { backgroundColor: "#262219" },
                 ]}
               >
-                {done && <Text style={{ color: "#06170D", fontSize: 11, fontWeight: "800" }}>✓</Text>}
+                {done && <Icon name="check" size={12} color={colors.secondaryForeground} />}
+                {current && i === last && <Icon name="check" size={12} color={colors.accentForeground} />}
               </View>
-              <Text
-                style={[
-                  styles.timelineLabel,
-                  (done || active) && { color: colors.text },
-                ]}
-                numberOfLines={1}
-              >
-                {label}
-              </Text>
             </View>
-            {i < steps.length - 1 && (
-              <View style={[styles.timelineBar, done && { backgroundColor: colors.secondary }]} />
-            )}
-          </React.Fragment>
+            <Text
+              numberOfLines={1}
+              style={[
+                styles.stepperLabel,
+                done && { color: colors.textMuted },
+                current && { color: colors.accent, fontWeight: "700" },
+              ]}
+            >
+              {label}
+            </Text>
+          </View>
         );
       })}
     </View>
   );
+}
+
+// Kept so any lingering import of the old name keeps working.
+export function StatusPillTimeline({ steps, activeIndex }: { steps: string[]; activeIndex: number }) {
+  return <StatusStepper labels={steps} activeIndex={activeIndex} />;
 }
 
 // ─── RatingStars ───
@@ -150,22 +245,43 @@ export function CountdownRing({
 }
 
 // ─── EmptyState ───
-export function EmptyState({
-  icon,
-  title,
-  subtitle,
-}: {
-  icon: string;
-  title: string;
-  subtitle?: string;
-}) {
+export function EmptyState({ icon, title, subtitle }: { icon: string; title: string; subtitle?: string }) {
   return (
     <View style={{ alignItems: "center", paddingVertical: 48, paddingHorizontal: 24 }}>
       <Text style={{ fontSize: 40, marginBottom: 12, opacity: 0.6 }}>{icon}</Text>
       <Text style={{ color: colors.text, fontWeight: "700", fontSize: 15, textAlign: "center" }}>{title}</Text>
-      {subtitle && (
-        <Text style={{ color: colors.textMuted, fontSize: 13, textAlign: "center", marginTop: 6 }}>{subtitle}</Text>
-      )}
+      {subtitle && <Text style={{ color: colors.textMuted, fontSize: 13, textAlign: "center", marginTop: 6 }}>{subtitle}</Text>}
+    </View>
+  );
+}
+
+// ─── TabsUnderline: Available / Booked / Done style tabs from the Jobs mock-up ───
+export function TabsUnderline<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <View style={styles.tabsRow}>
+      {options.map((o) => {
+        const active = value === o.value;
+        return (
+          <Pressable
+            key={o.value}
+            onPress={() => {
+              haptic.light();
+              onChange(o.value);
+            }}
+            style={[styles.tabItem, active && { borderBottomColor: colors.accent }]}
+          >
+            <Text style={[styles.tabText, active && { color: colors.accent, fontWeight: "700" }]}>{o.label}</Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -176,24 +292,39 @@ export function SegmentedControl<T extends string>({
   value,
   onChange,
 }: {
-  options: { value: T; label: string }[];
+  options: { value: T; label: string; tone?: "danger" }[];
   value: T;
   onChange: (v: T) => void;
 }) {
   return (
     <View style={styles.segmentRow}>
-      {options.map((o) => (
-        <Pressable
-          key={o.value}
-          onPress={() => {
-            haptic.light();
-            onChange(o.value);
-          }}
-          style={[styles.segmentItem, value === o.value && styles.segmentItemActive]}
-        >
-          <Text style={[styles.segmentText, value === o.value && styles.segmentTextActive]}>{o.label}</Text>
-        </Pressable>
-      ))}
+      {options.map((o) => {
+        const active = value === o.value;
+        return (
+          <Pressable
+            key={o.value}
+            onPress={() => {
+              haptic.light();
+              onChange(o.value);
+            }}
+            style={[
+              styles.segmentItem,
+              o.tone === "danger" && { backgroundColor: colors.dangerTint },
+              active && styles.segmentItemActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.segmentText,
+                o.tone === "danger" && { color: colors.dangerSoft },
+                active && styles.segmentTextActive,
+              ]}
+            >
+              {o.label}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -219,17 +350,14 @@ export function Chip({
           onPress();
         }
       }}
-      style={[
-        styles.chip,
-        active && { borderColor: toneColor, backgroundColor: `${toneColor}1A` },
-      ]}
+      style={[styles.chip, active && { borderColor: toneColor, backgroundColor: `${toneColor}1F` }]}
     >
-      <Text style={{ color: active ? toneColor : colors.textMuted, fontWeight: "600", fontSize: 13 }}>{label}</Text>
+      <Text style={{ color: active ? toneColor : colors.textSecondary, fontWeight: active ? "800" : "600", fontSize: 12 }}>{label}</Text>
     </Pressable>
   );
 }
 
-// ─── ProviderAvatar ───
+// ─── ProviderAvatar: initial on a warm radial badge ───
 export function ProviderAvatar({ name, ratingAvg = 0, size = 44 }: { name: string; ratingAvg?: number; size?: number }) {
   const initials = name
     .split(" ")
@@ -237,18 +365,18 @@ export function ProviderAvatar({ name, ratingAvg = 0, size = 44 }: { name: strin
     .slice(0, 2)
     .join("")
     .toUpperCase();
-  const ringColor = ratingAvg >= 4.5 ? colors.secondary : ratingAvg >= 3.5 ? colors.accent : colors.border;
+  const ringColor = ratingAvg >= 4.5 ? colors.secondary : colors.accentBorder;
   return (
     <View
       style={{
         width: size,
         height: size,
         borderRadius: size / 2,
-        borderWidth: 2,
+        borderWidth: 1.5,
         borderColor: ringColor,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: colors.bgElevated2,
+        backgroundColor: "rgba(245,166,35,0.14)",
       }}
     >
       <Text style={{ color: colors.text, fontWeight: "800", fontSize: size * 0.36 }}>{initials}</Text>
@@ -257,7 +385,7 @@ export function ProviderAvatar({ name, ratingAvg = 0, size = 44 }: { name: strin
 }
 
 // ─── SheetCard: card styled to look like the top of a bottom sheet ───
-export function SheetCard({ children, style }: { children: React.ReactNode; style?: object }) {
+export function SheetCard({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
   return (
     <View style={[styles.sheetCard, style]}>
       <View style={styles.sheetHandle} />
@@ -267,7 +395,7 @@ export function SheetCard({ children, style }: { children: React.ReactNode; styl
 }
 
 // ─── ConfettiBurst: one-shot, ~2s, no loop, no audio ───
-const CONFETTI_COLORS = [colors.accent, colors.secondary, colors.info, "#fff"];
+const CONFETTI_COLORS = [colors.accent, colors.accentSoft, colors.success, "#fff"];
 
 export function ConfettiBurst({ trigger }: { trigger: number }) {
   const pieces = useRef(
@@ -317,11 +445,7 @@ export function ConfettiBurst({ trigger }: { trigger: number }) {
               borderRadius: 2,
               backgroundColor: p.color,
               opacity,
-              transform: [
-                { translateX },
-                { translateY },
-                { rotate: `${p.rotate}deg` },
-              ],
+              transform: [{ translateX }, { translateY }, { rotate: `${p.rotate}deg` }],
             }}
           />
         );
@@ -390,35 +514,60 @@ export function AnimatedTradeIcon({ icon, trade, size = 30 }: { icon: string; tr
 }
 
 const styles = StyleSheet.create({
-  timelineRow: { flexDirection: "row", alignItems: "flex-start" },
-  timelineStep: { alignItems: "center", width: 64 },
-  timelineDot: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    alignItems: "center",
-    justifyContent: "center",
+  glass: {
+    backgroundColor: colors.glassBg,
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
   },
-  timelineLabel: { color: colors.textMuted, fontSize: 10, marginTop: 4, textAlign: "center" },
-  timelineBar: { flex: 1, height: 2, backgroundColor: colors.border, marginTop: 10 },
+  ctaWrap: { borderRadius: radius.button },
+  ctaGlow: {
+    shadowColor: colors.accent,
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 7,
+  },
+  cta: { paddingVertical: 16, borderRadius: radius.button, alignItems: "center", justifyContent: "center" },
+  ctaText: { color: colors.accentForeground, fontWeight: "800", fontSize: 16 },
+  stepperCard: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: colors.bgElevated,
+    borderWidth: 1,
+    borderColor: colors.borderSoft,
+    borderRadius: radius.card,
+    paddingVertical: 16,
+    paddingHorizontal: 10,
+  },
+  stepperItem: { alignItems: "center", gap: 6, flex: 1 },
+  stepperDotWrap: { width: 24, height: 24, alignItems: "center", justifyContent: "center" },
+  stepperDot: { width: 24, height: 24, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  stepperPulse: { position: "absolute", width: 24, height: 24, borderRadius: 12, backgroundColor: colors.accent },
+  stepperLabel: { color: colors.textFainter, fontSize: 10, textAlign: "center" },
+  tabsRow: { flexDirection: "row", gap: 22, borderBottomWidth: 1, borderBottomColor: colors.borderSoft },
+  tabItem: { paddingBottom: 10, borderBottomWidth: 2, borderBottomColor: "transparent", marginBottom: -1 },
+  tabText: { color: colors.textFaint, fontSize: 13, fontWeight: "600" },
   segmentRow: {
     flexDirection: "row",
+    gap: 6,
     backgroundColor: colors.bgElevated,
-    borderRadius: radius.button,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: 12,
+    padding: 5,
   },
-  segmentItem: { flex: 1, paddingVertical: 8, borderRadius: radius.button - 4, alignItems: "center" },
+  segmentItem: { flex: 1, paddingVertical: 10, paddingHorizontal: 4, borderRadius: 9, alignItems: "center" },
   segmentItemActive: { backgroundColor: colors.accent },
-  segmentText: { color: colors.textMuted, fontWeight: "700", fontSize: 12 },
-  segmentTextActive: { color: colors.accentForeground },
+  segmentText: { color: "#8A8378", fontWeight: "600", fontSize: 12 },
+  segmentTextActive: { color: colors.accentForeground, fontWeight: "800" },
   chip: {
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.button - 2,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderColor: "rgba(255,255,255,0.08)",
+    backgroundColor: colors.bgElevated,
+    borderRadius: 11,
+    paddingHorizontal: 13,
+    paddingVertical: 9,
   },
   sheetCard: {
     backgroundColor: colors.sheet,
@@ -426,13 +575,13 @@ const styles = StyleSheet.create({
     borderTopRightRadius: radius.sheet,
     padding: 20,
     borderTopWidth: 1,
-    borderColor: colors.border,
+    borderColor: "rgba(245,166,35,0.15)",
   },
   sheetHandle: {
-    width: 40,
+    width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: colors.border,
+    backgroundColor: "#2E2A22",
     alignSelf: "center",
     marginBottom: 16,
   },

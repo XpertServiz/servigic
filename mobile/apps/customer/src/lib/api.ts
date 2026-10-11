@@ -19,9 +19,15 @@ const TOKEN_KEY = "servigic_token";
 
 export class ApiError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  // Machine-readable `code` plus the full JSON body, for the few errors the
+  // UI reacts to specially (e.g. DUPLICATE_OPEN_JOB, OPEN_JOB_LIMIT).
+  code?: string;
+  data: Record<string, unknown>;
+  constructor(message: string, status: number, data: Record<string, unknown> = {}) {
     super(message);
     this.status = status;
+    this.data = data;
+    if (typeof data.code === "string") this.code = data.code;
   }
 }
 
@@ -53,13 +59,27 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     },
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ApiError(data.error ?? res.statusText, res.status);
+  if (!res.ok) throw new ApiError(data.error ?? res.statusText, res.status, data);
   return data as T;
+}
+
+// ─── Language ───
+// Public (works before login): which language to *suggest* for this country.
+export function getMarket() {
+  return request<{ country: string; countryName: string; suggestedLocale: string }>("/api/mobile/market");
+}
+
+// Persists the chosen language on the user's account.
+export function updateMyLanguage(language: string) {
+  return request<{ language: string }>("/api/mobile/me", { method: "PATCH", body: JSON.stringify({ language }) });
 }
 
 // ─── Auth ───
 export function login(phone: string, password: string) {
-  return request<{ token: string; user: { id: string; name: string; role: "CUSTOMER" | "PROVIDER"; phone: string } }>(
+  return request<{
+    token: string;
+    user: { id: string; name: string; role: "CUSTOMER" | "PROVIDER"; phone: string; language?: string };
+  }>(
     "/api/mobile/auth/login",
     { method: "POST", body: JSON.stringify({ phone, password }) }
   );
@@ -91,11 +111,23 @@ export function resendOtp(userId: string) {
 }
 
 export function getMe() {
-  return request<{ user: Record<string, unknown> }>("/api/mobile/me");
+  return request<{ user: Record<string, unknown> & { language?: string } }>("/api/mobile/me");
 }
 
 export function registerPushToken(token: string) {
   return request<{ ok: true }>("/api/mobile/push-token", { method: "POST", body: JSON.stringify({ token }) });
+}
+
+// ─── Notifications (bell icon) ───
+export function getNotifications() {
+  return request<{
+    notifications: { id: string; type: string; title: string; body: string; linkUrl: string | null; isRead: boolean; createdAt: string }[];
+    unreadCount: number;
+  }>("/api/mobile/notifications");
+}
+
+export function markNotificationsRead() {
+  return request<{ ok: true }>("/api/mobile/notifications", { method: "POST" });
 }
 
 // ─── Categories ───

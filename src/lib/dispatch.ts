@@ -3,6 +3,15 @@ import { notify } from "@/lib/notify";
 import { geohashNeighborhood, haversineKm } from "@/lib/geo";
 import type { Job } from "@prisma/client";
 
+// Rewarded-ad perk (ProviderProfile.visibilityBoostUntil): while active, a
+// pro's effective service radius is widened by this factor.
+export const BOOST_RADIUS_MULTIPLIER = 1.3;
+
+export function effectiveRadiusKm(provider: { serviceRadiusKm: number; visibilityBoostUntil: Date | null }): number {
+  const boosted = provider.visibilityBoostUntil && provider.visibilityBoostUntil.getTime() > Date.now();
+  return boosted ? provider.serviceRadiusKm * BOOST_RADIUS_MULTIPLIER : provider.serviceRadiusKm;
+}
+
 // Dispatch fan-out (Master Brief §8): on job insert, find every ONLINE
 // provider matching trade + city + within service radius (geohash
 // proximity, no paid distance API), then alert via push/WhatsApp/SMS.
@@ -55,7 +64,7 @@ export async function dispatchJob(job: Job) {
     // enforcement point; bid-creation also blocks them, see bids/route.ts).
     if (p.dispatchStatus === "SUSPENDED") return false;
     const distanceKm = haversineKm(job.lat, job.lng, p.baseLat!, p.baseLng!);
-    return distanceKm <= p.serviceRadiusKm;
+    return distanceKm <= effectiveRadiusKm(p);
   });
 
   if (eligible.length === 0) return;
@@ -104,5 +113,5 @@ export async function findJobsForProvider(providerId: string) {
 
   if (!provider.baseLat || !provider.baseLng) return jobs;
 
-  return jobs.filter((job) => haversineKm(job.lat, job.lng, provider.baseLat!, provider.baseLng!) <= provider.serviceRadiusKm);
+  return jobs.filter((job) => haversineKm(job.lat, job.lng, provider.baseLat!, provider.baseLng!) <= effectiveRadiusKm(provider));
 }

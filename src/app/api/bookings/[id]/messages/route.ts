@@ -75,6 +75,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         title: auth.session.user.role === "ADMIN" ? "Message from Servigic support" : "New message",
         body: parsed.data.body.slice(0, 100),
         linkUrl: `/bookings/${id}`,
+        pushChannelHint: "MESSAGE",
       })
     )
   );

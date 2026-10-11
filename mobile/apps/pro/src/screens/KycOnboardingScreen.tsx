@@ -1,29 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
-import { View, Text, Image, Pressable, StyleSheet, ScrollView, Animated } from "react-native";
+import React, { useState } from "react";
+import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import * as api from "../lib/api";
 import { Button } from "../components/ui";
+import { GlowBackground } from "../components/ds";
+import { HeaderActions } from "../components/HeaderActions";
+import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
 import { useAuth } from "../lib/auth";
-
-// Same real-trades stock photography as the web landing hero, for visual
-// consistency between the marketing site and the app's first real screen.
-const BG_PHOTOS = [
-  "https://images.pexels.com/photos/32588548/pexels-photo-32588548.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/9875418/pexels-photo-9875418.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/5463581/pexels-photo-5463581.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/33531830/pexels-photo-33531830.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/8817851/pexels-photo-8817851.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/7218579/pexels-photo-7218579.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/6196566/pexels-photo-6196566.jpeg?auto=compress&cs=tinysrgb&w=800",
-];
-const SLOT_MS = 4500;
+import { useT } from "../lib/i18n";
 
 export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () => void }) {
+  const t = useT();
+  const insets = useSafeAreaInsets();
   const { signOut } = useAuth();
-  const [photoIndex, setPhotoIndex] = useState(0);
-  const fade = useRef(new Animated.Value(1)).current;
 
   const [cnicUrl, setCnicUrl] = useState("");
   const [selfieUrl, setSelfieUrl] = useState("");
@@ -31,16 +22,6 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
   const [photoConsent, setPhotoConsent] = useState(false);
   const [busy, setBusy] = useState<"cnic" | "selfie" | "police" | "submit" | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      Animated.timing(fade, { toValue: 0, duration: 500, useNativeDriver: true }).start(() => {
-        setPhotoIndex((i) => (i + 1) % BG_PHOTOS.length);
-        Animated.timing(fade, { toValue: 1, duration: 500, useNativeDriver: true }).start();
-      });
-    }, SLOT_MS);
-    return () => clearInterval(interval);
-  }, [fade]);
 
   async function pickDoc(kind: "cnic" | "selfie" | "police", setUrl: (url: string) => void) {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 });
@@ -52,7 +33,7 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
       const url = await api.uploadFile(asset.uri, asset.fileName ?? "doc.jpg", asset.mimeType ?? "image/jpeg");
       setUrl(url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed");
+      setError(e instanceof Error ? e.message : t("kyc.uploadFailed"));
     } finally {
       setBusy(null);
     }
@@ -71,7 +52,7 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
       });
       onSubmitted();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to submit");
+      setError(e instanceof Error ? e.message : t("kyc.submitFailed"));
     } finally {
       setBusy(null);
     }
@@ -79,65 +60,34 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <Animated.Image
-        source={{ uri: BG_PHOTOS[photoIndex] }}
-        style={[StyleSheet.absoluteFill, { opacity: fade }]}
-        resizeMode="cover"
-      />
-      <View style={[StyleSheet.absoluteFill, styles.overlay]} />
+      <GlowBackground cy="12%" opacity={0.13} />
+      <View style={[styles.topBar, { top: insets.top + 12 }]}>
+        <HeaderActions showBell={false} />
+      </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        <Image source={require("../../assets/icon.png")} style={styles.logo} resizeMode="contain" />
-        <Text style={styles.title}>Get verified to start earning</Text>
-        <Text style={styles.subtitle}>
-          Upload your documents once — our team reviews them, then you start getting job alerts and can bid.
-        </Text>
+      <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + 64 }]}>
+        <Text style={styles.title}>{t("kyc.title")}</Text>
+        <Text style={styles.subtitle}>{t("kyc.subtitle")}</Text>
 
-        <DocRow
-          label="CNIC"
-          done={Boolean(cnicUrl)}
-          loading={busy === "cnic"}
-          onPress={() => pickDoc("cnic", setCnicUrl)}
-        />
-        <DocRow
-          label="Selfie"
-          done={Boolean(selfieUrl)}
-          loading={busy === "selfie"}
-          onPress={() => pickDoc("selfie", setSelfieUrl)}
-        />
-        <DocRow
-          label="Police Clearance Certificate (optional)"
-          done={Boolean(policeCertUrl)}
-          loading={busy === "police"}
-          onPress={() => pickDoc("police", setPoliceCertUrl)}
-        />
+        <DocRow label={t("kyc.cnic")} done={Boolean(cnicUrl)} loading={busy === "cnic"} onPress={() => pickDoc("cnic", setCnicUrl)} />
+        <DocRow label={t("kyc.selfie")} done={Boolean(selfieUrl)} loading={busy === "selfie"} onPress={() => pickDoc("selfie", setSelfieUrl)} />
+        <DocRow label={t("kyc.police")} done={Boolean(policeCertUrl)} loading={busy === "police"} onPress={() => pickDoc("police", setPoliceCertUrl)} />
 
-        <Pressable
-          onPress={() => setPhotoConsent((v) => !v)}
-          style={styles.consentRow}
-        >
+        <Pressable onPress={() => setPhotoConsent((v) => !v)} style={styles.consentRow}>
           <View style={[styles.checkbox, photoConsent && styles.checkboxChecked]}>
-            {photoConsent && <Text style={styles.checkboxTick}>✓</Text>}
+            {photoConsent && <Icon name="check" size={13} color={colors.accentForeground} />}
           </View>
-          <Text style={styles.consentText}>
-            Show my photo publicly on the Servigic landing page and reviews once verified. You can turn this off
-            anytime from your profile — without it, only your initials or trade icon will be shown.
-          </Text>
+          <Text style={styles.consentText}>{t("kyc.consent")}</Text>
         </Pressable>
 
         {error && <Text style={styles.error}>{error}</Text>}
 
         <View style={{ marginTop: 20, width: "100%" }}>
-          <Button
-            title={busy === "submit" ? "Submitting…" : "Submit for Review"}
-            onPress={submit}
-            loading={busy === "submit"}
-            disabled={!cnicUrl || !selfieUrl}
-          />
+          <Button title={busy === "submit" ? t("kyc.submitting") : t("kyc.submit")} onPress={submit} loading={busy === "submit"} disabled={!cnicUrl || !selfieUrl} />
         </View>
 
         <Pressable onPress={signOut} style={{ marginTop: 20 }}>
-          <Text style={styles.signOut}>Not ready? Sign out</Text>
+          <Text style={styles.signOut}>{t("kyc.notReady")}</Text>
         </Pressable>
       </ScrollView>
     </View>
@@ -145,32 +95,30 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
 }
 
 function DocRow({ label, done, loading, onPress }: { label: string; done: boolean; loading: boolean; onPress: () => void }) {
+  const t = useT();
   return (
     <Pressable onPress={onPress} disabled={loading} style={styles.docRow}>
       <Text style={styles.docLabel}>{label}</Text>
-      <Text style={[styles.docStatus, done && styles.docStatusDone]}>
-        {loading ? "Uploading…" : done ? "Uploaded ✓" : "Upload"}
-      </Text>
+      <Text style={[styles.docStatus, done && styles.docStatusDone]}>{loading ? t("kyc.uploading") : done ? t("kyc.uploaded") : t("kyc.upload")}</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: { backgroundColor: "rgba(10,11,15,0.8)" },
-  content: { flexGrow: 1, alignItems: "center", padding: 24, paddingTop: 64, gap: 12 },
-  logo: { width: 64, height: 64, marginBottom: 8 },
-  title: { color: colors.text, fontSize: 22, fontWeight: "800", textAlign: "center" },
-  subtitle: { color: colors.textMuted, fontSize: 14, textAlign: "center", marginBottom: 12, maxWidth: 320 },
+  topBar: { position: "absolute", right: 18, zIndex: 5 },
+  content: { flexGrow: 1, alignItems: "center", padding: 24, gap: 12 },
+  title: { color: colors.text, fontSize: 24, fontWeight: "800", textAlign: "center" },
+  subtitle: { color: colors.textMuted, fontSize: 14, textAlign: "center", marginBottom: 12, maxWidth: 320, lineHeight: 20 },
   docRow: {
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: "rgba(23,26,34,0.9)",
-    borderRadius: 10,
-    paddingVertical: 14,
+    borderColor: "rgba(245,166,35,0.18)",
+    backgroundColor: colors.bgElevated,
+    borderRadius: 12,
+    paddingVertical: 15,
     paddingHorizontal: 16,
   },
   docLabel: { color: colors.text, fontSize: 14, fontWeight: "600", flex: 1, paddingRight: 8 },
@@ -182,25 +130,15 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     gap: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: "rgba(23,26,34,0.9)",
-    borderRadius: 10,
+    borderColor: colors.borderSoft,
+    backgroundColor: colors.bgElevated,
+    borderRadius: 12,
     padding: 14,
     marginTop: 4,
   },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 1,
-  },
+  checkbox: { width: 20, height: 20, borderRadius: 6, borderWidth: 2, borderColor: "#4A443A", alignItems: "center", justifyContent: "center", marginTop: 1 },
   checkboxChecked: { backgroundColor: colors.accent, borderColor: colors.accent },
-  checkboxTick: { color: "#000", fontSize: 13, fontWeight: "800" },
   consentText: { color: colors.textMuted, fontSize: 12, flex: 1, lineHeight: 17 },
-  error: { color: colors.danger, marginTop: 4, textAlign: "center" },
+  error: { color: colors.dangerSoft, marginTop: 4, textAlign: "center" },
   signOut: { color: colors.textMuted, fontWeight: "600", fontSize: 13, textAlign: "center" },
 });

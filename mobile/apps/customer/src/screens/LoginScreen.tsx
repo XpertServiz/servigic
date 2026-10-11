@@ -1,85 +1,69 @@
-import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Animated } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../navigation/RootNavigator";
 import { useAuth } from "../lib/auth";
-import { Button, Field } from "../components/ui";
+import { Button, Field, PhoneField } from "../components/ui";
+import { GlowBackground } from "../components/ds";
+import { HeaderActions } from "../components/HeaderActions";
 import { colors } from "../lib/theme";
+import { isValidPhone, normalizePhone } from "../lib/phone";
+import { useT } from "../lib/i18n";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
-// Same real-trades stock photography as the web landing hero, for visual
-// consistency between the marketing site and the app's first screen.
-const BG_PHOTOS = [
-  "https://images.pexels.com/photos/32588548/pexels-photo-32588548.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/9875418/pexels-photo-9875418.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/5463581/pexels-photo-5463581.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/33531830/pexels-photo-33531830.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/8817851/pexels-photo-8817851.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/7218579/pexels-photo-7218579.jpeg?auto=compress&cs=tinysrgb&w=800",
-  "https://images.pexels.com/photos/6196566/pexels-photo-6196566.jpeg?auto=compress&cs=tinysrgb&w=800",
-];
-const SLOT_MS = 4500;
-
 export default function LoginScreen({ navigation }: Props) {
+  const t = useT();
+  const insets = useSafeAreaInsets();
   const { signIn } = useAuth();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [photoIndex, setPhotoIndex] = useState(0);
-  const fade = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      Animated.timing(fade, { toValue: 0, duration: 500, useNativeDriver: true }).start(() => {
-        setPhotoIndex((i) => (i + 1) % BG_PHOTOS.length);
-        Animated.timing(fade, { toValue: 1, duration: 500, useNativeDriver: true }).start();
-      });
-    }, SLOT_MS);
-    return () => clearInterval(interval);
-  }, [fade]);
 
   async function handleLogin() {
     setError(null);
+    const normalized = normalizePhone(phone);
+    if (!isValidPhone(normalized)) {
+      setError(t("phone.error", { example: "03076234578" }));
+      return;
+    }
     setLoading(true);
     try {
-      await signIn(phone, password);
+      await signIn(normalized, password);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Login failed");
+      setError(e instanceof Error ? e.message : t("auth.loginFailed"));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <Animated.Image
-        source={{ uri: BG_PHOTOS[photoIndex] }}
-        style={[StyleSheet.absoluteFill, { opacity: fade }]}
-        resizeMode="cover"
-      />
-      <View style={[StyleSheet.absoluteFill, styles.overlay]} />
+    <View style={styles.root}>
+      <GlowBackground cx="30%" cy="15%" r="70%" opacity={0.14} />
+      <View style={[styles.topBar, { top: insets.top + 12 }]}>
+        <HeaderActions showBell={false} />
+      </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-        <ScrollView contentContainerStyle={styles.container}>
-          <Text style={styles.brand}>Servigic</Text>
-          <Text style={styles.title}>Welcome back</Text>
-          <Text style={styles.subtitle}>Log in to post jobs and track bids.</Text>
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <Text style={styles.brand}>SERVIGIC</Text>
+          <Text style={styles.title}>{t("auth.welcomeBack")}</Text>
+          <Text style={styles.subtitle}>{t("auth.customerTagline")}</Text>
 
-          <Field label="Phone number" keyboardType="phone-pad" placeholder="03001234567" value={phone} onChangeText={setPhone} />
-          <Field label="Password" secureTextEntry value={password} onChangeText={setPassword} />
+          <PhoneField value={phone} onChangeText={setPhone} />
+          <Field label={t("auth.password")} secureTextEntry value={password} onChangeText={setPassword} placeholder="••••••••" />
 
           {error && <Text style={styles.error}>{error}</Text>}
 
-          <Button title="Log In" onPress={handleLogin} loading={loading} />
+          <Button title={t("auth.logIn")} onPress={handleLogin} loading={loading} disabled={!phone || !password} />
 
-          <View style={{ marginTop: 24, alignItems: "center" }}>
-            <Text style={{ color: colors.textMuted }}>
-              Don&apos;t have an account?{" "}
+          <View style={{ marginTop: 22, alignItems: "center" }}>
+            <Text style={{ color: colors.textMuted, fontSize: 13 }}>
+              {t("auth.noAccount")}{" "}
               <Text style={{ color: colors.accent, fontWeight: "700" }} onPress={() => navigation.navigate("Signup")}>
-                Sign up
+                {t("auth.signUp")}
               </Text>
             </Text>
           </View>
@@ -90,10 +74,11 @@ export default function LoginScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  overlay: { backgroundColor: "rgba(10,11,15,0.82)" },
-  container: { flexGrow: 1, justifyContent: "center", padding: 24 },
-  brand: { color: colors.accent, fontSize: 22, fontWeight: "800", marginBottom: 32 },
-  title: { color: colors.text, fontSize: 28, fontWeight: "800", marginBottom: 6 },
-  subtitle: { color: colors.textMuted, fontSize: 15, marginBottom: 24 },
-  error: { color: colors.danger, marginBottom: 12 },
+  root: { flex: 1, backgroundColor: colors.bg },
+  topBar: { position: "absolute", right: 18, zIndex: 5 },
+  container: { flexGrow: 1, justifyContent: "flex-end", padding: 26, paddingBottom: 40 },
+  brand: { color: colors.accent, fontSize: 15, fontWeight: "800", letterSpacing: 1.3, marginBottom: 10 },
+  title: { color: colors.text, fontSize: 30, fontWeight: "800", marginBottom: 8 },
+  subtitle: { color: colors.textSecondary, fontSize: 14, marginBottom: 26 },
+  error: { color: colors.dangerSoft, marginBottom: 12, fontSize: 13 },
 });

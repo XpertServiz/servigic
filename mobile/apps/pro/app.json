@@ -3,11 +3,11 @@
     "name": "Servigic Pro",
     "slug": "xpertserviz-786",
     "scheme": "servigic-pro",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "backgroundColor": "#0A0B0F",
+    "backgroundColor": "#0A0808",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.servigic.pro",
@@ -22,7 +22,7 @@
     "android": {
       "package": "com.servigic.pro",
       "adaptiveIcon": {
-        "backgroundColor": "#0A0B0F",
+        "backgroundColor": "#0A0808",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -36,7 +36,9 @@
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.VIBRATE",
+        "android.permission.POST_NOTIFICATIONS"
       ]
     },
     "web": {
@@ -56,9 +58,43 @@
           "photosPermission": "Servigic Pro needs access to your photos to upload verification documents."
         }
       ],
-      "expo-audio",
+      [
+        "expo-audio",
+        {
+          "enableBackgroundPlayback": false
+        }
+      ],
       "expo-font",
-      "expo-splash-screen"
+      "expo-localization",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0A0808",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#F5A623",
+          "sounds": [
+            "./assets/sounds/new_job_alert.wav",
+            "./assets/sounds/bid_accepted.wav",
+            "./assets/sounds/message_received.wav",
+            "./assets/sounds/job_status_update.wav",
+            "./assets/sounds/job_done.wav",
+            "./assets/sounds/payment_added.wav"
+          ]
+        }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
+          "userTrackingPermission": false
+        }
+      ]
     ],
     "extra": {
       "eas": {

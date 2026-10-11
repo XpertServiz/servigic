@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validation/auth";
 import { issueMobileToken } from "@/lib/mobileAuth";
+import { phoneVariants } from "@/lib/phone";
 
 // Mobile equivalent of the web credentials sign-in — issues a long-lived JWT
 // instead of a session cookie (React Native has no first-class cookie jar
@@ -14,7 +15,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid phone or password" }, { status: 400 });
   }
 
-  const user = await prisma.user.findUnique({ where: { phone: parsed.data.phone } });
+  const user = await prisma.user.findFirst({ where: { phone: { in: phoneVariants(parsed.data.phone) } } });
   if (!user) {
     return NextResponse.json({ error: "Incorrect phone number or password" }, { status: 401 });
   }
@@ -34,6 +35,13 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     token,
-    user: { id: user.id, name: user.name, role: user.role, phone: user.phone, phoneVerified: user.phoneVerified },
+    user: {
+      id: user.id,
+      name: user.name,
+      role: user.role,
+      phone: user.phone,
+      phoneVerified: user.phoneVerified,
+      language: user.language,
+    },
   });
 }

@@ -1,12 +1,16 @@
 import React, { useCallback, useState } from "react";
 import { View, Text, FlatList, Pressable, RefreshControl, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { JobsStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
-import { Card, Badge } from "../components/ui";
-import { SegmentedControl, EmptyState, PriceText } from "../components/ds";
+import { Badge } from "../components/ui";
+import { TabsUnderline, EmptyState, PriceText } from "../components/ds";
+import { RewardedBoostCard } from "../components/AdSlots";
 import { colors } from "../lib/theme";
+import { enumLabel } from "../lib/status";
+import { useI18n } from "../lib/i18n";
 
 type Props = NativeStackScreenProps<JobsStackParamList, "Jobs">;
 type FeedJob = Awaited<ReturnType<typeof api.getProviderJobFeed>>["jobs"][number];
@@ -14,18 +18,32 @@ type Booking = Awaited<ReturnType<typeof api.getMyBookings>>["bookings"][number]
 
 const POLL_MS = 15000;
 type Segment = "AVAILABLE" | "BOOKED" | "DONE";
-const SEGMENTS: { value: Segment; label: string }[] = [
-  { value: "AVAILABLE", label: "Available" },
-  { value: "BOOKED", label: "Booked" },
-  { value: "DONE", label: "Done" },
-];
 const BOOKED_STATUSES = ["CONFIRMED", "PENDING_PAYMENT", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE"];
 
+function SkeletonCard() {
+  return (
+    <View style={styles.card}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 9 }}>
+        <View style={[styles.iconBox, { backgroundColor: "rgba(255,255,255,0.06)" }]} />
+        <View style={{ flex: 1, gap: 6 }}>
+          <View style={{ width: "62%", height: 11, borderRadius: 5, backgroundColor: "rgba(255,255,255,0.09)" }} />
+          <View style={{ width: "40%", height: 9, borderRadius: 5, backgroundColor: "rgba(255,255,255,0.05)" }} />
+        </View>
+      </View>
+      <View style={{ height: 34, borderRadius: 9, backgroundColor: "rgba(255,255,255,0.04)", marginTop: 12 }} />
+    </View>
+  );
+}
+
 export default function JobsScreen({ navigation }: Props) {
+  const { t, td } = useI18n();
+  const insets = useSafeAreaInsets();
   const [segment, setSegment] = useState<Segment>("AVAILABLE");
   const [jobs, setJobs] = useState<FeedJob[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isOnline, setIsOnline] = useState(true);
+  const [boostedUntil, setBoostedUntil] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   // New-job alerting itself is handled app-wide by the ring overlay in
@@ -36,9 +54,11 @@ export default function JobsScreen({ navigation }: Props) {
       const [feed, { bookings: fetchedBookings }] = await Promise.all([api.getProviderJobFeed(), api.getMyBookings()]);
       setJobs(feed.jobs);
       setIsOnline(feed.isOnline);
+      setBoostedUntil(feed.boostedUntil ?? null);
       setBookings(fetchedBookings);
     } finally {
       setRefreshing(false);
+      setLoaded(true);
     }
   }, []);
 
@@ -50,73 +70,109 @@ export default function JobsScreen({ navigation }: Props) {
     }, [load])
   );
 
+  const boostActive = !!boostedUntil && new Date(boostedUntil).getTime() > Date.now();
   const bookedList = bookings.filter((b) => BOOKED_STATUSES.includes(b.status));
   const doneList = bookings.filter((b) => b.status === "COMPLETED");
 
+  const segments: { value: Segment; label: string }[] = [
+    { value: "AVAILABLE", label: t("jobs.available") },
+    { value: "BOOKED", label: t("jobs.booked") },
+    { value: "DONE", label: t("jobs.done") },
+  ];
+
+  async function claimBoost() {
+    const { boostedUntil: until } = await api.claimVisibilityBoost();
+    setBoostedUntil(until);
+  }
+
+  const listPadding = { paddingHorizontal: 18, paddingBottom: 24, gap: 12 };
+  const refresh = <RefreshControl refreshing={refreshing} onRefresh={() => load()} tintColor={colors.accent} />;
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 14 }}>
-        <Text style={styles.title}>Jobs</Text>
-        <View style={{ marginTop: 12 }}>
-          <SegmentedControl options={SEGMENTS} value={segment} onChange={setSegment} />
-        </View>
+      <View style={{ paddingHorizontal: 18, paddingTop: insets.top + 16 }}>
+        <Text style={styles.title}>{t("jobs.title")}</Text>
+        <TabsUnderline options={segments} value={segment} onChange={setSegment} />
       </View>
 
       {segment === "AVAILABLE" && (
-        <>
-          {!isOnline && (
-            <Card style={{ marginHorizontal: 16, marginBottom: 12, borderColor: colors.accent }}>
-              <Text style={{ color: colors.accent, fontWeight: "700" }}>You&apos;re offline</Text>
-              <Text style={{ color: colors.textMuted, marginTop: 2 }}>Go online from Home to receive alerts.</Text>
-            </Card>
-          )}
-          <FlatList
-            data={jobs}
-            keyExtractor={(j) => j.id}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load()} tintColor={colors.accent} />}
-            contentContainerStyle={{ padding: 16, paddingTop: 0, gap: 10 }}
-            ListEmptyComponent={<EmptyState icon="📡" title="No matching jobs right now" subtitle="We'll alert you the moment one opens up." />}
-            renderItem={({ item }) => (
-              <Pressable onPress={() => navigation.navigate("JobDetail", { jobId: item.id })}>
-                <Card style={item.alreadyBid ? { borderColor: colors.secondary } : undefined}>
-                  <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                    <Text style={{ color: colors.text, fontWeight: "700" }}>
-                      {item.categoryIcon} {item.title}
-                    </Text>
-                    {item.alreadyBid ? (
-                      <Badge label="Bid sent ✓" tone="secondary" />
-                    ) : (
-                      <Badge label={item.urgency} tone={item.urgency === "EMERGENCY" ? "danger" : "accent"} />
-                    )}
+        <FlatList
+          data={loaded ? jobs : []}
+          keyExtractor={(j) => j.id}
+          refreshControl={refresh}
+          contentContainerStyle={[listPadding, { paddingTop: 16 }]}
+          ListHeaderComponent={
+            <View style={{ gap: 12 }}>
+              {!isOnline && (
+                <View style={styles.offlineCard}>
+                  <Text style={{ color: colors.accent, fontWeight: "700" }}>{t("jobs.offlineTitle")}</Text>
+                  <Text style={{ color: colors.textMuted, marginTop: 2, fontSize: 12 }}>{t("jobs.offlineBody")}</Text>
+                </View>
+              )}
+              <RewardedBoostCard active={boostActive} onReward={claimBoost} />
+            </View>
+          }
+          ListEmptyComponent={
+            loaded ? <EmptyState icon="📡" title={t("jobs.emptyTitle")} subtitle={t("jobs.emptySubtitle")} /> : <View style={{ gap: 12 }}><SkeletonCard /><SkeletonCard /></View>
+          }
+          renderItem={({ item, index }) => (
+            <Pressable onPress={() => navigation.navigate("JobDetail", { jobId: item.id })}>
+              <View style={[styles.card, index === 0 && !item.alreadyBid && styles.cardHighlight]}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 9, flex: 1 }}>
+                    <View style={styles.iconBox}>
+                      <Text style={{ fontSize: 14 }}>{item.categoryIcon}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.cardTitle} numberOfLines={1}>
+                        {item.title}
+                      </Text>
+                      <Text style={styles.cardSub} numberOfLines={1}>
+                        {item.areaLabel} · {item.categoryName}
+                      </Text>
+                    </View>
                   </View>
-                  <Text style={{ color: colors.textMuted, marginTop: 4 }}>
-                    {item.areaLabel} · {item.categoryName}
-                  </Text>
-                </Card>
-              </Pressable>
-            )}
-          />
-        </>
+                  {item.budgetPKR ? (
+                    <Text style={[styles.price, index === 0 && !item.alreadyBid && { color: colors.accent }]}>PKR {item.budgetPKR.toLocaleString()}</Text>
+                  ) : (
+                    <Badge label={enumLabel(td, "urgency", item.urgency)} tone={item.urgency === "EMERGENCY" ? "danger" : "accent"} />
+                  )}
+                </View>
+                {item.alreadyBid ? (
+                  <View style={styles.bidSent}>
+                    <Text style={styles.bidSentText}>{t("jobs.bidSent")}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.cta}>
+                    <Text style={styles.ctaText}>{t("jobs.viewAndBid")}</Text>
+                  </View>
+                )}
+              </View>
+            </Pressable>
+          )}
+        />
       )}
 
       {segment === "BOOKED" && (
         <FlatList
           data={bookedList}
           keyExtractor={(b) => b.id}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load()} tintColor={colors.accent} />}
-          contentContainerStyle={{ padding: 16, paddingTop: 0, gap: 10 }}
-          ListEmptyComponent={<EmptyState icon="🛠️" title="No booked jobs" />}
+          refreshControl={refresh}
+          contentContainerStyle={[listPadding, { paddingTop: 16 }]}
+          ListEmptyComponent={<EmptyState icon="🛠️" title={t("jobs.noBooked")} />}
           renderItem={({ item }) => (
             <Pressable onPress={() => navigation.navigate("BookingDetail", { bookingId: item.id })}>
-              <Card>
+              <View style={styles.card}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                  <Text style={{ color: colors.text, fontWeight: "700" }}>{item.categoryIcon} {item.jobTitle}</Text>
-                  <Badge label={item.status.replace("_", " ")} tone="secondary" />
+                  <Text style={styles.cardTitle}>
+                    {item.categoryIcon} {item.jobTitle}
+                  </Text>
+                  <Badge label={enumLabel(td, "booking", item.status)} tone="secondary" />
                 </View>
                 <View style={{ marginTop: 6 }}>
                   <PriceText pkr={item.payoutPKR} size="sm" color={colors.textMuted} />
                 </View>
-              </Card>
+              </View>
             </Pressable>
           )}
         />
@@ -126,20 +182,22 @@ export default function JobsScreen({ navigation }: Props) {
         <FlatList
           data={doneList}
           keyExtractor={(b) => b.id}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load()} tintColor={colors.accent} />}
-          contentContainerStyle={{ padding: 16, paddingTop: 0, gap: 10 }}
-          ListEmptyComponent={<EmptyState icon="✅" title="No completed jobs yet" />}
+          refreshControl={refresh}
+          contentContainerStyle={[listPadding, { paddingTop: 16 }]}
+          ListEmptyComponent={<EmptyState icon="✅" title={t("jobs.noDone")} />}
           renderItem={({ item }) => (
             <Pressable onPress={() => navigation.navigate("BookingDetail", { bookingId: item.id })}>
-              <Card>
+              <View style={styles.card}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                  <Text style={{ color: colors.text, fontWeight: "700" }}>{item.categoryIcon} {item.jobTitle}</Text>
-                  <Badge label="Done" tone="muted" />
+                  <Text style={styles.cardTitle}>
+                    {item.categoryIcon} {item.jobTitle}
+                  </Text>
+                  <Badge label={enumLabel(td, "booking", "COMPLETED")} tone="muted" />
                 </View>
                 <View style={{ marginTop: 6 }}>
                   <PriceText pkr={item.payoutPKR} size="sm" color={colors.textMuted} />
                 </View>
-              </Card>
+              </View>
             </Pressable>
           )}
         />
@@ -149,5 +207,22 @@ export default function JobsScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  title: { color: colors.text, fontSize: 22, fontWeight: "800" },
+  title: { color: colors.text, fontSize: 23, fontWeight: "800", marginBottom: 16 },
+  card: {
+    backgroundColor: colors.bgElevated,
+    borderWidth: 1,
+    borderColor: colors.borderSoft,
+    borderRadius: 16,
+    padding: 15,
+  },
+  cardHighlight: { borderColor: "rgba(245,166,35,0.3)", shadowColor: colors.accent, shadowOpacity: 0.08, shadowRadius: 22, elevation: 3 },
+  iconBox: { width: 30, height: 30, borderRadius: 9, backgroundColor: "rgba(245,166,35,0.14)", alignItems: "center", justifyContent: "center" },
+  cardTitle: { color: colors.text, fontSize: 14, fontWeight: "700" },
+  cardSub: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
+  price: { color: colors.text, fontSize: 15, fontWeight: "800" },
+  cta: { marginTop: 12, backgroundColor: colors.accent, borderRadius: 11, paddingVertical: 11, alignItems: "center" },
+  ctaText: { color: colors.accentForeground, fontWeight: "800", fontSize: 14 },
+  bidSent: { marginTop: 11, alignSelf: "flex-start", backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 8, paddingVertical: 6, paddingHorizontal: 10 },
+  bidSentText: { color: colors.textSecondary, fontSize: 11, fontWeight: "600" },
+  offlineCard: { backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: colors.accentBorder, borderRadius: 14, padding: 13 },
 });

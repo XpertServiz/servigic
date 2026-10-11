@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as Notifications from "expo-notifications";
 import * as api from "./api";
+import { useI18n } from "./i18n";
+import { setupNotificationChannels } from "./notifications";
 
-type User = { id: string; name: string; role: "CUSTOMER"; phone: string };
+type User = { id: string; name: string; role: "CUSTOMER"; phone: string; language?: string };
 
 interface AuthState {
   user: User | null;
@@ -16,14 +18,18 @@ const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { syncWithAccount } = useI18n();
 
   useEffect(() => {
+    // Channels are created before any push can arrive; harmless to repeat.
+    setupNotificationChannels();
     (async () => {
       const token = await api.loadStoredToken();
       if (token) {
         try {
           const { user: me } = await api.getMe();
           setUser(me as unknown as User);
+          syncWithAccount(me.language);
           registerForPush();
         } catch {
           await api.setAuthToken(null);
@@ -31,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setLoading(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Best-effort and fully isolated from app startup/login: push credentials
@@ -70,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { token, user: loggedInUser } = await api.login(phone, password);
     await api.setAuthToken(token);
     setUser(loggedInUser as User);
+    syncWithAccount(loggedInUser.language);
     registerForPush();
   }
 

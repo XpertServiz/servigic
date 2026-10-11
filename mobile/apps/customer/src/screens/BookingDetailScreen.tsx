@@ -1,85 +1,61 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, Pressable, Alert, Linking } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Polyline } from "react-native-maps";
 import * as ImagePicker from "expo-image-picker";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { HomeStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
-import { Button, Card, Field } from "../components/ui";
-import { StatusPillTimeline, PriceText, RatingStars, ConfettiBurst, haptic } from "../components/ds";
+import { Button, Card, Field, Badge } from "../components/ui";
+import { StatusStepper, PriceText, RatingStars, ConfettiBurst, GradientButton, GlassCard, haptic } from "../components/ds";
+import { DestinationMarker, TrackedBikeMarker } from "../components/MapPins";
+import { Icon } from "../components/Icon";
 import { sound } from "../lib/sound";
-import { colors, mapStyle, radius } from "../lib/theme";
+import { colors, mapStyle } from "../lib/theme";
+import { enumLabel, STATUS_STEPS, statusStepIndex } from "../lib/status";
+import { useI18n } from "../lib/i18n";
 import { CancelBookingSheet } from "./CancelBookingSheet";
 
 const CANCELLABLE_STATUSES = ["CONFIRMED", "ON_MY_WAY", "ARRIVED"];
 
 type Props = NativeStackScreenProps<HomeStackParamList, "BookingDetail">;
 
-// Direction of travel (0-360°) from one lat/lng point to the next, used to
-// rotate the bike marker so it visually faces the way it's moving.
-function bearingBetween(lat1: number, lng1: number, lat2: number, lng2: number): number {
+const AVERAGE_SPEED_KMH = 22; // rough urban two-wheeler speed — shown as an estimate
+
+function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const toRad = (d: number) => (d * Math.PI) / 180;
-  const toDeg = (r: number) => (r * 180) / Math.PI;
+  const dLat = toRad(lat2 - lat1);
   const dLng = toRad(lng2 - lng1);
-  const y = Math.sin(dLng) * Math.cos(toRad(lat2));
-  const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng);
-  return (toDeg(Math.atan2(y, x)) + 360) % 360;
-}
-
-// Slides smoothly to each new ping instead of snapping (react-native-maps'
-// imperative animateMarkerToCoordinate, not the declarative `coordinate`
-// prop — changing that prop directly just teleports the marker). The
-// `coordinate` prop is only ever set once, at mount, via the useState
-// initializer; every later move goes through the ref.
-function TrackedBikeMarker({ location }: { location: { lat: number; lng: number } }) {
-  const markerRef = useRef<InstanceType<typeof Marker>>(null);
-  const [initialCoord] = useState({ latitude: location.lat, longitude: location.lng });
-  const prevRef = useRef(location);
-  const [rotation, setRotation] = useState(0);
-
-  useEffect(() => {
-    const prev = prevRef.current;
-    if (prev.lat !== location.lat || prev.lng !== location.lng) {
-      setRotation(bearingBetween(prev.lat, prev.lng, location.lat, location.lng));
-      markerRef.current?.animateMarkerToCoordinate({ latitude: location.lat, longitude: location.lng }, 1000);
-      prevRef.current = location;
-    }
-  }, [location.lat, location.lng]);
-
-  return (
-    <Marker ref={markerRef} coordinate={initialCoord} anchor={{ x: 0.5, y: 0.5 }} flat rotation={rotation}>
-      <Text style={{ fontSize: 26 }}>🛵</Text>
-    </Marker>
-  );
-}
-
-function formatDuration(minutes: number): string {
-  if (minutes < 60) return `${minutes} min`;
-  const hrs = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return mins === 0 ? `${hrs} hr` : `${hrs} hr ${mins} min`;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 const PAYMENT_METHODS = ["JAZZCASH", "EASYPAISA", "BANK_TRANSFER"] as const;
 
 // Placeholder numbers until real business accounts are swapped into .env.
-const PAYMENT_ACCOUNTS: Record<(typeof PAYMENT_METHODS)[number], { label: string; value: string }[]> = {
-  JAZZCASH: [{ label: "JazzCash number", value: process.env.EXPO_PUBLIC_JAZZCASH_NUMBER ?? "Not configured yet" }],
-  EASYPAISA: [{ label: "EasyPaisa number", value: process.env.EXPO_PUBLIC_EASYPAISA_NUMBER ?? "Not configured yet" }],
+const PAYMENT_ACCOUNTS: Record<(typeof PAYMENT_METHODS)[number], { labelKey: "pay.jazzcashNumber" | "pay.easypaisaNumber" | "pay.accountTitle" | "pay.accountNumber" | "pay.bank"; value: string }[]> = {
+  JAZZCASH: [{ labelKey: "pay.jazzcashNumber", value: process.env.EXPO_PUBLIC_JAZZCASH_NUMBER ?? "—" }],
+  EASYPAISA: [{ labelKey: "pay.easypaisaNumber", value: process.env.EXPO_PUBLIC_EASYPAISA_NUMBER ?? "—" }],
   BANK_TRANSFER: [
-    { label: "Account title", value: process.env.EXPO_PUBLIC_BANK_ACCOUNT_TITLE ?? "Not configured yet" },
-    { label: "Account number", value: process.env.EXPO_PUBLIC_BANK_ACCOUNT_NUMBER ?? "Not configured yet" },
-    { label: "Bank", value: process.env.EXPO_PUBLIC_BANK_NAME ?? "Not configured yet" },
+    { labelKey: "pay.accountTitle", value: process.env.EXPO_PUBLIC_BANK_ACCOUNT_TITLE ?? "—" },
+    { labelKey: "pay.accountNumber", value: process.env.EXPO_PUBLIC_BANK_ACCOUNT_NUMBER ?? "—" },
+    { labelKey: "pay.bank", value: process.env.EXPO_PUBLIC_BANK_NAME ?? "—" },
   ],
 };
-const REVIEW_TAGS = ["Professional", "On time", "Clean work", "Cooperative"];
+// `code` is what the backend stores (stable English); `key` is the localized label.
+const REVIEW_TAGS = [
+  { code: "Professional", key: "review.professional" },
+  { code: "On time", key: "review.onTime" },
+  { code: "Clean work", key: "review.cleanWork" },
+  { code: "Cooperative", key: "review.cooperative" },
+] as const;
 const TRACKED_STATUSES = ["ON_MY_WAY", "ARRIVED", "WORKING"];
-const TIMELINE_STEPS = ["Confirmed", "On the way", "Arrived", "Working", "Done"];
-const TIMELINE_STATUS_ORDER = ["CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE"];
 const STATUS_POLL_MS = 6000;
 
 export default function BookingDetailScreen({ route, navigation }: Props) {
+  const { t, td } = useI18n();
+  const insets = useSafeAreaInsets();
   const { bookingId } = route.params;
   const [booking, setBooking] = useState<Record<string, unknown> | null>(null);
   const [method, setMethod] = useState<(typeof PAYMENT_METHODS)[number]>("EASYPAISA");
@@ -93,19 +69,23 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
   const [confettiTrigger, setConfettiTrigger] = useState(0);
   const [cancelSheetOpen, setCancelSheetOpen] = useState(false);
   const [rebooking, setRebooking] = useState(false);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const prevStatusRef = useRef<string | null>(null);
 
   const load = useCallback(() => {
-    api.getBookingDetail(bookingId).then(({ booking: b }) => {
-      const newStatus = b.status as string;
-      if (prevStatusRef.current && prevStatusRef.current !== newStatus) {
-        sound.statusChanged();
-        haptic.success();
-      }
-      prevStatusRef.current = newStatus;
-      setBooking(b);
-    });
+    api
+      .getBookingDetail(bookingId)
+      .then(({ booking: b }) => {
+        const newStatus = b.status as string;
+        const prev = prevStatusRef.current;
+        if (prev && prev !== newStatus) {
+          if (newStatus === "DONE" || newStatus === "COMPLETED") sound.jobDone();
+          else sound.statusChanged();
+          haptic.success();
+        }
+        prevStatusRef.current = newStatus;
+        setBooking(b);
+      })
+      .catch(() => {});
   }, [bookingId]);
 
   // Polls while this screen is focused so status/payment changes made by
@@ -119,16 +99,27 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
     }, [load])
   );
 
+  const status = booking?.status as string | undefined;
+  const tracked = !!status && TRACKED_STATUSES.includes(status);
+
   useEffect(() => {
-    if (!booking || !TRACKED_STATUSES.includes(booking.status as string)) return;
-    pollRef.current = setInterval(async () => {
-      const { ping } = await api.getLatestLocation(bookingId);
-      if (ping) setProLocation(ping);
-    }, 15000);
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
+    if (!tracked) return;
+    let cancelled = false;
+    const fetchPing = async () => {
+      try {
+        const { ping } = await api.getLatestLocation(bookingId);
+        if (!cancelled && ping) setProLocation(ping);
+      } catch {
+        // Next tick will retry.
+      }
     };
-  }, [booking, bookingId]);
+    fetchPing();
+    const interval = setInterval(fetchPing, 15000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [tracked, bookingId]);
 
   async function pickProof() {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 });
@@ -155,6 +146,9 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
       await api.confirmBooking(bookingId);
       haptic.success();
       setConfettiTrigger((n) => n + 1);
+      // The rating chosen on the confirm card is saved straight away. If it
+      // fails, the COMPLETED screen still offers the rating form.
+      if (rating > 0) await api.submitReview(bookingId, rating, tags).catch(() => {});
       load();
     } finally {
       setBusy(false);
@@ -186,267 +180,305 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
     setBusy(true);
     try {
       await api.submitReview(bookingId, rating, tags);
-      Alert.alert("Thanks!", "Your rating was submitted.");
+      Alert.alert(t("review.thanksTitle"), t("review.thanksBody"));
+      load();
     } finally {
       setBusy(false);
     }
   }
 
-  if (!booking) return null;
-  const status = booking.status as string;
-  const timelineIndex = TIMELINE_STATUS_ORDER.indexOf(status);
+  if (!booking || !status) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
+
+  const stepIndex = statusStepIndex(status);
+  const stepLabels = STATUS_STEPS.map((s) => enumLabel(td, "booking", s));
+  const proName = booking.otherPartyName as string;
+  const revealStage = booking.revealStage as string;
+  const done = status === "DONE" || status === "COMPLETED";
+  const dest = { latitude: booking.jobLat as number, longitude: booking.jobLng as number };
+  const etaMin = proLocation ? Math.max(1, Math.round((distanceKm(proLocation.lat, proLocation.lng, dest.latitude, dest.longitude) / AVERAGE_SPEED_KMH) * 60)) : null;
+  const openChat = () => navigation.navigate("MessageThread", { bookingId, otherPartyName: proName });
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 16 }}>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+        <Pressable onPress={() => navigation.goBack()} style={styles.back} accessibilityLabel={t("common.back")}>
+          <Icon name="back" size={16} />
+        </Pressable>
+        <Text style={styles.headerLabel}>{done ? t("booking.jobDoneHeader") : t("booking.liveTracking")}</Text>
+      </View>
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: insets.bottom + 32 }}>
         <Text style={styles.title}>{booking.jobTitle as string}</Text>
-        <View style={{ marginTop: 6, flexDirection: "row", alignItems: "center", gap: 10 }}>
-          <PriceText pkr={booking.totalPKR as number} size="md" color={colors.secondary} />
-          <Text style={styles.subtitle}>{status.replace("_", " ")}</Text>
+        <View style={styles.priceRow}>
+          <Text style={[styles.price, done && { color: colors.secondary }]}>PKR {(booking.totalPKR as number).toLocaleString()}</Text>
+          <View style={[styles.pill, done ? { backgroundColor: "rgba(30,194,139,0.14)" } : { backgroundColor: colors.accentTint }]}>
+            <Text style={[styles.pillText, { color: done ? colors.secondary : colors.accent }]}>{enumLabel(td, "booking", status).toUpperCase()}</Text>
+          </View>
         </View>
 
-        {timelineIndex >= 0 && (
-          <Card style={{ marginTop: 16, paddingVertical: 20 }}>
-            <StatusPillTimeline steps={TIMELINE_STEPS} activeIndex={timelineIndex} />
-          </Card>
-        )}
+        {stepIndex >= 0 && <StatusStepper labels={stepLabels} activeIndex={stepIndex} />}
 
         {CANCELLABLE_STATUSES.includes(status) && (
-          <Pressable onPress={() => setCancelSheetOpen(true)} style={{ marginTop: 16, alignSelf: "flex-start" }}>
-            <Text style={{ color: colors.danger, fontWeight: "700", fontSize: 13 }}>Cancel booking</Text>
+          <Pressable onPress={() => setCancelSheetOpen(true)} style={{ marginTop: 14, alignSelf: "flex-start" }}>
+            <Text style={{ color: colors.dangerSoft, fontWeight: "700", fontSize: 13 }}>{t("booking.cancel")}</Text>
           </Pressable>
         )}
 
         {booking.paymentMode !== "CASH_WALLET" && status === "PENDING_PAYMENT" && !booking.paymentStatus && (
           <Card style={{ marginTop: 16 }}>
-            <Text style={styles.cardTitle}>Secure Payment</Text>
+            <Text style={styles.cardTitle}>{t("pay.secureTitle")}</Text>
             <View style={styles.trustCard}>
               <Text style={{ color: colors.secondary }}>🔒</Text>
-              <Text style={styles.trustCardText}>
-                Your payment is held safely and only released to the provider once you confirm the job is done.
-              </Text>
+              <Text style={styles.trustCardText}>{t("pay.secureBody")}</Text>
             </View>
             {Boolean(booking.estimatedPartsNote) && (
-              <Text style={styles.partsNote}>
-                Estimated parts/materials: {booking.estimatedPartsNote as string} — this is not collected by
-                Servigic. Please arrange payment for parts directly with your pro.
-              </Text>
+              <Text style={styles.partsNote}>{t("pay.partsNote", { note: booking.estimatedPartsNote as string })}</Text>
             )}
-            <View style={{ flexDirection: "row", gap: 8, marginVertical: 10 }}>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginVertical: 10 }}>
               {PAYMENT_METHODS.map((m) => (
                 <Pressable key={m} onPress={() => setMethod(m)} style={[styles.chip, method === m && styles.chipActive]}>
-                  <Text style={{ color: method === m ? colors.accent : colors.textMuted, fontSize: 12 }}>{m}</Text>
+                  <Text style={{ color: method === m ? colors.accent : colors.textMuted, fontSize: 12 }}>{enumLabel(td, "method", m)}</Text>
                 </Pressable>
               ))}
             </View>
             <View style={styles.accountCard}>
-              <Text style={styles.accountCardTitle}>Send payment to</Text>
+              <Text style={styles.accountCardTitle}>{t("pay.sendTo")}</Text>
               {PAYMENT_ACCOUNTS[method].map((row) => (
-                <View key={row.label} style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 4 }}>
-                  <Text style={{ color: colors.textMuted, fontSize: 13 }}>{row.label}</Text>
+                <View key={row.labelKey} style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 4 }}>
+                  <Text style={{ color: colors.textMuted, fontSize: 13 }}>{t(row.labelKey)}</Text>
                   <Text style={{ color: colors.text, fontWeight: "700", fontSize: 13 }}>{row.value}</Text>
                 </View>
               ))}
             </View>
             {proofUrl ? (
-              <Text style={{ color: colors.secondary, marginBottom: 10 }}>Proof uploaded ✓</Text>
+              <Text style={{ color: colors.secondary, marginBottom: 10 }}>{t("topup.proofUploaded")}</Text>
             ) : (
               <Pressable onPress={pickProof} style={{ marginBottom: 10 }}>
-                <Text style={{ color: colors.accent, fontWeight: "700" }}>📷 Upload payment proof</Text>
+                <Text style={{ color: colors.accent, fontWeight: "700" }}>📷 {t("pay.uploadProof")}</Text>
               </Pressable>
             )}
-            <Button title="Submit Payment" onPress={submitPayment} loading={busy} disabled={!proofUrl} />
+            <Button title={t("pay.submit")} onPress={submitPayment} loading={busy} disabled={!proofUrl} />
           </Card>
         )}
 
         {booking.paymentMode !== "CASH_WALLET" && status === "PENDING_PAYMENT" && booking.paymentStatus === "SUBMITTED" && (
           <Card style={{ marginTop: 16 }}>
-            <Text style={{ color: colors.accent }}>Payment submitted — awaiting admin verification.</Text>
+            <Text style={{ color: colors.accent }}>{t("pay.awaitingVerification")}</Text>
           </Card>
         )}
 
-        {booking.paymentMode === "CASH_WALLET" && (status === "DONE" || status === "COMPLETED") && (
+        {booking.paymentMode === "CASH_WALLET" && done && (
           <Card style={{ marginTop: 16 }}>
-            <Text style={styles.cardTitle}>Pay {booking.otherPartyName ? (booking.otherPartyName as string) : "your pro"} directly</Text>
+            <Text style={styles.cardTitle}>{t("pay.payDirectly", { name: proName || t("booking.yourPro") })}</Text>
             <PriceText pkr={booking.totalPKR as number} size="md" color={colors.accent} />
-            <Text style={{ color: colors.textMuted, marginTop: 6, fontSize: 13 }}>
-              Cash, JazzCash, EasyPaisa, or bank transfer — however works for you both. Servigic does not collect this
-              payment.
-            </Text>
+            <Text style={{ color: colors.textMuted, marginTop: 6, fontSize: 13, lineHeight: 19 }}>{t("pay.cashNote")}</Text>
           </Card>
         )}
 
-        {booking.revealStage === "MASKED" && (
-          <Card style={{ marginTop: 16 }}>
-            <Text style={{ color: colors.accent, fontWeight: "700" }}>Chat with your pro</Text>
-            <Text style={{ color: colors.textMuted, marginTop: 4 }}>
-              {booking.otherPartyName as string} · full contact unlocks once they&apos;re on the way
-            </Text>
-            <Pressable
-              onPress={() =>
-                navigation.navigate("MessageThread", { bookingId, otherPartyName: booking.otherPartyName as string })
-              }
-              style={{ marginTop: 10 }}
-            >
-              <Text style={{ color: colors.accent, fontWeight: "700" }}>💬 Message</Text>
-            </Pressable>
-          </Card>
-        )}
-
-        {booking.revealStage === "FULL" && (
-          <Card style={{ marginTop: 16 }}>
-            <Text style={{ color: colors.secondary, fontWeight: "700" }}>Contact unlocked</Text>
-            <Text style={{ color: colors.textMuted, marginTop: 4 }}>
-              {booking.otherPartyName as string} · {booking.otherPartyPhone as string}
-            </Text>
-            <View style={{ flexDirection: "row", gap: 20, marginTop: 10 }}>
-              <Pressable onPress={() => Linking.openURL(`tel:${booking.otherPartyPhone}`)}>
-                <Text style={{ color: colors.accent, fontWeight: "700" }}>📞 Call</Text>
-              </Pressable>
-              <Pressable
-                onPress={() =>
-                  navigation.navigate("MessageThread", { bookingId, otherPartyName: booking.otherPartyName as string })
-                }
-              >
-                <Text style={{ color: colors.accent, fontWeight: "700" }}>💬 Message</Text>
+        {revealStage === "MASKED" && (
+          <View style={styles.contactCard}>
+            <Text style={[styles.contactLabel, { color: colors.accent }]}>{t("booking.chatWithPro")}</Text>
+            <Text style={styles.contactName}>{proName}</Text>
+            <Text style={styles.contactSub}>{t("booking.unlocksOnTheWay")}</Text>
+            <View style={styles.contactActions}>
+              <Pressable onPress={openChat}>
+                <Text style={styles.contactAction}>💬 {t("common.message")}</Text>
               </Pressable>
             </View>
-            {Boolean(booking.exactAddress) && <Text style={{ color: colors.textMuted, marginTop: 8 }}>{booking.exactAddress as string}</Text>}
-          </Card>
+          </View>
         )}
 
-        {TRACKED_STATUSES.includes(status) && (
-          <MapView
-            style={{ height: 220, borderRadius: radius.card, marginTop: 16 }}
-            customMapStyle={mapStyle}
-            initialRegion={{
-              latitude: booking.jobLat as number,
-              longitude: booking.jobLng as number,
-              latitudeDelta: 0.05,
-              longitudeDelta: 0.05,
-            }}
-          >
-            <Marker coordinate={{ latitude: booking.jobLat as number, longitude: booking.jobLng as number }} pinColor={colors.secondary} />
-            {proLocation && <TrackedBikeMarker location={proLocation} />}
-          </MapView>
+        {revealStage === "FULL" && (
+          <View style={styles.contactCard}>
+            <Text style={[styles.contactLabel, { color: colors.success }]}>{t("booking.contactUnlocked")}</Text>
+            <Text style={styles.contactName}>
+              {proName} · {booking.otherPartyPhone as string}
+            </Text>
+            <View style={styles.contactActions}>
+              <Pressable onPress={() => Linking.openURL(`tel:${booking.otherPartyPhone}`)}>
+                <Text style={styles.contactAction}>📞 {t("common.call")}</Text>
+              </Pressable>
+              <Pressable onPress={openChat}>
+                <Text style={styles.contactAction}>💬 {t("common.message")}</Text>
+              </Pressable>
+            </View>
+            {Boolean(booking.exactAddress) && <Text style={styles.contactSub}>{booking.exactAddress as string}</Text>}
+          </View>
+        )}
+
+        {tracked && (
+          <View style={styles.mapCard}>
+            <MapView
+              style={StyleSheet.absoluteFill}
+              customMapStyle={mapStyle}
+              initialRegion={{ ...dest, latitudeDelta: 0.04, longitudeDelta: 0.04 }}
+              toolbarEnabled={false}
+              showsCompass={false}
+              pitchEnabled={false}
+            >
+              <DestinationMarker coordinate={dest} />
+              {proLocation && (
+                <>
+                  <Polyline
+                    coordinates={[{ latitude: proLocation.lat, longitude: proLocation.lng }, dest]}
+                    strokeColor={colors.accent}
+                    strokeWidth={3}
+                    lineDashPattern={[2, 8]}
+                    lineCap="round"
+                  />
+                  <TrackedBikeMarker location={proLocation} />
+                </>
+              )}
+            </MapView>
+            <GlassCard style={styles.mapPill}>
+              <Text style={{ color: colors.accent, fontSize: 11, fontWeight: "700" }}>
+                {etaMin != null ? t("track.minutesAway", { name: proName, n: etaMin }) : t("track.onTheWay", { name: proName })}
+              </Text>
+            </GlassCard>
+          </View>
         )}
 
         {status === "DONE" && (
-          <Card style={{ marginTop: 16 }}>
-            <Text style={styles.cardTitle}>Your pro marked the job done</Text>
-            {!showDispute ? (
-              <View style={{ flexDirection: "row", gap: 8, marginTop: 10 }}>
-                <View style={{ flex: 1 }}>
-                  <Button title="Confirm Done" onPress={confirmDone} loading={busy} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Button title="There's a problem" variant="ghost" onPress={() => setShowDispute(true)} />
-                </View>
-              </View>
-            ) : (
-              <View style={{ marginTop: 10 }}>
-                <Field label="What went wrong?" multiline numberOfLines={3} value={disputeReason} onChangeText={setDisputeReason} />
-                <Button title="Open Dispute" variant="danger" onPress={submitDispute} loading={busy} />
-              </View>
-            )}
-          </Card>
-        )}
+          <View style={styles.confirmCard}>
+            <Text style={styles.confirmTitle}>{t("done.proMarkedDone")}</Text>
+            <Text style={styles.confirmSub}>{t("done.paySafe")}</Text>
 
-        {status === "COMPLETED" && Boolean(booking.totalDurationMinutes) && (
-          <Card style={{ marginTop: 16 }}>
-            <Text style={styles.cardTitle}>Job summary</Text>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 8 }}>
-              <Text style={{ color: colors.textMuted, fontSize: 13 }}>Total time</Text>
-              <Text style={{ color: colors.text, fontWeight: "700", fontSize: 13 }}>
-                {formatDuration(booking.totalDurationMinutes as number)}
-              </Text>
+            <Text style={styles.rateLabel}>{t("done.ratePro")}</Text>
+            <View style={styles.starsRow}>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <Pressable key={n} onPress={() => setRating(n)} hitSlop={6}>
+                  <Text style={{ fontSize: 30, color: n <= rating ? colors.accent : colors.border }}>★</Text>
+                </Pressable>
+              ))}
             </View>
-            {Boolean(booking.workDurationMinutes) && (
-              <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 4 }}>
-                <Text style={{ color: colors.textMuted, fontSize: 13 }}>Work time</Text>
-                <Text style={{ color: colors.text, fontWeight: "700", fontSize: 13 }}>
-                  {formatDuration(booking.workDurationMinutes as number)}
-                </Text>
+
+            {!showDispute ? (
+              <>
+                <GradientButton title={t("done.confirm")} onPress={confirmDone} disabled={busy} />
+                <Pressable onPress={() => setShowDispute(true)} style={{ marginTop: 12, padding: 4 }}>
+                  <Text style={{ textAlign: "center", fontSize: 13, fontWeight: "700", color: colors.dangerSoft }}>{t("done.problem")}</Text>
+                </Pressable>
+              </>
+            ) : (
+              <View style={{ marginTop: 6 }}>
+                <Field label={t("done.whatWentWrong")} multiline numberOfLines={3} value={disputeReason} onChangeText={setDisputeReason} />
+                <Button title={t("done.openDispute")} variant="danger" onPress={submitDispute} loading={busy} />
               </View>
             )}
-          </Card>
+          </View>
         )}
 
         {status === "COMPLETED" && (
-          <View style={{ marginTop: 16 }}>
+          <View style={{ marginTop: 16, gap: 14 }}>
+            {!!booking.totalDurationMinutes && (
+              <Card>
+                <Text style={styles.cardTitle}>{t("booking.summary")}</Text>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 8 }}>
+                  <Text style={{ color: colors.textMuted, fontSize: 13 }}>{t("booking.totalTime")}</Text>
+                  <Text style={{ color: colors.text, fontWeight: "700", fontSize: 13 }}>
+                    {t("time.minutesShort", { n: booking.totalDurationMinutes as number })}
+                  </Text>
+                </View>
+                {!!booking.workDurationMinutes && (
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 4 }}>
+                    <Text style={{ color: colors.textMuted, fontSize: 13 }}>{t("booking.workTime")}</Text>
+                    <Text style={{ color: colors.text, fontWeight: "700", fontSize: 13 }}>
+                      {t("time.minutesShort", { n: booking.workDurationMinutes as number })}
+                    </Text>
+                  </View>
+                )}
+              </Card>
+            )}
+
             <Button
-              title={rebooking ? "Booking…" : `Book ${(booking.otherPartyName as string) ?? "your pro"} again →`}
+              title={rebooking ? t("booking.booking") : t("booking.bookAgain", { name: proName || t("booking.yourPro") })}
               variant="ghost"
               onPress={rebook}
               loading={rebooking}
             />
+
+            {!booking.hasReview ? (
+              <Card>
+                <Text style={styles.cardTitle}>{t("done.ratePro")}</Text>
+                <View style={[styles.starsRow, { marginVertical: 10, justifyContent: "flex-start" }]}>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <Pressable key={n} onPress={() => setRating(n)}>
+                      <Text style={{ fontSize: 28, color: n <= rating ? colors.accent : colors.border }}>★</Text>
+                    </Pressable>
+                  ))}
+                </View>
+                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+                  {REVIEW_TAGS.map(({ code, key }) => (
+                    <Pressable
+                      key={code}
+                      onPress={() => setTags((cur) => (cur.includes(code) ? cur.filter((x) => x !== code) : [...cur, code]))}
+                      style={[styles.chip, tags.includes(code) && styles.chipActive]}
+                    >
+                      <Text style={{ color: tags.includes(code) ? colors.accent : colors.textMuted, fontSize: 12 }}>{t(key)}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+                <Button title={t("review.submit")} onPress={submitRating} loading={busy} />
+              </Card>
+            ) : (
+              <Card style={{ alignItems: "center" }}>
+                <Text style={{ color: colors.textMuted, marginBottom: 6 }}>{t("review.youRated")}</Text>
+                <RatingStars rating={rating} size={22} />
+              </Card>
+            )}
           </View>
         )}
 
-        {status === "COMPLETED" && !booking.hasReview && (
-          <Card style={{ marginTop: 16 }}>
-            <Text style={styles.cardTitle}>Rate your pro</Text>
-            <View style={{ marginVertical: 10 }}>
-              <View style={{ flexDirection: "row", gap: 4 }}>
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <Pressable key={n} onPress={() => setRating(n)}>
-                    <Text style={{ fontSize: 28, color: n <= rating ? colors.accent : colors.border }}>★</Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
-              {REVIEW_TAGS.map((t) => (
-                <Pressable
-                  key={t}
-                  onPress={() => setTags((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]))}
-                  style={[styles.chip, tags.includes(t) && styles.chipActive]}
-                >
-                  <Text style={{ color: tags.includes(t) ? colors.accent : colors.textMuted, fontSize: 12 }}>{t}</Text>
-                </Pressable>
-              ))}
-            </View>
-            <Button title="Submit Rating" onPress={submitRating} loading={busy} />
-          </Card>
-        )}
-
-        {status === "COMPLETED" && Boolean(booking.hasReview) && (
-          <Card style={{ marginTop: 16, alignItems: "center" }}>
-            <Text style={{ color: colors.textMuted, marginBottom: 6 }}>You rated this job</Text>
-            <RatingStars rating={rating} size={22} />
-          </Card>
+        {!["PENDING_PAYMENT", "CONFIRMED", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE", "COMPLETED"].includes(status) && (
+          <View style={{ marginTop: 16 }}>
+            <Badge label={enumLabel(td, "booking", status)} tone="muted" />
+          </View>
         )}
       </ScrollView>
       <ConfettiBurst trigger={confettiTrigger} />
-      <CancelBookingSheet
-        visible={cancelSheetOpen}
-        bookingId={bookingId}
-        onClose={() => setCancelSheetOpen(false)}
-        onCancelled={load}
-      />
+      <CancelBookingSheet visible={cancelSheetOpen} bookingId={bookingId} onClose={() => setCancelSheetOpen(false)} onCancelled={load} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { color: colors.text, fontSize: 22, fontWeight: "800" },
-  subtitle: { color: colors.textMuted, fontWeight: "600" },
+  header: { flexDirection: "row", alignItems: "center", gap: 14, paddingHorizontal: 18, paddingBottom: 10 },
+  back: { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.06)", alignItems: "center", justifyContent: "center" },
+  headerLabel: { color: colors.accent, fontSize: 11, fontWeight: "700", letterSpacing: 0.8 },
+  title: { color: colors.text, fontSize: 19, fontWeight: "800", marginTop: 4, marginBottom: 2 },
+  priceRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 16 },
+  price: { fontSize: 17, fontWeight: "800", color: colors.accent },
+  pill: { borderRadius: 999, paddingVertical: 4, paddingHorizontal: 9 },
+  pillText: { fontSize: 10, fontWeight: "700" },
   cardTitle: { color: colors.text, fontWeight: "700", fontSize: 15 },
-  chip: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
-  chipActive: { borderColor: colors.accent, backgroundColor: "rgba(255,176,32,0.1)" },
-  accountCard: { backgroundColor: colors.bgElevated2, borderRadius: 10, borderWidth: 1, borderColor: colors.border, padding: 12, marginBottom: 12 },
+  chip: { borderWidth: 1, borderColor: "rgba(255,255,255,0.1)", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
+  chipActive: { borderColor: colors.accent, backgroundColor: colors.accentTint },
+  accountCard: { backgroundColor: colors.bgElevated2, borderRadius: 10, borderWidth: 1, borderColor: colors.borderSoft, padding: 12, marginBottom: 12 },
   accountCardTitle: { color: colors.textMuted, fontSize: 11, fontWeight: "700", textTransform: "uppercase", marginBottom: 4 },
   trustCard: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 8,
-    backgroundColor: "rgba(34,197,94,0.1)",
+    backgroundColor: "rgba(30,194,139,0.1)",
     borderWidth: 1,
-    borderColor: "rgba(34,197,94,0.3)",
+    borderColor: "rgba(30,194,139,0.3)",
     borderRadius: 10,
     padding: 12,
     marginTop: 6,
   },
   trustCardText: { color: colors.secondary, fontWeight: "700", fontSize: 13, flex: 1 },
-  partsNote: { color: colors.textMuted, fontSize: 12, marginTop: 10 },
+  partsNote: { color: colors.textMuted, fontSize: 12, marginTop: 10, lineHeight: 17 },
+  contactCard: { backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: colors.borderSoft, borderRadius: 16, padding: 15, marginTop: 16 },
+  contactLabel: { fontSize: 12, fontWeight: "700", marginBottom: 6 },
+  contactName: { color: colors.text, fontSize: 14, fontWeight: "700" },
+  contactSub: { color: colors.textMuted, fontSize: 12, marginTop: 9 },
+  contactActions: { flexDirection: "row", gap: 18, marginTop: 9 },
+  contactAction: { color: colors.accent, fontSize: 12, fontWeight: "700" },
+  mapCard: { height: 260, borderRadius: 18, overflow: "hidden", marginTop: 16, backgroundColor: "#0E0C0A" },
+  mapPill: { position: "absolute", bottom: 10, left: 12, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999 },
+  confirmCard: { marginTop: 16, backgroundColor: "rgba(245,166,35,0.07)", borderWidth: 1, borderColor: "rgba(245,166,35,0.25)", borderRadius: 16, padding: 18 },
+  confirmTitle: { color: colors.text, fontSize: 15, fontWeight: "800", marginBottom: 4 },
+  confirmSub: { color: colors.textSecondary, fontSize: 12, marginBottom: 14 },
+  rateLabel: { color: colors.textMuted, fontSize: 11, textAlign: "center", marginBottom: 8 },
+  starsRow: { flexDirection: "row", justifyContent: "center", gap: 4, marginBottom: 16 },
 });

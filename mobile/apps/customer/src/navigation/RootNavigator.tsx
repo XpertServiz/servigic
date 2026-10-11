@@ -1,15 +1,18 @@
 import React, { useEffect, useRef } from "react";
-import { Text } from "react-native";
 import * as Notifications from "expo-notifications";
 import { NavigationContainer, DarkTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../lib/auth";
 import * as api from "../lib/api";
 import { sound } from "../lib/sound";
 import { haptic } from "../components/ds";
 import { colors } from "../lib/theme";
+import { useI18n } from "../lib/i18n";
+import { navigationRef } from "./ref";
+import { AppTabBar } from "../components/TabBar";
+import { LanguageSuggestion } from "../components/LanguageSuggestion";
+import { CHANNELS } from "../lib/notifications";
 import { SplashScreen } from "../screens/SplashScreen";
 
 import LoginScreen from "../screens/LoginScreen";
@@ -23,11 +26,14 @@ import PostJobScreen from "../screens/PostJobScreen";
 import JobDetailScreen from "../screens/JobDetailScreen";
 import BookingDetailScreen from "../screens/BookingDetailScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import LanguageScreen from "../screens/LanguageScreen";
+import NotificationsScreen from "../screens/NotificationsScreen";
 
 export type AuthStackParamList = {
   Login: undefined;
   Signup: undefined;
   VerifyOtp: { userId: string };
+  Language: undefined;
 };
 
 export type HomeStackParamList = {
@@ -54,10 +60,14 @@ export type AccountStackParamList = {
   Account: undefined;
 };
 
-// Kept for any lingering references — union of every screen across stacks.
-export type RootStackParamList = HomeStackParamList & JobsStackParamList & MessagesStackParamList & AccountStackParamList;
+export type RootStackParamList = {
+  Main: undefined;
+  Language: undefined;
+  Notifications: undefined;
+};
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 const JobsStack = createNativeStackNavigator<JobsStackParamList>();
 const MessagesStack = createNativeStackNavigator<MessagesStackParamList>();
@@ -70,39 +80,33 @@ const navTheme = {
 };
 
 const screenOptions = {
-  headerStyle: { backgroundColor: colors.bgElevated },
+  headerStyle: { backgroundColor: colors.bg },
   headerTintColor: colors.text,
   headerShadowVisible: false,
   contentStyle: { backgroundColor: colors.bg },
 };
 
 function HomeStackNavigator() {
+  const { t } = useI18n();
   return (
     <HomeStack.Navigator screenOptions={screenOptions}>
       <HomeStack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
       <HomeStack.Screen name="PostJob" component={PostJobScreen} options={{ headerShown: false }} />
-      <HomeStack.Screen name="JobDetail" component={JobDetailScreen} options={{ title: "Bids" }} />
-      <HomeStack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ title: "Booking" }} />
-      <HomeStack.Screen
-        name="MessageThread"
-        component={MessageThreadScreen}
-        options={({ route }) => ({ title: route.params.otherPartyName })}
-      />
+      <HomeStack.Screen name="JobDetail" component={JobDetailScreen} options={{ title: t("nav.bids") }} />
+      <HomeStack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ headerShown: false }} />
+      <HomeStack.Screen name="MessageThread" component={MessageThreadScreen} options={{ headerShown: false }} />
     </HomeStack.Navigator>
   );
 }
 
 function JobsStackNavigator() {
+  const { t } = useI18n();
   return (
     <JobsStack.Navigator screenOptions={screenOptions}>
       <JobsStack.Screen name="MyJobs" component={MyJobsScreen} options={{ headerShown: false }} />
-      <JobsStack.Screen name="JobDetail" component={JobDetailScreen} options={{ title: "Bids" }} />
-      <JobsStack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ title: "Booking" }} />
-      <JobsStack.Screen
-        name="MessageThread"
-        component={MessageThreadScreen}
-        options={({ route }) => ({ title: route.params.otherPartyName })}
-      />
+      <JobsStack.Screen name="JobDetail" component={JobDetailScreen} options={{ title: t("nav.bids") }} />
+      <JobsStack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ headerShown: false }} />
+      <JobsStack.Screen name="MessageThread" component={MessageThreadScreen} options={{ headerShown: false }} />
     </JobsStack.Navigator>
   );
 }
@@ -111,11 +115,7 @@ function MessagesStackNavigator() {
   return (
     <MessagesStack.Navigator screenOptions={screenOptions}>
       <MessagesStack.Screen name="Messages" component={MessagesScreen} options={{ headerShown: false }} />
-      <MessagesStack.Screen
-        name="MessageThread"
-        component={MessageThreadScreen}
-        options={({ route }) => ({ title: route.params.otherPartyName })}
-      />
+      <MessagesStack.Screen name="MessageThread" component={MessageThreadScreen} options={{ headerShown: false }} />
     </MessagesStack.Navigator>
   );
 }
@@ -128,11 +128,11 @@ function AccountStackNavigator() {
   );
 }
 
-const TAB_ICONS: Record<string, string> = { HomeTab: "🏠", JobsTab: "📋", MessagesTab: "💬", AccountTab: "👤" };
+const TAB_ICONS = { HomeTab: "home", JobsTab: "clipboard", MessagesTab: "chat", AccountTab: "account" } as const;
 const BID_POLL_MS = 15000;
 
 function MainTabs() {
-  const insets = useSafeAreaInsets();
+  const { t } = useI18n();
   const lastBidCount = useRef<number | null>(null);
 
   // App-wide "new bid" watcher — fires regardless of which tab is open, so
@@ -150,9 +150,9 @@ function MainTabs() {
           sound.statusChanged();
           haptic.success();
           Notifications.scheduleNotificationAsync({
-            content: { title: "New bid received", body: "A pro just bid on your job.", sound: true },
-            trigger: null,
-          });
+            content: { title: t("push.newBidTitle"), body: t("push.newBidBody"), sound: "job_status_update.wav" },
+            trigger: { channelId: CHANNELS.status },
+          }).catch(() => {});
         }
         lastBidCount.current = total;
       } catch {
@@ -165,34 +165,31 @@ function MainTabs() {
       cancelled = true;
       clearInterval(interval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: {
-          backgroundColor: colors.bgElevated,
-          borderTopColor: colors.border,
-          height: 56 + insets.bottom,
-          paddingBottom: insets.bottom + 6,
-          paddingTop: 8,
-        },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: "700" },
-        tabBarIcon: ({ color }) => <Text style={{ fontSize: 18, color }}>{TAB_ICONS[route.name]}</Text>,
-      })}
-    >
-      <Tab.Screen name="HomeTab" component={HomeStackNavigator} options={{ title: "Home" }} />
-      <Tab.Screen name="JobsTab" component={JobsStackNavigator} options={{ title: "My Jobs" }} />
-      <Tab.Screen name="MessagesTab" component={MessagesStackNavigator} options={{ title: "Messages" }} />
-      <Tab.Screen name="AccountTab" component={AccountStackNavigator} options={{ title: "Account" }} />
+    <Tab.Navigator tabBar={(props) => <AppTabBar {...props} icons={TAB_ICONS} />} screenOptions={{ headerShown: false }}>
+      <Tab.Screen name="HomeTab" component={HomeStackNavigator} options={{ title: t("tab.home") }} />
+      <Tab.Screen name="JobsTab" component={JobsStackNavigator} options={{ title: t("tab.myJobs") }} />
+      <Tab.Screen name="MessagesTab" component={MessagesStackNavigator} options={{ title: t("tab.messages") }} />
+      <Tab.Screen name="AccountTab" component={AccountStackNavigator} options={{ title: t("tab.account") }} />
     </Tab.Navigator>
   );
 }
 
+function MainRoot() {
+  return (
+    <RootStack.Navigator screenOptions={{ ...screenOptions, headerShown: false }}>
+      <RootStack.Screen name="Main" component={MainTabs} />
+      <RootStack.Screen name="Language" component={LanguageScreen} options={{ presentation: "modal" }} />
+      <RootStack.Screen name="Notifications" component={NotificationsScreen} options={{ presentation: "modal" }} />
+    </RootStack.Navigator>
+  );
+}
+
 export function RootNavigator() {
+  const { t } = useI18n();
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -200,16 +197,20 @@ export function RootNavigator() {
   }
 
   return (
-    <NavigationContainer theme={navTheme}>
-      {!user ? (
-        <AuthStack.Navigator screenOptions={screenOptions}>
-          <AuthStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-          <AuthStack.Screen name="Signup" component={SignupScreen} options={{ title: "Create Account" }} />
-          <AuthStack.Screen name="VerifyOtp" component={VerifyOtpScreen} options={{ title: "Verify Phone" }} />
-        </AuthStack.Navigator>
-      ) : (
-        <MainTabs />
-      )}
-    </NavigationContainer>
+    <>
+      <NavigationContainer ref={navigationRef} theme={navTheme}>
+        {!user ? (
+          <AuthStack.Navigator screenOptions={screenOptions}>
+            <AuthStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+            <AuthStack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }} />
+            <AuthStack.Screen name="VerifyOtp" component={VerifyOtpScreen} options={{ title: t("nav.verifyPhone") }} />
+            <AuthStack.Screen name="Language" component={LanguageScreen} options={{ presentation: "modal", headerShown: false }} />
+          </AuthStack.Navigator>
+        ) : (
+          <MainRoot />
+        )}
+      </NavigationContainer>
+      <LanguageSuggestion />
+    </>
   );
 }

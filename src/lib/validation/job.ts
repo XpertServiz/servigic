@@ -14,4 +14,7 @@ export const createJobSchema = z.object({
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
   budgetPKR: z.number().int().min(0).optional(),
+  // Set by the mobile app after the customer sees the "you already have an
+  // open request nearby" prompt and chooses to post anyway.
+  allowDuplicate: z.boolean().optional(),
 });

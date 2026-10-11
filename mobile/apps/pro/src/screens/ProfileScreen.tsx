@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, Linking } from "react-native";
+import { View, Text, ScrollView, Pressable, Linking, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
 import * as api from "../lib/api";
 import { useAuth } from "../lib/auth";
-import { Button, Field, Card } from "../components/ui";
-import { ProviderAvatar, Chip } from "../components/ds";
+import { Button, Field } from "../components/ui";
+import { Chip } from "../components/ds";
+import { HeaderActions } from "../components/HeaderActions";
+import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
+import { enumLabel } from "../lib/status";
+import { LANGUAGES, useI18n } from "../lib/i18n";
+import { navigateRoot } from "../navigation/ref";
 
 function requestAccountDeletion(phone?: string) {
   const body = `Registered phone number/email:\n${phone ?? ""}\nAccount type (Customer/Pro): Pro\n`;
@@ -31,6 +37,8 @@ const TRADES = [
 ];
 
 export default function ProfileScreen() {
+  const { t, td, lang } = useI18n();
+  const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [trades, setTrades] = useState<string[]>([]);
@@ -42,25 +50,33 @@ export default function ProfileScreen() {
   const [payoutAccount, setPayoutAccount] = useState("");
   const [saving, setSaving] = useState(false);
   const [verificationLevel, setVerificationLevel] = useState(0);
+  const [ratingAvg, setRatingAvg] = useState(0);
+  const [jobsCompleted, setJobsCompleted] = useState(0);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
-    api.getProviderProfile().then(({ profile }) => {
-      if (!profile) return;
-      const p = profile as Record<string, unknown>;
-      setDisplayName((p.displayName as string) ?? "");
-      setTrades((p.trades as string[]) ?? []);
-      setRadiusKm(String(p.serviceRadiusKm ?? 10));
-      if (p.baseLat && p.baseLng) setCoords({ lat: p.baseLat as number, lng: p.baseLng as number });
-      setCnicUrl((p.cnicUrl as string) ?? "");
-      setSelfieUrl((p.selfieUrl as string) ?? "");
-      setPoliceCertUrl((p.policeCertUrl as string) ?? "");
-      setPayoutAccount((p.payoutAccount as string) ?? "");
-      setVerificationLevel((p.verificationLevel as number) ?? 0);
-    });
+    api
+      .getProviderProfile()
+      .then(({ profile }) => {
+        if (!profile) return;
+        const p = profile as Record<string, unknown>;
+        setDisplayName((p.displayName as string) ?? "");
+        setTrades((p.trades as string[]) ?? []);
+        setRadiusKm(String(p.serviceRadiusKm ?? 10));
+        if (p.baseLat && p.baseLng) setCoords({ lat: p.baseLat as number, lng: p.baseLng as number });
+        setCnicUrl((p.cnicUrl as string) ?? "");
+        setSelfieUrl((p.selfieUrl as string) ?? "");
+        setPoliceCertUrl((p.policeCertUrl as string) ?? "");
+        setPayoutAccount((p.payoutAccount as string) ?? "");
+        setVerificationLevel((p.verificationLevel as number) ?? 0);
+        setRatingAvg((p.ratingAvg as number) ?? 0);
+        setJobsCompleted((p.jobsCompleted as number) ?? 0);
+      })
+      .catch(() => {});
   }, []);
 
-  function toggleTrade(t: string) {
-    setTrades((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]));
+  function toggleTrade(trade: string) {
+    setTrades((cur) => (cur.includes(trade) ? cur.filter((x) => x !== trade) : [...cur, trade]));
   }
 
   async function useMyLocation() {
@@ -94,78 +110,182 @@ export default function ProfileScreen() {
         payoutAccount,
         agreementAccepted: true,
       });
+      setEditing(false);
     } finally {
       setSaving(false);
     }
   }
 
-  return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 16 }}>
-      <Text style={{ color: colors.text, fontSize: 22, fontWeight: "800", marginBottom: 16 }}>Account</Text>
+  const docsDone = [cnicUrl, selfieUrl, policeCertUrl].filter(Boolean).length;
+  const currentLanguage = LANGUAGES.find((l) => l.code === lang);
 
-      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}>
-        <ProviderAvatar name={user?.name ?? "?"} ratingAvg={5} size={64} />
-        <View style={{ marginLeft: 14 }}>
-          <Text style={{ color: colors.text, fontWeight: "800", fontSize: 17 }}>{user?.name}</Text>
-          <Text style={{ color: colors.textMuted, marginTop: 2 }}>{user?.phone}</Text>
-          <Text style={{ color: colors.accent, marginTop: 4, fontSize: 12, fontWeight: "700" }}>
-            Verification level {verificationLevel}
-          </Text>
+  return (
+    <ScrollView
+      style={{ flex: 1, backgroundColor: colors.bg }}
+      contentContainerStyle={{ padding: 20, paddingTop: insets.top + 16, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View style={styles.titleRow}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 14, flex: 1 }}>
+          <View style={styles.avatar}>
+            <Text style={{ fontSize: 23, fontWeight: "800", color: colors.text }}>{(user?.name ?? "?").charAt(0).toUpperCase()}</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 19, fontWeight: "800", color: colors.text }}>{user?.name}</Text>
+            <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 3 }}>
+              {user?.phone} · {t("common.level", { n: verificationLevel })}
+            </Text>
+          </View>
+        </View>
+        <HeaderActions />
+      </View>
+
+      <View style={styles.chipRow}>
+        {cnicUrl ? <DocChip label={t("account.cnic")} /> : null}
+        {selfieUrl ? <DocChip label={t("account.selfie")} /> : null}
+        {policeCertUrl ? <DocChip label={t("account.police")} /> : null}
+      </View>
+
+      <View style={styles.statsRow}>
+        <View style={styles.stat}>
+          <Text style={[styles.statValue, { color: colors.accent }]}>{ratingAvg.toFixed(1)}★</Text>
+          <Text style={styles.statLabel}>{t("account.rating")}</Text>
+        </View>
+        <View style={styles.stat}>
+          <Text style={styles.statValue}>{jobsCompleted}</Text>
+          <Text style={styles.statLabel}>{t("account.jobsDone")}</Text>
+        </View>
+        <View style={styles.stat}>
+          <Text style={styles.statValue}>{radiusKm}km</Text>
+          <Text style={styles.statLabel}>{t("account.radius")}</Text>
         </View>
       </View>
 
-      <Field label="Display name" value={displayName} onChangeText={setDisplayName} />
-
-      <Text style={{ color: colors.textMuted, fontSize: 13, fontWeight: "600", marginBottom: 8 }}>Trades</Text>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-        {TRADES.map((t) => (
-          <Chip key={t} label={t.replace("_", " ")} active={trades.includes(t)} onPress={() => toggleTrade(t)} />
+      <Text style={styles.sectionLabel}>{t("account.trades")}</Text>
+      <View style={styles.wrapRow}>
+        {trades.length === 0 && <Text style={{ color: colors.textMuted, fontSize: 12 }}>{t("account.noTrades")}</Text>}
+        {trades.map((trade) => (
+          <View key={trade} style={styles.tradeChip}>
+            <Text style={{ color: colors.accent, fontWeight: "700", fontSize: 11 }}>{enumLabel(td, "trade", trade)}</Text>
+          </View>
         ))}
       </View>
 
-      <Field label="Service radius (km)" keyboardType="number-pad" value={radiusKm} onChangeText={setRadiusKm} />
-
-      <Pressable onPress={useMyLocation} style={{ marginBottom: 16 }}>
-        <Text style={{ color: colors.accent, fontWeight: "700" }}>📍 Use my current location</Text>
-      </Pressable>
-
-      <View style={{ flexDirection: "row", gap: 16, marginBottom: 16 }}>
-        <Pressable onPress={() => pickDoc(setCnicUrl)}>
-          <Text style={{ color: cnicUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>{cnicUrl ? "CNIC ✓" : "Upload CNIC"}</Text>
-        </Pressable>
-        <Pressable onPress={() => pickDoc(setSelfieUrl)}>
-          <Text style={{ color: selfieUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>
-            {selfieUrl ? "Selfie ✓" : "Upload Selfie"}
-          </Text>
-        </Pressable>
-        <Pressable onPress={() => pickDoc(setPoliceCertUrl)}>
-          <Text style={{ color: policeCertUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>
-            {policeCertUrl ? "Police Cert ✓" : "Upload Police Cert (optional)"}
-          </Text>
-        </Pressable>
+      <View style={styles.verifyHeader}>
+        <Text style={styles.sectionLabelInline}>{t("account.verifiedLevel", { n: verificationLevel })}</Text>
+        <Text style={{ fontSize: 11, color: colors.textMuted }}>{t("account.docsProgress", { done: docsDone, total: 3 })}</Text>
       </View>
-
-      <Field label="EasyPaisa/JazzCash account number" value={payoutAccount} onChangeText={setPayoutAccount} />
-
-      <View style={{ marginTop: 8, marginBottom: 24 }}>
-        <Button title="Save Profile" onPress={save} loading={saving} />
+      <View style={styles.track}>
+        <View style={[styles.fill, { width: `${(docsDone / 3) * 100}%` }]} />
       </View>
+      {!policeCertUrl && <Text style={styles.verifyHint}>{t("account.policeHint")}</Text>}
 
-      <Text style={{ color: colors.textMuted, fontSize: 12, fontWeight: "700", textTransform: "uppercase", marginBottom: 6 }}>
-        Legal & Support
-      </Text>
-      <Pressable onPress={() => Linking.openURL("https://www.servigic.com/privacy-policy.html")} style={{ marginBottom: 8 }}>
-        <Text style={{ color: colors.text, fontSize: 14, paddingVertical: 8 }}>Privacy Policy</Text>
-      </Pressable>
-      <Pressable onPress={() => Linking.openURL("https://www.servigic.com/delete-account.html")} style={{ marginBottom: 16 }}>
-        <Text style={{ color: colors.text, fontSize: 14, paddingVertical: 8 }}>Delete Account — How it works</Text>
+      <Pressable onPress={() => navigateRoot("Language")} style={styles.row}>
+        <Icon name="globe" size={18} />
+        <Text style={styles.rowText}>{t("lang.title")}</Text>
+        <Text style={styles.rowValue}>{currentLanguage?.native}</Text>
+        <Icon name="chevron-right" size={14} color={colors.textFaint} />
       </Pressable>
 
-      <Button title="Log out" variant="danger" onPress={signOut} />
+      <Pressable onPress={() => setEditing((v) => !v)} style={styles.row}>
+        <Icon name="account" size={18} />
+        <Text style={styles.rowText}>{t("account.editProfile")}</Text>
+        <Icon name="chevron-right" size={14} color={colors.textFaint} />
+      </Pressable>
 
-      <View style={{ marginTop: 12, marginBottom: 24 }}>
-        <Button title="Delete My Account" variant="danger" onPress={() => requestAccountDeletion(user?.phone)} />
+      {editing && (
+        <View style={styles.editCard}>
+          <Field label={t("account.displayName")} value={displayName} onChangeText={setDisplayName} />
+
+          <Text style={styles.fieldLabel}>{t("account.trades")}</Text>
+          <View style={[styles.wrapRow, { marginBottom: 16 }]}>
+            {TRADES.map((trade) => (
+              <Chip key={trade} label={enumLabel(td, "trade", trade)} active={trades.includes(trade)} onPress={() => toggleTrade(trade)} />
+            ))}
+          </View>
+
+          <Field label={t("account.serviceRadius")} keyboardType="number-pad" value={radiusKm} onChangeText={setRadiusKm} />
+
+          <Pressable onPress={useMyLocation} style={{ marginBottom: 16 }}>
+            <Text style={{ color: colors.accent, fontWeight: "700" }}>📍 {t("account.useLocation")}</Text>
+          </Pressable>
+
+          <View style={{ gap: 12, marginBottom: 16 }}>
+            <Pressable onPress={() => pickDoc(setCnicUrl)}>
+              <Text style={{ color: cnicUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>{cnicUrl ? t("account.cnicDone") : t("account.uploadCnic")}</Text>
+            </Pressable>
+            <Pressable onPress={() => pickDoc(setSelfieUrl)}>
+              <Text style={{ color: selfieUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>{selfieUrl ? t("account.selfieDone") : t("account.uploadSelfie")}</Text>
+            </Pressable>
+            <Pressable onPress={() => pickDoc(setPoliceCertUrl)}>
+              <Text style={{ color: policeCertUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>
+                {policeCertUrl ? t("account.policeDone") : t("account.uploadPolice")}
+              </Text>
+            </Pressable>
+          </View>
+
+          <Field label={t("account.payoutAccount")} value={payoutAccount} onChangeText={setPayoutAccount} />
+          <Button title={t("account.save")} onPress={save} loading={saving} />
+        </View>
+      )}
+
+      <Text style={[styles.sectionLabel, { marginTop: 26 }]}>{t("account.legal")}</Text>
+      <Pressable onPress={() => Linking.openURL("https://www.servigic.com/privacy-policy.html")}>
+        <Text style={styles.legalLink}>{t("account.privacy")}</Text>
+      </Pressable>
+      <Pressable onPress={() => Linking.openURL("https://www.servigic.com/delete-account.html")}>
+        <Text style={styles.legalLink}>{t("account.deleteHow")}</Text>
+      </Pressable>
+
+      <View style={{ marginTop: 16, gap: 12 }}>
+        <Button title={t("account.logOut")} variant="danger" onPress={signOut} />
+        <Button title={t("account.deleteAccount")} variant="ghost" onPress={() => requestAccountDeletion(user?.phone)} />
       </View>
     </ScrollView>
   );
 }
+
+function DocChip({ label }: { label: string }) {
+  return (
+    <View style={styles.docChip}>
+      <Icon name="check" size={11} color={colors.accent} strokeWidth={3} />
+      <Text style={{ color: colors.accent, fontSize: 11, fontWeight: "700" }}>{label}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  titleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  avatar: { width: 62, height: 62, borderRadius: 31, backgroundColor: "rgba(245,166,35,0.16)", borderWidth: 1, borderColor: colors.accentBorder, alignItems: "center", justifyContent: "center" },
+  chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 14, marginBottom: 2 },
+  docChip: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "rgba(245,166,35,0.12)", borderWidth: 1, borderColor: "rgba(245,166,35,0.3)", borderRadius: 999, paddingVertical: 6, paddingHorizontal: 11 },
+  statsRow: { flexDirection: "row", gap: 10, marginVertical: 18 },
+  stat: { flex: 1, backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: "rgba(255,255,255,0.05)", borderRadius: 14, padding: 13, alignItems: "center" },
+  statValue: { fontSize: 17, fontWeight: "800", color: colors.text },
+  statLabel: { fontSize: 10, color: colors.textMuted, marginTop: 3 },
+  sectionLabel: { fontSize: 13, fontWeight: "700", color: "#D9D2C4", marginBottom: 10 },
+  sectionLabelInline: { fontSize: 13, fontWeight: "700", color: "#D9D2C4" },
+  wrapRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  tradeChip: { backgroundColor: "rgba(245,166,35,0.12)", borderWidth: 1, borderColor: "rgba(245,166,35,0.25)", borderRadius: 999, paddingVertical: 8, paddingHorizontal: 14 },
+  verifyHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 22, marginBottom: 8 },
+  track: { height: 6, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.06)", overflow: "hidden" },
+  fill: { height: 6, borderRadius: 3, backgroundColor: colors.accent },
+  verifyHint: { fontSize: 11, color: "#8A8378", marginTop: 8 },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    backgroundColor: colors.bgElevated,
+    borderWidth: 1,
+    borderColor: colors.borderSoft,
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 15,
+    marginTop: 12,
+  },
+  rowText: { flex: 1, color: colors.text, fontSize: 14, fontWeight: "600" },
+  rowValue: { color: colors.textMuted, fontSize: 13 },
+  editCard: { marginTop: 12, backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: colors.borderSoft, borderRadius: 16, padding: 16 },
+  fieldLabel: { color: colors.textMuted, fontSize: 12, fontWeight: "600", marginBottom: 8 },
+  legalLink: { color: colors.text, fontSize: 14, paddingVertical: 8 },
+});

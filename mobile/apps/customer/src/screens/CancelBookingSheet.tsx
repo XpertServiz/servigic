@@ -3,13 +3,15 @@ import { Modal, View, Text, Pressable, ScrollView } from "react-native";
 import * as api from "../lib/api";
 import { Button, Field } from "../components/ui";
 import { colors, radius } from "../lib/theme";
+import { useT } from "../lib/i18n";
 
+// `code` is stored by the backend; `key` is the localized label.
 const REASONS = [
-  { code: "CUSTOMER_CHANGED_MIND", label: "Changed my mind" },
-  { code: "CUSTOMER_FOUND_ANOTHER_PRO", label: "Found another pro" },
-  { code: "CUSTOMER_PRICE_TOO_HIGH", label: "Price too high" },
-  { code: "CUSTOMER_PRO_ASKED_TO_CANCEL", label: "The pro asked me to cancel" },
-  { code: "OTHER", label: "Other" },
+  { code: "CUSTOMER_CHANGED_MIND", key: "cancel.changedMind" },
+  { code: "CUSTOMER_FOUND_ANOTHER_PRO", key: "cancel.foundAnother" },
+  { code: "CUSTOMER_PRICE_TOO_HIGH", key: "cancel.priceTooHigh" },
+  { code: "CUSTOMER_PRO_ASKED_TO_CANCEL", key: "cancel.proAskedCancel" },
+  { code: "OTHER", key: "cancel.other" },
 ] as const;
 
 // Anti-Disintermediation System — cancellation friction (v7 §2.3).
@@ -24,6 +26,7 @@ export function CancelBookingSheet({
   onClose: () => void;
   onCancelled: () => void;
 }) {
+  const t = useT();
   const [reasonCode, setReasonCode] = useState<(typeof REASONS)[number]["code"] | null>(null);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
@@ -44,15 +47,14 @@ export function CancelBookingSheet({
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.5)" }}>
+      <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.6)" }}>
         <ScrollView
-          style={{ backgroundColor: colors.bg, borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card, maxHeight: "85%" }}
+          style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, maxHeight: "85%" }}
           contentContainerStyle={{ padding: 20 }}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text style={{ color: colors.danger, fontSize: 18, fontWeight: "800", marginBottom: 4 }}>Cancel this booking?</Text>
-          <Text style={{ color: colors.textMuted, fontSize: 13, marginBottom: 16 }}>
-            Repeated cancellations affect your posting privileges — this counts against your 30-day cancellation rate.
-          </Text>
+          <Text style={{ color: colors.dangerSoft, fontSize: 18, fontWeight: "800", marginBottom: 4 }}>{t("cancel.title")}</Text>
+          <Text style={{ color: colors.textMuted, fontSize: 13, marginBottom: 16 }}>{t("cancel.customerWarning")}</Text>
 
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
             {REASONS.map((r) => (
@@ -61,23 +63,23 @@ export function CancelBookingSheet({
                 onPress={() => setReasonCode(r.code)}
                 style={{
                   borderWidth: 1,
-                  borderColor: reasonCode === r.code ? colors.danger : colors.border,
-                  backgroundColor: reasonCode === r.code ? "rgba(239,68,68,0.15)" : "transparent",
+                  borderColor: reasonCode === r.code ? colors.danger : "rgba(255,255,255,0.1)",
+                  backgroundColor: reasonCode === r.code ? colors.dangerTint : "transparent",
                   borderRadius: 999,
                   paddingHorizontal: 12,
-                  paddingVertical: 6,
+                  paddingVertical: 7,
                 }}
               >
-                <Text style={{ color: reasonCode === r.code ? colors.danger : colors.textMuted, fontSize: 12 }}>{r.label}</Text>
+                <Text style={{ color: reasonCode === r.code ? colors.dangerSoft : colors.textMuted, fontSize: 12 }}>{t(r.key)}</Text>
               </Pressable>
             ))}
           </View>
 
-          <Field label="Anything else? (optional)" multiline numberOfLines={3} value={note} onChangeText={setNote} />
+          <Field label={t("cancel.note")} multiline numberOfLines={3} value={note} onChangeText={setNote} />
 
-          <Button title="Confirm cancellation" variant="danger" onPress={submit} loading={busy} disabled={!reasonCode} />
+          <Button title={t("cancel.confirm")} variant="danger" onPress={submit} loading={busy} disabled={!reasonCode} />
           <View style={{ marginTop: 10 }}>
-            <Button title="Never mind" variant="ghost" onPress={onClose} />
+            <Button title={t("cancel.neverMind")} variant="ghost" onPress={onClose} />
           </View>
         </ScrollView>
       </View>

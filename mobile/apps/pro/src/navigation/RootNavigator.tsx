@@ -1,12 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text } from "react-native";
-import { NavigationContainer, DarkTheme, createNavigationContainerRef } from "@react-navigation/native";
+import { View } from "react-native";
+import { NavigationContainer, DarkTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../lib/auth";
 import { colors } from "../lib/theme";
 import * as api from "../lib/api";
+import { useI18n } from "../lib/i18n";
+import { navigationRef, navigateRoot } from "./ref";
+import { AppTabBar } from "../components/TabBar";
+import { LanguageSuggestion } from "../components/LanguageSuggestion";
 import { SplashScreen } from "../screens/SplashScreen";
 import KycOnboardingScreen from "../screens/KycOnboardingScreen";
 import AwaitingApprovalScreen from "../screens/AwaitingApprovalScreen";
@@ -22,11 +25,15 @@ import BookingDetailScreen from "../screens/BookingDetailScreen";
 import MessageThreadScreen from "../screens/MessageThreadScreen";
 import EarningsScreen from "../screens/EarningsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import LanguageScreen from "../screens/LanguageScreen";
+import NotificationsScreen from "../screens/NotificationsScreen";
+import BidAcceptedScreen from "../screens/BidAcceptedScreen";
 
 export type AuthStackParamList = {
   Login: undefined;
   Signup: undefined;
   VerifyOtp: { userId: string };
+  Language: undefined;
 };
 
 export type HomeStackParamList = {
@@ -48,15 +55,20 @@ export type AccountStackParamList = {
   Account: undefined;
 };
 
-export type RootStackParamList = HomeStackParamList & JobsStackParamList & EarningsStackParamList & AccountStackParamList;
+export type RootStackParamList = {
+  Main: undefined;
+  BidAccepted: { bookingId: string };
+  Language: undefined;
+  Notifications: undefined;
+};
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 const JobsStack = createNativeStackNavigator<JobsStackParamList>();
 const EarningsStack = createNativeStackNavigator<EarningsStackParamList>();
 const AccountStack = createNativeStackNavigator<AccountStackParamList>();
 const Tab = createBottomTabNavigator();
-const navigationRef = createNavigationContainerRef();
 const JOB_POLL_MS = 15000;
 
 const navTheme = {
@@ -65,7 +77,7 @@ const navTheme = {
 };
 
 const screenOptions = {
-  headerStyle: { backgroundColor: colors.bgElevated },
+  headerStyle: { backgroundColor: colors.bg },
   headerTintColor: colors.text,
   headerShadowVisible: false,
   contentStyle: { backgroundColor: colors.bg },
@@ -80,16 +92,13 @@ function HomeStackNavigator() {
 }
 
 function JobsStackNavigator() {
+  const { t } = useI18n();
   return (
     <JobsStack.Navigator screenOptions={screenOptions}>
       <JobsStack.Screen name="Jobs" component={JobsScreen} options={{ headerShown: false }} />
-      <JobsStack.Screen name="JobDetail" component={JobDetailScreen} options={{ title: "Job" }} />
-      <JobsStack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ title: "Booking" }} />
-      <JobsStack.Screen
-        name="MessageThread"
-        component={MessageThreadScreen}
-        options={({ route }) => ({ title: route.params.otherPartyName })}
-      />
+      <JobsStack.Screen name="JobDetail" component={JobDetailScreen} options={{ title: t("nav.job") }} />
+      <JobsStack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ title: t("nav.booking") }} />
+      <JobsStack.Screen name="MessageThread" component={MessageThreadScreen} options={{ headerShown: false }} />
     </JobsStack.Navigator>
   );
 }
@@ -110,37 +119,47 @@ function AccountStackNavigator() {
   );
 }
 
-const TAB_ICONS: Record<string, string> = { HomeTab: "🏠", JobsTab: "🧰", EarningsTab: "💰", AccountTab: "👤" };
+const TAB_ICONS = { HomeTab: "home", JobsTab: "jobs", EarningsTab: "earnings", AccountTab: "account" } as const;
 
 function MainTabs() {
-  const insets = useSafeAreaInsets();
+  const { t } = useI18n();
   const [incomingJob, setIncomingJob] = useState<IncomingJob | null>(null);
-  const seenIds = useRef<Set<string>>(new Set());
+  const seenJobIds = useRef<Set<string>>(new Set());
+  const seenBookingIds = useRef<Set<string> | null>(null);
   const seeded = useRef(false);
 
-  // App-wide "new job" watcher — deliberately independent of which tab is
-  // focused, so the ring can appear from Home/Earnings/Account too, not
-  // just while sitting on the Jobs tab. A true lockscreen full-screen-intent
-  // ring needs a bare/dev-client native module (see mobile/README.md); this
-  // is the closest managed-workflow equivalent while the app is foregrounded.
+  // App-wide watcher — deliberately independent of which tab is focused, so a
+  // new-job ring or a "bid accepted" celebration can appear from any tab.
+  // A locked-screen full-screen-intent ring needs native code plus a Play
+  // Console declaration (see mobile/README.md); this is the foreground version.
   useEffect(() => {
     let cancelled = false;
     async function poll() {
       try {
-        const { jobs, isOnline } = await api.getProviderJobFeed();
+        const [{ jobs, isOnline }, { bookings }] = await Promise.all([api.getProviderJobFeed(), api.getMyBookings()]);
         if (cancelled) return;
+
         if (!seeded.current) {
-          jobs.forEach((j) => seenIds.current.add(j.id));
+          jobs.forEach((j) => seenJobIds.current.add(j.id));
+          seenBookingIds.current = new Set(bookings.map((b) => b.id));
           seeded.current = true;
           return;
         }
+
         if (isOnline) {
-          const fresh = jobs.find((j) => !seenIds.current.has(j.id));
+          const fresh = jobs.find((j) => !seenJobIds.current.has(j.id));
           if (fresh) setIncomingJob(fresh);
         }
-        jobs.forEach((j) => seenIds.current.add(j.id));
+        jobs.forEach((j) => seenJobIds.current.add(j.id));
+
+        // A booking we've never seen = a customer just accepted one of our bids.
+        const known = seenBookingIds.current ?? new Set<string>();
+        const won = bookings.find((b) => !known.has(b.id) && (b.status === "CONFIRMED" || b.status === "PENDING_PAYMENT"));
+        bookings.forEach((b) => known.add(b.id));
+        seenBookingIds.current = known;
+        if (won) navigateRoot("BidAccepted", { bookingId: won.id });
       } catch {
-        // Best-effort background poll — the Jobs tab's own fetch surfaces real errors.
+        // Best-effort background poll — screens surface real errors themselves.
       }
     }
     poll();
@@ -154,25 +173,13 @@ function MainTabs() {
   return (
     <View style={{ flex: 1 }}>
       <Tab.Navigator
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarActiveTintColor: colors.secondary,
-          tabBarInactiveTintColor: colors.textMuted,
-          tabBarStyle: {
-            backgroundColor: colors.bgElevated,
-            borderTopColor: colors.border,
-            height: 56 + insets.bottom,
-            paddingBottom: insets.bottom + 6,
-            paddingTop: 8,
-          },
-          tabBarLabelStyle: { fontSize: 11, fontWeight: "700" },
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 18, color }}>{TAB_ICONS[route.name]}</Text>,
-        })}
+        tabBar={(props) => <AppTabBar {...props} icons={TAB_ICONS} />}
+        screenOptions={{ headerShown: false }}
       >
-        <Tab.Screen name="HomeTab" component={HomeStackNavigator} options={{ title: "Home" }} />
-        <Tab.Screen name="JobsTab" component={JobsStackNavigator} options={{ title: "Jobs" }} />
-        <Tab.Screen name="EarningsTab" component={EarningsStackNavigator} options={{ title: "Earnings" }} />
-        <Tab.Screen name="AccountTab" component={AccountStackNavigator} options={{ title: "Account" }} />
+        <Tab.Screen name="HomeTab" component={HomeStackNavigator} options={{ title: t("tab.home") }} />
+        <Tab.Screen name="JobsTab" component={JobsStackNavigator} options={{ title: t("tab.jobs") }} />
+        <Tab.Screen name="EarningsTab" component={EarningsStackNavigator} options={{ title: t("tab.earnings") }} />
+        <Tab.Screen name="AccountTab" component={AccountStackNavigator} options={{ title: t("tab.account") }} />
       </Tab.Navigator>
 
       {incomingJob && (
@@ -181,12 +188,7 @@ function MainTabs() {
           onView={() => {
             const jobId = incomingJob.id;
             setIncomingJob(null);
-            if (navigationRef.isReady()) {
-              (navigationRef.navigate as (name: string, params: unknown) => void)("JobsTab", {
-                screen: "JobDetail",
-                params: { jobId },
-              });
-            }
+            navigateRoot("Main", { screen: "JobsTab", params: { screen: "JobDetail", params: { jobId } } });
           }}
           onDismiss={() => setIncomingJob(null)}
         />
@@ -195,9 +197,21 @@ function MainTabs() {
   );
 }
 
+function MainRoot() {
+  return (
+    <RootStack.Navigator screenOptions={{ ...screenOptions, headerShown: false }}>
+      <RootStack.Screen name="Main" component={MainTabs} />
+      <RootStack.Screen name="BidAccepted" component={BidAcceptedScreen} options={{ animation: "fade", gestureEnabled: false }} />
+      <RootStack.Screen name="Language" component={LanguageScreen} options={{ presentation: "modal" }} />
+      <RootStack.Screen name="Notifications" component={NotificationsScreen} options={{ presentation: "modal" }} />
+    </RootStack.Navigator>
+  );
+}
+
 type ProfileGate = "loading" | "needsDocs" | "pendingApproval" | "approved";
 
 export function RootNavigator() {
+  const { t } = useI18n();
   const { user, loading } = useAuth();
   const [gate, setGate] = React.useState<ProfileGate>("loading");
 
@@ -226,22 +240,32 @@ export function RootNavigator() {
   if (loading) return <SplashScreen />;
 
   return (
-    <NavigationContainer ref={navigationRef} theme={navTheme}>
-      {!user ? (
-        <AuthStack.Navigator screenOptions={screenOptions}>
-          <AuthStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-          <AuthStack.Screen name="Signup" component={SignupScreen} options={{ title: "Become a Pro" }} />
-          <AuthStack.Screen name="VerifyOtp" component={VerifyOtpScreen} options={{ title: "Verify Phone" }} />
-        </AuthStack.Navigator>
-      ) : gate === "loading" ? (
-        <SplashScreen />
-      ) : gate === "needsDocs" ? (
-        <KycOnboardingScreen onSubmitted={refreshGate} />
-      ) : gate === "pendingApproval" ? (
-        <AwaitingApprovalScreen onRefresh={refreshGate} />
-      ) : (
-        <MainTabs />
-      )}
-    </NavigationContainer>
+    <>
+      <NavigationContainer ref={navigationRef} theme={navTheme}>
+        {!user ? (
+          <AuthStack.Navigator screenOptions={screenOptions}>
+            <AuthStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+            <AuthStack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }} />
+            <AuthStack.Screen name="VerifyOtp" component={VerifyOtpScreen} options={{ title: t("nav.verifyPhone") }} />
+            <AuthStack.Screen name="Language" component={LanguageScreen} options={{ presentation: "modal", headerShown: false }} />
+          </AuthStack.Navigator>
+        ) : gate === "loading" ? (
+          <SplashScreen />
+        ) : gate === "needsDocs" ? (
+          <RootStack.Navigator screenOptions={{ headerShown: false }}>
+            <RootStack.Screen name="Main">{() => <KycOnboardingScreen onSubmitted={refreshGate} />}</RootStack.Screen>
+            <RootStack.Screen name="Language" component={LanguageScreen} options={{ presentation: "modal" }} />
+          </RootStack.Navigator>
+        ) : gate === "pendingApproval" ? (
+          <RootStack.Navigator screenOptions={{ headerShown: false }}>
+            <RootStack.Screen name="Main">{() => <AwaitingApprovalScreen onRefresh={refreshGate} />}</RootStack.Screen>
+            <RootStack.Screen name="Language" component={LanguageScreen} options={{ presentation: "modal" }} />
+          </RootStack.Navigator>
+        ) : (
+          <MainRoot />
+        )}
+      </NavigationContainer>
+      <LanguageSuggestion />
+    </>
   );
 }

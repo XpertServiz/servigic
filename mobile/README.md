@@ -60,3 +60,18 @@ eas build --platform android --profile preview
 ```
 
 You'll need an Expo account (free) and, for production, Apple/Google developer accounts ($99/yr + $25 one-time — see brief §10, §11).
+
+
+## Premium-Dark redesign (v1.1.0)
+
+Implements `SERVIGIC_REDESIGN_HANDOFF.md` for both apps. Shared code (design system, i18n, ads, sound, a few screens) lives in `apps/pro` and is copied to `apps/customer` by `node mobile/tools/sync-shared.mjs` — edit `apps/pro`, then run it.
+
+- **Design system** — `src/lib/theme.ts` (tokens + amber Google map style), `src/components/ds.tsx`, `MapPins.tsx` (3D pins / bike), `LogoMark.tsx` (layered 3D badge — swap for a Lottie/3D asset when one exists).
+- **i18n** — `src/lib/i18n/` (en, ur, ar, de, fr, es, hi, pl). Urdu and Arabic are **unreviewed drafts**; get a native speaker to review `locales/ur.ts` and `locales/ar.ts` before launch. Language is suggested from the server's geo header (`GET /api/mobile/market`), stored on the device and on the account (`PATCH /api/mobile/me`). RTL switches reload the JS bundle once.
+- **Phones** — `src/lib/phone.ts`; the backend also matches `03…`, `+92…`, `0092…` for login/registration (`src/lib/phone.ts` in the web app).
+- **Sounds** — `node mobile/tools/generate-sounds.mjs` regenerates the six wavs. Notification channels (`src/lib/notifications.ts`) are versioned `-v2` and must match `CHANNEL_BY_TYPE` in the backend `expoPush.ts`.
+- **Ads** — `src/lib/ads.ts` / `AdSlots.tsx`. Unit ids come from `EXPO_PUBLIC_ADMOB_NATIVE_HOME`, `EXPO_PUBLIC_ADMOB_INTERSTITIAL`, `EXPO_PUBLIC_ADMOB_REWARDED`; until set, Google's **test** ids are used, and the AdMob app id in `app.json` is Google's test app id. Replace both before expecting revenue.
+- **New-job ring** — foreground only: ~15 s (5.6 s alert × up to 3), stops on any tap, repeating haptics. A lock-screen full-screen-intent ring would need native code, FCM provisioning (no `google-services.json` yet) and a Play Console `USE_FULL_SCREEN_INTENT` declaration; not implemented.
+
+### Backend deploy order (important)
+Run `npx prisma migrate deploy` **before** deploying the web app: two new migrations (`provider_visibility_boost`, `language_hi_es`). The Prisma client selects every column, so deploying first would break ProviderProfile queries.

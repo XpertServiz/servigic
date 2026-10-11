@@ -29,6 +29,9 @@ enum Language {
   de
   fr
   pl
+  // Added for the mobile apps' language picker (machine-translated at launch).
+  hi
+  es
 }
 
 // Display-only currencies (Master Brief §11 / GCC_EXPANSION.md). Every
@@ -345,6 +348,10 @@ model ProviderProfile {
   suspendedUntil       DateTime?            // only set for the cancellation-rate 48h penalty; wallet-ceiling block has no expiry (cleared by topping up)
   cancellationRate30d  Float                @default(0)
   cancellationCount30d Int                  @default(0)
+  // Opt-in rewarded-ad perk (mobile Pro app): while in the future, the pro's
+  // effective service radius is widened (see BOOST_RADIUS_MULTIPLIER in
+  // src/lib/dispatch.ts) so they see/are alerted to more jobs for ~1 hour.
+  visibilityBoostUntil DateTime?
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 

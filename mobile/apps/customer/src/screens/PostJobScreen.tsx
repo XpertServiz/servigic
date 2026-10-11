@@ -1,31 +1,31 @@
+// Post a Job (D3C-PostJob). No ads on this screen — it is a form where an
+// interruption costs the user their input.
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, Pressable, Image } from "react-native";
+import { View, Text, ScrollView, StyleSheet, Pressable, Image, Alert, KeyboardAvoidingView, Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { HomeStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
-import { Button, Field } from "../components/ui";
-import { Chip, SegmentedControl, SheetCard } from "../components/ds";
-import { colors, radius } from "../lib/theme";
+import { Field } from "../components/ui";
+import { GradientButton, SegmentedControl } from "../components/ds";
+import { Icon } from "../components/Icon";
+import { colors } from "../lib/theme";
+import { useI18n } from "../lib/i18n";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "PostJob">;
 type Category = Awaited<ReturnType<typeof api.getCategories>>["categories"][number];
-
-const URGENCY_OPTIONS = [
-  { value: "EMERGENCY" as const, label: "⚡ Emergency" },
-  { value: "TODAY" as const, label: "Today" },
-  { value: "SCHEDULED" as const, label: "Schedule" },
-];
+type Urgency = "EMERGENCY" | "TODAY" | "SCHEDULED";
 
 export default function PostJobScreen({ navigation, route }: Props) {
+  const { t } = useI18n();
+  const insets = useSafeAreaInsets();
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryId, setCategoryId] = useState(route.params?.categoryId ?? "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [urgency, setUrgency] = useState<(typeof URGENCY_OPTIONS)[number]["value"]>(
-    route.params?.urgency ?? "TODAY"
-  );
+  const [urgency, setUrgency] = useState<Urgency>(route.params?.urgency ?? "TODAY");
   const [areaLabel, setAreaLabel] = useState("");
   const [exactAddress, setExactAddress] = useState("");
   const [coords, setCoords] = useState({ lat: 24.8607, lng: 67.0011 });
@@ -35,10 +35,13 @@ export default function PostJobScreen({ navigation, route }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.getCategories().then(({ categories: fetched }) => {
-      setCategories(fetched);
-      if (!route.params?.categoryId && fetched[0]) setCategoryId(fetched[0].id);
-    });
+    api
+      .getCategories()
+      .then(({ categories: fetched }) => {
+        setCategories(fetched);
+        if (!route.params?.categoryId && fetched[0]) setCategoryId(fetched[0].id);
+      })
+      .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -53,9 +56,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
       try {
         const [place] = await Location.reverseGeocodeAsync({ latitude, longitude });
         if (place) {
-          const formatted = [place.streetNumber, place.street, place.district ?? place.subregion, place.city]
-            .filter(Boolean)
-            .join(", ");
+          const formatted = [place.streetNumber, place.street, place.district ?? place.subregion, place.city].filter(Boolean).join(", ");
           if (formatted) setExactAddress(formatted);
           if (!areaLabel && (place.district || place.subregion)) setAreaLabel(place.district ?? place.subregion ?? "");
         }
@@ -76,11 +77,11 @@ export default function PostJobScreen({ navigation, route }: Props) {
       const url = await api.uploadFile(asset.uri, asset.fileName ?? "photo.jpg", asset.mimeType ?? "image/jpeg");
       setPhotos((p) => [...p, url]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed");
+      setError(e instanceof Error ? e.message : t("post.uploadFailed"));
     }
   }
 
-  async function handleSubmit() {
+  async function submit(allowDuplicate = false) {
     setError(null);
     setSubmitting(true);
     try {
@@ -95,96 +96,110 @@ export default function PostJobScreen({ navigation, route }: Props) {
         exactAddress,
         lat: coords.lat,
         lng: coords.lng,
+        ...(allowDuplicate ? { allowDuplicate: true } : {}),
       });
       navigation.replace("JobDetail", { jobId: job.id });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to post job");
+      if (e instanceof api.ApiError && e.code === "DUPLICATE_OPEN_JOB") {
+        // Soft, non-blocking prompt: point at the existing request, but let
+        // the customer post a second one if they really want to.
+        const existing = e.data.existingJob as { id: string; title: string } | undefined;
+        const category = categories.find((c) => c.id === categoryId)?.name ?? "";
+        Alert.alert(t("post.duplicateTitle"), t("post.duplicateBody", { category }), [
+          ...(existing ? [{ text: t("post.openExisting"), onPress: () => navigation.replace("JobDetail", { jobId: existing.id }) }] : []),
+          { text: t("post.postAnyway"), onPress: () => submit(true) },
+          { text: t("common.cancel"), style: "cancel" as const },
+        ]);
+      } else {
+        setError(e instanceof Error ? e.message : t("post.failed"));
+      }
     } finally {
       setSubmitting(false);
     }
   }
 
-  return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={{ height: 12 }} />
-      <SheetCard style={{ flex: 1, borderRadius: radius.sheet }}>
-        <Text style={styles.heading}>Post a Job</Text>
+  const urgencyOptions: { value: Urgency; label: string; tone?: "danger" }[] = [
+    { value: "EMERGENCY", label: `⚡ ${t("urgency.EMERGENCY")}`, tone: "danger" },
+    { value: "TODAY", label: t("urgency.TODAY") },
+    { value: "SCHEDULED", label: t("urgency.SCHEDULED") },
+  ];
 
-        <Text style={styles.label}>Category</Text>
+  return (
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.bg }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+        <Pressable onPress={() => navigation.goBack()} style={styles.back} accessibilityLabel={t("common.back")}>
+          <Icon name="back" size={16} />
+        </Pressable>
+        <Text style={styles.headerTitle}>{t("post.title")}</Text>
+      </View>
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
+        <Text style={styles.label}>{t("post.category")}</Text>
         <View style={styles.rowWrap}>
-          {categories.map((c) => (
-            <Chip key={c.id} label={`${c.icon} ${c.name}`} active={categoryId === c.id} onPress={() => setCategoryId(c.id)} />
-          ))}
+          {categories.map((c) => {
+            const active = categoryId === c.id;
+            return (
+              <Pressable key={c.id} onPress={() => setCategoryId(c.id)} style={[styles.catChip, active && styles.catChipActive]}>
+                <Text style={{ fontSize: 12, fontWeight: active ? "800" : "600", color: active ? colors.accent : colors.textSecondary }}>
+                  {c.icon} {c.name}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
 
-        <Text style={styles.label}>Photos</Text>
+        <Text style={styles.label}>{t("post.photos")}</Text>
         <View style={styles.rowWrap}>
-          <Pressable onPress={pickPhoto} style={styles.photoAdd}>
-            <Text style={{ color: colors.textMuted, fontSize: 24 }}>+</Text>
+          <Pressable onPress={pickPhoto} style={styles.photoAdd} accessibilityLabel={t("post.addPhoto")}>
+            <Text style={{ color: colors.accent, fontSize: 24, fontWeight: "300" }}>+</Text>
           </Pressable>
           {photos.map((url) => (
-            <Image key={url} source={{ uri: url }} style={{ width: 64, height: 64, borderRadius: 10 }} />
+            <Image key={url} source={{ uri: url }} style={{ width: 68, height: 68, borderRadius: 14 }} />
           ))}
         </View>
 
-        <Field label="Job title" placeholder="e.g. AC not cooling" value={title} onChangeText={setTitle} />
-        <Field label="Description" multiline numberOfLines={4} value={description} onChangeText={setDescription} />
+        <Field label={t("post.jobTitle")} placeholder={t("post.titlePlaceholder")} value={title} onChangeText={setTitle} />
+        <Field label={t("post.description")} multiline numberOfLines={4} value={description} onChangeText={setDescription} />
 
-        <Text style={styles.label}>Urgency</Text>
-        <View style={{ marginBottom: 16 }}>
-          <SegmentedControl options={URGENCY_OPTIONS} value={urgency} onChange={setUrgency} />
+        <Text style={styles.label}>{t("post.urgency")}</Text>
+        <View style={{ marginBottom: 18 }}>
+          <SegmentedControl options={urgencyOptions} value={urgency} onChange={setUrgency} />
         </View>
 
-        <Field label="Area" placeholder="e.g. Gulshan-e-Iqbal" value={areaLabel} onChangeText={setAreaLabel} />
-        <Field label="Exact address (hidden until paid) 🔒" value={exactAddress} onChangeText={setExactAddress} />
-        <Pressable onPress={useMyLocation} disabled={locating} style={{ marginBottom: 20 }}>
-          <Text style={{ color: colors.accent, fontWeight: "700" }}>
-            {locating ? "Locating…" : "📍 Use my current location"}
-          </Text>
+        <Field label={t("post.area")} placeholder={t("post.areaPlaceholder")} value={areaLabel} onChangeText={setAreaLabel} />
+        <Field label={`${t("post.exactAddress")} 🔒`} value={exactAddress} onChangeText={setExactAddress} />
+        <Pressable onPress={useMyLocation} disabled={locating} style={{ marginBottom: 18 }}>
+          <Text style={{ color: colors.accent, fontWeight: "700" }}>{locating ? t("post.locating") : `📍 ${t("post.useLocation")}`}</Text>
         </Pressable>
 
-        <View style={styles.benchmarkCard}>
+        <View style={styles.benchmark}>
           <Text style={{ color: colors.textMuted, fontSize: 12 }}>
-            💡 Most jobs like this close between{" "}
-            <Text style={{ color: colors.text, fontWeight: "700" }}>PKR 1,800–3,200</Text>
+            💡 {t("post.benchmark")} <Text style={{ color: colors.text, fontWeight: "700" }}>PKR 1,800–3,200</Text>
           </Text>
         </View>
 
-        {error && <Text style={{ color: colors.danger, marginBottom: 12 }}>{error}</Text>}
+        {error && <Text style={{ color: colors.dangerSoft, marginBottom: 12 }}>{error}</Text>}
+      </ScrollView>
 
-        <View style={{ marginTop: 4, marginBottom: 24 }}>
-          <Button
-            title={submitting ? "Posting…" : "Get Bids →"}
-            onPress={handleSubmit}
-            loading={submitting}
-            disabled={!title || !description || !areaLabel || !exactAddress}
-          />
-        </View>
-      </SheetCard>
-    </ScrollView>
+      <View style={{ paddingHorizontal: 18, paddingTop: 10, paddingBottom: Math.max(insets.bottom, 14) + 4 }}>
+        <GradientButton
+          title={submitting ? t("post.posting") : t("post.submit")}
+          onPress={() => submit(false)}
+          disabled={submitting || !title || !description || !areaLabel || !exactAddress || !categoryId}
+        />
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  heading: { color: colors.text, fontSize: 20, fontWeight: "800", marginBottom: 18 },
-  label: { color: colors.textMuted, fontSize: 13, fontWeight: "600", marginBottom: 8 },
-  rowWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 },
-  photoAdd: {
-    width: 64,
-    height: 64,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderStyle: "dashed",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  benchmarkCard: {
-    backgroundColor: colors.bgElevated,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: 12,
-    marginBottom: 18,
-  },
+  header: { flexDirection: "row", alignItems: "center", gap: 14, paddingHorizontal: 18, paddingBottom: 10 },
+  back: { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.06)", alignItems: "center", justifyContent: "center" },
+  headerTitle: { color: colors.text, fontSize: 18, fontWeight: "800" },
+  label: { color: colors.textMuted, fontSize: 12, fontWeight: "700", marginBottom: 10, marginTop: 4 },
+  rowWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 18 },
+  catChip: { backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: "rgba(255,255,255,0.08)", borderRadius: 11, paddingHorizontal: 13, paddingVertical: 9 },
+  catChipActive: { backgroundColor: colors.accentTint, borderColor: "rgba(245,166,35,0.5)" },
+  photoAdd: { width: 68, height: 68, borderRadius: 14, borderWidth: 1.5, borderStyle: "dashed", borderColor: "rgba(245,166,35,0.35)", alignItems: "center", justifyContent: "center" },
+  benchmark: { backgroundColor: colors.bgElevated, borderRadius: 12, borderWidth: 1, borderColor: colors.borderSoft, padding: 12, marginBottom: 18 },
 });
