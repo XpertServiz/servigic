@@ -22,3 +22,8 @@ export function isAwaitingReview(p: {
 }
 
 export const VERIFICATION_SLA_HOURS = 24;
+
+/** Whole hours since a date (kept out of components, which must stay pure). */
+export function hoursSince(date: Date): number {
+  return Math.max(0, Math.round((Date.now() - date.getTime()) / 36e5));
+}

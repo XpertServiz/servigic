@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { isAwaitingReview, VERIFICATION_SLA_HOURS } from "@/lib/staff";
+import { hoursSince, isAwaitingReview, VERIFICATION_SLA_HOURS } from "@/lib/staff";
 import { ReviewCard, type ReviewItem } from "./ReviewCard";
 
 // Pro verification queue (OCR-assisted manual review). Open to ADMIN and to
@@ -13,10 +13,9 @@ export default async function VerificationQueuePage() {
   });
   const pending = candidates.filter(isAwaitingReview);
 
-  const now = Date.now();
   const items: ReviewItem[] = pending.map((p) => {
     const submittedAt = p.verificationSubmittedAt ?? p.createdAt;
-    const hoursWaiting = Math.max(0, Math.round((now - submittedAt.getTime()) / 36e5));
+    const hoursWaiting = hoursSince(submittedAt);
     return {
       id: p.id,
       name: p.user.name,
