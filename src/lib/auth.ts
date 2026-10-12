@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/lib/auth.config";
+import { phoneVariants } from "@/lib/phone";
 
 // Full config: adds the Credentials provider + Prisma lookup on top of the
 // edge-safe authConfig. Used by server components, API routes, and server actions.
@@ -20,7 +21,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = credentials?.password as string | undefined;
         if (!phone || !password) return null;
 
-        const user = await prisma.user.findUnique({ where: { phone } });
+        const user = await prisma.user.findFirst({ where: { phone: { in: phoneVariants(phone) } } });
         if (!user) return null;
 
         const valid = await bcrypt.compare(password, user.passwordHash);

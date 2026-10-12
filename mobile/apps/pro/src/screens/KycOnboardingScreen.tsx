@@ -9,9 +9,10 @@ import { HeaderActions } from "../components/HeaderActions";
 import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
 import { useAuth } from "../lib/auth";
+import { readIdCard, type IdOcr } from "../lib/idOcr";
 import { useT } from "../lib/i18n";
 
-export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () => void }) {
+export default function KycOnboardingScreen({ onSubmitted, rejectedReason }: { onSubmitted: () => void; rejectedReason?: string | null }) {
   const t = useT();
   const insets = useSafeAreaInsets();
   const { signOut } = useAuth();
@@ -20,6 +21,7 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
   const [selfieUrl, setSelfieUrl] = useState("");
   const [policeCertUrl, setPoliceCertUrl] = useState("");
   const [photoConsent, setPhotoConsent] = useState(false);
+  const [ocr, setOcr] = useState<IdOcr | null>(null);
   const [busy, setBusy] = useState<"cnic" | "selfie" | "police" | "submit" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +32,13 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
     setBusy(kind);
     setError(null);
     try {
-      const url = await api.uploadFile(asset.uri, asset.fileName ?? "doc.jpg", asset.mimeType ?? "image/jpeg");
+      // Read the ID on-device while it uploads: it only pre-fills the reviewer's
+      // screen. A person still approves every Pro.
+      const [url, read] = await Promise.all([
+        api.uploadFile(asset.uri, asset.fileName ?? "doc.jpg", asset.mimeType ?? "image/jpeg"),
+        kind === "cnic" ? readIdCard(asset.uri) : Promise.resolve(null),
+      ]);
+      if (kind === "cnic") setOcr(read);
       setUrl(url);
     } catch (e) {
       setError(e instanceof Error ? e.message : t("kyc.uploadFailed"));
@@ -49,6 +57,7 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
         policeCertUrl: policeCertUrl || undefined,
         agreementAccepted: true,
         photoConsentPublic: photoConsent,
+        ...(ocr ? { cnicOcr: ocr } : {}),
       });
       onSubmitted();
     } catch (e) {
@@ -69,9 +78,18 @@ export default function KycOnboardingScreen({ onSubmitted }: { onSubmitted: () =
         <Text style={styles.title}>{t("kyc.title")}</Text>
         <Text style={styles.subtitle}>{t("kyc.subtitle")}</Text>
 
+        {!!rejectedReason && (
+          <View style={styles.rejected}>
+            <Text style={styles.rejectedTitle}>{t("verify.rejectedTitle")}</Text>
+            <Text style={styles.rejectedBody}>{rejectedReason}</Text>
+          </View>
+        )}
+
         <DocRow label={t("kyc.cnic")} done={Boolean(cnicUrl)} loading={busy === "cnic"} onPress={() => pickDoc("cnic", setCnicUrl)} />
         <DocRow label={t("kyc.selfie")} done={Boolean(selfieUrl)} loading={busy === "selfie"} onPress={() => pickDoc("selfie", setSelfieUrl)} />
         <DocRow label={t("kyc.police")} done={Boolean(policeCertUrl)} loading={busy === "police"} onPress={() => pickDoc("police", setPoliceCertUrl)} />
+
+        {ocr?.idNumber ? <Text style={styles.ocrNote}>{t("kyc.ocrRead", { id: ocr.idNumber })}</Text> : null}
 
         <Pressable onPress={() => setPhotoConsent((v) => !v)} style={styles.consentRow}>
           <View style={[styles.checkbox, photoConsent && styles.checkboxChecked]}>
@@ -140,5 +158,9 @@ const styles = StyleSheet.create({
   checkboxChecked: { backgroundColor: colors.accent, borderColor: colors.accent },
   consentText: { color: colors.textMuted, fontSize: 12, flex: 1, lineHeight: 17 },
   error: { color: colors.dangerSoft, marginTop: 4, textAlign: "center" },
+  rejected: { width: "100%", backgroundColor: colors.dangerTint, borderWidth: 1, borderColor: "rgba(220,60,60,0.35)", borderRadius: 12, padding: 14 },
+  rejectedTitle: { color: colors.dangerSoft, fontWeight: "800", fontSize: 13 },
+  rejectedBody: { color: colors.textSecondary, fontSize: 13, marginTop: 4, lineHeight: 18 },
+  ocrNote: { color: colors.textMuted, fontSize: 11, textAlign: "center" },
   signOut: { color: colors.textMuted, fontWeight: "600", fontSize: 13, textAlign: "center" },
 });

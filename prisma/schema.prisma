@@ -282,6 +282,7 @@ model User {
   changeOrdersProposed    ChangeOrder[]     @relation("ChangeOrderProposer")
   maintenancePlans        MaintenancePlan[] @relation("MaintenancePlanCustomer")
   cancellationEventsCaused CancellationEvent[] @relation("CancellationActor")
+  rewardCredits            RewardCredit[]
   flagsAsCustomer          ProviderFlag[]      @relation("ProviderFlagCustomer")
   // Anti-bypass anti-collusion tracking (v7 §2.3) — customer side of the
   // same rolling-30-day cancellation-rate mechanic ProviderProfile has.
@@ -352,6 +353,15 @@ model ProviderProfile {
   // effective service radius is widened (see BOOST_RADIUS_MULTIPLIER in
   // src/lib/dispatch.ts) so they see/are alerted to more jobs for ~1 hour.
   visibilityBoostUntil DateTime?
+  // Verification review (OCR-assisted manual review). The OCR output is only a
+  // convenience for the reviewer - approval is always a human action.
+  cnicOcr                 Json?     // { fullName, idNumber, dob, address, rawLines } extracted on-device (ML Kit)
+  verificationSubmittedAt DateTime? // when the last complete CNIC+selfie submission arrived (SLA clock)
+  verificationEscalatedAt DateTime? // set once the 24h SLA reminder went to the admins
+  verificationReviewedAt  DateTime?
+  verificationReviewedById String?
+  verificationRejectedAt  DateTime?
+  verificationRejectedReason String?
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -565,6 +575,9 @@ model Booking {
   providerProfile ProviderProfile @relation("ProviderProfileBookings", fields: [providerId], references: [id])
   totalPKR        Int
   commissionPKR   Int
+  // Customer ad-reward discount applied to this booking (PKR). Comes out of
+  // Servigic's commission, not the pro's pocket - see api/mobile/rewards.
+  rewardDiscountPKR Int @default(0)
   payoutPKR       Int
   status          BookingStatus   @default(PENDING_PAYMENT)
   matchType       MatchType       @default(BID)
@@ -989,4 +1002,21 @@ model JournalLine {
 
   @@index([accountId])
   @@index([entryId])
+}
+
+// Customer rewarded-ad credit: "watch an ad, get a flat PKR 50 off the next
+// completed booking". Enforced server-side: max 2 earned per customer per
+// rolling 7 days, one credit consumed per booking, never stackable.
+model RewardCredit {
+  id         String    @id @default(cuid())
+  customerId String
+  customer   User      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  kind       String    @default("AD_DISCOUNT")
+  amountPKR  Int       @default(50)
+  earnedAt   DateTime  @default(now())
+  consumedAt DateTime?
+  bookingId  String?
+
+  @@index([customerId, earnedAt])
+  @@index([customerId, consumedAt])
 }

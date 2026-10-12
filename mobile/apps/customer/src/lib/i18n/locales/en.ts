@@ -29,7 +29,7 @@ export const en = {
 
   // ─── Phone field ───
   "phone.label": "Phone number",
-  "phone.hint": "Local format only — no +92 or spaces",
+  "phone.hint": "Choose your country, then type your number",
   "phone.errorPrefix": "Wrong phone number — please write like",
   "phone.error": "Wrong phone number — please write like {example}",
 
@@ -452,6 +452,19 @@ export const en = {
   "trade.CLEANER": "Cleaner",
   "trade.MASON": "Mason",
   "trade.HANDYMAN": "Handyman",
+  "phone.country": "Country",
+  "phone.searchCountry": "Search country or code…",
+  "verify.pendingTitle": "Verification in progress",
+  "verify.pendingBody": "Usually under 24 hours. You can set up your profile now — bidding unlocks as soon as you're approved.",
+  "verify.rejectedTitle": "We couldn't approve your documents",
+  "verify.rejectedFallback": "Please upload clear photos of your ID and a selfie.",
+  "kyc.ocrRead": "Read from your ID: {id} — our team will double-check it",
+  "reward.ready": "PKR {amount} off your next booking is ready",
+  "reward.title": "Get PKR {amount} off your next booking",
+  "reward.body": "Watch a short ad · {used} of {limit} used this week",
+  "reward.limit": "You've earned this week's ad rewards — more available on {date}",
+  "reward.applied": "Ad reward applied: PKR {amount} off PKR {total}",
+  "done.rewardNote": "Customer ad reward: −PKR {amount} (covered by Servigic)",
 } as const;
 
 export type TKey = keyof typeof en;

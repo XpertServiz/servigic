@@ -9,6 +9,8 @@ export interface BookingData {
   payoutPKR: number;
   commissionPKR?: number;
   commissionPct?: number;
+  /** Customer ad-reward already taken off the price (PKR) - funded from Servigic's commission. */
+  rewardDiscountPKR?: number;
   areaLabel?: string;
   timeline?: Record<string, string> | null;
   jobsCompleted?: number;

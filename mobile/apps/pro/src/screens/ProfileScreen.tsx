@@ -13,6 +13,7 @@ import { colors } from "../lib/theme";
 import { enumLabel } from "../lib/status";
 import { LANGUAGES, useI18n } from "../lib/i18n";
 import { navigateRoot } from "../navigation/ref";
+import { readIdCard, type IdOcr } from "../lib/idOcr";
 
 function requestAccountDeletion(phone?: string) {
   const body = `Registered phone number/email:\n${phone ?? ""}\nAccount type (Customer/Pro): Pro\n`;
@@ -53,6 +54,7 @@ export default function ProfileScreen() {
   const [ratingAvg, setRatingAvg] = useState(0);
   const [jobsCompleted, setJobsCompleted] = useState(0);
   const [editing, setEditing] = useState(false);
+  const [ocr, setOcr] = useState<IdOcr | null>(null);
 
   useEffect(() => {
     api
@@ -86,11 +88,15 @@ export default function ProfileScreen() {
     setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
   }
 
-  async function pickDoc(setUrl: (url: string) => void) {
+  async function pickDoc(setUrl: (url: string) => void, isCnic = false) {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 });
     if (result.canceled || !result.assets[0]) return;
     const asset = result.assets[0];
-    const url = await api.uploadFile(asset.uri, asset.fileName ?? "doc.jpg", asset.mimeType ?? "image/jpeg");
+    const [url, read] = await Promise.all([
+      api.uploadFile(asset.uri, asset.fileName ?? "doc.jpg", asset.mimeType ?? "image/jpeg"),
+      isCnic ? readIdCard(asset.uri) : Promise.resolve(null),
+    ]);
+    if (isCnic) setOcr(read);
     setUrl(url);
   }
 
@@ -109,6 +115,7 @@ export default function ProfileScreen() {
         payoutMethod: "EASYPAISA",
         payoutAccount,
         agreementAccepted: true,
+        ...(ocr ? { cnicOcr: ocr } : {}),
       });
       setEditing(false);
     } finally {
@@ -211,7 +218,7 @@ export default function ProfileScreen() {
           </Pressable>
 
           <View style={{ gap: 12, marginBottom: 16 }}>
-            <Pressable onPress={() => pickDoc(setCnicUrl)}>
+            <Pressable onPress={() => pickDoc(setCnicUrl, true)}>
               <Text style={{ color: cnicUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>{cnicUrl ? t("account.cnicDone") : t("account.uploadCnic")}</Text>
             </Pressable>
             <Pressable onPress={() => pickDoc(setSelfieUrl)}>

@@ -27,7 +27,7 @@ export const ar: Partial<Record<TKey, string>> = {
   "splash.tagline": "خدمات منزلية موثوقة عند الطلب",
 
   "phone.label": "رقم الهاتف",
-  "phone.hint": "الصيغة المحلية فقط — بدون +92 أو مسافات",
+  "phone.hint": "اختر بلدك ثم اكتب رقمك",
   "phone.errorPrefix": "رقم هاتف غير صحيح — يرجى الكتابة هكذا",
   "phone.error": "رقم هاتف غير صحيح — يرجى الكتابة هكذا {example}",
 
@@ -428,4 +428,17 @@ export const ar: Partial<Record<TKey, string>> = {
   "trade.CLEANER": "عامل نظافة",
   "trade.MASON": "بنّاء",
   "trade.HANDYMAN": "عامل صيانة عامة",
+  "phone.country": "الدولة",
+  "phone.searchCountry": "ابحث عن دولة أو رمز…",
+  "verify.pendingTitle": "التوثيق قيد المراجعة",
+  "verify.pendingBody": "عادةً أقل من 24 ساعة. يمكنك إعداد ملفك الآن — يُفتح تقديم العروض فور الموافقة عليك.",
+  "verify.rejectedTitle": "تعذّرت الموافقة على مستنداتك",
+  "verify.rejectedFallback": "يرجى رفع صور واضحة لهويتك وصورة شخصية.",
+  "kyc.ocrRead": "تمت قراءته من هويتك: {id} — سيراجعه فريقنا للتأكد",
+  "reward.ready": "خصم {amount} PKR على حجزك القادم جاهز",
+  "reward.title": "احصل على خصم {amount} PKR على حجزك القادم",
+  "reward.body": "شاهد إعلاناً قصيراً · استخدمت {used} من {limit} هذا الأسبوع",
+  "reward.limit": "حصلت على مكافآت الإعلانات لهذا الأسبوع — المزيد متاح في {date}",
+  "reward.applied": "تم تطبيق مكافأة الإعلان: خصم {amount} PKR من {total} PKR",
+  "done.rewardNote": "مكافأة إعلان العميل: −{amount} PKR (تتحملها سيرفيجيك)",
 };

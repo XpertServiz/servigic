@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { RoleControl } from "./RoleControl";
 
 const ROLE_COLORS: Record<string, string> = {
   CUSTOMER: "text-accent border-accent/30 bg-accent/10",
@@ -8,21 +10,25 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 export default async function AdminUsersPage() {
-  const users = await prisma.user.findMany({ orderBy: { createdAt: "desc" }, take: 200 });
+  const [users, session] = await Promise.all([prisma.user.findMany({ orderBy: { createdAt: "desc" }, take: 200 }), auth()]);
 
   return (
     <div>
       <h1 className="mb-1 font-display text-3xl font-bold">Users</h1>
-      <p className="mb-8 text-text-muted">All registered accounts.</p>
+      <p className="mb-8 text-text-muted">
+        All registered accounts. Make someone a Reviewer so they can approve Pro verifications without full admin access, or an Admin
+        for everything — more than one person should always be able to review.
+      </p>
 
       <div className="overflow-x-auto rounded-[14px] border border-border-subtle">
-        <table className="w-full min-w-[800px] text-sm">
+        <table className="w-full min-w-[900px] text-sm">
           <thead className="bg-bg-elevated text-left text-xs uppercase tracking-wide text-text-muted">
             <tr>
               <th className="p-4">Name</th>
               <th className="p-4">Phone</th>
               <th className="p-4">City</th>
               <th className="p-4">Role</th>
+              <th className="p-4">Change role</th>
               <th className="p-4">Verified</th>
               <th className="p-4">Joined</th>
             </tr>
@@ -35,6 +41,9 @@ export default async function AdminUsersPage() {
                 <td className="p-4 text-text-muted">{u.city ?? "—"}</td>
                 <td className="p-4">
                   <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${ROLE_COLORS[u.role]}`}>{u.role}</span>
+                </td>
+                <td className="p-4">
+                  <RoleControl userId={u.id} role={u.role} isSelf={u.id === session?.user?.id} />
                 </td>
                 <td className="p-4 text-text-muted">{u.phoneVerified ? "✓" : "—"}</td>
                 <td className="p-4 text-text-muted">{u.createdAt.toLocaleDateString()}</td>

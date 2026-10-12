@@ -71,8 +71,9 @@ function NativeIcon({ uri }: { uri: string }) {
   return <Image source={{ uri }} style={{ width: 34, height: 34, borderRadius: 9 }} />;
 }
 
-// ─── Rewarded video — strictly opt-in, never auto-played (Pro Jobs screen) ───
-export function RewardedBoostCard({ active, onReward }: { active: boolean; onReward: () => Promise<void> }) {
+// ─── Rewarded video — strictly opt-in, never auto-played ───
+// Shared loading/showing logic for the two rewarded cards below.
+function useRewardedAdUnit() {
   const t = useT();
   const [available, setAvailable] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -106,9 +107,8 @@ export function RewardedBoostCard({ active, onReward }: { active: boolean; onRew
     };
   }, []);
 
-  if (!available && !active) return null;
-
-  async function watch() {
+  // The reward callback only runs if the user actually earned the reward.
+  async function show(onEarned: () => Promise<void>) {
     const ads = getAds();
     const ad = adRef.current;
     if (!ads || !ad || !loadedRef.current || busy) return;
@@ -123,7 +123,7 @@ export function RewardedBoostCard({ active, onReward }: { active: boolean; onRew
       loadedRef.current = false;
       setAvailable(false);
       try {
-        if (earned) await onReward();
+        if (earned) await onEarned();
       } catch (e) {
         Alert.alert(t("common.error"), e instanceof Error ? e.message : t("common.tryAgain"));
       } finally {
@@ -137,6 +137,15 @@ export function RewardedBoostCard({ active, onReward }: { active: boolean; onRew
     });
   }
 
+  return { available, busy, show };
+}
+
+// Pro: "Watch a short ad to boost your job visibility for 1 hour" (Jobs screen).
+export function RewardedBoostCard({ active, onReward }: { active: boolean; onReward: () => Promise<void> }) {
+  const t = useT();
+  const { available, busy, show } = useRewardedAdUnit();
+  if (!available && !active) return null;
+
   return (
     <View style={styles.rewarded}>
       <View style={styles.playDot}>
@@ -147,9 +156,59 @@ export function RewardedBoostCard({ active, onReward }: { active: boolean; onRew
         <Text style={styles.rewardedBody}>{active ? t("boost.activeBody") : t("boost.body")}</Text>
       </View>
       {!active && (
-        <Pressable onPress={watch} disabled={busy} style={styles.watchBtn}>
+        <Pressable onPress={() => show(onReward)} disabled={busy} style={styles.watchBtn}>
           {busy ? <ActivityIndicator size="small" color={colors.accentForeground} /> : <Text style={styles.watchText}>{t("boost.watch")}</Text>}
         </Pressable>
+      )}
+    </View>
+  );
+}
+
+export interface AdDiscountState {
+  amountPKR: number;
+  weeklyLimit: number;
+  earnedThisWeek: number;
+  remainingThisWeek: number;
+  pendingCredits: number;
+  nextAvailableAt: string | null;
+}
+
+// Customer: "Watch a short ad, get PKR 50 off your next booking" (Home). The
+// weekly cap and the one-credit-per-booking rule are enforced by the server;
+// this card just reflects them.
+export function RewardedDiscountCard({ state, onReward }: { state: AdDiscountState | null; onReward: () => Promise<void> }) {
+  const t = useT();
+  const { available, busy, show } = useRewardedAdUnit();
+  if (!state) return null;
+
+  const ready = state.pendingCredits > 0;
+  const limitReached = state.remainingThisWeek <= 0;
+
+  return (
+    <View style={{ gap: 8 }}>
+      {ready && (
+        <View style={styles.readyChip}>
+          <Text style={styles.readyText}>
+            ✓ {t("reward.ready", { amount: state.amountPKR })}
+          </Text>
+        </View>
+      )}
+      {!limitReached && available && (
+        <View style={styles.rewarded}>
+          <View style={styles.playDot}>
+            <Icon name="play" size={16} color={colors.accentForeground} />
+          </View>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={styles.rewardedTitle}>{t("reward.title", { amount: state.amountPKR })}</Text>
+            <Text style={styles.rewardedBody}>{t("reward.body", { used: state.earnedThisWeek, limit: state.weeklyLimit })}</Text>
+          </View>
+          <Pressable onPress={() => show(onReward)} disabled={busy} style={styles.watchBtn}>
+            {busy ? <ActivityIndicator size="small" color={colors.accentForeground} /> : <Text style={styles.watchText}>{t("boost.watch")}</Text>}
+          </Pressable>
+        </View>
+      )}
+      {limitReached && state.nextAvailableAt && (
+        <Text style={styles.limitNote}>{t("reward.limit", { date: new Date(state.nextAvailableAt).toLocaleDateString() })}</Text>
       )}
     </View>
   );
@@ -184,6 +243,9 @@ const styles = StyleSheet.create({
   playDot: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.accent, alignItems: "center", justifyContent: "center" },
   rewardedTitle: { color: colors.text, fontSize: 13, fontWeight: "800" },
   rewardedBody: { color: colors.textSecondary, fontSize: 11, marginTop: 1 },
+  readyChip: { alignSelf: "flex-start", backgroundColor: "rgba(30,194,139,0.12)", borderWidth: 1, borderColor: "rgba(30,194,139,0.35)", borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12 },
+  readyText: { color: colors.success, fontSize: 12, fontWeight: "700" },
+  limitNote: { color: colors.textFaint, fontSize: 11 },
   watchBtn: { backgroundColor: colors.accent, borderRadius: 9, paddingHorizontal: 12, paddingVertical: 8, minWidth: 58, alignItems: "center" },
   watchText: { color: colors.accentForeground, fontSize: 11, fontWeight: "800" },
 });

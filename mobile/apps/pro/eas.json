@@ -25,7 +25,8 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://www.servigic.com"
+        "EXPO_PUBLIC_API_URL": "https://www.servigic.com",
+        "EXPO_PUBLIC_ADMOB_ENV": "production"
       },
       "channel": "production"
     }

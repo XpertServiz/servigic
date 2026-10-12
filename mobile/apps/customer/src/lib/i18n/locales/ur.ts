@@ -27,7 +27,7 @@ export const ur: Partial<Record<TKey, string>> = {
   "splash.tagline": "قابلِ اعتماد گھریلو خدمات، جب چاہیں",
 
   "phone.label": "فون نمبر",
-  "phone.hint": "صرف مقامی فارمیٹ — +92 یا خالی جگہ کے بغیر",
+  "phone.hint": "اپنا ملک چنیں، پھر نمبر لکھیں",
   "phone.errorPrefix": "غلط فون نمبر — براہِ کرم اس طرح لکھیں",
   "phone.error": "غلط فون نمبر — براہِ کرم اس طرح لکھیں {example}",
 
@@ -428,4 +428,17 @@ export const ur: Partial<Record<TKey, string>> = {
   "trade.CLEANER": "صفائی کرنے والا",
   "trade.MASON": "راج مستری",
   "trade.HANDYMAN": "ہینڈی مین",
+  "phone.country": "ملک",
+  "phone.searchCountry": "ملک یا کوڈ تلاش کریں…",
+  "verify.pendingTitle": "تصدیق جاری ہے",
+  "verify.pendingBody": "عموماً 24 گھنٹے سے کم۔ آپ ابھی اپنا پروفائل مکمل کر سکتے ہیں — منظوری ملتے ہی بولی لگانا کھل جائے گا۔",
+  "verify.rejectedTitle": "ہم آپ کے دستاویزات منظور نہیں کر سکے",
+  "verify.rejectedFallback": "براہِ کرم اپنے شناختی کارڈ اور سیلفی کی واضح تصاویر اپ لوڈ کریں۔",
+  "kyc.ocrRead": "آپ کے شناختی کارڈ سے پڑھا گیا: {id} — ہماری ٹیم اسے دوبارہ جانچے گی",
+  "reward.ready": "آپ کی اگلی بکنگ پر PKR {amount} کی رعایت تیار ہے",
+  "reward.title": "اگلی بکنگ پر PKR {amount} کی رعایت پائیں",
+  "reward.body": "ایک مختصر اشتہار دیکھیں · اس ہفتے {limit} میں سے {used} استعمال ہوئے",
+  "reward.limit": "آپ اس ہفتے کے اشتہاری انعامات حاصل کر چکے ہیں — مزید {date} کو دستیاب ہوں گے",
+  "reward.applied": "اشتہاری انعام لاگو: PKR {total} میں سے PKR {amount} کی رعایت",
+  "done.rewardNote": "صارف کا اشتہاری انعام: −PKR {amount} (سروجک ادا کرے گا)",
 };

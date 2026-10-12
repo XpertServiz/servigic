@@ -75,3 +75,11 @@ Implements `SERVIGIC_REDESIGN_HANDOFF.md` for both apps. Shared code (design sys
 
 ### Backend deploy order (important)
 Run `npx prisma migrate deploy` **before** deploying the web app: two new migrations (`provider_visibility_boost`, `language_hi_es`). The Prisma client selects every column, so deploying first would break ProviderProfile queries.
+
+
+## v1.2.0 — AdMob units, OCR-assisted verification, international phones
+
+- **AdMob** — real ids live in `apps/*/src/lib/adUnits.ts` and `apps/*/app.config.js`. They are only used by the **production** (`.aab`) build (`EXPO_PUBLIC_ADMOB_ENV=production` / `EAS_BUILD_PROFILE=production`); the preview `.apk`, dev builds and QA use Google's test units. Customer **PKR 50 ad reward**: card on Customer Home; the server (`src/lib/rewards.ts`, `/api/mobile/rewards/ad-discount`) enforces max 2 per rolling 7 days and one credit per booking, applied when the booking reaches DONE. The discount is funded from Servigic's commission (customer pays the pro PKR 50 less, the pro's net is unchanged; capped at that booking's commission). Cash-after-job mode only.
+- **Verification review** — the Pro app reads the ID on-device (ML Kit via `expo-text-extractor`, `src/lib/idOcr.ts`) and sends the extracted fields with the profile. Admin/Reviewer queue at `/admin/verification` (ID photo + selfie + auto-filled fields, one-tap Approve/Reject) — approval is always manual. `SUPPORT` accounts only get that queue; make people reviewers/admins on `/admin/users`. Pending Pros see "Verification in progress — usually under 24 hours" and can browse/build their profile, bidding stays locked. SLA: `.github/workflows/verification-sla.yml` (hourly, runs from the default branch) calls `POST /api/cron/verification-sla` with the `CRON_SECRET` secret; unreviewed >24h submissions notify every admin/reviewer via `notify()`. Set the same `CRON_SECRET` on the web host.
+- **Phones** — country picker + libphonenumber (`libphonenumber-js/mobile`) in both apps and on the server; numbers are stored as E.164, old formats still match at login (`src/lib/phone.ts`).
+- Run `npx prisma migrate deploy` before deploying the web app (new migration `verification_ocr_and_ad_rewards`).

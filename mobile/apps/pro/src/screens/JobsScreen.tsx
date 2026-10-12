@@ -8,6 +8,7 @@ import * as api from "../lib/api";
 import { Badge } from "../components/ui";
 import { TabsUnderline, EmptyState, PriceText } from "../components/ds";
 import { RewardedBoostCard } from "../components/AdSlots";
+import { VerificationNotice } from "../components/VerificationNotice";
 import { colors } from "../lib/theme";
 import { enumLabel } from "../lib/status";
 import { useI18n } from "../lib/i18n";
@@ -43,6 +44,7 @@ export default function JobsScreen({ navigation }: Props) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isOnline, setIsOnline] = useState(true);
   const [boostedUntil, setBoostedUntil] = useState<string | null>(null);
+  const [verified, setVerified] = useState(true);
   const [loaded, setLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -56,6 +58,10 @@ export default function JobsScreen({ navigation }: Props) {
       setIsOnline(feed.isOnline);
       setBoostedUntil(feed.boostedUntil ?? null);
       setBookings(fetchedBookings);
+      api
+        .getProviderProfile()
+        .then(({ profile }) => setVerified((((profile as Record<string, unknown> | null)?.verificationLevel as number) ?? 0) >= 1))
+        .catch(() => {});
     } finally {
       setRefreshing(false);
       setLoaded(true);
@@ -103,6 +109,7 @@ export default function JobsScreen({ navigation }: Props) {
           contentContainerStyle={[listPadding, { paddingTop: 16 }]}
           ListHeaderComponent={
             <View style={{ gap: 12 }}>
+              {!verified && <VerificationNotice />}
               {!isOnline && (
                 <View style={styles.offlineCard}>
                   <Text style={{ color: colors.accent, fontWeight: "700" }}>{t("jobs.offlineTitle")}</Text>

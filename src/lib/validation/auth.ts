@@ -1,9 +1,22 @@
 import { z } from "zod";
+import { toE164 } from "@/lib/phone";
 
+// Registration: any country's number, validated by libphonenumber and stored
+// in E.164. A number with no country code is read as Pakistani (old app
+// versions and the web form).
 export const phoneSchema = z
   .string()
   .trim()
-  .regex(/^\+?[0-9]{10,14}$/, "Enter a valid phone number (e.g. 03001234567)");
+  .refine((v) => toE164(v) !== null, "Enter a valid phone number, including the country code (e.g. +923001234567)")
+  .transform((v) => toE164(v) as string);
+
+// Login: deliberately lenient. Accounts created before E.164 storage may hold
+// numbers libphonenumber considers unusual, and they must still be able to log
+// in; the lookup itself matches every stored variant (see phoneVariants).
+export const loginPhoneSchema = z
+  .string()
+  .trim()
+  .regex(/^[+0-9\s\-().]{7,20}$/, "Enter a valid phone number");
 
 export const registerSchema = z.object({
   role: z.enum(["CUSTOMER", "PROVIDER"]),
@@ -20,7 +33,7 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  phone: phoneSchema,
+  phone: loginPhoneSchema,
   password: z.string().min(1, "Password is required"),
 });
 

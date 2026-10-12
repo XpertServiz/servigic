@@ -12,7 +12,6 @@ import { AppTabBar } from "../components/TabBar";
 import { LanguageSuggestion } from "../components/LanguageSuggestion";
 import { SplashScreen } from "../screens/SplashScreen";
 import KycOnboardingScreen from "../screens/KycOnboardingScreen";
-import AwaitingApprovalScreen from "../screens/AwaitingApprovalScreen";
 import IncomingJobRing, { type IncomingJob } from "../screens/IncomingJobRing";
 
 import LoginScreen from "../screens/LoginScreen";
@@ -208,12 +207,13 @@ function MainRoot() {
   );
 }
 
-type ProfileGate = "loading" | "needsDocs" | "pendingApproval" | "approved";
+type ProfileGate = "loading" | "needsDocs" | "approved";
 
 export function RootNavigator() {
   const { t } = useI18n();
   const { user, loading } = useAuth();
   const [gate, setGate] = React.useState<ProfileGate>("loading");
+  const [rejectedReason, setRejectedReason] = React.useState<string | null>(null);
 
   const refreshGate = React.useCallback(async () => {
     if (!user) return;
@@ -221,17 +221,21 @@ export function RootNavigator() {
       const { profile } = await api.getProviderProfile();
       const p = (profile ?? {}) as Record<string, unknown>;
       const hasDocs = Boolean(p.cnicUrl) && Boolean(p.selfieUrl);
-      const verificationLevel = (p.verificationLevel as number) ?? 0;
-      if (!hasDocs) setGate("needsDocs");
-      else if (verificationLevel < 1) setGate("pendingApproval");
-      else setGate("approved");
+      // A rejection stands until the pro uploads new documents (which stamps a newer submission).
+      const rejectedAt = p.verificationRejectedAt ? new Date(p.verificationRejectedAt as string).getTime() : 0;
+      const submittedAt = p.verificationSubmittedAt ? new Date(p.verificationSubmittedAt as string).getTime() : 0;
+      const rejected = rejectedAt > 0 && submittedAt <= rejectedAt;
+      setRejectedReason(rejected ? ((p.verificationRejectedReason as string | null) ?? t("verify.rejectedFallback")) : null);
+      // Documents in but not yet approved: the pro can already browse and build their
+      // profile - bidding stays locked until a person has checked the documents.
+      setGate(!hasDocs || rejected ? "needsDocs" : "approved");
     } catch {
       // If the profile fetch fails, don't strand the user on a blank
       // screen — fall through to the normal app so they can at least retry
       // from Account, rather than a dead end with no way forward.
       setGate("approved");
     }
-  }, [user]);
+  }, [user, t]);
 
   React.useEffect(() => {
     if (user) refreshGate();
@@ -253,12 +257,7 @@ export function RootNavigator() {
           <SplashScreen />
         ) : gate === "needsDocs" ? (
           <RootStack.Navigator screenOptions={{ headerShown: false }}>
-            <RootStack.Screen name="Main">{() => <KycOnboardingScreen onSubmitted={refreshGate} />}</RootStack.Screen>
-            <RootStack.Screen name="Language" component={LanguageScreen} options={{ presentation: "modal" }} />
-          </RootStack.Navigator>
-        ) : gate === "pendingApproval" ? (
-          <RootStack.Navigator screenOptions={{ headerShown: false }}>
-            <RootStack.Screen name="Main">{() => <AwaitingApprovalScreen onRefresh={refreshGate} />}</RootStack.Screen>
+            <RootStack.Screen name="Main">{() => <KycOnboardingScreen onSubmitted={refreshGate} rejectedReason={rejectedReason} />}</RootStack.Screen>
             <RootStack.Screen name="Language" component={LanguageScreen} options={{ presentation: "modal" }} />
           </RootStack.Navigator>
         ) : (

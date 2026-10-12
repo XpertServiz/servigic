@@ -3,6 +3,7 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
 const NAV = [
   { href: "/admin", label: "Overview" },
+  { href: "/admin/verification", label: "Verification queue" },
   { href: "/admin/providers", label: "Providers" },
   { href: "/admin/jobs", label: "Jobs" },
   { href: "/admin/payments", label: "Payments" },
@@ -30,8 +31,10 @@ const NAV = [
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
+  // Reviewers (SUPPORT) only see the verification queue.
+  const navItems = session?.user?.role === "SUPPORT" ? NAV.filter((n) => n.href === "/admin/verification") : NAV;
   return (
-    <DashboardShell brand="Servigic Admin" navItems={NAV} userLabel={session?.user?.name ?? ""}>
+    <DashboardShell brand="Servigic Admin" navItems={navItems} userLabel={session?.user?.name ?? ""}>
       {children}
     </DashboardShell>
   );

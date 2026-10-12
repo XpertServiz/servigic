@@ -130,6 +130,24 @@ export function markNotificationsRead() {
   return request<{ ok: true }>("/api/mobile/notifications", { method: "POST" });
 }
 
+// ─── Ad-reward discount (PKR 50 off the next booking; rules enforced server-side) ───
+export type AdDiscountState = {
+  amountPKR: number;
+  weeklyLimit: number;
+  earnedThisWeek: number;
+  remainingThisWeek: number;
+  pendingCredits: number;
+  nextAvailableAt: string | null;
+};
+
+export function getAdDiscountState() {
+  return request<AdDiscountState>("/api/mobile/rewards/ad-discount");
+}
+
+export function claimAdDiscount() {
+  return request<AdDiscountState & { credit: { id: string; amountPKR: number } }>("/api/mobile/rewards/ad-discount", { method: "POST" });
+}
+
 // ─── Categories ───
 export function getCategories() {
   return request<{

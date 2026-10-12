@@ -1,23 +1,95 @@
-// Phone validation for every phone input (redesign spec §5). Local Pakistani
-// format only: 11 digits starting with 03 (e.g. 03076234578). Shared verbatim
-// by apps/customer and apps/pro.
+// International phone numbers (redesign spec §5). Validation and formatting use
+// libphonenumber (libphonenumber-js, the JS port of Google's library) — no
+// hand-written per-country regexes. Numbers are sent to the server in E.164.
+// Shared verbatim by apps/customer and apps/pro.
+import { parsePhoneNumberFromString, getCountries, getCountryCallingCode, getExampleNumber, type CountryCode } from "libphonenumber-js/mobile";
+import examples from "libphonenumber-js/examples.mobile.json";
+import { getLocales } from "expo-localization";
 
-export const PHONE_EXAMPLE = "03076234578";
+export type { CountryCode };
 
-const LOCAL_RE = /^03\d{9}$/;
+// The product is Pakistan-first: the last-resort default when neither the
+// server's geo hint nor the device region is known.
+export const FALLBACK_COUNTRY: CountryCode = "PK";
 
-/**
- * Cleans a typed/pasted phone number and auto-converts an unambiguous
- * +92 / 0092 prefix to the local leading 0 (+923076234578 → 03076234578).
- * Spaces, dashes and brackets are stripped. Never throws.
- */
-export function normalizePhone(input: string): string {
-  let value = input.replace(/[\s\-().]/g, "");
-  if (value.startsWith("+92")) value = `0${value.slice(3)}`;
-  else if (value.startsWith("0092")) value = `0${value.slice(4)}`;
-  return value;
+export interface Country {
+  code: CountryCode;
+  dial: string; // "+92"
+  flag: string; // emoji
+  name: string;
 }
 
-export function isValidPhone(input: string): boolean {
-  return LOCAL_RE.test(normalizePhone(input));
+export function flagEmoji(code: string): string {
+  return code
+    .toUpperCase()
+    .replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
+}
+
+let regionNames: { of: (code: string) => string | undefined } | null | undefined;
+function countryName(code: string): string {
+  if (regionNames === undefined) {
+    try {
+      const IntlAny = Intl as unknown as { DisplayNames?: new (l: string[], o: { type: string }) => { of: (c: string) => string | undefined } };
+      regionNames = IntlAny.DisplayNames ? new IntlAny.DisplayNames(["en"], { type: "region" }) : null;
+    } catch {
+      regionNames = null;
+    }
+  }
+  try {
+    return regionNames?.of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
+let cached: Country[] | null = null;
+export function allCountries(): Country[] {
+  cached ??= getCountries()
+    .map((code) => ({ code, dial: `+${getCountryCallingCode(code)}`, flag: flagEmoji(code), name: countryName(code) }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  return cached;
+}
+
+export function countryByCode(code: string | null | undefined): Country | undefined {
+  return allCountries().find((c) => c.code === code);
+}
+
+/** Picker default: the server's geo suggestion → the device region → Pakistan. A suggestion, never a lock. */
+export function defaultCountry(geoCountry?: string | null): CountryCode {
+  if (geoCountry && countryByCode(geoCountry)) return geoCountry as CountryCode;
+  try {
+    const region = getLocales()[0]?.regionCode;
+    if (region && countryByCode(region)) return region as CountryCode;
+  } catch {}
+  return FALLBACK_COUNTRY;
+}
+
+/** A valid example number for the country, for the placeholder and the error message. */
+export function exampleFor(country: CountryCode): { national: string; international: string } {
+  const sample = getExampleNumber(country, examples);
+  return {
+    national: sample?.formatNational() ?? "",
+    international: sample?.formatInternational() ?? `+${getCountryCallingCode(country)}`,
+  };
+}
+
+export interface ParsedPhone {
+  e164: string | null;
+  valid: boolean;
+  /** Country the number actually belongs to when the user typed an international number. */
+  detectedCountry?: CountryCode;
+  national?: string;
+}
+
+/**
+ * Normalises what was typed and validates it for the selected country. A
+ * leading 00 is read as + (0092… → +92…), a redundant national 0 is handled by
+ * libphonenumber, and a number typed with its own +code wins over the picker.
+ */
+export function parsePhone(input: string, country: CountryCode): ParsedPhone {
+  let value = input.trim().replace(/[\s\-().]/g, "");
+  if (value.startsWith("00")) value = `+${value.slice(2)}`;
+  const parsed = value ? parsePhoneNumberFromString(value, country) : undefined;
+  if (!parsed || !parsed.isValid()) return { e164: null, valid: false };
+  return { e164: parsed.number, valid: true, detectedCountry: parsed.country, national: parsed.formatNational() };
 }

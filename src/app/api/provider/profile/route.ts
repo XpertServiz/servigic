@@ -21,16 +21,33 @@ export async function PUT(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
-  const { agreementAccepted, cnicUrl, selfieUrl, policeCertUrl, photoQualityOk, photoConsentPublic, ...data } = parsed.data;
+  const { agreementAccepted, cnicUrl, selfieUrl, policeCertUrl, photoQualityOk, photoConsentPublic, cnicOcr, ...data } = parsed.data;
   // Only re-derive the geohash when a new location was actually sent —
   // partial submissions (e.g. the KYC screen's docs-only update) must not
   // clobber the existing location with encodeGeohash(undefined, undefined).
   const geohash = data.baseLat !== undefined && data.baseLng !== undefined ? encodeGeohash(data.baseLat, data.baseLng) : undefined;
 
+  // A complete CNIC + selfie submission (re)starts the verification review:
+  // it stamps the SLA clock and clears any earlier rejection. Only counts when
+  // new documents actually arrived with this request.
+  const existing = await prisma.providerProfile.findUnique({ where: { userId: auth.session.user.id } });
+  const newDocsSent = Boolean(cnicUrl || selfieUrl);
+  const hasBothDocs = Boolean(cnicUrl || existing?.cnicUrl) && Boolean(selfieUrl || existing?.selfieUrl);
+  const submittedForReview = newDocsSent && hasBothDocs && !existing?.isVerified;
+
   const profile = await prisma.providerProfile.update({
     where: { userId: auth.session.user.id },
     data: {
       ...data,
+      ...(cnicOcr ? { cnicOcr } : {}),
+      ...(submittedForReview
+        ? {
+            verificationSubmittedAt: new Date(),
+            verificationEscalatedAt: null,
+            verificationRejectedAt: null,
+            verificationRejectedReason: null,
+          }
+        : {}),
       ...(geohash ? { geohash } : {}),
       // "" means "nothing new uploaded" — leave whatever was already saved.
       ...(cnicUrl ? { cnicUrl } : {}),

@@ -10,10 +10,10 @@
 // bidding confirmation, or the job-posting form. Interstitials are never
 // triggered by an inactivity timer.
 //
-// Ad unit ids come from EXPO_PUBLIC_ADMOB_* env vars (set them in eas.json /
-// CI once the AdMob account has real units). Until then Google's official TEST
-// ids are used — safe to ship and tap, but they earn no revenue.
+// Ad unit ids live in adUnits.ts (per app): Google's TEST units everywhere except
+// the production build submitted to Play, which uses the real AdMob units.
 import { Platform } from "react-native";
+import { ADMOB_PRODUCTION, REAL_AD_UNITS } from "./adUnits";
 
 type AdsModule = typeof import("react-native-google-mobile-ads");
 
@@ -34,12 +34,7 @@ export function getAds(): AdsModule | null {
 export function adUnit(kind: "native" | "interstitial" | "rewarded"): string | null {
   const ads = getAds();
   if (!ads || Platform.OS === "web") return null;
-  const env = {
-    native: process.env.EXPO_PUBLIC_ADMOB_NATIVE_HOME,
-    interstitial: process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL,
-    rewarded: process.env.EXPO_PUBLIC_ADMOB_REWARDED,
-  }[kind];
-  if (env) return env;
+  if (ADMOB_PRODUCTION) return REAL_AD_UNITS[kind] ?? null;
   return { native: ads.TestIds.NATIVE, interstitial: ads.TestIds.INTERSTITIAL, rewarded: ads.TestIds.REWARDED }[kind];
 }
 

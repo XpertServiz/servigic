@@ -1,0 +1,24 @@
+name: Verification SLA reminder
+
+# Every hour: if a Pro's CNIC/selfie submission has been waiting for review for
+# more than 24 hours, the site notifies all admins/reviewers (once per
+# submission). Needs the CRON_SECRET repo secret, and the SAME value set as the
+# CRON_SECRET environment variable on the web host. Scheduled workflows only run
+# from the repository's default branch.
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+jobs:
+  escalate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call the SLA endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: https://www.servigic.com
+        run: |
+          if [ -z "$CRON_SECRET" ]; then echo "CRON_SECRET repo secret is not set"; exit 1; fi
+          curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" "$SITE_URL/api/cron/verification-sla"

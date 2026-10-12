@@ -9,6 +9,7 @@ import { GlassCard, GradientButton, haptic } from "../components/ds";
 import { HeaderActions } from "../components/HeaderActions";
 import { JobPinMarker } from "../components/MapPins";
 import { NativeAdStrip } from "../components/AdSlots";
+import { VerificationNotice } from "../components/VerificationNotice";
 import { colors, mapStyle } from "../lib/theme";
 import { navigateRoot } from "../navigation/ref";
 import { useT } from "../lib/i18n";
@@ -175,7 +176,9 @@ export default function HomeScreen() {
         )}
 
         {profile.verificationLevel < 1 ? (
-          <Text style={styles.verifyNote}>{t("home.completeVerification")}</Text>
+          <View style={{ marginBottom: 14 }}>
+            <VerificationNotice />
+          </View>
         ) : (
           <>
             <Text style={styles.sheetSub}>{t("home.jobsAvailable", { n: jobs.length })}</Text>

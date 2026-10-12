@@ -9,7 +9,7 @@ const { auth } = NextAuth(authConfig);
 
 // Note: "/pro" itself is the public provider-acquisition landing page (§7)
 // and is intentionally NOT in this list — only the panel sub-routes are gated.
-const PROTECTED_PREFIXES: { prefix: string; role: "CUSTOMER" | "PROVIDER" | "ADMIN" }[] = [
+const PROTECTED_PREFIXES: { prefix: string; role: "CUSTOMER" | "PROVIDER" | "ADMIN" | "SUPPORT" }[] = [
   { prefix: "/dashboard", role: "CUSTOMER" },
   { prefix: "/jobs/new", role: "CUSTOMER" },
   { prefix: "/bookings", role: "CUSTOMER" },
@@ -18,6 +18,8 @@ const PROTECTED_PREFIXES: { prefix: string; role: "CUSTOMER" | "PROVIDER" | "ADM
   { prefix: "/pro/bookings", role: "PROVIDER" },
   { prefix: "/pro/earnings", role: "PROVIDER" },
   { prefix: "/pro/profile", role: "PROVIDER" },
+  // Reviewers (SUPPORT) may open the verification queue only; ADMIN passes every check below.
+  { prefix: "/admin/verification", role: "SUPPORT" },
   { prefix: "/admin", role: "ADMIN" },
 ];
 
@@ -26,7 +28,8 @@ export default auth((req) => {
   const user = req.auth?.user;
 
   if ((pathname === "/login" || pathname === "/signup") && user) {
-    const home = user.role === "ADMIN" ? "/admin" : user.role === "PROVIDER" ? "/pro/dashboard" : "/dashboard";
+    const home =
+      user.role === "ADMIN" ? "/admin" : user.role === "SUPPORT" ? "/admin/verification" : user.role === "PROVIDER" ? "/pro/dashboard" : "/dashboard";
     return NextResponse.redirect(new URL(home, req.nextUrl.origin));
   }
 

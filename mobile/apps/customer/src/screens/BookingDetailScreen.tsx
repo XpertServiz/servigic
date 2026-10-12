@@ -270,7 +270,12 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
         {booking.paymentMode === "CASH_WALLET" && done && (
           <Card style={{ marginTop: 16 }}>
             <Text style={styles.cardTitle}>{t("pay.payDirectly", { name: proName || t("booking.yourPro") })}</Text>
-            <PriceText pkr={booking.totalPKR as number} size="md" color={colors.accent} />
+            <PriceText pkr={(booking.totalPKR as number) - ((booking.rewardDiscountPKR as number | undefined) ?? 0)} size="md" color={colors.accent} />
+            {Number(booking.rewardDiscountPKR) > 0 && (
+              <Text style={{ color: colors.success, marginTop: 4, fontSize: 12, fontWeight: "700" }}>
+                {t("reward.applied", { amount: booking.rewardDiscountPKR as number, total: (booking.totalPKR as number).toLocaleString() })}
+              </Text>
+            )}
             <Text style={{ color: colors.textMuted, marginTop: 6, fontSize: 13, lineHeight: 19 }}>{t("pay.cashNote")}</Text>
           </Card>
         )}

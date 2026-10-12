@@ -4,11 +4,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../navigation/RootNavigator";
 import { useAuth } from "../lib/auth";
-import { Button, Field, PhoneField } from "../components/ui";
+import { Button, Field, PhoneField, usePhoneInput } from "../components/ui";
 import { GlowBackground } from "../components/ds";
 import { HeaderActions } from "../components/HeaderActions";
 import { colors } from "../lib/theme";
-import { isValidPhone, normalizePhone } from "../lib/phone";
 import { useT } from "../lib/i18n";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
@@ -17,21 +16,21 @@ export default function LoginScreen({ navigation }: Props) {
   const t = useT();
   const insets = useSafeAreaInsets();
   const { signIn } = useAuth();
-  const [phone, setPhone] = useState("");
+  const phone = usePhoneInput();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleLogin() {
     setError(null);
-    const normalized = normalizePhone(phone);
-    if (!isValidPhone(normalized)) {
-      setError(t("phone.error", { example: "03076234578" }));
+    phone.setTouched(true);
+    if (!phone.e164) {
+      setError(t("phone.error", { example: phone.example.international }));
       return;
     }
     setLoading(true);
     try {
-      await signIn(normalized, password);
+      await signIn(phone.e164, password);
     } catch (e) {
       setError(e instanceof Error ? e.message : t("auth.loginFailed"));
     } finally {
@@ -52,12 +51,12 @@ export default function LoginScreen({ navigation }: Props) {
           <Text style={styles.title}>{t("auth.welcomeBack")}</Text>
           <Text style={styles.subtitle}>{t("auth.proTagline")}</Text>
 
-          <PhoneField value={phone} onChangeText={setPhone} />
+          <PhoneField phone={phone} />
           <Field label={t("auth.password")} secureTextEntry value={password} onChangeText={setPassword} placeholder="••••••••" />
 
           {error && <Text style={styles.error}>{error}</Text>}
 
-          <Button title={t("auth.logIn")} onPress={handleLogin} loading={loading} disabled={!phone || !password} />
+          <Button title={t("auth.logIn")} onPress={handleLogin} loading={loading} disabled={!phone.text || !password} />
 
           <View style={{ marginTop: 22, alignItems: "center" }}>
             <Text style={{ color: colors.textMuted, fontSize: 13 }}>

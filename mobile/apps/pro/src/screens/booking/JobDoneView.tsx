@@ -19,7 +19,10 @@ export function JobDoneView({ booking, onBackToJobs }: { booking: BookingData; o
   const insets = useSafeAreaInsets();
   const [leaving, setLeaving] = useState(false);
   const cash = booking.paymentMode !== "PROTECTED";
-  const commission = booking.commissionPKR ?? booking.totalPKR - booking.payoutPKR;
+  const reward = booking.rewardDiscountPKR ?? 0;
+  // A customer ad-reward comes out of Servigic's commission: the customer pays
+  // you that much less and you owe Servigic that much less - your net is unchanged.
+  const commission = (booking.commissionPKR ?? booking.totalPKR - booking.payoutPKR) - reward;
   const pct = booking.commissionPct ?? (booking.totalPKR > 0 ? Math.round((commission / booking.totalPKR) * 100) : 12);
 
   useEffect(() => {
@@ -45,7 +48,8 @@ export function JobDoneView({ booking, onBackToJobs }: { booking: BookingData; o
 
         <View style={styles.card}>
           <Text style={styles.cardLabel}>{cash ? t("done.collect") : t("done.payout")}</Text>
-          <Text style={styles.amount}>PKR {(cash ? booking.totalPKR : booking.payoutPKR).toLocaleString()}</Text>
+          <Text style={styles.amount}>PKR {(cash ? booking.totalPKR - reward : booking.payoutPKR).toLocaleString()}</Text>
+          {cash && reward > 0 && <Text style={styles.rewardNote}>{t("done.rewardNote", { amount: reward })}</Text>}
           <View style={styles.statsRow}>
             <View>
               <Text style={styles.statLabel}>{t("done.commission", { pct })}</Text>
@@ -94,5 +98,6 @@ const styles = StyleSheet.create({
   statLabel: { color: colors.textMuted, fontSize: 11 },
   statValue: { color: colors.text, fontSize: 13, fontWeight: "700", marginTop: 2 },
   note: { color: colors.textFainter, fontSize: 11, marginTop: 12, lineHeight: 16 },
+  rewardNote: { color: colors.success, fontSize: 11, fontWeight: "700", marginTop: 6 },
   waiting: { marginTop: 20, fontSize: 13, color: colors.textMuted, textAlign: "center" },
 });

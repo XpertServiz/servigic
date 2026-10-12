@@ -47,4 +47,15 @@ export const providerProfileSchema = z.object({
   payoutAccount: z.string().trim().max(60).optional(),
   agreementAccepted: z.boolean().optional(),
   photoConsentPublic: z.boolean().optional(),
+  // Fields the Pro app read off the ID photo on-device (ML Kit) to pre-fill the
+  // admin review screen. Convenience only - it is never used to verify anyone.
+  cnicOcr: z
+    .object({
+      fullName: z.string().trim().max(120).optional(),
+      idNumber: z.string().trim().max(40).optional(),
+      dob: z.string().trim().max(40).optional(),
+      address: z.string().trim().max(300).optional(),
+      rawLines: z.array(z.string().max(200)).max(60).optional(),
+    })
+    .optional(),
 });

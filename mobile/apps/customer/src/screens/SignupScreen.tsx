@@ -4,10 +4,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
-import { Button, Field, PhoneField } from "../components/ui";
+import { Button, Field, PhoneField, usePhoneInput } from "../components/ui";
 import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
-import { isValidPhone, normalizePhone } from "../lib/phone";
 import { useT } from "../lib/i18n";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Signup">;
@@ -17,21 +16,21 @@ export default function SignupScreen({ navigation }: Props) {
   const t = useT();
   const insets = useSafeAreaInsets();
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const phone = usePhoneInput();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSignup() {
     setError(null);
-    const normalized = normalizePhone(phone);
-    if (!isValidPhone(normalized)) {
-      setError(t("phone.error", { example: "03076234578" }));
+    phone.setTouched(true);
+    if (!phone.e164) {
+      setError(t("phone.error", { example: phone.example.international }));
       return;
     }
     setLoading(true);
     try {
-      const { userId } = await api.register({ role: "CUSTOMER", name, phone: normalized, password, city: "Karachi" });
+      const { userId } = await api.register({ role: "CUSTOMER", name, phone: phone.e164, password, city: "Karachi" });
       navigation.replace("VerifyOtp", { userId });
     } catch (e) {
       setError(e instanceof Error ? e.message : t("auth.signupFailed"));
@@ -53,12 +52,12 @@ export default function SignupScreen({ navigation }: Props) {
         <Text style={styles.subtitle}>{t("auth.signupSubtitle")}</Text>
 
         <Field label={t("auth.fullName")} value={name} onChangeText={setName} />
-        <PhoneField value={phone} onChangeText={setPhone} />
+        <PhoneField phone={phone} />
         <Field label={t("auth.password")} secureTextEntry value={password} onChangeText={setPassword} placeholder="••••••••" />
 
         {error && <Text style={styles.error}>{error}</Text>}
 
-        <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone || password.length < 8} />
+        <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || password.length < 8} />
         <Text style={styles.legal}>{t("auth.legal")}</Text>
       </ScrollView>
     </View>

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { bookingStatusSchema } from "@/lib/validation/booking";
 import { notify } from "@/lib/notify";
+import { getPaymentMode } from "@/lib/featureFlags";
+import { applyAdDiscountToBooking } from "@/lib/rewards";
 
 const NEXT_STATUS: Record<string, string> = {
   CONFIRMED: "ON_MY_WAY",
@@ -43,11 +45,24 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     },
   });
 
+  // Customer ad-reward: the oldest unused PKR 50 credit is applied to the first
+  // booking that reaches DONE (cash-after-job mode only). It is funded from
+  // Servigic's commission, so the pro's net is unchanged.
+  let discountPKR = 0;
+  if (parsed.data.status === "DONE" && (await getPaymentMode()) === "CASH_WALLET") {
+    discountPKR = await applyAdDiscountToBooking({ id: booking.id, customerId: booking.customerId, commissionPKR: booking.commissionPKR });
+  }
+
   await notify({
     userId: booking.customerId,
     type: "STATUS_UPDATE",
     title: `Your pro ${STATUS_MESSAGE[parsed.data.status]}`,
-    body: parsed.data.status === "DONE" ? "Confirm the job is done to release payment." : "Track live on your booking page.",
+    body:
+      parsed.data.status === "DONE"
+        ? discountPKR > 0
+          ? `Your ad reward took PKR ${discountPKR} off - pay PKR ${(booking.totalPKR - discountPKR).toLocaleString()} and confirm the job is done.`
+          : "Confirm the job is done to release payment."
+        : "Track live on your booking page.",
     linkUrl: `/bookings/${id}`,
     channels: ["whatsapp"],
   });

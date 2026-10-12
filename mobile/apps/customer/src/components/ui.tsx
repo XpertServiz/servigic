@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { ActivityIndicator, Pressable, Text, TextInput, View, StyleSheet, type TextInputProps } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, FlatList, Modal, Pressable, Text, TextInput, View, StyleSheet, type TextInputProps } from "react-native";
 import { colors } from "../lib/theme";
 import { haptic, GradientButton } from "./ds";
 import { Icon } from "./Icon";
-import { useT } from "../lib/i18n";
-import { PHONE_EXAMPLE, isValidPhone, normalizePhone } from "../lib/phone";
+import { useI18n, useT } from "../lib/i18n";
+import { allCountries, countryByCode, defaultCountry, exampleFor, parsePhone, type CountryCode } from "../lib/phone";
 
 export function Button({
   title,
@@ -92,45 +92,161 @@ export function Field({
   );
 }
 
-// Phone input for every auth form. Local Pakistani format only
-// (03XXXXXXXXX); a leading +92 / 0092 is converted automatically. Validates
-// on blur, never mid-typing, so it doesn't flash red while the user types.
-export function PhoneField({
-  value,
-  onChangeText,
-  label,
-  onValidityChange,
-}: {
-  value: string;
-  onChangeText: (v: string) => void;
-  label?: string;
-  onValidityChange?: (valid: boolean) => void;
-}) {
-  const t = useT();
+// Phone input for every auth form: a country picker (flag + dial code) plus the
+// number, validated with libphonenumber. The picker defaults from the server geo
+// hint, then the device region, then Pakistan - a suggestion the user can always
+// change. Validates on blur (never mid-typing), auto-normalises a typed +code or
+// 00 prefix, and the example in the placeholder and the error message is
+// generated for the selected country. The number is exposed in E.164.
+export function usePhoneInput() {
+  const { countryCode } = useI18n();
+  const [country, setCountryState] = useState<CountryCode>(() => defaultCountry(countryCode));
+  const [countryTouched, setCountryTouched] = useState(false);
+  const [text, setText] = useState("");
   const [touched, setTouched] = useState(false);
-  const invalid = touched && !isValidPhone(value);
+
+  // The geo hint arrives asynchronously; apply it unless the user already chose.
+  useEffect(() => {
+    if (!countryTouched) setCountryState(defaultCountry(countryCode));
+  }, [countryCode, countryTouched]);
+
+  const parsed = useMemo(() => parsePhone(text, country), [text, country]);
+  const example = useMemo(() => exampleFor(country), [country]);
+  return {
+    country,
+    setCountry: (c: CountryCode) => {
+      setCountryTouched(true);
+      setCountryState(c);
+    },
+    text,
+    setText,
+    touched,
+    setTouched,
+    e164: parsed.e164,
+    valid: parsed.valid,
+    parsed,
+    example,
+  };
+}
+export type PhoneInputState = ReturnType<typeof usePhoneInput>;
+
+export function PhoneField({ phone, label }: { phone: PhoneInputState; label?: string }) {
+  const t = useT();
+  const [picking, setPicking] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const selected = countryByCode(phone.country);
+  const invalid = phone.touched && !phone.valid;
+
+  function onBlur() {
+    setFocused(false);
+    phone.setTouched(true);
+    // A number typed with its own country code switches the picker to match.
+    const p = phone.parsed;
+    if (p.valid && p.detectedCountry && p.detectedCountry !== phone.country) phone.setCountry(p.detectedCountry);
+    if (p.valid && p.national) phone.setText(p.national);
+  }
 
   return (
-    <Field
-      label={label ?? t("phone.label")}
-      keyboardType="phone-pad"
-      placeholder={PHONE_EXAMPLE}
-      value={value}
-      onChangeText={(v) => {
-        onChangeText(v);
-        onValidityChange?.(isValidPhone(v));
-      }}
-      onBlur={() => {
-        const normalized = normalizePhone(value);
-        if (normalized !== value) onChangeText(normalized);
-        setTouched(true);
-        onValidityChange?.(isValidPhone(normalized));
-      }}
-      error={invalid ? `${t("phone.errorPrefix")} ${PHONE_EXAMPLE}` : null}
-      helper={t("phone.hint")}
-      autoCapitalize="none"
-      autoCorrect={false}
-    />
+    <View style={{ marginBottom: 16 }}>
+      <Text style={styles.label}>{label ?? t("phone.label")}</Text>
+      <View style={[styles.inputWrap, focused && { borderColor: colors.accent }, invalid && { borderColor: colors.danger, borderWidth: 1.5 }]}>
+        <Pressable onPress={() => setPicking(true)} style={styles.dial} accessibilityLabel={t("phone.country")}>
+          <Text style={{ fontSize: 18 }}>{selected?.flag}</Text>
+          <Text style={styles.dialText}>{selected?.dial}</Text>
+          <Text style={{ color: colors.textFaint, fontSize: 10 }}>▼</Text>
+        </Pressable>
+        <TextInput
+          value={phone.text}
+          onChangeText={phone.setText}
+          onFocus={() => setFocused(true)}
+          onBlur={onBlur}
+          placeholder={phone.example.national}
+          placeholderTextColor={colors.textFaint}
+          keyboardType="phone-pad"
+          autoCapitalize="none"
+          autoCorrect={false}
+          style={styles.input}
+        />
+        {invalid && <Icon name="warning" size={17} color={colors.danger} />}
+      </View>
+      {invalid ? (
+        <View style={styles.errorRow}>
+          <Text style={styles.errorText}>
+            {t("phone.errorPrefix")} {phone.example.international}
+          </Text>
+        </View>
+      ) : (
+        <Text style={styles.helper}>{t("phone.hint")}</Text>
+      )}
+      <CountryPicker
+        visible={picking}
+        selected={phone.country}
+        onClose={() => setPicking(false)}
+        onSelect={(c) => {
+          phone.setCountry(c);
+          setPicking(false);
+        }}
+      />
+    </View>
+  );
+}
+
+function CountryPicker({
+  visible,
+  selected,
+  onClose,
+  onSelect,
+}: {
+  visible: boolean;
+  selected: CountryCode;
+  onClose: () => void;
+  onSelect: (c: CountryCode) => void;
+}) {
+  const t = useT();
+  const [query, setQuery] = useState("");
+  const list = useMemo(() => {
+    const q = query.trim().toLowerCase().replace(/^\+/, "");
+    const all = allCountries();
+    if (!q) return all;
+    return all.filter((c) => c.name.toLowerCase().includes(q) || c.code.toLowerCase() === q || c.dial.replace("+", "").startsWith(q));
+  }, [query]);
+
+  return (
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+      <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.6)" }}>
+        <View style={styles.pickerSheet}>
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
+            <Text style={{ flex: 1, color: colors.text, fontSize: 17, fontWeight: "800" }}>{t("phone.country")}</Text>
+            <Pressable onPress={onClose} hitSlop={10}>
+              <Text style={{ color: colors.accent, fontWeight: "700" }}>{t("common.cancel")}</Text>
+            </Pressable>
+          </View>
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder={t("phone.searchCountry")}
+            placeholderTextColor={colors.textFaint}
+            style={styles.pickerSearch}
+            autoCorrect={false}
+          />
+          <FlatList
+            data={list}
+            keyExtractor={(c) => c.code}
+            keyboardShouldPersistTaps="handled"
+            initialNumToRender={20}
+            renderItem={({ item }) => (
+              <Pressable onPress={() => onSelect(item.code)} style={[styles.countryRow, item.code === selected && { backgroundColor: colors.accentTint }]}>
+                <Text style={{ fontSize: 20 }}>{item.flag}</Text>
+                <Text style={{ flex: 1, color: colors.text, fontSize: 14 }} numberOfLines={1}>
+                  {item.name}
+                </Text>
+                <Text style={{ color: colors.textMuted, fontSize: 13 }}>{item.dial}</Text>
+              </Pressable>
+            )}
+          />
+        </View>
+      </View>
+    </Modal>
   );
 }
 
@@ -173,5 +289,10 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
   },
+  dial: { flexDirection: "row", alignItems: "center", gap: 5, paddingRight: 10, marginRight: 2, borderRightWidth: 1, borderRightColor: "rgba(255,255,255,0.1)", paddingVertical: 13 },
+  dialText: { color: colors.text, fontSize: 14, fontWeight: "600" },
+  pickerSheet: { backgroundColor: colors.bgElevated, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 18, maxHeight: "80%" },
+  pickerSearch: { backgroundColor: colors.bg, borderWidth: 1, borderColor: "rgba(245,166,35,0.18)", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 11, color: colors.text, marginBottom: 8 },
+  countryRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, paddingHorizontal: 8, borderRadius: 10 },
   badge: { borderRadius: 99, paddingHorizontal: 10, paddingVertical: 4, alignSelf: "flex-start" },
 });

@@ -105,6 +105,8 @@ interface I18nState {
   suggestion: LangCode | null;
   suggestedForCountry: LangCode | null;
   countryName: string | null;
+  /** ISO country code from the server's geo hint (also used to default the phone-country picker). */
+  countryCode: string | null;
   setLanguage: (code: LangCode) => Promise<void>;
   dismissSuggestion: () => void;
   /** Call right after sign-in with the language stored on the account. */
@@ -119,6 +121,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [suggestion, setSuggestion] = useState<LangCode | null>(null);
   const [suggestedForCountry, setSuggestedForCountry] = useState<LangCode | null>(null);
   const [countryName, setCountryName] = useState<string | null>(null);
+  const [countryCode, setCountryCode] = useState<string | null>(null);
   const loggedIn = useRef(false);
   const chosen = useRef(false);
 
@@ -137,6 +140,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
         if (isLangCode(market.suggestedLocale)) {
           setSuggestedForCountry(market.suggestedLocale);
           setCountryName(market.countryName);
+          setCountryCode(market.country);
           const prompted = (await read(KEY_PROMPTED)) === "1";
           if (!chosen.current && !prompted && market.suggestedLocale !== initial) setSuggestion(market.suggestedLocale);
         }
@@ -188,11 +192,12 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       suggestion,
       suggestedForCountry,
       countryName,
+      countryCode,
       setLanguage,
       dismissSuggestion,
       syncWithAccount,
     }),
-    [lang, ready, suggestion, suggestedForCountry, countryName, setLanguage, dismissSuggestion, syncWithAccount]
+    [lang, ready, suggestion, suggestedForCountry, countryName, countryCode, setLanguage, dismissSuggestion, syncWithAccount]
   );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;

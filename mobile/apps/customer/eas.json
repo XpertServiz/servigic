@@ -35,7 +35,8 @@
         "EXPO_PUBLIC_EASYPAISA_NUMBER": "0300-0000000",
         "EXPO_PUBLIC_BANK_ACCOUNT_TITLE": "Servigic (Pvt) Ltd",
         "EXPO_PUBLIC_BANK_ACCOUNT_NUMBER": "0000-0000000000-00",
-        "EXPO_PUBLIC_BANK_NAME": "Meezan Bank"
+        "EXPO_PUBLIC_BANK_NAME": "Meezan Bank",
+        "EXPO_PUBLIC_ADMOB_ENV": "production"
       },
       "channel": "production"
     }

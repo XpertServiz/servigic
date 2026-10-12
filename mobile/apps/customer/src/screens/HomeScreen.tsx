@@ -8,7 +8,7 @@ import type { HomeStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
 import { AnimatedTradeIcon, Chip, GlowBackground, haptic } from "../components/ds";
 import { HeaderActions } from "../components/HeaderActions";
-import { NativeAdStrip } from "../components/AdSlots";
+import { NativeAdStrip, RewardedDiscountCard, type AdDiscountState } from "../components/AdSlots";
 import { colors, accentGradientStops } from "../lib/theme";
 import { enumLabel } from "../lib/status";
 import { useI18n } from "../lib/i18n";
@@ -26,6 +26,7 @@ export default function HomeScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeBooking, setActiveBooking] = useState<Booking | null>(null);
+  const [discount, setDiscount] = useState<AdDiscountState | null>(null);
   const pulse = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -51,6 +52,11 @@ export default function HomeScreen({ navigation }: Props) {
       .getMyBookings()
       .then(({ bookings }) => setActiveBooking(bookings.find((b) => ACTIVE_BOOKING_STATUSES.includes(b.status)) ?? null))
       .catch(() => setActiveBooking(null));
+    // Older backend without the rewards endpoint: the card simply stays hidden.
+    api
+      .getAdDiscountState()
+      .then(setDiscount)
+      .catch(() => setDiscount(null));
   }, [t]);
 
   useFocusEffect(load);
@@ -123,6 +129,17 @@ export default function HomeScreen({ navigation }: Props) {
         </View>
 
         <View style={{ paddingHorizontal: 18, paddingTop: 16 }}>
+          <RewardedDiscountCard
+            state={discount}
+            onReward={async () => {
+              // The server enforces 2 per rolling 7 days and one credit per booking.
+              const next = await api.claimAdDiscount();
+              setDiscount(next);
+            }}
+          />
+        </View>
+
+        <View style={{ paddingHorizontal: 18, paddingTop: 12 }}>
           <NativeAdStrip />
         </View>
 
