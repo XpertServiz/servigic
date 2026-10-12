@@ -100,7 +100,7 @@ async function fireRingOnce(job?: { title: string; body: string }) {
           sound: "new_job_alert.wav",
           priority: Notifications.AndroidNotificationPriority.MAX,
         },
-        trigger: { channelId: CHANNELS.newJob },
+        trigger: Platform.OS === "android" ? { channelId: CHANNELS.newJob } : null,
       });
       return;
     }

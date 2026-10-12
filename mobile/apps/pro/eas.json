@@ -29,6 +29,13 @@
         "EXPO_PUBLIC_ADMOB_ENV": "production"
       },
       "channel": "production"
+    },
+    "simulator": {
+      "extends": "preview",
+      "ios": {
+        "simulator": true
+      },
+      "channel": "simulator"
     }
   },
   "submit": {

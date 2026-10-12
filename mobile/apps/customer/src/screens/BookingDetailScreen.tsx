@@ -12,7 +12,7 @@ import { StatusStepper, PriceText, RatingStars, ConfettiBurst, GradientButton, G
 import { DestinationMarker, TrackedBikeMarker } from "../components/MapPins";
 import { Icon } from "../components/Icon";
 import { sound } from "../lib/sound";
-import { colors, mapStyle } from "../lib/theme";
+import { colors, mapStyle, mapProvider } from "../lib/theme";
 import { enumLabel, STATUS_STEPS, statusStepIndex } from "../lib/status";
 import { useI18n } from "../lib/i18n";
 import { CancelBookingSheet } from "./CancelBookingSheet";
@@ -315,6 +315,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
           <View style={styles.mapCard}>
             <MapView
               style={StyleSheet.absoluteFill}
+              provider={mapProvider}
               customMapStyle={mapStyle}
               initialRegion={{ ...dest, latitudeDelta: 0.04, longitudeDelta: 0.04 }}
               toolbarEnabled={false}

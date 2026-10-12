@@ -20,16 +20,26 @@ on:
           - admin
           - both
       profile:
-        description: "EAS build profile"
+        description: "EAS build profile (Android: preview=.apk, production=.aab. iOS: simulator=unsigned Simulator build, production=signed App Store .ipa)"
         required: true
         default: preview
         type: choice
         options:
           - preview
           - production
+          - simulator
+      platform:
+        description: "Platform"
+        required: true
+        default: android
+        type: choice
+        options:
+          - android
+          - ios
 
 jobs:
   build:
+    if: github.event.inputs.platform != 'ios'
     runs-on: ubuntu-latest
     # A hung Gradle daemon (see GRADLE_OPTS below) previously sat "in
     # progress" for 4+ hours instead of failing — cap it so a future hang
@@ -132,4 +142,52 @@ jobs:
         with:
           name: servigic-${{ matrix.app }}-${{ github.event.inputs.profile }}.${{ steps.ext.outputs.ext }}
           path: mobile/apps/${{ matrix.app }}/build-${{ matrix.app }}.${{ steps.ext.outputs.ext }}
+          retention-days: 30
+
+  # iOS: runs on GitHub's macOS runners via `eas build --local`. The "simulator"
+  # profile needs no Apple account and produces an unsigned .app for the iOS
+  # Simulator (a Mac). The "production" profile produces a signed App Store
+  # .ipa and needs Apple credentials set up once in EAS (`eas credentials`).
+  build-ios:
+    if: github.event.inputs.platform == 'ios'
+    runs-on: macos-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ (github.event.inputs.app == 'both' && fromJSON('["customer","pro"]')) || fromJSON(format('["{0}"]', github.event.inputs.app)) }}
+    defaults:
+      run:
+        working-directory: mobile/apps/${{ matrix.app }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install eas-cli
+        run: npm install -g eas-cli
+
+      - name: Determine build output extension
+        id: ext
+        run: |
+          if [ "${{ github.event.inputs.profile }}" = "simulator" ]; then
+            echo "ext=tar.gz" >> "$GITHUB_OUTPUT"
+          else
+            echo "ext=ipa" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build iOS locally (EAS)
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: eas build --local --platform ios --profile ${{ github.event.inputs.profile }} --non-interactive --output ./build-${{ matrix.app }}-ios.${{ steps.ext.outputs.ext }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: servigic-${{ matrix.app }}-ios-${{ github.event.inputs.profile }}.${{ steps.ext.outputs.ext }}
+          path: mobile/apps/${{ matrix.app }}/build-${{ matrix.app }}-ios.${{ steps.ext.outputs.ext }}
           retention-days: 30

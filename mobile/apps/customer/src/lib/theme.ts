@@ -1,6 +1,8 @@
 // "Premium-Dark Evolution" tokens (SERVIGIC_REDESIGN_HANDOFF.md §1).
 // Shared verbatim by apps/customer and apps/pro — if you change one, copy the
 // change to the other.
+import { Platform } from "react-native";
+import { PROVIDER_GOOGLE } from "react-native-maps";
 export const colors = {
   // Surfaces
   bg: "#0A0808", // near-black, deliberately not pure #000
@@ -74,3 +76,9 @@ export const mapStyle = [
   { featureType: "transit", stylers: [{ visibility: "off" }] },
   { featureType: "water", elementType: "geometry", stylers: [{ color: "#0B0907" }] },
 ];
+
+// customMapStyle (the amber roads) only renders on the Google provider. Android
+// always uses it. On iOS it needs a Google Maps iOS API key baked into the build
+// (GOOGLE_MAPS_IOS_API_KEY at build time + EXPO_PUBLIC_IOS_GOOGLE_MAPS=true); without
+// one the map falls back to Apple Maps, which works but ignores the custom style.
+export const mapProvider = Platform.OS === "android" || process.env.EXPO_PUBLIC_IOS_GOOGLE_MAPS === "true" ? PROVIDER_GOOGLE : undefined;

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import { NavigationContainer, DarkTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -151,7 +152,7 @@ function MainTabs() {
           haptic.success();
           Notifications.scheduleNotificationAsync({
             content: { title: t("push.newBidTitle"), body: t("push.newBidBody"), sound: "job_status_update.wav" },
-            trigger: { channelId: CHANNELS.status },
+            trigger: Platform.OS === "android" ? { channelId: CHANNELS.status } : null,
           }).catch(() => {});
         }
         lastBidCount.current = total;

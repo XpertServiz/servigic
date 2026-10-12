@@ -10,7 +10,7 @@ import { HeaderActions } from "../components/HeaderActions";
 import { JobPinMarker } from "../components/MapPins";
 import { NativeAdStrip } from "../components/AdSlots";
 import { VerificationNotice } from "../components/VerificationNotice";
-import { colors, mapStyle } from "../lib/theme";
+import { colors, mapStyle, mapProvider } from "../lib/theme";
 import { navigateRoot } from "../navigation/ref";
 import { useT } from "../lib/i18n";
 
@@ -111,6 +111,7 @@ export default function HomeScreen() {
       <MapView
         ref={mapRef}
         style={StyleSheet.absoluteFill}
+        provider={mapProvider}
         customMapStyle={mapStyle}
         initialRegion={{ ...center, latitudeDelta: 0.08, longitudeDelta: 0.08 }}
         pitchEnabled={false}

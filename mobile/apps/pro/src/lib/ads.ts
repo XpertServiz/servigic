@@ -34,7 +34,8 @@ export function getAds(): AdsModule | null {
 export function adUnit(kind: "native" | "interstitial" | "rewarded"): string | null {
   const ads = getAds();
   if (!ads || Platform.OS === "web") return null;
-  if (ADMOB_PRODUCTION) return REAL_AD_UNITS[kind] ?? null;
+  // The real units were created for the Android apps; iOS stays on test units until iOS apps exist in AdMob.
+  if (ADMOB_PRODUCTION && Platform.OS === "android") return REAL_AD_UNITS[kind] ?? null;
   return { native: ads.TestIds.NATIVE, interstitial: ads.TestIds.INTERSTITIAL, rewarded: ads.TestIds.REWARDED }[kind];
 }
 

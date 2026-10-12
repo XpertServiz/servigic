@@ -9,7 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import { GlassCard, GradientButton, ProviderAvatar, StatusStepper } from "../../components/ds";
 import { DestinationMarker, TrackedBikeMarker } from "../../components/MapPins";
 import { Icon } from "../../components/Icon";
-import { colors, mapStyle } from "../../lib/theme";
+import { colors, mapStyle, mapProvider } from "../../lib/theme";
 import { enumLabel, STATUS_STEPS, statusStepIndex } from "../../lib/status";
 import { useI18n } from "../../lib/i18n";
 import type { BookingActions, BookingData } from "./types";
@@ -52,6 +52,7 @@ export function OnTheWayView({
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <MapView
         style={StyleSheet.absoluteFill}
+        provider={mapProvider}
         customMapStyle={mapStyle}
         initialRegion={{ ...dest, latitudeDelta: 0.04, longitudeDelta: 0.04 }}
         toolbarEnabled={false}

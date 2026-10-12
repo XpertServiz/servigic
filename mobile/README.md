@@ -83,3 +83,12 @@ Run `npx prisma migrate deploy` **before** deploying the web app: two new migrat
 - **Verification review** — the Pro app reads the ID on-device (ML Kit via `expo-text-extractor`, `src/lib/idOcr.ts`) and sends the extracted fields with the profile. Admin/Reviewer queue at `/admin/verification` (ID photo + selfie + auto-filled fields, one-tap Approve/Reject) — approval is always manual. `SUPPORT` accounts only get that queue; make people reviewers/admins on `/admin/users`. Pending Pros see "Verification in progress — usually under 24 hours" and can browse/build their profile, bidding stays locked. SLA: `.github/workflows/verification-sla.yml` (hourly, runs from the default branch) calls `POST /api/cron/verification-sla` with the `CRON_SECRET` secret; unreviewed >24h submissions notify every admin/reviewer via `notify()`. Set the same `CRON_SECRET` on the web host.
 - **Phones** — country picker + libphonenumber (`libphonenumber-js/mobile`) in both apps and on the server; numbers are stored as E.164, old formats still match at login (`src/lib/phone.ts`).
 - Run `npx prisma migrate deploy` before deploying the web app (new migration `verification_ocr_and_ad_rewards`).
+
+
+## iOS
+
+Both apps are iOS-ready (bundle ids `com.servigic.customer` / `com.servigic.pro`). Run the "Build mobile APK" workflow with **platform = ios**:
+- **profile = simulator** — unsigned `.app` for the iOS Simulator on a Mac. Needs no Apple account. Cannot be installed on a real iPhone.
+- **profile = production** — signed App Store `.ipa`. Needs an Apple Developer account: run `eas credentials` once (or add an App Store Connect API key to EAS) so `EXPO_TOKEN` can sign; then submit with `eas submit`.
+
+Still to do for real iPhones: create the two iOS apps in AdMob and put their app ids in `apps/*/app.config.js` (`IOS_APP_ID`, currently Google's test id) and real iOS ad unit ids in `adUnits.ts`; an APNs key via EAS credentials for push; optionally a Google Maps iOS key (`GOOGLE_MAPS_IOS_API_KEY` + `EXPO_PUBLIC_IOS_GOOGLE_MAPS=true`) so iOS shows the amber map style instead of Apple Maps.

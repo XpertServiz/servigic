@@ -14,10 +14,10 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Servigic Pro shares your location with the customer while you're on the way to a job.",
         "UIBackgroundModes": [
-          "location",
           "remote-notification"
         ]
-      }
+      },
+      "config": {}
     },
     "android": {
       "package": "com.servigic.pro",
@@ -91,8 +91,7 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
-          "userTrackingPermission": false
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713"
         }
       ]
     ],
