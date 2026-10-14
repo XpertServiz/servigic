@@ -1,5 +1,7 @@
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
-import { Eyebrow } from "@/components/landing/Eyebrow";
+import { SectionHead } from "@/components/ui/SectionHead";
+import { Reveal } from "@/components/ui/Reveal";
 import { ProviderAvatar } from "@/components/ui/ProviderAvatar";
 import { VerificationBadge } from "@/components/ui/VerificationBadge";
 import { TRADE_LABELS } from "@/lib/trades";
@@ -18,6 +20,7 @@ const ACHIEVER_MIN_RATING = 4.5;
 const ACHIEVER_MIN_JOBS = 10;
 
 export async function FeaturedPros() {
+  const [t, ts] = await Promise.all([getTranslations("featuredPros"), getTranslations("services.trades")]);
   const featuredProviders = await prisma.providerProfile.findMany({
     where: { verificationLevel: { gte: 1 } },
     orderBy: [{ ratingAvg: "desc" }, { jobsCompleted: "desc" }],
@@ -26,47 +29,37 @@ export async function FeaturedPros() {
 
   if (featuredProviders.length >= MIN_FEATURED_PROS) {
     return (
-      <section className="mx-auto max-w-[1200px] px-6 py-20">
-        <Eyebrow>Featured Verified Pros</Eyebrow>
-        <h2 className="mb-8 font-display text-[clamp(28px,4.5vw,44px)] font-bold uppercase leading-tight">
-          Real pros. Verified and rated.
-        </h2>
-        <div className="grid grid-cols-2 gap-5 sm:grid-cols-4">
-          {featuredProviders.map((p) => {
+      <section className="container-x py-16 md:py-20">
+        <SectionHead eyebrow={t("eyebrow")} title={t("title")} />
+        <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+          {featuredProviders.map((p, i) => {
             const isAchiever = p.ratingAvg >= ACHIEVER_MIN_RATING && p.jobsCompleted >= ACHIEVER_MIN_JOBS;
             const showPhoto = p.photoConsentPublic && p.photoQualityOk;
             return (
-              <div key={p.id} className="flex flex-col items-center gap-2 text-center">
-                <div className="relative">
-                  {isAchiever && (
-                    <span
-                      className="absolute -inset-1.5 rounded-full"
-                      style={{ background: "conic-gradient(from 0deg, #ffb020, #ffe08a, #ffb020)" }}
-                      aria-hidden="true"
-                    />
-                  )}
+              <Reveal key={p.id} delay={(i % 4) * 70}>
+                <div className="sv-card flex flex-col items-center gap-2 p-5 text-center">
                   <div className="relative">
-                    <ProviderAvatar
-                      photoUrl={showPhoto ? p.selfieUrl : null}
-                      photoQualityOk={p.photoQualityOk}
-                      verificationLevel={p.verificationLevel}
-                      fallbackIcon={TRADE_LABELS[p.trades[0]]?.icon ?? "👤"}
-                      size="lg"
-                    />
+                    {isAchiever && <span className="absolute -inset-1.5 rounded-full" style={{ background: "conic-gradient(from 0deg, #ffb020, #ffe08a, #ffb020)" }} aria-hidden="true" />}
+                    <div className="relative">
+                      <ProviderAvatar
+                        photoUrl={showPhoto ? p.selfieUrl : null}
+                        photoQualityOk={p.photoQualityOk}
+                        verificationLevel={p.verificationLevel}
+                        fallbackIcon={TRADE_LABELS[p.trades[0]]?.icon ?? "👤"}
+                        size="lg"
+                      />
+                    </div>
+                    {isAchiever && (
+                      <span className="absolute -bottom-1 start-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#ffb020] px-2 py-0.5 text-[10px] font-bold text-black shadow rtl:translate-x-1/2" title={t("achieverTitle")}>
+                        {t("achiever")}
+                      </span>
+                    )}
                   </div>
-                  {isAchiever && (
-                    <span
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-[#ffb020] px-2 py-0.5 text-[10px] font-bold text-black shadow"
-                      title="Top-rated achiever"
-                    >
-                      🏆 Achiever
-                    </span>
-                  )}
+                  <div className="mt-1 text-sm font-bold">{p.displayName}</div>
+                  <VerificationBadge level={p.verificationLevel} />
+                  {p.ratingCount > 0 && <div className="text-xs text-text-muted">{t("ratingJobs", { rating: p.ratingAvg.toFixed(1), jobs: p.jobsCompleted })}</div>}
                 </div>
-                <div className="text-sm font-bold">{p.displayName}</div>
-                <VerificationBadge level={p.verificationLevel} />
-                {p.ratingCount > 0 && <div className="text-xs text-text-muted">{p.ratingAvg.toFixed(1)}★ · {p.jobsCompleted} jobs</div>}
-              </div>
+              </Reveal>
             );
           })}
         </div>
@@ -82,17 +75,16 @@ export async function FeaturedPros() {
   if (trades.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-[1200px] px-6 py-20">
-      <Eyebrow>Verified Pros</Eyebrow>
-      <h2 className="mb-8 font-display text-[clamp(28px,4.5vw,44px)] font-bold uppercase leading-tight">
-        Verified pros across every trade.
-      </h2>
+    <section className="container-x py-16 md:py-20">
+      <SectionHead eyebrow={t("eyebrowGeneric")} title={t("titleGeneric")} />
       <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-6">
-        {trades.map((t) => (
-          <div key={t.trade} className="flex flex-col items-center gap-2 text-center">
-            <ProviderAvatar photoUrl={null} verificationLevel={1} fallbackIcon={t.icon} size="lg" />
-            <div className="text-sm font-semibold text-text-muted">{t.name}</div>
-          </div>
+        {trades.map((tr, i) => (
+          <Reveal key={tr.trade} delay={(i % 6) * 60}>
+            <div className="flex flex-col items-center gap-2 text-center">
+              <ProviderAvatar photoUrl={null} verificationLevel={1} fallbackIcon={tr.icon} size="lg" />
+              <div className="text-sm font-semibold text-text-muted">{ts.has(tr.trade) ? ts(tr.trade) : tr.name}</div>
+            </div>
+          </Reveal>
         ))}
       </div>
     </section>

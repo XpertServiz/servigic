@@ -1,62 +1,61 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/Button";
+import { Reveal } from "@/components/ui/Reveal";
 import { EarningsCalculator } from "@/components/landing/EarningsCalculator";
-
-const PERKS = [
-  "No lead fees, ever",
-  "Pay only when you win the job",
-  "Uber-style job alerts in your pocket",
-  "Paid straight to EasyPaisa / JazzCash / bank",
-  "Badge levels = lower commission",
-];
+import { fmtNumber } from "@/lib/format";
 
 // Real count only — hidden below threshold rather than showing a fabricated
 // number (same rule ProofTicker follows: Master Brief §7A/§12, no fake stats).
 const MIN_PROVIDERS_TO_SHOW = 5;
 
-async function getActiveProviderCount() {
-  return prisma.providerProfile.count({ where: { verificationLevel: { gte: 1 } } });
-}
-
 export async function ForPros() {
-  const activeProviders = await getActiveProviderCount();
+  const [t, locale, activeProviders] = await Promise.all([
+    getTranslations("forPros"),
+    getLocale(),
+    prisma.providerProfile.count({ where: { verificationLevel: { gte: 1 } } }),
+  ]);
   const showCount = activeProviders >= MIN_PROVIDERS_TO_SHOW;
+  const perks = t.raw("perks") as string[];
 
   return (
-    <section id="pros" className="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_1.2fr]">
-        <div className="rounded-[14px] border border-border-subtle bg-bg-elevated p-8">
-          <h3 className="mb-4 text-xl font-bold">Customer?</h3>
-          <p className="mb-5 text-sm text-text-muted">
-            Post a job free, get bids in minutes, pay only into Payment Protection.
-          </p>
-          <Button href="/signup?role=customer">Post a Job →</Button>
-        </div>
-        <div className="rounded-[14px] border border-accent/40 bg-gradient-to-br from-accent/[0.08] to-bg-elevated p-8">
-          <h3 className="mb-4.5 font-display text-2xl font-bold uppercase">Earn more. Keep 88%.</h3>
-
-          <div className="mb-6 rounded-[12px] border border-secondary/30 bg-secondary/10 p-5">
-            <div className="font-display text-4xl font-bold text-secondary">PKR 0</div>
-            <div className="mt-1 text-sm text-text-muted">
-              {showCount
-                ? `Spent on leads by our ${activeProviders} active providers this month`
-                : "Spent on leads. Ever. Every other platform charges you just to see a job — we don't."}
+    <section id="pros" className="container-x py-16 md:py-24">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-[1fr_1.25fr]">
+        <Reveal>
+          <div className="sv-card flex h-full flex-col justify-center p-7 md:p-9">
+            <h3 className="mb-3 text-2xl font-bold">{t("customerTitle")}</h3>
+            <p className="mb-6 text-[15px] text-text-muted">{t("customerDesc")}</p>
+            <div>
+              <Button href="/signup?role=customer">{t("customerCta")} <span aria-hidden className="rtl:rotate-180">→</span></Button>
             </div>
           </div>
+        </Reveal>
+        <Reveal delay={100}>
+          <div className="relative overflow-hidden rounded-[20px] border border-accent/40 bg-gradient-to-br from-accent/[0.10] to-bg-elevated p-7 md:p-9">
+            <div className="sv-glow pointer-events-none absolute -top-20 end-[-10%] h-64 w-64 opacity-50" aria-hidden />
+            <h3 className="relative mb-5 text-2xl font-bold md:text-3xl">{t("proTitle")}</h3>
 
-          <ul className="mb-6 flex flex-col gap-3">
-            {PERKS.map((p) => (
-              <li key={p} className="flex items-start gap-2.5 text-sm text-text-muted">
-                <b className="flex-none text-secondary">✓</b>
-                {p}
-              </li>
-            ))}
-          </ul>
-          <EarningsCalculator />
-          <Button href="/pro" className="w-full">
-            Become a Servigic Pro →
-          </Button>
-        </div>
+            <div className="relative mb-6 rounded-2xl border border-secondary/30 bg-secondary/10 p-5">
+              <div className="text-4xl font-extrabold text-secondary">{t("zero")}</div>
+              <div className="mt-1 text-sm text-text-muted">{showCount ? t("zeroActive", { count: fmtNumber(activeProviders, locale) }) : t("zeroGeneric")}</div>
+            </div>
+
+            <ul className="relative mb-6 flex flex-col gap-3">
+              {perks.map((p) => (
+                <li key={p} className="flex items-start gap-2.5 text-sm text-text-muted">
+                  <b className="flex-none text-secondary">✓</b>
+                  {p}
+                </li>
+              ))}
+            </ul>
+            <div className="relative">
+              <EarningsCalculator />
+              <Button href="/pro" className="w-full">
+                {t("cta")} <span aria-hidden className="rtl:rotate-180">→</span>
+              </Button>
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );

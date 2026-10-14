@@ -15,7 +15,8 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
     return null;
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Incorrect phone number or password" };
+      // The page maps this code to the visitor's language.
+      return { error: "BAD_CREDENTIALS" };
     }
     throw error;
   }

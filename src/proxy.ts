@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
 import { authConfig } from "@/lib/auth.config";
+import { splitLocalePath } from "@/i18n/locales";
 
 // RBAC route protection (Master Brief §4: "NextAuth v5 JWT roles + route
 // protection via proxy.ts pattern"). Uses the edge-safe authConfig only —
@@ -23,9 +24,29 @@ const PROTECTED_PREFIXES: { prefix: string; role: "CUSTOMER" | "PROVIDER" | "ADM
   { prefix: "/admin", role: "ADMIN" },
 ];
 
+const LOCALE_COOKIE = "servigic_locale";
+
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const user = req.auth?.user;
+
+  // /de/pro → serve /pro in German. The language travels to the server
+  // components as a request header, and is remembered in the cookie so the
+  // visitor stays in that language across app/auth pages too.
+  const { locale, path } = splitLocalePath(pathname);
+  if (locale) {
+    const url = req.nextUrl.clone();
+    url.pathname = path;
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set("x-servigic-locale", locale);
+    // Panels are never language-prefixed: send them to the real URL, where RBAC applies.
+    const isPanel = PROTECTED_PREFIXES.some(({ prefix }) => path === prefix || path.startsWith(`${prefix}/`));
+    const res = isPanel ? NextResponse.redirect(url) : NextResponse.rewrite(url, { request: { headers: requestHeaders } });
+    if (req.cookies.get(LOCALE_COOKIE)?.value !== locale) {
+      res.cookies.set(LOCALE_COOKIE, locale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+    }
+    return res;
+  }
 
   if ((pathname === "/login" || pathname === "/signup") && user) {
     const home =
@@ -62,5 +83,8 @@ export const config = {
     "/admin/:path*",
     "/login",
     "/signup",
+    // Language-prefixed marketing URLs (/ur, /de/pro, /ar/services/...). English is unprefixed.
+    "/(ur|ar|de|fr|es|hi|pl|tr|it|pt|nl)",
+    "/(ur|ar|de|fr|es|hi|pl|tr|it|pt|nl)/:path*",
   ],
 };

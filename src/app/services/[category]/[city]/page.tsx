@@ -1,126 +1,147 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/landing/Eyebrow";
+import { LLink } from "@/components/i18n/LLink";
+import { Reveal } from "@/components/ui/Reveal";
+import { AutoVideo } from "@/components/media/AutoVideo";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { detectMarket } from "@/lib/geoDetect";
 import { formatApproxFromPKR } from "@/lib/currency";
 import { getPriceBenchmark } from "@/lib/priceBenchmark";
+import { getDemoVideos } from "@/lib/siteVideos";
+import { CITY_SLUGS, TRADE_ICONS, slugToCity } from "@/lib/catalog";
+import { breadcrumbJsonLd, faqJsonLd, pageMetadata, serviceJsonLd, SITE_NAME } from "@/lib/seo";
+import type { Locale } from "@/i18n/locales";
 
 export const dynamic = "force-dynamic";
 
-function titleCase(slug: string) {
-  return slug
-    .split("-")
-    .map((w) => w[0].toUpperCase() + w.slice(1))
-    .join(" ");
-}
-
-async function getData(categorySlug: string, city: string) {
+async function getData(categorySlug: string, citySlug: string) {
+  const cityLabel = slugToCity(citySlug);
+  if (!cityLabel) return null;
   const category = await prisma.serviceCategory.findUnique({
     where: { slug: categorySlug },
     include: { subServices: true },
   });
   if (!category) return null;
 
-  const cityLabel = titleCase(city);
-
-  const [benchmark, jobCount] = await Promise.all([
-    getPriceBenchmark(category.id, cityLabel),
-    prisma.job.count({ where: { categoryId: category.id, city: cityLabel } }),
-  ]);
-
-  return { category, cityLabel, benchmark, jobCount };
+  const [benchmark] = await Promise.all([getPriceBenchmark(category.id, cityLabel)]);
+  return { category, cityLabel, benchmark };
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ category: string; city: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ category: string; city: string }> }): Promise<Metadata> {
   const { category, city } = await params;
-  const data = await getData(category, city);
-  if (!data) return {};
-  const cityLabel = titleCase(city);
-  return {
-    title: `${data.category.name} in ${cityLabel} — Bids in Minutes | Servigic`,
-    description: `Post a ${data.category.name.toLowerCase()} job in ${cityLabel} and get bids from verified pros in minutes. Money held safely until the work is done.`,
-  };
+  const [data, t, ts, tc, locale] = await Promise.all([
+    getData(category, city),
+    getTranslations("meta.city"),
+    getTranslations("services.trades"),
+    getTranslations("cities"),
+    getLocale(),
+  ]);
+  if (!data) return { robots: { index: false, follow: false } };
+  const service = ts.has(data.category.trade) ? ts(data.category.trade) : data.category.name;
+  const cityName = tc.has(data.cityLabel) ? tc(data.cityLabel) : data.cityLabel;
+  return pageMetadata({
+    path: `/services/${category}/${city}`,
+    locale: locale as Locale,
+    title: t("title", { service, city: cityName }),
+    description: t("description", { service, city: cityName }),
+    keywords: [`${service} ${cityName}`, `${service}`, `hire ${service} ${data.cityLabel}`, `${data.cityLabel} home services`, "Servigic"],
+  });
 }
-
-const FAQ_TEMPLATE = (categoryName: string, cityLabel: string) => [
-  { q: `How much does a ${categoryName.toLowerCase()} cost in ${cityLabel}?`, a: `Prices vary by job — post your job free and compare real bids from verified pros in ${cityLabel} before you pay anything.` },
-  { q: "Is my payment protected?", a: "Yes — your payment is held safely by Servigic and is only released to the pro after you confirm the job is done." },
-  { q: "How fast will I get bids?", a: "Emergency jobs typically get a first bid in under 10 minutes since every matching nearby pro is alerted instantly." },
-  { q: "Are the pros verified?", a: "All providers submit CNIC and a selfie for Level 1 approval; Level 2 pros are police-verified." },
-];
 
 export default async function ServiceCityPage({ params }: { params: Promise<{ category: string; city: string }> }) {
   const { category, city } = await params;
-  const [data, market] = await Promise.all([getData(category, city), detectMarket()]);
+  const [data, market, t, ts, tc, tn, locale, videos] = await Promise.all([
+    getData(category, city),
+    detectMarket(),
+    getTranslations("cityPage"),
+    getTranslations("services.trades"),
+    getTranslations("cities"),
+    getTranslations("nav"),
+    getLocale(),
+    getDemoVideos(),
+  ]);
   if (!data) notFound();
+
+  const service = ts.has(data.category.trade) ? ts(data.category.trade) : data.category.name;
+  const cityName = tc.has(data.cityLabel) ? tc(data.cityLabel) : data.cityLabel;
 
   const [avgWinningBidLabel, minPriceLabel] = await Promise.all([
     data.benchmark ? formatApproxFromPKR(data.benchmark.avgWinningPKR, market.currency) : Promise.resolve(null),
     data.category.minPricePKR ? formatApproxFromPKR(data.category.minPricePKR, market.currency) : Promise.resolve(null),
   ]);
 
-  const faqs = FAQ_TEMPLATE(data.category.name, data.cityLabel);
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqs.map((f) => ({
-      "@type": "Question",
-      name: f.q,
-      acceptedAnswer: { "@type": "Answer", text: f.a },
-    })),
-  };
+  const faqs = (t.raw("faq") as { q: string; a: string }[]).map((f) => ({
+    q: f.q.replaceAll("{service}", service).replaceAll("{city}", cityName),
+    a: f.a.replaceAll("{service}", service).replaceAll("{city}", cityName),
+  }));
+  const path = `/services/${category}/${city}`;
+  const metaT = await getTranslations("meta.city");
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <JsonLd
+        data={[
+          faqJsonLd(faqs),
+          serviceJsonLd({ name: `${service} — ${cityName}`, description: metaT("description", { service, city: cityName }), city: data.cityLabel, path, locale: locale as Locale }),
+          breadcrumbJsonLd(
+            [
+              { name: SITE_NAME, path: "/" },
+              { name: tn("services"), path: "/services" },
+              { name: `${service} — ${cityName}`, path },
+            ],
+            locale as Locale,
+          ),
+        ]}
+      />
       <Navbar />
-      <main className="flex-1">
-        <section className="mx-auto max-w-[900px] px-6 py-20">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-accent">
-            {data.category.name} · {data.cityLabel}
-          </p>
-          <h1 className="mb-4 font-display text-4xl font-bold uppercase leading-tight md:text-5xl">
-            {data.category.name} in {data.cityLabel} — Bids in Minutes
-          </h1>
-          <p className="mb-8 max-w-2xl text-lg text-text-muted">
-            Post your {data.category.name.toLowerCase()} job and verified pros in {data.cityLabel} race to bid. Compare
-            price, rating, and ETA — pay only into Payment Protection.
-          </p>
+      <main id="main" className="flex-1">
+        <section className="container-x relative max-w-[960px] py-14 md:py-20">
+          <div className="sv-glow pointer-events-none absolute -top-20 start-[-10%] -z-10 h-72 w-72 opacity-40" aria-hidden />
+          <Eyebrow>{t("eyebrow", { service, city: cityName })}</Eyebrow>
+          <h1 className="mb-4 text-[clamp(30px,5vw,52px)] font-extrabold leading-[1.08] tracking-tight">{t("h1", { service, city: cityName })}</h1>
+          <p className="mb-8 max-w-2xl text-base text-text-muted md:text-lg">{t("sub", { service, city: cityName })}</p>
 
-          <div className="mb-10 flex flex-wrap gap-6">
-            <div className="rounded-[12px] border border-border-subtle bg-bg-elevated px-5 py-4">
-              <div className="font-display text-2xl font-bold text-accent">{avgWinningBidLabel ?? "Get real bids"}</div>
+          <div className="mb-8 flex flex-wrap gap-4">
+            <div className="sv-card px-5 py-4">
+              <div className="text-2xl font-extrabold text-accent" dir="ltr">
+                {avgWinningBidLabel ?? <span className="text-xl">{TRADE_ICONS[data.category.trade] ?? "🛠️"} {t("getRealBids")}</span>}
+              </div>
               <div className="text-xs text-text-muted">
-                {avgWinningBidLabel
-                  ? `Avg. winning bid (${data.benchmark!.sampleSize} jobs, ${data.benchmark!.windowDays} days)`
-                  : "Price varies by job — post to compare"}
+                {avgWinningBidLabel ? t("avgWinning", { count: data.benchmark!.sampleSize, days: data.benchmark!.windowDays }) : t("priceVaries")}
               </div>
             </div>
             {minPriceLabel && (
-              <div className="rounded-[12px] border border-border-subtle bg-bg-elevated px-5 py-4">
-                <div className="font-display text-2xl font-bold text-accent">{minPriceLabel}+</div>
-                <div className="text-xs text-text-muted">Typical starting price</div>
+              <div className="sv-card px-5 py-4">
+                <div className="text-2xl font-extrabold text-accent" dir="ltr">
+                  {minPriceLabel}+
+                </div>
+                <div className="text-xs text-text-muted">{t("startingPrice")}</div>
               </div>
             )}
           </div>
 
-          <Button href={`/jobs/new`} size="lg" className="mb-16">
-            Post a {data.category.name} Job →
+          <Button href="/jobs/new" size="lg" className="mb-14">
+            {t("post", { service })} <span aria-hidden className="rtl:rotate-180">→</span>
           </Button>
 
+          {/* Autoplay demo: set the YouTube link in Admin → Settings (customer demo video) */}
+          <Reveal className="mb-14">
+            <h2 className="mb-4 text-xl font-bold">{t("videoTitle")}</h2>
+            <AutoVideo videoId={videos.customer} title={t("videoTitle")} />
+          </Reveal>
+
           {data.category.subServices.length > 0 && (
-            <div className="mb-16">
-              <h2 className="mb-4 font-display text-xl font-bold uppercase">Sub-services</h2>
+            <div className="mb-14">
+              <h2 className="mb-4 text-xl font-bold">{t("subServices")}</h2>
               <div className="flex flex-wrap gap-2">
                 {data.category.subServices.map((s) => (
-                  <span key={s.id} className="rounded-full border border-border-subtle px-3 py-1.5 text-sm text-text-muted">
+                  <span key={s.id} className="rounded-full border border-border-subtle px-3.5 py-1.5 text-sm text-text-muted">
                     {s.name}
                   </span>
                 ))}
@@ -128,14 +149,25 @@ export default async function ServiceCityPage({ params }: { params: Promise<{ ca
             </div>
           )}
 
-          <div>
-            <h2 className="mb-4 font-display text-xl font-bold uppercase">FAQ</h2>
-            <div className="flex flex-col gap-4">
+          <div className="mb-14">
+            <h2 className="mb-4 text-xl font-bold">{t("faqTitle")}</h2>
+            <div className="flex flex-col gap-3">
               {faqs.map((f) => (
-                <div key={f.q} className="rounded-[12px] border border-border-subtle bg-bg-elevated p-5">
+                <div key={f.q} className="sv-card p-5">
                   <h3 className="mb-1 font-semibold">{f.q}</h3>
                   <p className="text-sm text-text-muted">{f.a}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="mb-4 text-xl font-bold">{t("otherCities", { service })}</h2>
+            <div className="flex flex-wrap gap-2">
+              {CITY_SLUGS.filter((c) => c.slug !== city.toLowerCase()).map((c) => (
+                <LLink key={c.slug} href={`/services/${category}/${c.slug}`} className="rounded-full border border-border-subtle px-4 py-2 text-sm text-text-muted transition-colors hover:border-accent hover:text-accent">
+                  {service} — {tc(c.name)}
+                </LLink>
               ))}
             </div>
           </div>

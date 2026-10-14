@@ -1,8 +1,11 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
-import { Eyebrow } from "@/components/landing/Eyebrow";
+import { SectionHead } from "@/components/ui/SectionHead";
+import { Reveal } from "@/components/ui/Reveal";
 import { detectMarket } from "@/lib/geoDetect";
 import { formatApproxFromPKR } from "@/lib/currency";
 import { publicAreaLabel } from "@/lib/anon";
+import { fmtCompactPKR, fmtNumber } from "@/lib/format";
 import { ReviewsCarousel } from "@/components/landing/ReviewsCarousel";
 
 // Lowered from 20 — at launch, waiting for 20 real completed jobs before
@@ -10,12 +13,6 @@ import { ReviewsCarousel } from "@/components/landing/ReviewsCarousel";
 // "real, not embarrassing," and LiveRefresher (see page.tsx) makes the
 // count visibly climb in near-real-time as more jobs finish.
 const MIN_COMPLETED_JOBS = 3;
-
-function formatCompactPKR(amount: number): string {
-  if (amount >= 1_000_000) return `PKR ${(amount / 1_000_000).toFixed(1)}M`;
-  if (amount >= 1_000) return `PKR ${(amount / 1_000).toFixed(1)}K`;
-  return `PKR ${amount.toLocaleString()}`;
-}
 
 async function getAvgTimeToFirstBidMinutes(): Promise<number | null> {
   // First bid per job, for jobs that got at least one — real elapsed time
@@ -52,49 +49,45 @@ async function getStats() {
 }
 
 export async function Results() {
-  const [{ completedJobs, payoutTotal, reviews, avgTimeToFirstBidMin }, market] = await Promise.all([getStats(), detectMarket()]);
+  const [t, ts, locale, { completedJobs, payoutTotal, reviews, avgTimeToFirstBidMin }, market] = await Promise.all([
+    getTranslations("results"),
+    getTranslations("services.trades"),
+    getLocale(),
+    getStats(),
+    detectMarket(),
+  ]);
   const belowThreshold = completedJobs < MIN_COMPLETED_JOBS;
-  const payoutLabel = belowThreshold
-    ? "—"
-    : market.currency === "PKR"
-      ? formatCompactPKR(payoutTotal)
-      : await formatApproxFromPKR(payoutTotal, market.currency);
+  const payoutLabel = belowThreshold ? "—" : market.currency === "PKR" ? fmtCompactPKR(payoutTotal, locale) : await formatApproxFromPKR(payoutTotal, market.currency);
   const firstBidLabel =
     belowThreshold || avgTimeToFirstBidMin === null
       ? "—"
       : avgTimeToFirstBidMin < 1
-        ? "< 1 min"
+        ? t("lessThanMin")
         : avgTimeToFirstBidMin < 60
-          ? `~${avgTimeToFirstBidMin} min`
-          : `~${(avgTimeToFirstBidMin / 60).toFixed(1)} hr`;
+          ? t("minutes", { n: avgTimeToFirstBidMin })
+          : t("hours", { n: (avgTimeToFirstBidMin / 60).toFixed(1) });
+
+  const stats = [
+    { value: belowThreshold ? "—" : fmtNumber(completedJobs, locale), label: t("jobs") },
+    { value: payoutLabel, label: t("paid") },
+    { value: firstBidLabel, label: t("firstBid") },
+  ];
 
   return (
-    <section className="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
-      <div className="mb-16 max-w-[640px]">
-        <Eyebrow>Results</Eyebrow>
-        <h2 className="font-display text-[clamp(32px,5vw,52px)] font-bold uppercase leading-tight">
-          REAL NUMBERS. NO INVENTED STATS.
-        </h2>
-        {belowThreshold && (
-          <p className="mt-4 text-lg text-text-muted">
-            Launch-stage — figures update live once thresholds are met. No fake testimonials, ever.
-          </p>
-        )}
-      </div>
+    <section className="container-x py-16 md:py-24">
+      <SectionHead eyebrow={t("eyebrow")} title={t("title")} sub={belowThreshold ? t("launchNote") : undefined} />
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div className="rounded-[14px] border border-border-subtle bg-bg-elevated p-7 text-center">
-          <div className="font-display text-4xl font-bold text-accent">{belowThreshold ? "—" : completedJobs.toLocaleString()}</div>
-          <div className="mt-1.5 text-sm text-text-muted">Jobs completed</div>
-        </div>
-        <div className="rounded-[14px] border border-border-subtle bg-bg-elevated p-7 text-center">
-          <div className="font-display text-4xl font-bold text-accent">{payoutLabel}</div>
-          <div className="mt-1.5 text-sm text-text-muted">Paid out to pros</div>
-        </div>
-        <div className="rounded-[14px] border border-border-subtle bg-bg-elevated p-7 text-center">
-          <div className="font-display text-4xl font-bold text-accent">{firstBidLabel}</div>
-          <div className="mt-1.5 text-sm text-text-muted">Avg time-to-first-bid</div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
+        {stats.map((s, i) => (
+          <Reveal key={s.label} delay={i * 80}>
+            <div className="sv-card p-7 text-center">
+              <div className="text-4xl font-extrabold tracking-tight text-accent" dir="ltr">
+                {s.value}
+              </div>
+              <div className="mt-2 text-sm text-text-muted">{s.label}</div>
+            </div>
+          </Reveal>
+        ))}
       </div>
 
       {!belowThreshold && reviews.length > 0 && (
@@ -106,7 +99,7 @@ export async function Results() {
               rating: r.rating,
               comment: r.comment as string,
               areaLabel: publicAreaLabel(r.booking.job.areaLabel),
-              categoryName: r.booking.job.category.name,
+              categoryName: ts.has(r.booking.job.category.trade) ? ts(r.booking.job.category.trade) : r.booking.job.category.name,
             }))}
         />
       )}

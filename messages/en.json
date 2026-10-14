@@ -1,38 +1,719 @@
 {
+  "meta": {
+    "home": {
+      "title": "Servigic — Home Services in Pakistan | Post a Job, Get Bids",
+      "description": "Post your job free and verified plumbers, electricians, AC technicians and more bid within minutes. Compare real prices, pick your pro, pay directly after the work. Karachi, Lahore, Islamabad.",
+      "keywords": "home services Pakistan, hire plumber Karachi, electrician Lahore, AC technician Islamabad, verified home service providers, get quotes online, handyman near me, Servigic"
+    },
+    "how": {
+      "title": "How Servigic Works — Post, Bid, Fix",
+      "description": "Post a job with photos, verified pros bid in minutes, you pick the best price and pay your pro directly once the work is done.",
+      "keywords": "how to hire a plumber online, home services bidding app, compare quotes for home repair, Servigic how it works"
+    },
+    "pro": {
+      "title": "Become a Servigic Pro — Zero Lead Fees",
+      "description": "Join Servigic as a verified service pro. No lead fees, pay only when you win the job, instant job alerts, and get paid directly via EasyPaisa, JazzCash or bank.",
+      "keywords": "become a plumber partner, electrician jobs Pakistan, home service provider app, no lead fee platform, earn from home repair jobs, Servigic pro"
+    },
+    "services": {
+      "title": "Home Services in Pakistan — Plumbers, Electricians, AC & More",
+      "description": "Browse 12 home-service trades in Karachi, Lahore, Islamabad and Rawalpindi. Post a job free and compare bids from verified pros.",
+      "keywords": "plumber, electrician, AC technician, solar installer, carpenter, painter, appliance repair, car mechanic, movers, cleaner, mason, handyman, Pakistan"
+    },
+    "city": {
+      "title": "{service} in {city} — Bids in Minutes",
+      "description": "Post a {service} job in {city} and get bids from verified pros in minutes. Compare price, rating and ETA, then pay your pro directly after the work."
+    },
+    "trust": {
+      "title": "Trust & Safety — Verified Pros, Masked Contacts",
+      "description": "How Servigic keeps you safe: CNIC-verified pros, police checks, masked contact details, change-order approvals and dispute mediation.",
+      "keywords": "verified plumbers, trusted home services, safe hiring of home service providers"
+    },
+    "business": {
+      "title": "Servigic for Business — Multi-Property Maintenance",
+      "description": "One dashboard for every unit and every trade. Bulk job posting and consolidated invoicing for property managers, villa management companies and community associations.",
+      "keywords": "property maintenance Pakistan, villa management maintenance, facility management plumbers electricians"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "The terms that apply when you use the Servigic marketplace."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "What data Servigic collects, why, and how it is protected."
+    },
+    "login": {
+      "title": "Log in",
+      "description": "Log in to Servigic to manage your jobs, bids and bookings."
+    },
+    "signup": {
+      "title": "Create your account",
+      "description": "Sign up free to post jobs or start bidding as a verified pro."
+    },
+    "verify": {
+      "title": "Verify your phone",
+      "description": "Enter the 6-digit code we sent to your phone."
+    }
+  },
+  "common": {
+    "appName": "Servigic",
+    "loading": "Loading",
+    "splashTagline": "Home services · Pakistan · Fixed today",
+    "language": "Language",
+    "currency": "Currency",
+    "free": "Free",
+    "from": "From",
+    "seePricing": "See pricing",
+    "perVisit": "/visit",
+    "comingSoon": "Coming soon",
+    "skipToContent": "Skip to content",
+    "back": "Back",
+    "learnMore": "Learn more"
+  },
   "nav": {
     "howItWorks": "How It Works",
     "services": "Services",
     "forPros": "For Pros",
+    "trust": "Trust & Safety",
     "faq": "FAQ",
-    "login": "Login",
-    "postJob": "Post a Job"
+    "login": "Log in",
+    "postJob": "Post a Job",
+    "menu": "Open menu",
+    "close": "Close menu"
   },
   "hero": {
     "eyebrow": "Pros bid in minutes — you pick the price",
-    "line1": "BROKEN?",
-    "line2": "FIXED",
-    "line3": "TODAY.",
+    "line1": "Broken?",
+    "line2": "Fixed",
+    "line3": "today.",
     "sub": "Post your job. Verified pros race to bid. Pay your pro directly once the job's done.",
     "ctaPrimary": "Post a Job — Get Bids in Minutes",
-    "ctaSecondary": "Watch How It Works — 60 sec"
+    "ctaSecondary": "See how it works",
+    "joinWaitlist": "Join the waitlist",
+    "trusted": "Trusted by homeowners across Karachi, Lahore & Islamabad",
+    "chipPro": "Ahmed · ★4.9 · 12 min away",
+    "chipBid": "New bid · PKR 3,500",
+    "chipVerified": "Verified pro ✓"
   },
-  "common": {
-    "appName": "Servigic"
+  "live": {
+    "eyebrow": "Live on Servigic",
+    "title": "People are on Servigic right now",
+    "sub": "Real, anonymous visitor numbers from around the world — updated every few seconds.",
+    "online": "Online now",
+    "today": "Visitors today",
+    "total": "Total visitors",
+    "views": "Page views",
+    "countries": "Where our visitors come from",
+    "countriesShort": "Countries",
+    "visitors": "visitors",
+    "onlineHere": "online",
+    "empty": "Be the first — numbers appear as visitors arrive.",
+    "unknown": "Unknown location",
+    "privacy": "Cookie-free and anonymous: we count visits by country only and never store IP addresses.",
+    "live": "LIVE"
+  },
+  "sim": {
+    "eyebrow": "See it in action",
+    "title": "Watch a job get fixed — in 12 seconds",
+    "job": "AC not cooling",
+    "area": "Gulshan-e-Iqbal",
+    "emergency": "Emergency",
+    "eta": "{min} min ETA",
+    "accepted": "Accepted ✓",
+    "statusAccepted": "Accepted",
+    "statusOnTheWay": "On the way",
+    "statusDone": "Done",
+    "paid": "PKR 3,500 paid directly ✓",
+    "bidderPro": "Electrician Pro #17",
+    "bidderFast": "Fast Fix Services"
+  },
+  "ticker": {
+    "bid": "{category} bid {price} in {area}",
+    "jobsWeek": "{count} jobs completed this week",
+    "paidWeek": "{amount} paid out to pros this week"
+  },
+  "price": {
+    "eyebrow": "Real prices, real time",
+    "title": "What jobs actually cost.",
+    "city": "City",
+    "service": "Service",
+    "loading": "Loading…",
+    "notEnough": "Not enough completed jobs yet for {service} in {city} to show a reliable price range — still, you set your own budget when you post.",
+    "estimate": "Starting-price estimate for {service} in {city} — updates to real completed-job data once enough jobs finish.",
+    "typical": "Typical price for {service} in {city} · based on {count} completed jobs · avg {avg}"
+  },
+  "problem": {
+    "eyebrow": "The problem",
+    "title": "Finding a good mistri shouldn't be a gamble.",
+    "items": [
+      "Calling 6 numbers from a WhatsApp group and hoping",
+      "\"The app said PKR 1,500 — the guy on-site demanded 4,000\"",
+      "No idea if he's actually coming, or when",
+      "Cash paid, work half-done, number blocked",
+      "Zero recourse when it breaks again next week"
+    ],
+    "fix": "Servigic fixes all five — with bidding, verified pros, and live tracking."
+  },
+  "how": {
+    "eyebrow": "How it works",
+    "title": "Three steps. Zero gambling.",
+    "steps": [
+      {
+        "title": "Post your job",
+        "desc": "30 seconds. Photos + area. Your exact address stays hidden until you choose a pro.",
+        "mock": "📷 3 photos · AC Technician · Gulshan-e-Iqbal · Emergency"
+      },
+      {
+        "title": "Pros race to bid",
+        "desc": "Compare price, rating and ETA side by side — you choose, or counter-offer.",
+        "mock": "4 bids received · sorted by price ↓"
+      },
+      {
+        "title": "Track live, pay when it's done",
+        "desc": "Watch your pro drive to you Uber-style. Pay your pro directly once the work is finished.",
+        "mock": "Ahmed is on the way · ETA 35 min"
+      }
+    ],
+    "emergencyLabel": "For emergencies",
+    "emergencyTitle": "Or skip the wait — Instant Match",
+    "emergencyDesc": "Burst pipe at 2am? Get matched to the nearest verified pro in seconds. No waiting for bids to come in.",
+    "emergencyMock": "🚨 Instant Match · Ahmed (Verified Pro, 4.8★) · PKR 2,875 · ETA 12 min · 90s to accept"
+  },
+  "features": {
+    "board": {
+      "eyebrow": "The bid board",
+      "title": "Pros compete. You win.",
+      "p1": "Every bid shows price, rating, distance and ETA — sorted however you like.",
+      "p2": "Don't like a bid? Decline with a reason, or send a counter-offer.",
+      "price": "Price",
+      "rating": "Rating",
+      "eta": "ETA",
+      "declines": [
+        "Too expensive",
+        "ETA too long",
+        "Low rating"
+      ],
+      "etaMin": "{min} min ETA"
+    },
+    "cash": {
+      "eyebrow": "You pay after the job",
+      "title": "No advance payment. No wallet. Just pay your pro directly.",
+      "p1": "Compare bids, pick your pro, and pay them in cash — or however you agree — once the work is done. Simple, familiar, fair.",
+      "p2": "Extra work found on-site? A change order still needs your approval first — you always know what you're paying before it happens.",
+      "steps": [
+        "Compare bids",
+        "Job done",
+        "Pay directly"
+      ],
+      "badge": "🛠 Workmanship support — 7 days",
+      "change": "Change order: \"Found corroded pipe — extra PKR 800\"",
+      "approve": "Approve"
+    },
+    "protected": {
+      "eyebrow": "Payment protection",
+      "title": "Your money doesn't move until the job is done.",
+      "p1": "Paid → Held → Job done → Released. Every job carries a 7-day workmanship warranty.",
+      "p2": "Extra work found on-site? A change order needs your approval first — or it doesn't happen.",
+      "steps": [
+        "Paid",
+        "Held",
+        "Job done",
+        "Released"
+      ],
+      "badge": "🛡 7-day workmanship warranty"
+    },
+    "tracking": {
+      "eyebrow": "Live tracking",
+      "title": "Know exactly where your pro is.",
+      "p1": "Uber-style live map from the moment your pro accepts the job.",
+      "steps": [
+        "On the way",
+        "Arrived",
+        "Working",
+        "Done"
+      ],
+      "status": "Ahmed is on the way · ETA 35 min"
+    },
+    "verified": {
+      "eyebrow": "Verified pros, rated both ways",
+      "title": "CNIC-verified. Police-checked at Level 2.",
+      "p1": "Rated by real customers after real jobs — and pros rate customers too.",
+      "badges": [
+        "Verified",
+        "Verified Pro",
+        "Gold Ustad"
+      ],
+      "card": "Ahmed R. · ★4.9 · 212 jobs completed",
+      "tags": [
+        "Professional",
+        "On time",
+        "Clean work"
+      ]
+    }
+  },
+  "services": {
+    "eyebrow": "Services",
+    "title": "12 trades. One app.",
+    "sub": "From a leaking tap to a full solar install — post once and verified pros compete for your job.",
+    "from": "From {price}",
+    "seePricing": "See pricing",
+    "trades": {
+      "PLUMBER": "Plumber",
+      "ELECTRICIAN": "Electrician",
+      "AC_TECHNICIAN": "AC Technician",
+      "SOLAR_INSTALLER": "Solar Installer",
+      "CARPENTER": "Carpenter",
+      "PAINTER": "Painter",
+      "APPLIANCE_REPAIR": "Appliance Repair",
+      "CAR_MECHANIC": "Car Mechanic",
+      "MOVERS": "Movers",
+      "CLEANER": "Cleaner",
+      "MASON": "Mason",
+      "HANDYMAN": "Handyman",
+      "GENERATOR_REPAIR": "Generator Repair",
+      "WATER_TANK_CLEANING": "Water Tank Cleaning"
+    }
+  },
+  "cities": {
+    "Karachi": "Karachi",
+    "Lahore": "Lahore",
+    "Islamabad": "Islamabad",
+    "Rawalpindi": "Rawalpindi"
+  },
+  "results": {
+    "eyebrow": "Results",
+    "title": "Real numbers. No invented stats.",
+    "launchNote": "Launch stage — figures update live once thresholds are met. No fake testimonials, ever.",
+    "jobs": "Jobs completed",
+    "paid": "Paid out to pros",
+    "firstBid": "Avg time-to-first-bid",
+    "lessThanMin": "< 1 min",
+    "minutes": "~{n} min",
+    "hours": "~{n} hr",
+    "prev": "Previous reviews",
+    "next": "Next reviews",
+    "goto": "Go to review page {n}"
+  },
+  "featuredPros": {
+    "eyebrow": "Featured verified pros",
+    "title": "Real pros. Verified and rated.",
+    "eyebrowGeneric": "Verified pros",
+    "titleGeneric": "Verified pros across every trade.",
+    "achiever": "🏆 Achiever",
+    "achieverTitle": "Top-rated achiever",
+    "ratingJobs": "{rating}★ · {jobs} jobs"
+  },
+  "forPros": {
+    "customerTitle": "Customer?",
+    "customerDesc": "Post a job free, get bids in minutes, and pay your pro directly when the work is done.",
+    "customerCta": "Post a Job",
+    "proTitle": "Earn more. Keep 88%.",
+    "zero": "PKR 0",
+    "zeroActive": "Spent on leads by our {count} active providers this month",
+    "zeroGeneric": "Spent on leads. Ever. Every other platform charges you just to see a job — we don't.",
+    "perks": [
+      "No lead fees, ever",
+      "Pay only when you win the job",
+      "Uber-style job alerts in your pocket",
+      "Paid straight to EasyPaisa / JazzCash / bank",
+      "Badge levels = lower commission"
+    ],
+    "cta": "Become a Servigic Pro"
+  },
+  "calc": {
+    "jobsPerWeek": "Jobs per week",
+    "avgTicket": "Avg ticket",
+    "monthly": "Estimated monthly earnings",
+    "note": "After Servigic's 12% commission (10% at Gold Ustad)."
+  },
+  "why": {
+    "eyebrow": "Why Servigic",
+    "title": "Brutally honest comparison.",
+    "vs": "vs.",
+    "tabs": {
+      "fixed": {
+        "label": "Fixed-price apps",
+        "sub": "Mahir, Karsaaz, HukumJanab-style"
+      },
+      "lead": {
+        "label": "Lead-selling platforms",
+        "sub": "Thumbtack, Angi, Checkatrade, MyBuilder-style"
+      },
+      "call": {
+        "label": "Call centers",
+        "sub": "HukumJanab-style phone/app dispatch"
+      }
+    },
+    "features": [
+      "Real price competition (bidding)",
+      "Pay your pro directly, no middleman",
+      "Live Uber-style tracking",
+      "Zero lead fees for pros",
+      "Public verified badge ladder"
+    ]
+  },
+  "plans": {
+    "eyebrow": "Set it & forget it",
+    "title": "Never miss your AC service again.",
+    "from": "From {price}/visit",
+    "cta": "Set up a plan",
+    "cadence": {
+      "AC_TECHNICIAN": "Quarterly",
+      "GENERATOR_REPAIR": "Every 6 months",
+      "WATER_TANK_CLEANING": "Every 6 months"
+    }
   },
   "faq": {
     "eyebrow": "FAQ",
-    "title": "QUESTIONS? ANSWERED.",
+    "title": "Questions? Answered.",
     "items": [
-      { "q": "Is posting a job free?", "a": "Yes — posting a job is always free. You only pay once you accept a bid, and you pay your pro directly once the job is done — Servigic never collects or holds your payment." },
-      { "q": "How does Servigic protect me if I'm not paying upfront?", "a": "Instead of holding your money, Servigic protects you with verified pros (CNIC + selfie, police-checked at higher levels), two-way ratings after every job, a masked in-app chat that only reveals your pro's contact once they're on the way, and a dispute/mediation team if something goes wrong." },
-      { "q": "What if the pro finds extra work on-site?", "a": "They submit a Change Order with a photo and price — you approve it before any extra work happens, and the extra amount is simply added to what you pay your pro directly." },
-      { "q": "What if I'm not satisfied?", "a": "Every job carries 7-day workmanship support. Open a dispute and our team reviews photos from both sides and helps mediate a resolution with your pro." },
-      { "q": "Why can't I see the pro's phone number right away?", "a": "Contact details stay masked in an in-app chat until your pro marks that they're on the way — this closes the window where off-platform deals get made, protecting both of you. Emergency jobs unlock contact immediately." },
-      { "q": "How fast do bids arrive?", "a": "For Emergency jobs, most customers see their first bid in under 10 minutes since every matching nearby pro is alerted instantly." },
-      { "q": "How do pros get paid?", "a": "Directly from you — cash, JazzCash, EasyPaisa, or bank transfer, however you both agree. Servigic never touches that payment; pros settle their 12% commission separately through their in-app Commission Wallet." },
-      { "q": "Which cities?", "a": "Launching in Karachi, then Lahore and Islamabad/Rawalpindi, followed by GCC and North America." },
-      { "q": "Why should I book through Servigic instead of just calling the pro directly?", "a": "Booking through Servigic gets you verified & rated pros, two-way reviews, dispute support if something goes wrong, and price competition from real bids — none of which exist if you go around the platform. Repeat bookings are also just one tap with \"Book again.\"" },
-      { "q": "What happens if I or my pro cancels a booking?", "a": "Cancelling after a booking is confirmed is tracked — occasional cancellations are fine, but a high cancellation rate can pause your ability to post jobs (or a pro's job alerts) for a while. If a pro asks you to cancel so you can work with them directly, tell us — select that reason and we'll review your pro instead of counting it against you." }
+      {
+        "q": "Is posting a job free?",
+        "a": "Yes — posting a job is always free. You only pay once you accept a bid, and you pay your pro directly once the job is done — Servigic never collects or holds your payment."
+      },
+      {
+        "q": "How does Servigic protect me if I'm not paying upfront?",
+        "a": "Instead of holding your money, Servigic protects you with verified pros (CNIC + selfie, police-checked at higher levels), two-way ratings after every job, a masked in-app chat that only reveals your pro's contact once they're on the way, and a dispute/mediation team if something goes wrong."
+      },
+      {
+        "q": "What if the pro finds extra work on-site?",
+        "a": "They submit a change order with a photo and price — you approve it before any extra work happens, and the extra amount is simply added to what you pay your pro directly."
+      },
+      {
+        "q": "What if I'm not satisfied?",
+        "a": "Every job carries 7-day workmanship support. Open a dispute and our team reviews photos from both sides and helps mediate a resolution with your pro."
+      },
+      {
+        "q": "Why can't I see the pro's phone number right away?",
+        "a": "Contact details stay masked in an in-app chat until your pro marks that they're on the way — this closes the window where off-platform deals get made, protecting both of you. Emergency jobs unlock contact immediately."
+      },
+      {
+        "q": "How fast do bids arrive?",
+        "a": "For emergency jobs, most customers see their first bid in under 10 minutes since every matching nearby pro is alerted instantly."
+      },
+      {
+        "q": "How do pros get paid?",
+        "a": "Directly from you — cash, JazzCash, EasyPaisa, or bank transfer, however you both agree. Servigic never touches that payment; pros settle their 12% commission separately through their in-app commission wallet."
+      },
+      {
+        "q": "Which cities?",
+        "a": "Launching in Karachi, then Lahore and Islamabad/Rawalpindi, followed by the GCC and North America."
+      },
+      {
+        "q": "Why should I book through Servigic instead of just calling the pro directly?",
+        "a": "Booking through Servigic gets you verified and rated pros, two-way reviews, dispute support if something goes wrong, and price competition from real bids — none of which exist if you go around the platform. Repeat bookings are also just one tap with \"Book again.\""
+      },
+      {
+        "q": "What happens if I or my pro cancels a booking?",
+        "a": "Cancelling after a booking is confirmed is tracked — occasional cancellations are fine, but a high cancellation rate can pause your ability to post jobs (or a pro's job alerts) for a while. If a pro asks you to cancel so you can work with them directly, tell us — select that reason and we'll review your pro instead of counting it against you."
+      }
     ]
+  },
+  "finalCta": {
+    "title1": "Stop gambling.",
+    "title2": "Start fixing.",
+    "sub": "Post your first job free. Bids in minutes. Verified pros.",
+    "primary": "Post a Job",
+    "secondary": "Become a Pro",
+    "checks": [
+      "Free to post",
+      "Pay directly after",
+      "Verified pros",
+      "7-day support"
+    ]
+  },
+  "waitlist": {
+    "eyebrow": "Coming soon to {country}",
+    "title": "Be first when we launch here.",
+    "desc": "Servigic isn't live in {country} yet — no local pros or payment methods are wired up here. Leave your email and we'll notify you the moment it is.",
+    "email": "you@example.com",
+    "name": "Name (optional)",
+    "join": "Join waitlist",
+    "joining": "Joining…",
+    "done": "You're on the list — we'll email you when Servigic launches in {country}. 🎉",
+    "failed": "Failed to join waitlist"
+  },
+  "footer": {
+    "tagline": "Post a job. Pros race to bid. Fixed today.",
+    "services": "Services",
+    "company": "Company",
+    "forPros": "For Pros",
+    "legal": "Legal",
+    "howItWorks": "How It Works",
+    "trust": "Trust & Safety",
+    "faq": "FAQ",
+    "business": "Managing multiple properties?",
+    "becomePro": "Become a Pro",
+    "earnings": "Earnings calculator",
+    "allServices": "All services",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "rights": "© {year} Servigic. All rights reserved.",
+    "serviceLink": "{service} — {city}"
+  },
+  "pro": {
+    "eyebrow": "For pros",
+    "title1": "No lead fees.",
+    "title2": "Ever.",
+    "sub": "Pay only when you win the job. Uber-style alerts in your pocket. Paid straight to EasyPaisa, JazzCash, or bank.",
+    "cta": "Become a Servigic Pro",
+    "videoTitle": "See how a pro earns on Servigic",
+    "zeroActive": "Spent on leads by our {count} active providers last month",
+    "zeroGeneric": "Spent on leads. Ever. Every other platform charges you just to see a job — we don't.",
+    "compareServigic": "Servigic",
+    "compareOther": "Typical lead-gen platform",
+    "rows": [
+      {
+        "feature": "Cost to view or bid on a job",
+        "servigic": "PKR 0",
+        "other": "Charged per lead, regardless of outcome"
+      },
+      {
+        "feature": "Cost if you don't win the job",
+        "servigic": "PKR 0",
+        "other": "You still paid for the lead"
+      },
+      {
+        "feature": "Commission on completed jobs",
+        "servigic": "10–12%",
+        "other": "N/A — already paid up front"
+      }
+    ],
+    "earningsTitle": "Earnings calculator",
+    "ladderTitle": "Verification ladder",
+    "commission": "commission",
+    "ladder": [
+      {
+        "level": "Level 1",
+        "title": "Approved",
+        "desc": "CNIC + selfie uploaded, admin-approved. You can bid on jobs."
+      },
+      {
+        "level": "Level 2",
+        "title": "Verified Pro",
+        "desc": "Police verification certificate. Priority dispatch + badge on your bid cards."
+      },
+      {
+        "level": "Level 3",
+        "title": "Gold Ustad",
+        "desc": "10 completed jobs at 4.5★ or higher."
+      }
+    ],
+    "readyTitle": "Ready to start earning?"
+  },
+  "howPage": {
+    "eyebrow": "How it works",
+    "title": "Post. Bid. Fix. Done.",
+    "steps": [
+      {
+        "title": "01 — Post your job",
+        "desc": "Pick a category, describe the problem, add up to 6 photos, and set your urgency — Emergency, Today, or Scheduled. Your exact address is captured but stays hidden until you choose a pro."
+      },
+      {
+        "title": "02 — Pros race to bid",
+        "desc": "Every verified provider nearby who does that trade gets an instant alert — push notification, WhatsApp, and an in-app dispatch feed. They submit price, ETA, and a message. You compare side by side, sorted by price, rating, or ETA, and can decline with a reason or send one counter-offer per bid."
+      },
+      {
+        "title": "03 — Choose, chat, track live",
+        "desc": "Accept a bid and in-app chat opens. Contact details and your exact address unlock once your pro is on the way. Watch status update in real time: On the way → Arrived → Working → Done, with a live map while they're en route."
+      },
+      {
+        "title": "04 — Pay directly",
+        "desc": "When the work is done, pay your pro directly — cash, JazzCash, EasyPaisa, or bank transfer. Servigic never collects or holds your payment. Extra work needs your approval as a change order before it happens."
+      },
+      {
+        "title": "05 — Confirm & rate",
+        "desc": "Confirm the job is done (or it auto-confirms 24 hours after Done if there's no dispute). Both sides rate each other, and every job carries 7-day workmanship support."
+      }
+    ]
+  },
+  "trustPage": {
+    "eyebrow": "Trust & safety",
+    "title": "Built on verification, masking, and mediation.",
+    "sections": [
+      {
+        "title": "Pay directly, stay in control",
+        "desc": "You never pay Servigic upfront. You pay your pro directly after the work is done, and every job carries 7-day workmanship support."
+      },
+      {
+        "title": "Contact masking",
+        "desc": "Phone numbers and exact addresses stay hidden on both sides until the pro is on the way. Providers appear as an anonymous serial number (\"Pro #42\") and customers by first name and area only, until then."
+      },
+      {
+        "title": "Provider verification ladder",
+        "desc": "Level 1: CNIC + selfie, admin-approved — can bid. Level 2 \"Verified Pro\": police verification certificate, priority dispatch. Level 3 \"Gold Ustad\": 10 completed jobs at 4.5★ or higher, lowest commission."
+      },
+      {
+        "title": "Change orders",
+        "desc": "If a provider finds extra work on-site, they submit a change order with a photo and price — you approve before any extra work happens."
+      },
+      {
+        "title": "Disputes",
+        "desc": "If something's wrong, open a dispute before confirming — you and the provider submit photos, and our team mediates a fair resolution."
+      },
+      {
+        "title": "Platform-only rule",
+        "desc": "Providers agree that jobs found through Servigic close on Servigic. Taking a customer off-platform after a lead is grounds for delisting — this keeps ratings, verification and dispute support meaningful for everyone."
+      }
+    ]
+  },
+  "businessPage": {
+    "eyebrow": "Servigic for Business",
+    "title": "One dashboard. Every unit. Every trade.",
+    "p1": "Managing maintenance across multiple properties means chasing different mistris for every unit, every trade, every month. Servigic for Business brings it under one roof — post once, dispatch across all your properties, and get one consolidated bill instead of a dozen separate payments.",
+    "p2": "Built for villa management companies, condo and apartment complex managers, and DHA-style community management — the same verified-pro network as every other Servigic job, just organized for scale.",
+    "early": "This is early — we're building the full multi-property dashboard now. Leave your details below and we'll reach out when it's ready for your portfolio.",
+    "form": {
+      "company": "Company name",
+      "contact": "Your name",
+      "phone": "Phone number",
+      "email": "Email (optional)",
+      "units": "Number of units (optional)",
+      "city": "City",
+      "join": "Join the waitlist",
+      "joining": "Joining…",
+      "done": "Thanks — we'll be in touch when Servigic for Business is ready for your portfolio. 🎉",
+      "failed": "Failed to join waitlist"
+    }
+  },
+  "legal": {
+    "label": "Legal",
+    "draft": "Draft placeholder — have this reviewed by a lawyer licensed in your launch markets before going live. It is not a substitute for legal advice.",
+    "termsTitle": "Terms of Service",
+    "terms": [
+      {
+        "title": "1. The service",
+        "desc": "Servigic operates a marketplace connecting customers who need home services with independent service providers (\"pros\"). Servigic is not a party to the service agreement between customer and pro."
+      },
+      {
+        "title": "2. Payments",
+        "desc": "Customers pay the pro directly for completed work. Servigic does not collect or hold customer payments; pros pay Servigic's commission separately. Disputes follow the process described in Trust & Safety."
+      },
+      {
+        "title": "3. Provider obligations",
+        "desc": "Pros must be truthful in their profile, licensed/qualified for the trades they bid on where required by law, and agree not to circumvent the platform for jobs originated on Servigic."
+      },
+      {
+        "title": "4. Limitation of liability",
+        "desc": "Servigic is not liable for the quality of work performed by independent providers beyond the support and dispute process."
+      }
+    ],
+    "privacyTitle": "Privacy Policy",
+    "privacy": [
+      {
+        "title": "Data we collect",
+        "desc": "Account details (name, phone, email), job details and photos, location while a job is ON_MY_WAY, and KYC documents for providers."
+      },
+      {
+        "title": "How we use it",
+        "desc": "To operate the marketplace: matching jobs to providers, verifying identity, and sending job-related notifications."
+      },
+      {
+        "title": "Location data",
+        "desc": "Provider location is only shared with the matched customer, only while status is ON_MY_WAY, and pings are retained for 7 days."
+      },
+      {
+        "title": "Website analytics",
+        "desc": "We count visits anonymously: a daily-rotating hash and your country, with no cookies and no stored IP addresses."
+      },
+      {
+        "title": "Lead data (providers)",
+        "desc": "Business contact information sourced from public listings (e.g. Google Places) is used only for B2B recruiting outreach in Pakistan, with opt-out honored on request."
+      }
+    ]
+  },
+  "servicesPage": {
+    "eyebrow": "Services",
+    "title": "Home services in Pakistan — post once, pros bid.",
+    "sub": "Pick a trade and a city. Verified pros compete for your job, you compare real bids and pay directly after the work.",
+    "videoTitle": "See how posting a job works",
+    "cities": "Cities",
+    "startingFrom": "Starting from {price}",
+    "view": "View {service}",
+    "why": "Why book through Servigic?",
+    "whyItems": [
+      "Verified pros with CNIC + selfie checks",
+      "Real price competition — compare bids",
+      "No advance payment — pay after the work",
+      "7-day workmanship support"
+    ]
+  },
+  "cityPage": {
+    "eyebrow": "{service} · {city}",
+    "h1": "{service} in {city} — Bids in Minutes",
+    "sub": "Post your {service} job and verified pros in {city} race to bid. Compare price, rating, and ETA — then pay your pro directly after the work.",
+    "getRealBids": "Get real bids",
+    "avgWinning": "Avg. winning bid ({count} jobs, {days} days)",
+    "priceVaries": "Price varies by job — post to compare",
+    "startingPrice": "Typical starting price",
+    "post": "Post a {service} job",
+    "subServices": "Sub-services",
+    "faqTitle": "FAQ",
+    "videoTitle": "Watch how it works",
+    "otherCities": "{service} in other cities",
+    "faq": [
+      {
+        "q": "How much does a {service} cost in {city}?",
+        "a": "Prices vary by job — post your job free and compare real bids from verified pros in {city} before you commit to anything."
+      },
+      {
+        "q": "Do I pay in advance?",
+        "a": "No. You pay your pro directly once the work is done — Servigic never collects or holds your payment."
+      },
+      {
+        "q": "How fast will I get bids?",
+        "a": "Emergency jobs typically get a first bid in under 10 minutes since every matching nearby pro is alerted instantly."
+      },
+      {
+        "q": "Are the pros verified?",
+        "a": "All providers submit CNIC and a selfie for Level 1 approval; Level 2 pros are police-verified."
+      }
+    ]
+  },
+  "video": {
+    "soon": "Demo video coming soon",
+    "soonSub": "We're recording a quick walkthrough — check back shortly.",
+    "unmute": "Tap for sound",
+    "mute": "Mute",
+    "play": "Play video"
+  },
+  "auth": {
+    "welcome": "Welcome back",
+    "welcomeSub": "Log in to manage your jobs, bids, or dispatch feed.",
+    "phone": "Phone number",
+    "password": "Password",
+    "login": "Log in",
+    "loggingIn": "Logging in…",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "createTitle": "Create your account",
+    "createSub": "Post jobs or start bidding — pick how you'll use Servigic.",
+    "needService": "I need a service",
+    "needServiceSub": "Post jobs, get bids",
+    "imPro": "I'm a pro",
+    "imProSub": "Bid, earn, get paid",
+    "fullName": "Full name",
+    "email": "Email",
+    "city": "City",
+    "createAccount": "Create account",
+    "creating": "Creating account…",
+    "haveAccount": "Already have an account?",
+    "somethingWrong": "Something went wrong",
+    "networkError": "Network error — please try again",
+    "verifyTitle": "Verify your phone",
+    "verifySub": "Enter the 6-digit code we sent to your phone.",
+    "verify": "Verify",
+    "verifying": "Verifying…",
+    "verifyFailed": "Verification failed",
+    "resend": "Resend code",
+    "resent": "Code resent ✓",
+    "badCredentials": "Incorrect phone number or password",
+    "phoneHint": "Include your country code, e.g. +92 300 1234567 or +49 151 2345678."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "desc": "That page doesn't exist — it may have moved. Let's get you back on track.",
+    "home": "Back to home",
+    "services": "Browse services"
   }
 }

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { AuthShell, authButton } from "@/components/landing/AuthShell";
 
-export default function VerifyOtpPage() {
+function VerifyForm() {
+  const t = useTranslations("auth");
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId") || "";
@@ -27,12 +28,12 @@ export default function VerifyOtpPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Verification failed");
+        setError(data.error || t("verifyFailed"));
         return;
       }
       router.push("/login");
     } catch {
-      setError("Network error — please try again");
+      setError(t("networkError"));
     } finally {
       setPending(false);
     }
@@ -49,38 +50,46 @@ export default function VerifyOtpPage() {
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center px-6 py-20">
-      <div className="w-full max-w-[420px] text-center">
-        <Link href="/" className="mb-8 inline-flex items-center gap-2.5 font-display text-xl font-bold">
-          <Image src="/logo.png" alt="Servigic" width={34} height={34} className="rounded-[9px]" />
-          Servigic
-        </Link>
-        <h1 className="mb-2 font-display text-3xl font-bold">Verify your phone</h1>
-        <p className="mb-8 text-text-muted">Enter the 6-digit code we sent to your phone.</p>
+    <>
+      <h1 className="mb-2 text-3xl font-bold tracking-tight">{t("verifyTitle")}</h1>
+      <p className="mb-8 text-text-muted">{t("verifySub")}</p>
 
-        <form onSubmit={handleVerify} className="flex flex-col items-center gap-4">
-          <input
-            required
-            maxLength={6}
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-            placeholder="000000"
-            className="w-48 rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 text-center text-2xl tracking-[0.4em] text-text outline-none focus:border-accent"
-          />
-          {error && <p className="text-sm text-danger">{error}</p>}
-          <button
-            type="submit"
-            disabled={pending || code.length !== 6}
-            className="w-full rounded-[10px] bg-accent px-6 py-3.5 font-bold text-accent-foreground disabled:opacity-60"
-          >
-            {pending ? "Verifying…" : "Verify"}
-          </button>
-        </form>
-
-        <button onClick={handleResend} className="mt-6 text-sm font-semibold text-accent">
-          {resent ? "Code resent ✓" : "Resend code"}
+      <form onSubmit={handleVerify} className="flex flex-col items-center gap-4">
+        <input
+          required
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          maxLength={6}
+          value={code}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+          placeholder="000000"
+          dir="ltr"
+          aria-label={t("verifySub")}
+          className="w-52 rounded-xl border border-border-subtle bg-bg-elevated-2 px-4 py-3 text-center text-2xl tracking-[0.4em] text-text outline-none transition-colors focus:border-accent"
+        />
+        {error && (
+          <p role="alert" className="text-sm text-danger">
+            {error}
+          </p>
+        )}
+        <button type="submit" disabled={pending || code.length !== 6} className={`${authButton} w-full`}>
+          {pending ? t("verifying") : t("verify")}
         </button>
-      </div>
-    </main>
+      </form>
+
+      <button onClick={handleResend} className="mt-6 text-sm font-semibold text-accent">
+        {resent ? t("resent") : t("resend")}
+      </button>
+    </>
+  );
+}
+
+export default function VerifyOtpPage() {
+  return (
+    <AuthShell center>
+      <Suspense fallback={null}>
+        <VerifyForm />
+      </Suspense>
+    </AuthShell>
   );
 }
