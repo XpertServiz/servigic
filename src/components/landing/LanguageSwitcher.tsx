@@ -1,15 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { LOCALES, isMarketingPath, localeMeta, localizePath, splitLocalePath, type Locale } from "@/i18n/locales";
 
 export function LanguageSwitcher({ current, dropUp = false }: { current: Locale; dropUp?: boolean }) {
   const t = useTranslations("common");
-  const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [pending, startTransition] = useTransition();
   const box = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,11 +32,10 @@ export function LanguageSwitcher({ current, dropUp = false }: { current: Locale;
       body: JSON.stringify({ locale }),
     }).catch(() => {});
     const { path } = splitLocalePath(window.location.pathname);
-    const target = isMarketingPath(path) ? `${localizePath(path, locale)}${window.location.search}${window.location.hash}` : null;
-    startTransition(() => {
-      if (target) router.push(target);
-      else router.refresh();
-    });
+    // A full navigation, not router.push: <html lang/dir>, the font stack and the
+    // message catalog all live in the root layout, which a soft navigation reuses.
+    if (isMarketingPath(path)) window.location.assign(`${localizePath(path, locale)}${window.location.search}${window.location.hash}`);
+    else window.location.reload();
   }
 
   const meta = localeMeta(current);
@@ -51,7 +47,6 @@ export function LanguageSwitcher({ current, dropUp = false }: { current: Locale;
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("language")}
-        disabled={pending}
         className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[13px] font-medium text-text-muted transition-colors hover:border-accent/50 hover:text-text disabled:opacity-60"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
@@ -63,7 +58,7 @@ export function LanguageSwitcher({ current, dropUp = false }: { current: Locale;
       {open && (
         <ul
           role="listbox"
-          className={`sv-glass absolute end-0 z-50 max-h-[320px] w-48 overflow-auto rounded-2xl p-1.5 shadow-2xl ${dropUp ? "bottom-full mb-2" : "top-full mt-2"}`}
+          className={`sv-glass absolute end-0 z-50 max-h-[380px] w-48 overflow-auto rounded-2xl p-1.5 shadow-2xl ${dropUp ? "bottom-full mb-2" : "top-full mt-2"}`}
         >
           {LOCALES.map((l) => (
             <li key={l.code}>
@@ -72,7 +67,6 @@ export function LanguageSwitcher({ current, dropUp = false }: { current: Locale;
                 role="option"
                 aria-selected={l.code === current}
                 lang={l.code}
-                dir={l.dir}
                 onClick={() => choose(l.code)}
                 className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-start text-sm transition-colors hover:bg-white/[0.06] ${l.code === current ? "text-accent" : "text-text"}`}
               >

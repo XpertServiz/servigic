@@ -1,0 +1,538 @@
+{
+  "meta": {
+    "home": {
+      "title": "Servigic — Servizi per la casa in Pakistan | Pubblica e ricevi offerte",
+      "description": "Pubblica il tuo lavoro gratis e idraulici, elettricisti, tecnici di condizionatori e altri professionisti verificati fanno offerta in pochi minuti. Confronta prezzi reali, scegli il tuo professionista e paga direttamente a lavoro finito. Karachi, Lahore, Islamabad.",
+      "keywords": "servizi per la casa Pakistan, idraulico Karachi, elettricista Lahore, tecnico condizionatori Islamabad, professionisti verificati, preventivi online, tuttofare vicino a me, Servigic"
+    },
+    "how": {
+      "title": "Come funziona Servigic — Pubblica, ricevi offerte, risolvi",
+      "description": "Pubblica un lavoro con le foto, professionisti verificati fanno offerta in pochi minuti, tu scegli il prezzo migliore e paghi direttamente il professionista a lavoro finito.",
+      "keywords": "come assumere un idraulico online, app servizi per la casa con offerte, confrontare preventivi di riparazione, Servigic come funziona"
+    },
+    "pro": {
+      "title": "Diventa professionista Servigic — Zero costi per i contatti",
+      "description": "Unisciti a Servigic come professionista verificato. Nessun costo per i contatti, paghi solo quando ottieni il lavoro, avvisi immediati e pagamento diretto su EasyPaisa, JazzCash o banca.",
+      "keywords": "diventare partner idraulico, lavori da elettricista Pakistan, app per fornitori di servizi, piattaforma senza costi per lead, Servigic professionista"
+    },
+    "services": {
+      "title": "Servizi per la casa in Pakistan — Idraulica, elettricità, clima e altro",
+      "description": "12 mestieri a Karachi, Lahore, Islamabad e Rawalpindi. Pubblica gratis e confronta le offerte di professionisti verificati.",
+      "keywords": "idraulico, elettricista, tecnico condizionatori, installatore fotovoltaico, falegname, imbianchino, riparazione elettrodomestici, meccanico, traslochi, pulizie, muratore, tuttofare, Pakistan"
+    },
+    "city": {
+      "title": "{service} a {city} — Offerte in pochi minuti",
+      "description": "Pubblica un lavoro di {service} a {city} e ricevi in pochi minuti offerte da professionisti verificati. Confronta prezzo, valutazione e tempo di arrivo, poi paga direttamente il professionista a lavoro finito."
+    },
+    "trust": {
+      "title": "Fiducia e sicurezza — Professionisti verificati, contatti nascosti",
+      "description": "Come ti protegge Servigic: professionisti con identità verificata, controllo delle forze dell’ordine, dati di contatto nascosti, approvazione dei lavori extra e mediazione nelle controversie.",
+      "keywords": "idraulici verificati, servizi per la casa affidabili, assumere fornitori di servizi in sicurezza"
+    },
+    "business": {
+      "title": "Servigic per le aziende — Manutenzione di più immobili",
+      "description": "Un’unica dashboard per ogni unità e ogni mestiere. Pubblicazione massiva e fatturazione consolidata per amministratori di immobili, società di gestione di ville e condomìni.",
+      "keywords": "manutenzione immobili Pakistan, manutenzione gestione ville, facility management idraulici elettricisti"
+    },
+    "terms": { "title": "Termini di servizio", "description": "I termini che si applicano all’uso del marketplace Servigic." },
+    "privacy": { "title": "Informativa sulla privacy", "description": "Quali dati raccoglie Servigic, perché e come li protegge." },
+    "login": { "title": "Accedi", "description": "Accedi a Servigic per gestire lavori, offerte e prenotazioni." },
+    "signup": { "title": "Crea il tuo account", "description": "Registrati gratis per pubblicare lavori o fare offerte come professionista verificato." },
+    "verify": { "title": "Verifica il tuo telefono", "description": "Inserisci il codice a 6 cifre inviato al tuo telefono." }
+  },
+  "common": {
+    "appName": "Servigic",
+    "loading": "Caricamento",
+    "splashTagline": "Servizi per la casa · Pakistan · Risolto oggi",
+    "language": "Lingua",
+    "currency": "Valuta",
+    "free": "Gratis",
+    "from": "Da",
+    "seePricing": "Vedi i prezzi",
+    "perVisit": "/visita",
+    "comingSoon": "In arrivo",
+    "skipToContent": "Vai al contenuto",
+    "back": "Indietro",
+    "learnMore": "Scopri di più"
+  },
+  "nav": {
+    "howItWorks": "Come funziona",
+    "services": "Servizi",
+    "forPros": "Per i professionisti",
+    "trust": "Fiducia e sicurezza",
+    "faq": "FAQ",
+    "login": "Accedi",
+    "postJob": "Pubblica un lavoro",
+    "menu": "Apri il menu",
+    "close": "Chiudi il menu"
+  },
+  "hero": {
+    "eyebrow": "I professionisti fanno offerta in pochi minuti — tu scegli il prezzo",
+    "line1": "Rotto?",
+    "line2": "Riparato",
+    "line3": "oggi.",
+    "sub": "Pubblica il tuo lavoro. Professionisti verificati gareggiano con le offerte. Paga direttamente il professionista a lavoro finito.",
+    "ctaPrimary": "Pubblica un lavoro — offerte in pochi minuti",
+    "ctaSecondary": "Scopri come funziona",
+    "joinWaitlist": "Entra in lista d’attesa",
+    "trusted": "La scelta di chi ha casa a Karachi, Lahore e Islamabad",
+    "chipPro": "Ahmed · ★4,9 · a 12 min",
+    "chipBid": "Nuova offerta · PKR 3.500",
+    "chipVerified": "Professionista verificato ✓"
+  },
+  "live": {
+    "eyebrow": "In diretta su Servigic",
+    "title": "In questo momento ci sono persone su Servigic",
+    "sub": "Numeri reali e anonimi di visitatori da tutto il mondo — aggiornati ogni pochi secondi.",
+    "online": "Online ora",
+    "today": "Visitatori oggi",
+    "total": "Visitatori totali",
+    "views": "Visualizzazioni di pagina",
+    "countries": "Da dove arrivano i nostri visitatori",
+    "countriesShort": "Paesi",
+    "visitors": "visitatori",
+    "onlineHere": "online",
+    "empty": "Sii il primo — i numeri compaiono all’arrivo dei visitatori.",
+    "unknown": "Posizione sconosciuta",
+    "privacy": "Senza cookie e anonimo: contiamo le visite solo per paese e non memorizziamo mai gli indirizzi IP.",
+    "live": "LIVE"
+  },
+  "sim": {
+    "eyebrow": "Guardalo in azione",
+    "title": "Guarda come si risolve un lavoro — in 12 secondi",
+    "job": "Il condizionatore non raffredda",
+    "area": "Gulshan-e-Iqbal",
+    "emergency": "Urgente",
+    "eta": "Arriva in {min} min",
+    "accepted": "Accettata ✓",
+    "statusAccepted": "Accettata",
+    "statusOnTheWay": "In arrivo",
+    "statusDone": "Fatto",
+    "paid": "PKR 3.500 pagati direttamente ✓",
+    "bidderPro": "Elettricista professionista n. 17",
+    "bidderFast": "Fast Fix Services"
+  },
+  "ticker": {
+    "bid": "Offerta {category} da {price} a {area}",
+    "jobsWeek": "{count} lavori completati questa settimana",
+    "paidWeek": "{amount} pagati ai professionisti questa settimana"
+  },
+  "price": {
+    "eyebrow": "Prezzi reali, in tempo reale",
+    "title": "Quanto costano davvero i lavori.",
+    "city": "Città",
+    "service": "Servizio",
+    "loading": "Caricamento…",
+    "notEnough": "Non ci sono ancora abbastanza lavori completati di {service} a {city} per mostrare una fascia di prezzo affidabile — il budget, comunque, lo stabilisci tu quando pubblichi.",
+    "estimate": "Stima del prezzo di partenza per {service} a {city} — verrà sostituita da dati reali quando saranno completati abbastanza lavori.",
+    "typical": "Prezzo tipico per {service} a {city} · basato su {count} lavori completati · media {avg}"
+  },
+  "problem": {
+    "eyebrow": "Il problema",
+    "title": "Trovare un bravo artigiano non dovrebbe essere una scommessa.",
+    "items": [
+      "Chiamare 6 numeri da un gruppo WhatsApp sperando nella fortuna",
+      "«L’app diceva PKR 1.500 — sul posto ne ha chiesti 4.000»",
+      "Nessuna idea se arriva davvero, né quando",
+      "Pagato in contanti, lavoro a metà, numero bloccato",
+      "Nessun rimedio quando si rompe di nuovo la settimana dopo"
+    ],
+    "fix": "Servigic risolve tutti e cinque — con offerte, professionisti verificati e tracciamento in tempo reale."
+  },
+  "how": {
+    "eyebrow": "Come funziona",
+    "title": "Tre passaggi. Zero scommesse.",
+    "steps": [
+      {
+        "title": "Pubblica il tuo lavoro",
+        "desc": "30 secondi. Foto + zona. Il tuo indirizzo esatto resta nascosto finché non scegli un professionista.",
+        "mock": "📷 3 foto · Tecnico condizionatori · Gulshan-e-Iqbal · Urgente"
+      },
+      {
+        "title": "I professionisti gareggiano",
+        "desc": "Confronta prezzo, valutazione e tempo di arrivo fianco a fianco — scegli tu, oppure fai una controfferta.",
+        "mock": "4 offerte ricevute · ordinate per prezzo ↓"
+      },
+      {
+        "title": "Segui in diretta, paga a lavoro finito",
+        "desc": "Guarda il professionista arrivare in stile Uber. Pagalo direttamente quando il lavoro è finito.",
+        "mock": "Ahmed è in arrivo · arriva in 35 min"
+      }
+    ],
+    "emergencyLabel": "Per le emergenze",
+    "emergencyTitle": "Oppure salta l’attesa — Instant Match",
+    "emergencyDesc": "Tubo scoppiato alle 2 di notte? Vieni abbinato al professionista verificato più vicino in pochi secondi. Senza aspettare le offerte.",
+    "emergencyMock": "🚨 Instant Match · Ahmed (professionista verificato, 4,8★) · PKR 2.875 · arriva in 12 min · 90 s per accettare"
+  },
+  "features": {
+    "board": {
+      "eyebrow": "La bacheca delle offerte",
+      "title": "I professionisti competono. Tu vinci.",
+      "p1": "Ogni offerta mostra prezzo, valutazione, distanza e tempo di arrivo — ordinate come preferisci.",
+      "p2": "Un’offerta non ti convince? Rifiutala indicando il motivo, oppure invia una controfferta.",
+      "price": "Prezzo",
+      "rating": "Valutazione",
+      "eta": "Arrivo",
+      "etaMin": "Arriva in {min} min",
+      "declines": ["Troppo caro", "Arrivo troppo lungo", "Valutazione bassa"]
+    },
+    "cash": {
+      "eyebrow": "Paghi dopo il lavoro",
+      "title": "Nessun anticipo. Nessun portafoglio. Paga direttamente il tuo professionista.",
+      "p1": "Confronta le offerte, scegli il professionista e pagalo in contanti — o come concordate — a lavoro finito. Semplice, familiare, equo.",
+      "p2": "Lavoro extra scoperto sul posto? Un ordine di modifica richiede comunque prima la tua approvazione — sai sempre cosa pagherai prima che accada.",
+      "steps": ["Confronta le offerte", "Lavoro finito", "Paga direttamente"],
+      "badge": "🛠 Garanzia sul lavoro — 7 giorni",
+      "change": "Ordine di modifica: «Tubo corroso trovato — PKR 800 in più»",
+      "approve": "Approva"
+    },
+    "protected": {
+      "eyebrow": "Protezione del pagamento",
+      "title": "Il tuo denaro non si muove finché il lavoro non è finito.",
+      "p1": "Pagato → Trattenuto → Lavoro finito → Rilasciato. Ogni lavoro ha 7 giorni di garanzia.",
+      "p2": "Lavoro extra scoperto sul posto? Un ordine di modifica richiede prima la tua approvazione — altrimenti non si fa.",
+      "steps": ["Pagato", "Trattenuto", "Lavoro finito", "Rilasciato"],
+      "badge": "🛡 Garanzia di 7 giorni"
+    },
+    "tracking": {
+      "eyebrow": "Tracciamento in tempo reale",
+      "title": "Sai esattamente dove si trova il tuo professionista.",
+      "p1": "Mappa in diretta in stile Uber dal momento in cui il professionista accetta il lavoro.",
+      "steps": ["In arrivo", "Arrivato", "Al lavoro", "Fatto"],
+      "status": "Ahmed è in arrivo · arriva in 35 min"
+    },
+    "verified": {
+      "eyebrow": "Professionisti verificati, valutati da entrambe le parti",
+      "title": "Identità verificata. Controllo giudiziario al livello 2.",
+      "p1": "Valutati da clienti reali dopo lavori reali — e anche i professionisti valutano i clienti.",
+      "badges": ["Verificato", "Professionista verificato", "Gold Ustad"],
+      "card": "Ahmed R. · ★4,9 · 212 lavori completati",
+      "tags": ["Professionale", "Puntuale", "Lavoro pulito"]
+    }
+  },
+  "services": {
+    "eyebrow": "Servizi",
+    "title": "12 mestieri. Una sola app.",
+    "sub": "Dal rubinetto che gocciola all’impianto solare completo — pubblica una volta e professionisti verificati si contendono il tuo lavoro.",
+    "from": "Da {price}",
+    "seePricing": "Vedi i prezzi",
+    "trades": {
+      "PLUMBER": "Idraulico",
+      "ELECTRICIAN": "Elettricista",
+      "AC_TECHNICIAN": "Tecnico condizionatori",
+      "SOLAR_INSTALLER": "Installatore fotovoltaico",
+      "CARPENTER": "Falegname",
+      "PAINTER": "Imbianchino",
+      "APPLIANCE_REPAIR": "Riparazione elettrodomestici",
+      "CAR_MECHANIC": "Meccanico auto",
+      "MOVERS": "Traslochi",
+      "CLEANER": "Pulizie",
+      "MASON": "Muratore",
+      "HANDYMAN": "Tuttofare",
+      "GENERATOR_REPAIR": "Riparazione generatori",
+      "WATER_TANK_CLEANING": "Pulizia serbatoi d’acqua"
+    }
+  },
+  "cities": {
+    "Karachi": "Karachi",
+    "Lahore": "Lahore",
+    "Islamabad": "Islamabad",
+    "Rawalpindi": "Rawalpindi"
+  },
+  "results": {
+    "eyebrow": "Risultati",
+    "title": "Numeri reali. Nessuna statistica inventata.",
+    "launchNote": "Fase di lancio — i dati si aggiornano in tempo reale al raggiungimento delle soglie. Mai false testimonianze.",
+    "jobs": "Lavori completati",
+    "paid": "Pagato ai professionisti",
+    "firstBid": "Tempo medio alla prima offerta",
+    "lessThanMin": "< 1 min",
+    "minutes": "~{n} min",
+    "hours": "~{n} h",
+    "prev": "Recensioni precedenti",
+    "next": "Recensioni successive",
+    "goto": "Vai alla pagina di recensioni {n}"
+  },
+  "featuredPros": {
+    "eyebrow": "Professionisti verificati in evidenza",
+    "title": "Professionisti veri. Verificati e valutati.",
+    "eyebrowGeneric": "Professionisti verificati",
+    "titleGeneric": "Professionisti verificati in ogni mestiere.",
+    "achiever": "🏆 Eccellenza",
+    "achieverTitle": "Professionista con le valutazioni più alte",
+    "ratingJobs": "{rating}★ · {jobs} lavori"
+  },
+  "forPros": {
+    "customerTitle": "Sei un cliente?",
+    "customerDesc": "Pubblica un lavoro gratis, ricevi offerte in pochi minuti e paga direttamente il professionista a lavoro finito.",
+    "customerCta": "Pubblica un lavoro",
+    "proTitle": "Guadagna di più. Tieni l’88%.",
+    "zero": "PKR 0",
+    "zeroActive": "Spesi in contatti dai nostri {count} fornitori attivi questo mese",
+    "zeroGeneric": "Spesi in contatti. Mai. Le altre piattaforme ti fanno pagare anche solo per vedere un lavoro — noi no.",
+    "perks": [
+      "Mai costi per i contatti",
+      "Paghi solo quando ottieni il lavoro",
+      "Avvisi di lavoro in stile Uber in tasca",
+      "Pagamento diretto su EasyPaisa / JazzCash / banca",
+      "Livelli di badge = commissione più bassa"
+    ],
+    "cta": "Diventa professionista Servigic"
+  },
+  "calc": {
+    "jobsPerWeek": "Lavori a settimana",
+    "avgTicket": "Importo medio",
+    "monthly": "Guadagno mensile stimato",
+    "note": "Dopo la commissione Servigic del 12% (10% per Gold Ustad)."
+  },
+  "why": {
+    "eyebrow": "Perché Servigic",
+    "title": "Un confronto brutalmente onesto.",
+    "vs": "contro",
+    "tabs": {
+      "fixed": { "label": "App a prezzo fisso", "sub": "stile Mahir, Karsaaz, HukumJanab" },
+      "lead": { "label": "Piattaforme che vendono contatti", "sub": "stile Thumbtack, Angi, Checkatrade, MyBuilder" },
+      "call": { "label": "Call center", "sub": "assegnazione via telefono/app stile HukumJanab" }
+    },
+    "features": [
+      "Vera concorrenza sui prezzi (offerte)",
+      "Paghi direttamente il professionista, senza intermediari",
+      "Tracciamento in tempo reale stile Uber",
+      "Zero costi per i contatti per i professionisti",
+      "Scala pubblica di badge di verifica"
+    ]
+  },
+  "plans": {
+    "eyebrow": "Imposta e dimentica",
+    "title": "Non perdere mai più la manutenzione del tuo condizionatore.",
+    "from": "Da {price}/visita",
+    "cta": "Imposta un piano",
+    "cadence": {
+      "AC_TECHNICIAN": "Ogni trimestre",
+      "GENERATOR_REPAIR": "Ogni 6 mesi",
+      "WATER_TANK_CLEANING": "Ogni 6 mesi"
+    }
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Domande? Risposte.",
+    "items": [
+      { "q": "Pubblicare un lavoro è gratuito?", "a": "Sì — pubblicare è sempre gratuito. Paghi solo dopo aver accettato un’offerta, e paghi direttamente il professionista a lavoro finito — Servigic non incassa né trattiene mai il tuo pagamento." },
+      { "q": "Come mi protegge Servigic se non pago in anticipo?", "a": "Invece di trattenere il tuo denaro, Servigic ti protegge con professionisti verificati (documento + selfie, controllo giudiziario ai livelli superiori), valutazioni reciproche dopo ogni lavoro, una chat nell’app che nasconde i contatti del professionista finché non è in arrivo, e un team per controversie e mediazione se qualcosa va storto." },
+      { "q": "E se il professionista trova lavoro extra sul posto?", "a": "Invia un ordine di modifica con foto e prezzo — lo approvi prima che inizi qualsiasi lavoro extra, e l’importo aggiuntivo si somma semplicemente a quanto paghi direttamente al professionista." },
+      { "q": "E se non sono soddisfatto?", "a": "Ogni lavoro ha 7 giorni di assistenza sulla garanzia. Apri una controversia e il nostro team esamina le foto di entrambe le parti e aiuta a trovare una soluzione con il tuo professionista." },
+      { "q": "Perché non vedo subito il numero di telefono del professionista?", "a": "I dati di contatto restano nascosti nella chat dell’app finché il professionista non segnala di essere in arrivo — questo chiude la porta agli accordi fuori piattaforma e protegge entrambi. Per le emergenze il contatto si sblocca subito." },
+      { "q": "Con che rapidità arrivano le offerte?", "a": "Per le emergenze, la maggior parte dei clienti vede la prima offerta in meno di 10 minuti, perché ogni professionista adatto nelle vicinanze viene avvisato all’istante." },
+      { "q": "Come vengono pagati i professionisti?", "a": "Direttamente da te — contanti, JazzCash, EasyPaisa o bonifico, come concordate. Servigic non tocca mai quel pagamento; i professionisti regolano la loro commissione del 12% separatamente tramite il portafoglio commissioni nell’app." },
+      { "q": "Quali città?", "a": "Partiamo da Karachi, poi Lahore e Islamabad/Rawalpindi, seguiti dai paesi del Golfo e dal Nord America." },
+      { "q": "Perché prenotare tramite Servigic invece di chiamare direttamente il professionista?", "a": "Con Servigic hai professionisti verificati e valutati, recensioni reciproche, supporto nelle controversie e concorrenza di prezzo grazie a offerte reali — niente di tutto ciò esiste se aggira la piattaforma. Anche le prenotazioni ripetute richiedono un solo tocco con «Prenota di nuovo»." },
+      { "q": "Cosa succede se io o il mio professionista annulliamo una prenotazione?", "a": "Le cancellazioni dopo la conferma vengono monitorate — qualche cancellazione occasionale va bene, ma un tasso elevato può sospendere per un po’ la possibilità di pubblicare lavori (o gli avvisi di un professionista). Se un professionista ti chiede di annullare per lavorare direttamente con te, faccelo sapere — scegli quel motivo e verificheremo il professionista invece di contarlo contro di te." }
+    ]
+  },
+  "finalCta": {
+    "title1": "Basta scommesse.",
+    "title2": "Inizia a riparare.",
+    "sub": "Pubblica il tuo primo lavoro gratis. Offerte in pochi minuti. Professionisti verificati.",
+    "primary": "Pubblica un lavoro",
+    "secondary": "Diventa professionista",
+    "checks": ["Pubblicare è gratis", "Paghi direttamente dopo", "Professionisti verificati", "7 giorni di assistenza"]
+  },
+  "waitlist": {
+    "eyebrow": "Presto in {country}",
+    "title": "Sii il primo quando partiremo qui.",
+    "desc": "Servigic non è ancora attivo in {country} — non ci sono ancora professionisti locali né metodi di pagamento collegati. Lascia la tua email e ti avviseremo non appena lo sarà.",
+    "email": "tu@esempio.it",
+    "name": "Nome (facoltativo)",
+    "join": "Entra in lista",
+    "joining": "Iscrizione…",
+    "done": "Sei in lista — ti scriveremo quando Servigic partirà in {country}. 🎉",
+    "failed": "Impossibile iscriversi alla lista d’attesa"
+  },
+  "footer": {
+    "tagline": "Pubblica un lavoro. I professionisti gareggiano. Risolto oggi.",
+    "services": "Servizi",
+    "company": "Azienda",
+    "forPros": "Per i professionisti",
+    "legal": "Note legali",
+    "howItWorks": "Come funziona",
+    "trust": "Fiducia e sicurezza",
+    "faq": "FAQ",
+    "business": "Gestisci più immobili?",
+    "becomePro": "Diventa professionista",
+    "earnings": "Calcolatore guadagni",
+    "allServices": "Tutti i servizi",
+    "terms": "Termini",
+    "privacy": "Privacy",
+    "rights": "© {year} Servigic. Tutti i diritti riservati.",
+    "serviceLink": "{service} — {city}"
+  },
+  "pro": {
+    "eyebrow": "Per i professionisti",
+    "title1": "Nessun costo per i contatti.",
+    "title2": "Mai.",
+    "sub": "Paghi solo quando ottieni il lavoro. Avvisi in stile Uber in tasca. Pagamento diretto su EasyPaisa, JazzCash o banca.",
+    "cta": "Diventa professionista Servigic",
+    "videoTitle": "Guarda come guadagna un professionista su Servigic",
+    "zeroActive": "Spesi in contatti dai nostri {count} fornitori attivi il mese scorso",
+    "zeroGeneric": "Spesi in contatti. Mai. Le altre piattaforme ti fanno pagare anche solo per vedere un lavoro — noi no.",
+    "compareServigic": "Servigic",
+    "compareOther": "Tipica piattaforma di contatti",
+    "rows": [
+      { "feature": "Costo per vedere un lavoro o fare un’offerta", "servigic": "PKR 0", "other": "Addebitato per contatto, a prescindere dall’esito" },
+      { "feature": "Costo se non ottieni il lavoro", "servigic": "PKR 0", "other": "Il contatto l’hai pagato comunque" },
+      { "feature": "Commissione sui lavori completati", "servigic": "10–12%", "other": "N/D — già pagata in anticipo" }
+    ],
+    "earningsTitle": "Calcolatore guadagni",
+    "ladderTitle": "Scala di verifica",
+    "commission": "di commissione",
+    "ladder": [
+      { "level": "Livello 1", "title": "Approvato", "desc": "Documento + selfie caricati e approvati dall’amministratore. Puoi fare offerte sui lavori." },
+      { "level": "Livello 2", "title": "Professionista verificato", "desc": "Certificato di verifica giudiziaria. Assegnazione prioritaria + badge sulle tue offerte." },
+      { "level": "Livello 3", "title": "Gold Ustad", "desc": "10 lavori completati con 4,5★ o più." }
+    ],
+    "readyTitle": "Pronto a iniziare a guadagnare?"
+  },
+  "howPage": {
+    "eyebrow": "Come funziona",
+    "title": "Pubblica. Ricevi offerte. Ripara. Fatto.",
+    "steps": [
+      { "title": "01 — Pubblica il tuo lavoro", "desc": "Scegli una categoria, descrivi il problema, aggiungi fino a 6 foto e imposta l’urgenza — Urgente, Oggi o Programmato. Il tuo indirizzo esatto viene registrato ma resta nascosto finché non scegli un professionista." },
+      { "title": "02 — I professionisti gareggiano", "desc": "Ogni fornitore verificato nelle vicinanze che svolge quel mestiere riceve un avviso istantaneo — notifica push, WhatsApp e feed di assegnazione nell’app. Invia prezzo, tempo di arrivo e un messaggio. Tu confronti fianco a fianco, ordinando per prezzo, valutazione o tempo di arrivo, e puoi rifiutare indicando il motivo o inviare una controfferta per offerta." },
+      { "title": "03 — Scegli, chatta, segui in diretta", "desc": "Accetta un’offerta e si apre la chat nell’app. I dati di contatto e il tuo indirizzo esatto si sbloccano quando il professionista è in arrivo. Guarda lo stato in tempo reale: In arrivo → Arrivato → Al lavoro → Fatto, con una mappa in diretta durante il tragitto." },
+      { "title": "04 — Paga direttamente", "desc": "A lavoro finito, paga direttamente il professionista — contanti, JazzCash, EasyPaisa o bonifico. Servigic non incassa né trattiene mai il tuo pagamento. Il lavoro extra richiede la tua approvazione come ordine di modifica prima di essere eseguito." },
+      { "title": "05 — Conferma e valuta", "desc": "Conferma che il lavoro è finito (o si conferma da solo 24 ore dopo «Fatto» se non ci sono controversie). Entrambe le parti si valutano a vicenda e ogni lavoro ha 7 giorni di assistenza sulla garanzia." }
+    ]
+  },
+  "trustPage": {
+    "eyebrow": "Fiducia e sicurezza",
+    "title": "Costruito su verifica, mascheramento e mediazione.",
+    "sections": [
+      { "title": "Paga direttamente, mantieni il controllo", "desc": "Non paghi mai Servigic in anticipo. Paghi direttamente il professionista dopo il lavoro, e ogni lavoro ha 7 giorni di assistenza sulla garanzia." },
+      { "title": "Mascheramento dei contatti", "desc": "Numeri di telefono e indirizzi esatti restano nascosti a entrambe le parti finché il professionista non è in arrivo. Fino ad allora i fornitori appaiono con un numero seriale anonimo («Professionista n. 42») e i clienti solo con nome e zona." },
+      { "title": "Scala di verifica dei fornitori", "desc": "Livello 1: documento + selfie, approvato dall’amministratore — può fare offerte. Livello 2 «Professionista verificato»: certificato di verifica giudiziaria, assegnazione prioritaria. Livello 3 «Gold Ustad»: 10 lavori completati con 4,5★ o più, commissione più bassa." },
+      { "title": "Ordini di modifica", "desc": "Se un fornitore trova lavoro extra sul posto, invia un ordine di modifica con foto e prezzo — lo approvi prima che inizi qualsiasi lavoro extra." },
+      { "title": "Controversie", "desc": "Se qualcosa non va, apri una controversia prima di confermare — tu e il fornitore inviate foto e il nostro team media una soluzione equa." },
+      { "title": "Regola «solo piattaforma»", "desc": "I fornitori accettano di concludere su Servigic i lavori trovati tramite Servigic. Portare un cliente fuori piattaforma dopo un contatto è motivo di esclusione — così valutazioni, verifica e supporto nelle controversie restano significativi per tutti." }
+    ]
+  },
+  "businessPage": {
+    "eyebrow": "Servigic per le aziende",
+    "title": "Una dashboard. Ogni unità. Ogni mestiere.",
+    "p1": "Gestire la manutenzione di più immobili significa rincorrere artigiani diversi per ogni unità, ogni mestiere, ogni mese. Servigic per le aziende riunisce tutto sotto lo stesso tetto — pubblica una volta, assegna a tutti i tuoi immobili e ricevi un’unica fattura consolidata invece di una dozzina di pagamenti separati.",
+    "p2": "Pensato per società di gestione di ville, amministratori di condomìni e complessi di appartamenti e gestione di comunità in stile DHA — la stessa rete di professionisti verificati di ogni lavoro Servigic, solo organizzata per crescere.",
+    "early": "Siamo agli inizi — stiamo costruendo la dashboard completa per più immobili. Lascia i tuoi dati qui sotto e ti contatteremo quando sarà pronta per il tuo portafoglio.",
+    "form": {
+      "company": "Nome dell’azienda",
+      "contact": "Il tuo nome",
+      "phone": "Numero di telefono",
+      "email": "Email (facoltativa)",
+      "units": "Numero di unità (facoltativo)",
+      "city": "Città",
+      "join": "Entra in lista d’attesa",
+      "joining": "Iscrizione…",
+      "done": "Grazie — ti contatteremo quando Servigic per le aziende sarà pronto per il tuo portafoglio. 🎉",
+      "failed": "Impossibile iscriversi alla lista d’attesa"
+    }
+  },
+  "legal": {
+    "label": "Note legali",
+    "draft": "Bozza provvisoria — fai rivedere il testo a un avvocato abilitato nei tuoi mercati di lancio prima della pubblicazione. Non sostituisce una consulenza legale.",
+    "termsTitle": "Termini di servizio",
+    "terms": [
+      { "title": "1. Il servizio", "desc": "Servigic gestisce un marketplace che mette in contatto clienti che hanno bisogno di servizi per la casa con fornitori indipendenti («professionisti»). Servigic non è parte dell’accordo di servizio tra cliente e professionista." },
+      { "title": "2. Pagamenti", "desc": "I clienti pagano direttamente il professionista per il lavoro completato. Servigic non incassa né trattiene i pagamenti dei clienti; i professionisti pagano separatamente la commissione di Servigic. Le controversie seguono la procedura descritta in Fiducia e sicurezza." },
+      { "title": "3. Obblighi dei fornitori", "desc": "I professionisti devono essere sinceri nel proprio profilo, essere abilitati/qualificati per i mestieri su cui fanno offerta dove richiesto dalla legge, e si impegnano a non aggirare la piattaforma per i lavori nati su Servigic." },
+      { "title": "4. Limitazione di responsabilità", "desc": "Servigic non è responsabile della qualità del lavoro svolto da fornitori indipendenti oltre il processo di assistenza e controversie." }
+    ],
+    "privacyTitle": "Informativa sulla privacy",
+    "privacy": [
+      { "title": "Dati che raccogliamo", "desc": "Dati dell’account (nome, telefono, email), dettagli e foto dei lavori, posizione mentre un lavoro è «in arrivo» e documenti KYC dei fornitori." },
+      { "title": "Come li usiamo", "desc": "Per far funzionare il marketplace: abbinare lavori e fornitori, verificare l’identità e inviare notifiche relative ai lavori." },
+      { "title": "Dati di posizione", "desc": "La posizione del fornitore è condivisa solo con il cliente abbinato, solo mentre lo stato è «in arrivo», e i rilevamenti vengono conservati per 7 giorni." },
+      { "title": "Statistiche del sito", "desc": "Contiamo le visite in modo anonimo: un hash che cambia ogni giorno e il tuo paese, senza cookie e senza memorizzare indirizzi IP." },
+      { "title": "Dati dei contatti (fornitori)", "desc": "I dati di contatto aziendali ricavati da elenchi pubblici (ad es. Google Places) sono usati solo per la ricerca di fornitori B2B in Pakistan, con rispetto della disiscrizione su richiesta." }
+    ]
+  },
+  "servicesPage": {
+    "eyebrow": "Servizi",
+    "title": "Servizi per la casa in Pakistan — pubblica una volta, i professionisti fanno offerta.",
+    "sub": "Scegli un mestiere e una città. Professionisti verificati si contendono il tuo lavoro, confronti offerte reali e paghi direttamente a lavoro finito.",
+    "videoTitle": "Guarda come funziona la pubblicazione di un lavoro",
+    "cities": "Città",
+    "startingFrom": "Da {price}",
+    "view": "Vedi {service}",
+    "why": "Perché prenotare con Servigic?",
+    "whyItems": [
+      "Professionisti verificati con controllo di documento + selfie",
+      "Vera concorrenza sui prezzi — confronta le offerte",
+      "Nessun anticipo — paghi dopo il lavoro",
+      "7 giorni di assistenza sulla garanzia"
+    ]
+  },
+  "cityPage": {
+    "eyebrow": "{service} · {city}",
+    "h1": "{service} a {city} — Offerte in pochi minuti",
+    "sub": "Pubblica il tuo lavoro di {service} e professionisti verificati di {city} gareggiano con le offerte. Confronta prezzo, valutazione e tempo di arrivo — poi paga direttamente il professionista a lavoro finito.",
+    "getRealBids": "Ricevi offerte reali",
+    "avgWinning": "Offerta vincente media ({count} lavori, {days} giorni)",
+    "priceVaries": "Il prezzo varia in base al lavoro — pubblica per confrontare",
+    "startingPrice": "Prezzo di partenza tipico",
+    "post": "Pubblica un lavoro di {service}",
+    "subServices": "Sottoservizi",
+    "faqTitle": "FAQ",
+    "videoTitle": "Guarda come funziona",
+    "otherCities": "{service} in altre città",
+    "faq": [
+      { "q": "Quanto costa {service} a {city}?", "a": "I prezzi variano in base al lavoro — pubblica gratis e confronta offerte reali di professionisti verificati a {city} prima di impegnarti in qualsiasi modo." },
+      { "q": "Devo pagare in anticipo?", "a": "No. Paghi direttamente il professionista a lavoro finito — Servigic non incassa né trattiene mai il tuo pagamento." },
+      { "q": "Con che rapidità arrivano le offerte?", "a": "I lavori urgenti ricevono di solito una prima offerta in meno di 10 minuti, perché ogni professionista adatto nelle vicinanze viene avvisato all’istante." },
+      { "q": "I professionisti sono verificati?", "a": "Tutti i fornitori inviano documento e selfie per l’approvazione di livello 1; i professionisti di livello 2 hanno il controllo giudiziario." }
+    ]
+  },
+  "video": {
+    "soon": "Video dimostrativo in arrivo",
+    "soonSub": "Stiamo registrando una breve presentazione — torna a trovarci presto.",
+    "unmute": "Tocca per l’audio",
+    "mute": "Disattiva audio",
+    "play": "Riproduci il video"
+  },
+  "auth": {
+    "welcome": "Bentornato",
+    "welcomeSub": "Accedi per gestire lavori, offerte o il feed di assegnazione.",
+    "phone": "Numero di telefono",
+    "password": "Password",
+    "login": "Accedi",
+    "loggingIn": "Accesso in corso…",
+    "noAccount": "Non hai un account?",
+    "signUp": "Registrati",
+    "createTitle": "Crea il tuo account",
+    "createSub": "Pubblica lavori o inizia a fare offerte — scegli come userai Servigic.",
+    "needService": "Mi serve un servizio",
+    "needServiceSub": "Pubblica lavori, ricevi offerte",
+    "imPro": "Sono un professionista",
+    "imProSub": "Fai offerte, guadagna, ricevi il pagamento",
+    "fullName": "Nome e cognome",
+    "email": "Email",
+    "city": "Città",
+    "createAccount": "Crea account",
+    "creating": "Creazione dell’account…",
+    "haveAccount": "Hai già un account?",
+    "somethingWrong": "Qualcosa è andato storto",
+    "networkError": "Errore di rete — riprova",
+    "verifyTitle": "Verifica il tuo telefono",
+    "verifySub": "Inserisci il codice a 6 cifre inviato al tuo telefono.",
+    "verify": "Verifica",
+    "verifying": "Verifica in corso…",
+    "verifyFailed": "Verifica non riuscita",
+    "resend": "Invia di nuovo il codice",
+    "resent": "Codice inviato di nuovo ✓",
+    "badCredentials": "Numero di telefono o password errati",
+    "phoneHint": "Includi il prefisso internazionale, ad es. +39 333 123 4567 o +92 300 1234567."
+  },
+  "notFound": {
+    "title": "Pagina non trovata",
+    "desc": "Questa pagina non esiste — forse è stata spostata. Rimettiamoci sulla strada giusta.",
+    "home": "Torna alla home",
+    "services": "Sfoglia i servizi"
+  }
+}

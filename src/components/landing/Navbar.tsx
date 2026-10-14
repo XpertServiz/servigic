@@ -15,10 +15,12 @@ export async function Navbar() {
     { href: "/trust-and-safety", label: t("trust") },
   ];
 
+  // The glass effect lives on a pseudo-element: backdrop-filter on the header itself
+  // would make it the containing block of the fixed mobile menu.
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-bg/70 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-white/[0.06] before:absolute before:inset-0 before:-z-10 before:bg-bg/70 before:backdrop-blur-xl">
       <nav className="container-x flex items-center justify-between gap-4 py-3" aria-label="Main">
-        <LLink href="/" className="flex items-center gap-2.5 text-xl font-bold tracking-tight" aria-label="Servigic">
+        <LLink href="/" className="flex items-center gap-2.5 text-xl font-bold tracking-[-0.018em]" aria-label="Servigic">
           <Image src="/icons/icon-192.png" alt="" width={36} height={36} className="rounded-[10px]" priority />
           Servigic
         </LLink>

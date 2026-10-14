@@ -27,7 +27,7 @@ export function EarningsCalculator() {
       </div>
       <div className="mb-4 flex flex-col items-center gap-1 rounded-2xl border border-secondary/25 bg-secondary/[0.07] p-5">
         <span className="text-[13px] text-text-muted">{t("monthly")}</span>
-        <div className="text-3xl font-extrabold tracking-tight text-secondary" dir="ltr">
+        <div className="text-3xl font-extrabold tracking-[-0.018em] text-secondary" dir="ltr">
           {fmtPKR(monthly, locale)}
         </div>
         <span className="text-[11px] text-text-muted">{t("note")}</span>

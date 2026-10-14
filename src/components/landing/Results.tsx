@@ -81,7 +81,7 @@ export async function Results() {
         {stats.map((s, i) => (
           <Reveal key={s.label} delay={i * 80}>
             <div className="sv-card p-7 text-center">
-              <div className="text-4xl font-extrabold tracking-tight text-accent" dir="ltr">
+              <div className="text-4xl font-extrabold tracking-[-0.018em] text-accent" dir="ltr">
                 {s.value}
               </div>
               <div className="mt-2 text-sm text-text-muted">{s.label}</div>

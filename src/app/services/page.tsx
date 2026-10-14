@@ -61,7 +61,7 @@ export default async function ServicesIndexPage() {
           <div className="absolute -top-32 start-[-10%] -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(closest-side,rgba(255,176,32,0.16),transparent)]" aria-hidden />
           <div className="container-x max-w-[960px] text-center">
             <Eyebrow>{t("eyebrow")}</Eyebrow>
-            <h1 className="mx-auto max-w-3xl text-[clamp(32px,5.8vw,60px)] font-extrabold leading-[1.06] tracking-tight">{t("title")}</h1>
+            <h1 className="mx-auto max-w-3xl text-[clamp(32px,5.8vw,60px)] font-extrabold leading-[1.06] tracking-[-0.018em]">{t("title")}</h1>
             <p className="mx-auto mt-5 max-w-2xl text-base text-text-muted md:text-lg">{t("sub")}</p>
           </div>
         </section>

@@ -16,7 +16,7 @@ export async function FinalCta() {
           <div className="mb-2 flex justify-center">
             <LogoMark3D size={72} />
           </div>
-          <h2 className="text-[clamp(34px,6.4vw,68px)] font-extrabold leading-[1.04] tracking-tight">
+          <h2 className="text-[clamp(34px,6.4vw,68px)] font-extrabold leading-[1.04] tracking-[-0.018em]">
             {t("title1")}
             <br />
             <span className="text-gradient">{t("title2")}</span>

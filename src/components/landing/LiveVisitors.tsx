@@ -36,7 +36,7 @@ function Metric({ label, value, accent, live }: { label: string; value: number; 
   const shown = useAnimatedNumber(value);
   return (
     <div className="sv-card p-5 text-center md:p-6">
-      <div className={`text-[clamp(30px,4.4vw,46px)] font-extrabold leading-none tracking-tight ${accent ? "text-secondary" : "text-accent"}`}>{fmtNumber(shown, locale)}</div>
+      <div className={`text-[clamp(30px,4.4vw,46px)] font-extrabold leading-none tracking-[-0.018em] ${accent ? "text-secondary" : "text-accent"}`}>{fmtNumber(shown, locale)}</div>
       <div className="mt-2 flex items-center justify-center gap-2 text-[13px] text-text-muted">
         {live && <span className="sv-live-dot" aria-hidden />}
         {label}
@@ -80,9 +80,9 @@ export function LiveVisitors({ initial }: { initial: VisitorStats }) {
         <div className="relative mb-8 flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-[640px]">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-secondary/30 bg-secondary/10 px-3.5 py-1.5 font-mono text-[11.5px] font-medium uppercase tracking-[0.14em] text-secondary">
-              <span className="sv-live-dot" aria-hidden /> {t("live")} · {t("eyebrow")}
+              <span className="sv-live-dot" aria-hidden /> {t("eyebrow")}
             </div>
-            <h2 id="live-title" className="text-[clamp(26px,4vw,40px)] font-bold leading-tight tracking-tight">
+            <h2 id="live-title" className="text-[clamp(26px,4vw,40px)] font-bold leading-tight tracking-[-0.018em]">
               {t("title")}
             </h2>
             <p className="mt-3 text-text-muted">{t("sub")}</p>

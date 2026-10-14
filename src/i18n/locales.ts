@@ -25,7 +25,7 @@ export const LOCALES = [
   { code: "pl", native: "Polski", english: "Polish", dir: "ltr", hreflang: "pl", og: "pl_PL" },
   { code: "tr", native: "Türkçe", english: "Turkish", dir: "ltr", hreflang: "tr", og: "tr_TR" },
   { code: "it", native: "Italiano", english: "Italian", dir: "ltr", hreflang: "it", og: "it_IT" },
-  { code: "pt", native: "Português", english: "Portuguese", dir: "ltr", hreflang: "pt", og: "pt_PT" },
+  { code: "pt", native: "Português", english: "Portuguese", dir: "ltr", hreflang: "pt", og: "pt_BR" },
   { code: "nl", native: "Nederlands", english: "Dutch", dir: "ltr", hreflang: "nl", og: "nl_NL" },
 ] as const satisfies readonly LocaleMeta[];
 

@@ -93,6 +93,11 @@ body {
   letter-spacing: 0 !important;
 }
 
+/* Nastaliq needs more size to stay legible at the same visual weight as Latin. */
+:lang(ur):root {
+  font-size: 112.5%;
+}
+
 ::selection {
   background: color-mix(in srgb, var(--accent) 35%, transparent);
   color: var(--text);

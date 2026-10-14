@@ -10,7 +10,7 @@ export function InfoPageShell({ eyebrow, title, children }: { eyebrow: string; t
         <section className="container-x relative max-w-[860px] py-14 md:py-20">
           <div className="sv-glow pointer-events-none absolute -top-20 start-[-10%] -z-10 h-72 w-72 opacity-40" aria-hidden />
           <Eyebrow>{eyebrow}</Eyebrow>
-          <h1 className="mb-10 text-[clamp(30px,5.2vw,52px)] font-extrabold leading-[1.08] tracking-tight">{title}</h1>
+          <h1 className="mb-10 text-[clamp(30px,5.2vw,52px)] font-extrabold leading-[1.08] tracking-[-0.018em]">{title}</h1>
           <div className="flex flex-col gap-5 text-text-muted [&_p]:leading-relaxed">{children}</div>
         </section>
       </main>

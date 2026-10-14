@@ -15,7 +15,7 @@ function LoginForm() {
 
   return (
     <>
-      <h1 className="mb-2 text-3xl font-bold tracking-tight">{t("welcome")}</h1>
+      <h1 className="mb-2 text-3xl font-bold tracking-[-0.018em]">{t("welcome")}</h1>
       <p className="mb-8 text-text-muted">{t("welcomeSub")}</p>
 
       <form action={formAction} className="flex flex-col gap-4">

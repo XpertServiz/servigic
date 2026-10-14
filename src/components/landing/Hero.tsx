@@ -35,7 +35,7 @@ export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
           <Eyebrow>
             <span className="sv-live-dot" aria-hidden /> {t("eyebrow")}
           </Eyebrow>
-          <h1 className="text-[clamp(44px,8.2vw,96px)] font-extrabold leading-[1.02] tracking-tight">
+          <h1 className="text-[clamp(44px,8.2vw,96px)] font-extrabold leading-[1.02] tracking-[-0.018em]">
             {t("line1")}
             <br />
             {t("line2")}
@@ -63,7 +63,7 @@ export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
               {trustInitials.map((label, i) => (
                 <span
                   key={`${label}-${i}`}
-                  className="-ms-2.5 flex h-[36px] w-[36px] items-center justify-center rounded-full border-2 border-bg bg-gradient-to-br from-[#3a3f4d] to-[#1f2330] text-[12px] font-bold first:ms-0"
+                  className="-ms-2 flex h-[38px] w-[38px] items-center justify-center rounded-full border-2 border-bg bg-gradient-to-br from-[#3a3f4d] to-[#1f2330] text-[12px] font-bold first:ms-0"
                   style={{ zIndex: 10 - i }}
                 >
                   {label}

@@ -37,7 +37,7 @@ export function CountryWaitlistSection({ countryCode, countryName }: { countryCo
   return (
     <section id="waitlist" className="container-x max-w-[720px] py-16 text-center md:py-20">
       <Eyebrow>{t("eyebrow", { country: countryName })}</Eyebrow>
-      <h2 className="mb-4 text-[clamp(26px,4.2vw,42px)] font-bold leading-tight tracking-tight">{t("title")}</h2>
+      <h2 className="mb-4 text-[clamp(26px,4.2vw,42px)] font-bold leading-tight tracking-[-0.018em]">{t("title")}</h2>
       <p className="mb-8 text-text-muted">{t("desc", { country: countryName })}</p>
 
       {submitted ? (

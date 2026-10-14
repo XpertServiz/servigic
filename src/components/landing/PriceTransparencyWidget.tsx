@@ -85,7 +85,7 @@ export function PriceTransparencyWidget({ categories, cities }: { categories: Ca
             <p className="text-sm text-text-muted">{t("notEnough", { service, city: cityName })}</p>
           ) : (
             <>
-              <div className="text-3xl font-extrabold tracking-tight text-accent" dir="ltr">
+              <div className="text-3xl font-extrabold tracking-[-0.018em] text-accent" dir="ltr">
                 {fmtPKR(benchmark.minPKR, locale)}–{fmtPKR(benchmark.maxPKR, locale).replace("PKR ", "")}
               </div>
               <p className="mt-2 text-sm text-text-muted">

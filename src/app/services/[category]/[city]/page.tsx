@@ -104,7 +104,7 @@ export default async function ServiceCityPage({ params }: { params: Promise<{ ca
         <section className="container-x relative max-w-[960px] py-14 md:py-20">
           <div className="sv-glow pointer-events-none absolute -top-20 start-[-10%] -z-10 h-72 w-72 opacity-40" aria-hidden />
           <Eyebrow>{t("eyebrow", { service, city: cityName })}</Eyebrow>
-          <h1 className="mb-4 text-[clamp(30px,5vw,52px)] font-extrabold leading-[1.08] tracking-tight">{t("h1", { service, city: cityName })}</h1>
+          <h1 className="mb-4 text-[clamp(30px,5vw,52px)] font-extrabold leading-[1.08] tracking-[-0.018em]">{t("h1", { service, city: cityName })}</h1>
           <p className="mb-8 max-w-2xl text-base text-text-muted md:text-lg">{t("sub", { service, city: cityName })}</p>
 
           <div className="mb-8 flex flex-wrap gap-4">

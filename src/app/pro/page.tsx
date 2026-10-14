@@ -52,7 +52,7 @@ export default async function ProLandingPage() {
               <LogoMark3D size={84} />
             </div>
             <Eyebrow>{t("eyebrow")}</Eyebrow>
-            <h1 className="mx-auto max-w-3xl text-[clamp(38px,7vw,72px)] font-extrabold leading-[1.04] tracking-tight">
+            <h1 className="mx-auto max-w-3xl text-[clamp(38px,7vw,72px)] font-extrabold leading-[1.04] tracking-[-0.018em]">
               {t("title1")} <span className="text-gradient">{t("title2")}</span>
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-base text-text-muted md:text-lg">{t("sub")}</p>
@@ -102,7 +102,7 @@ export default async function ProLandingPage() {
 
         <section className="container-x max-w-[1000px] py-16 md:py-20" id="earnings">
           <Reveal>
-            <h2 className="mb-8 text-center text-3xl font-bold tracking-tight">{t("earningsTitle")}</h2>
+            <h2 className="mb-8 text-center text-3xl font-bold tracking-[-0.018em]">{t("earningsTitle")}</h2>
             <div className="sv-card mx-auto max-w-md p-6 md:p-8">
               <EarningsCalculator />
             </div>
@@ -110,7 +110,7 @@ export default async function ProLandingPage() {
         </section>
 
         <section className="container-x max-w-[960px] py-8 md:py-12">
-          <h2 className="mb-8 text-center text-3xl font-bold tracking-tight">{t("ladderTitle")}</h2>
+          <h2 className="mb-8 text-center text-3xl font-bold tracking-[-0.018em]">{t("ladderTitle")}</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
             {ladder.map((l, i) => (
               <Reveal key={l.level} delay={i * 90}>
@@ -131,7 +131,7 @@ export default async function ProLandingPage() {
 
         <section className="container-x py-16 text-center md:py-24">
           <Reveal>
-            <h2 className="mb-6 text-3xl font-bold tracking-tight">{t("readyTitle")}</h2>
+            <h2 className="mb-6 text-3xl font-bold tracking-[-0.018em]">{t("readyTitle")}</h2>
             <Button href="/signup?role=provider" size="lg">
               {t("cta")} <span aria-hidden className="rtl:rotate-180">→</span>
             </Button>

@@ -51,7 +51,7 @@ function VerifyForm() {
 
   return (
     <>
-      <h1 className="mb-2 text-3xl font-bold tracking-tight">{t("verifyTitle")}</h1>
+      <h1 className="mb-2 text-3xl font-bold tracking-[-0.018em]">{t("verifyTitle")}</h1>
       <p className="mb-8 text-text-muted">{t("verifySub")}</p>
 
       <form onSubmit={handleVerify} className="flex flex-col items-center gap-4">

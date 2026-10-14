@@ -40,7 +40,8 @@ export function Button({
     );
   }
   return (
-    <LLink href={href} className={cls} {...props}>
+    // Don't prefetch login-gated targets: the proxy would just answer with a redirect to /login.
+    <LLink href={href} className={cls} prefetch={/^\/(jobs|dashboard|bookings)/.test(href) ? false : undefined} {...props}>
       {children}
     </LLink>
   );

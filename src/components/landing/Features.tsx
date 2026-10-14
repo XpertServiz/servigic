@@ -8,7 +8,7 @@ function Block({ eyebrow, tone, title, children, visual, flip }: { eyebrow: stri
     <div className="grid grid-cols-1 items-center gap-8 border-t border-white/[0.07] py-12 md:grid-cols-2 md:gap-16 md:py-20">
       <Reveal className={flip ? "md:order-2" : ""}>
         <Eyebrow tone={tone}>{eyebrow}</Eyebrow>
-        <h3 className="mb-4 text-[clamp(24px,3.2vw,36px)] font-bold leading-tight tracking-tight">{title}</h3>
+        <h3 className="mb-4 text-[clamp(24px,3.2vw,36px)] font-bold leading-tight tracking-[-0.018em]">{title}</h3>
         <div className="flex flex-col gap-2 text-text-muted">{children}</div>
       </Reveal>
       <Reveal delay={120} className={flip ? "md:order-1" : ""}>

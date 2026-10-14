@@ -51,9 +51,9 @@ export function MobileMenu({
 
       <div
         id="mobile-menu"
-        className={`fixed inset-0 z-[55] flex flex-col bg-bg/95 px-6 pb-8 pt-24 backdrop-blur-2xl transition-all duration-300 ${open ? "visible opacity-100" : "invisible opacity-0"}`}
+        className={`fixed inset-0 z-[55] flex flex-col overflow-hidden bg-bg/95 px-6 pb-8 pt-24 backdrop-blur-2xl transition-all duration-300 ${open ? "visible opacity-100" : "invisible opacity-0"}`}
       >
-        <div className="sv-glow pointer-events-none absolute -top-24 start-1/2 h-72 w-72 -translate-x-1/2 opacity-60" aria-hidden />
+        <div className="sv-glow pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 opacity-60" aria-hidden />
         <ul className="relative flex flex-col">
           {links.map((l, i) => (
             <li key={l.href} style={{ transitionDelay: open ? `${80 + i * 50}ms` : "0ms" }} className={`border-b border-white/[0.06] transition-all duration-500 ${open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}>

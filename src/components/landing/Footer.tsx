@@ -31,7 +31,7 @@ export async function Footer() {
       <div className="container-x">
         <div className="mb-12 grid grid-cols-2 gap-8 md:grid-cols-5">
           <div className="col-span-2 md:col-span-1">
-            <LLink href="/" className="mb-3 flex items-center gap-2.5 text-xl font-bold tracking-tight">
+            <LLink href="/" className="mb-3 flex items-center gap-2.5 text-xl font-bold tracking-[-0.018em]">
               <Image src="/icons/icon-192.png" alt="" width={36} height={36} className="rounded-[10px]" />
               Servigic
             </LLink>
