@@ -27,7 +27,7 @@ export default function HomeScreen({ navigation }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [acceptingJobs, setAcceptingJobs] = useState(true);
   const [comingSoon, setComingSoon] = useState<Category | null>(null);
-  const market = useMarketConfig();
+  const market = useMarketConfig({ useGps: true });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeBooking, setActiveBooking] = useState<Booking | null>(null);
@@ -109,7 +109,7 @@ export default function HomeScreen({ navigation }: Props) {
 
         {outsideArea && (
           <View style={{ paddingHorizontal: 18, paddingTop: 18 }}>
-            <WaitlistCard title={t("market.outsideTitle")} body={t("market.outsideBody")} role="CUSTOMER" city={market.city} />
+            <WaitlistCard title={t("market.outsideTitle")} body={t("market.outsideBody")} role="CUSTOMER" city={market.city} point={market.point} />
           </View>
         )}
 

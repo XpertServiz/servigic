@@ -167,6 +167,7 @@ enum LedgerEntryType {
   COMMISSION_DEBIT
   TOPUP_CREDIT
   ADJUSTMENT
+  REFERRAL_BONUS
 }
 
 enum TopUpStatus {
@@ -293,12 +294,16 @@ model User {
   // no usable password; when the real customer registers with the same phone, the register details wait
   // in the pending* fields until the phone OTP is verified, then the account is claimed (job history kept).
   managedByAdmin           Boolean             @default(false)
+  // Referrals: this user's shareable code, and the device they signed up on (abuse checks).
+  referralCode             String?             @unique
+  signupDeviceId           String?
   pendingPasswordHash      String?
   pendingName              String?
   pendingEmail             String?
 
   @@index([role])
   @@index([city])
+  @@index([signupDeviceId])
 }
 
 model OtpCode {
@@ -945,6 +950,11 @@ model SiteSettings {
   alertNearestN           Int    @default(12)
   // Customer is told their job has no bids after this many minutes (§11.2).
   noBidsAfterMin          Int    @default(20)
+  // Referral programme (all amounts in PKR; off until an admin switches it on).
+  referralsEnabled          Boolean @default(false)
+  referralCustomerCreditPKR Int     @default(200) // credit for BOTH the referrer and the new customer
+  referralProBonusPKR       Int     @default(500) // bonus for the referring pro
+  referralProJobsRequired   Int     @default(5)   // jobs the new pro must complete first
   updatedAt             DateTime @updatedAt
 }
 
@@ -1009,10 +1019,18 @@ model CountryWaitlistEntry {
   zone        String?
   role        String?
   userId      String?
+  // Where they were when they asked (GPS or job pin) and the zone that later covered it.
+  lat         Float?
+  lng         Float?
+  area        String?
+  marketId    String?
+  // Set when we told them their zone opened (push / SMS), so nobody is messaged twice.
+  notifiedAt  DateTime?
   createdAt   DateTime @default(now())
 
   @@index([countryCode])
   @@index([trade])
+  @@index([marketId])
 }
 
 enum MarketStatus {
@@ -1040,6 +1058,9 @@ model Market {
   currency    Currency       @default(PKR)
   phoneCode   String         @default("+92")
   timezone    String         @default("Asia/Karachi")
+  // Geofence drawn on the admin map: an array of polygons, each an array of [lat, lng] points. When present, a
+  // job/GPS point belongs to this zone only if it falls inside one of them (city names are then ignored).
+  polygons    Json?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
@@ -1132,4 +1153,35 @@ model RewardCredit {
 
   @@index([customerId, earnedAt])
   @@index([customerId, consumedAt])
+}
+
+
+enum ReferralStatus {
+  PENDING // signed up with a code, reward not earned yet
+  RELEASED // reward paid out
+  REJECTED // blocked as abuse (self-referral, repeat device / phone) or cancelled by an admin
+}
+
+// One row per referred person. The reward is released only when the referred person has actually done
+// the work: a customer's first completed job, or a pro's Nth completed job (see src/lib/referrals.ts).
+model Referral {
+  id                String         @id @default(cuid())
+  referrerId        String
+  referredUserId    String         @unique
+  role              Role // role of the referred person (CUSTOMER or PROVIDER)
+  status            ReferralStatus @default(PENDING)
+  // Reward amounts are frozen at signup so later admin edits do not change what was promised.
+  referrerRewardPKR Int
+  refereeRewardPKR  Int            @default(0)
+  jobsRequired      Int            @default(1)
+  rejectReason      String?
+  deviceId          String?
+  phoneKey          String // digits-only phone, kept so deleting and re-creating an account cannot be referred twice
+  releasedAt        DateTime?
+  createdAt         DateTime       @default(now())
+
+  @@index([referrerId])
+  @@index([status])
+  @@index([deviceId])
+  @@index([phoneKey])
 }

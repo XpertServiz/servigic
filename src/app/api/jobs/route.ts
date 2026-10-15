@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   // so a stale or modified app cannot bypass the admin launch settings.
   const category = await prisma.serviceCategory.findUnique({ where: { id: data.categoryId }, select: { trade: true } });
   if (!category) return NextResponse.json({ error: "Unknown category" }, { status: 400 });
-  const availability = await checkJobAvailability(data.city, category.trade);
+  const availability = await checkJobAvailability(data.city, category.trade, { lat: data.lat, lng: data.lng });
   if (!availability.ok) {
     return NextResponse.json({ error: availability.message, code: availability.code }, { status: 422 });
   }

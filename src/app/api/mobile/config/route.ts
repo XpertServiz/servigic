@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-import { acceptsJobs, getMarkets, marketForCity, marketForCountry } from "@/lib/marketConfig";
+import { acceptsJobs, getMarkets, marketForCity, marketForCountry, marketForPoint } from "@/lib/marketConfig";
 
 // Public, called at app startup (before login) and again once the user's city is known.
 // Tells the app which market the user is in and which categories are switched on there, so
@@ -9,6 +9,10 @@ import { acceptsJobs, getMarkets, marketForCity, marketForCountry } from "@/lib/
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const city = url.searchParams.get("city");
+  // The customer's GPS position or job pin: with it, the drawn zone geofence decides (not the city name).
+  const lat = Number(url.searchParams.get("lat"));
+  const lng = Number(url.searchParams.get("lng"));
+  const hasPoint = url.searchParams.has("lat") && url.searchParams.has("lng") && Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
   const headerList = await headers();
   const geoCountry = (headerList.get("x-vercel-ip-country") || headerList.get("cf-ipcountry") || "").toUpperCase() || null;
 
@@ -18,7 +22,7 @@ export async function GET(req: Request) {
 
   // A known city decides the market on its own (a city that is in no market is "outside the area");
   // only when the app does not know the city yet (first launch, before signup) do we guess from the IP country.
-  const market = city ? marketForCity(markets, city) : marketForCountry(markets, geoCountry);
+  const market = hasPoint ? marketForPoint(markets, { lat, lng }, city) : city ? marketForCity(markets, city) : marketForCountry(markets, geoCountry);
   const accepting = acceptsJobs(market);
   return NextResponse.json(
     {

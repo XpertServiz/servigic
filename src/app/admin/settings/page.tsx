@@ -23,6 +23,10 @@ export default async function AdminSettingsPage() {
           earlyProFreeJobs: settings?.earlyProFreeJobs ?? 0,
           alertNearestN: settings?.alertNearestN ?? 12,
           noBidsAfterMin: settings?.noBidsAfterMin ?? 20,
+          referralsEnabled: settings?.referralsEnabled ?? false,
+          referralCustomerCreditPKR: settings?.referralCustomerCreditPKR ?? 200,
+          referralProBonusPKR: settings?.referralProBonusPKR ?? 500,
+          referralProJobsRequired: settings?.referralProJobsRequired ?? 5,
           featureFlags,
         }}
       />

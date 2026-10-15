@@ -12,6 +12,7 @@ import { Field } from "../components/ui";
 import { GradientButton, SegmentedControl } from "../components/ds";
 import { Icon } from "../components/Icon";
 import { WaitlistCard } from "../components/MarketNotice";
+import { loadMarketConfig } from "../lib/market";
 import { colors } from "../lib/theme";
 import { useI18n } from "../lib/i18n";
 
@@ -37,6 +38,37 @@ export default function PostJobScreen({ navigation, route }: Props) {
   // Market config (handoff section 11.6): only categories switched on in the user's market are offered.
   const [acceptingJobs, setAcceptingJobs] = useState(true);
   const [userCity, setUserCity] = useState<string | null>(null);
+  // Service-zone geofence: once the customer's pin is known (GPS), it must be inside an active zone.
+  const [pinSet, setPinSet] = useState(false);
+  const [pinOutside, setPinOutside] = useState(false);
+
+  useEffect(() => {
+    if (!pinSet) return;
+    let alive = true;
+    loadMarketConfig(userCity, coords).then((cfg) => {
+      if (alive) setPinOutside(Boolean(cfg && !cfg.legacyOpen && !cfg.acceptingJobs));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [pinSet, coords, userCity]);
+
+  // If location permission was already granted, start from where the customer really is instead of a default.
+  useEffect(() => {
+    (async () => {
+      try {
+        const perm = await Location.getForegroundPermissionsAsync();
+        if (perm.status !== "granted") return;
+        const pos = (await Location.getLastKnownPositionAsync()) ?? (await Location.getCurrentPositionAsync({}));
+        if (pos) {
+          setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setPinSet(true);
+        }
+      } catch {
+        // keep the default pin
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     api
@@ -64,6 +96,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
       const pos = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = pos.coords;
       setCoords({ lat: latitude, lng: longitude });
+      setPinSet(true);
       try {
         const [place] = await Location.reverseGeocodeAsync({ latitude, longitude });
         if (place) {
@@ -141,13 +174,20 @@ export default function PostJobScreen({ navigation, route }: Props) {
 
   const available = categories.filter((c) => c.available);
 
-  if (!acceptingJobs) {
+  if (!acceptingJobs || pinOutside) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.bg, padding: 18, paddingTop: insets.top + 16, gap: 14 }}>
         <Pressable onPress={() => navigation.goBack()} accessibilityLabel={t("common.back")}>
           <Icon name="back" size={16} />
         </Pressable>
-        <WaitlistCard title={t("market.outsideTitle")} body={t("market.outsideBody")} role="CUSTOMER" city={userCity} />
+        <WaitlistCard
+          title={t("market.outsideTitle")}
+          body={t("market.outsideBody")}
+          role="CUSTOMER"
+          city={userCity}
+          trade={categories.find((c) => c.id === categoryId)?.trade}
+          point={pinSet ? coords : undefined}
+        />
       </View>
     );
   }

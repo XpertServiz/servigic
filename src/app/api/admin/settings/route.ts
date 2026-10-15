@@ -14,6 +14,10 @@ const schema = z.object({
   earlyProFreeJobs: z.number().int().min(0).max(100).optional(),
   alertNearestN: z.number().int().min(1).max(100).optional(),
   noBidsAfterMin: z.number().int().min(5).max(240).optional(),
+  referralsEnabled: z.boolean().optional(),
+  referralCustomerCreditPKR: z.number().int().min(0).max(100000).optional(),
+  referralProBonusPKR: z.number().int().min(0).max(1000000).optional(),
+  referralProJobsRequired: z.number().int().min(1).max(500).optional(),
   featureFlags: z
     .object({
       aiJobTriage: z.boolean(),

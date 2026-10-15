@@ -30,6 +30,10 @@ export const registerSchema = z.object({
     .transform((v) => v || undefined),
   password: z.string().min(8, "Password must be at least 8 characters"),
   city: z.string().trim().min(2).optional(),
+  // Referral programme: the code the new user was given, and an id for the phone (Android ID) so repeat
+  // sign-ups from one device can be spotted. Both optional - the web form sends neither.
+  referralCode: z.string().trim().max(20).optional(),
+  deviceId: z.string().trim().max(100).optional(),
 });
 
 export const loginSchema = z.object({

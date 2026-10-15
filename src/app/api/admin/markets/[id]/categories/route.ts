@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { bustMarketCache } from "@/lib/marketConfig";
 import { activateWaitingForMarket } from "@/lib/proActivation";
+import { notifyWaitlistForMarket } from "@/lib/waitlistNotify";
 import { Trade } from "@prisma/client";
 
 // The country x category matrix for one market: which trades are switched on, and the optional
@@ -40,5 +41,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   );
   bustMarketCache();
   const activated = await activateWaitingForMarket(id).catch(() => 0);
-  return NextResponse.json({ ok: true, activated });
+  // A service switched on in this zone: tell the people who were waiting for exactly that service.
+  const notified = await notifyWaitlistForMarket(id).catch(() => 0);
+  return NextResponse.json({ ok: true, activated, notified });
 }

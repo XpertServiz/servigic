@@ -11,6 +11,7 @@ import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
 import { LANGUAGES, useI18n } from "../lib/i18n";
 import { navigateRoot } from "../navigation/ref";
+import { ReferralCard } from "../components/ReferralCard";
 
 function requestAccountDeletion(phone?: string) {
   const body = `Registered phone number/email:\n${phone ?? ""}\nAccount type (Customer/Pro): Customer\n`;
@@ -37,6 +38,8 @@ export default function ProfileScreen() {
         </View>
         <HeaderActions />
       </View>
+
+      <ReferralCard />
 
       <Pressable onPress={() => navigateRoot("Language")} style={styles.row}>
         <Icon name="globe" size={18} />

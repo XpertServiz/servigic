@@ -511,6 +511,21 @@ export const en = {
   "neverMiss.openSettings": "Open settings",
   "neverMiss.done": "Done",
   "neverMiss.later": "Maybe later",
+  "referral.title": "Invite friends, earn rewards",
+  "referral.customerPitch": "You and your friend each get PKR {amount} off a future job, once your friend's first job is completed and paid.",
+  "referral.proPitch": "Earn PKR {amount} in your wallet when a pro you invite completes {jobs} jobs.",
+  "referral.off": "Referral rewards are not open yet. Your code is ready for when they are.",
+  "referral.codeLabel": "Your code",
+  "referral.share": "Share my code",
+  "referral.shareMessage": "Join me on Servigic - book trusted home pros near you. Use my code {code} when you sign up: https://www.servigic.com",
+  "referral.shareMessagePro": "Join Servigic as a pro and get jobs from customers near you. Use my code {code} when you sign up: https://www.servigic.com",
+  "referral.earned": "Earned",
+  "referral.available": "Credit to use",
+  "referral.pendingLabel": "Waiting",
+  "referral.rewardedLabel": "Rewarded",
+  "referral.proWalletNote": "Referral bonuses are added to your wallet and appear in your ledger.",
+  "referral.customerCreditNote": "Your credit is taken off your next job automatically (up to half the job price).",
+  "referral.signupLabel": "Referral code (optional)",
 } as const;
 
 export type TKey = keyof typeof en;

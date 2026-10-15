@@ -13,6 +13,7 @@ import { colors } from "../lib/theme";
 import { enumLabel } from "../lib/status";
 import { LANGUAGES, useI18n } from "../lib/i18n";
 import { navigateRoot } from "../navigation/ref";
+import { ReferralCard } from "../components/ReferralCard";
 import { readIdCard, type IdOcr } from "../lib/idOcr";
 import { useMarketConfig } from "../lib/market";
 
@@ -230,6 +231,8 @@ export default function ProfileScreen() {
         <View style={[styles.fill, { width: `${(docsDone / 3) * 100}%` }]} />
       </View>
       {!policeCertUrl && <Text style={styles.verifyHint}>{t("account.policeHint")}</Text>}
+
+      <ReferralCard />
 
       {status && (
         <View style={styles.editCard}>

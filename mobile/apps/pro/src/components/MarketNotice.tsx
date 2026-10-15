@@ -2,6 +2,7 @@
 // Shared verbatim by apps/customer and apps/pro.
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator, Pressable } from "react-native";
+import * as Location from "expo-location";
 import * as api from "../lib/api";
 import { colors } from "../lib/theme";
 import { useI18n } from "../lib/i18n";
@@ -13,12 +14,15 @@ export function WaitlistCard({
   trade,
   role,
   city,
+  point,
 }: {
   title: string;
   body: string;
   trade?: string;
   role: "CUSTOMER" | "PROVIDER";
   city?: string | null;
+  /** GPS position or job pin the person is asking about - saved with the entry so admin sees demand by area. */
+  point?: api.GeoPoint | null;
 }) {
   const { t } = useI18n();
   const [state, setState] = useState<"idle" | "busy" | "done" | "error">("idle");
@@ -29,7 +33,16 @@ export function WaitlistCard({
     haptic.light();
     try {
       // Signed in: the backend uses the account's phone/email, so there is nothing to type.
-      await api.joinWaitlist({ trade, role, city: city ?? undefined });
+      let area: string | undefined;
+      if (point) {
+        try {
+          const [place] = await Location.reverseGeocodeAsync({ latitude: point.lat, longitude: point.lng });
+          area = [place?.district ?? place?.subregion, place?.city].filter(Boolean).join(", ") || undefined;
+        } catch {
+          // area name is a nicety
+        }
+      }
+      await api.joinWaitlist({ trade, role, city: city ?? undefined, ...(point ? { lat: point.lat, lng: point.lng, area } : {}) });
       setState("done");
     } catch {
       setState("error");

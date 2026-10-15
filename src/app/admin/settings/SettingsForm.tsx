@@ -27,6 +27,10 @@ export function SettingsForm({
     earlyProFreeJobs: number;
     alertNearestN: number;
     noBidsAfterMin: number;
+    referralsEnabled: boolean;
+    referralCustomerCreditPKR: number;
+    referralProBonusPKR: number;
+    referralProJobsRequired: number;
     featureFlags: FeatureFlags;
   };
 }) {
@@ -170,6 +174,43 @@ export function SettingsForm({
               ["earlyProFreeJobs", "Commission-free jobs for early pros (N)", "A pro activated while their market is in PILOT gets a Founding Pro badge and their first N jobs without commission. 0 = off."],
               ["alertNearestN", "Job alerts: nearest N pros", "Each new job is pushed to the nearest N matching pros (online or offline)."],
               ["noBidsAfterMin", "Tell the customer there are no bids after (minutes)", "One reminder with the option to widen the search or edit the job."],
+            ] as const
+          ).map(([key, label, desc]) => (
+            <div key={key}>
+              <label className="mb-1 block text-xs font-semibold text-text-muted">{label}</label>
+              <p className="mb-1.5 text-xs text-text-muted">{desc}</p>
+              <input
+                type="number"
+                min={0}
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: Number(e.target.value) })}
+                className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Referrals</label>
+        <label className="mb-3 flex items-center justify-between gap-3 rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3">
+          <div>
+            <div className="text-sm font-semibold">Referral programme on</div>
+            <div className="text-xs text-text-muted">Every customer and pro always has a code to share; rewards are only created while this is on.</div>
+          </div>
+          <input
+            type="checkbox"
+            checked={form.referralsEnabled}
+            onChange={(e) => setForm({ ...form, referralsEnabled: e.target.checked })}
+            className="h-5 w-5 flex-none accent-accent"
+          />
+        </label>
+        <div className="flex flex-col gap-3">
+          {(
+            [
+              ["referralCustomerCreditPKR", "Customer referral credit (PKR, each)", "Both the customer who invited and the new customer get this credit, released after the new customer's first job is completed and paid. It comes off their next job."],
+              ["referralProBonusPKR", "Pro referral bonus (PKR)", "Paid into the referring pro's wallet once the new pro has completed the number of jobs below."],
+              ["referralProJobsRequired", "Jobs the new pro must complete (N)", "The referral bonus is released after this many completed jobs."],
             ] as const
           ).map(([key, label, desc]) => (
             <div key={key}>

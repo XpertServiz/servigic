@@ -92,8 +92,10 @@ export function register(input: {
   email?: string;
   password: string;
   city?: string;
+  referralCode?: string;
+  deviceId?: string;
 }) {
-  return request<{ userId: string; phone: string }>("/api/auth/register", {
+  return request<{ userId: string; phone: string; referral?: "applied" | "invalid" | "none" }>("/api/auth/register", {
     method: "POST",
     body: JSON.stringify(input),
   });
@@ -158,11 +160,17 @@ export type MarketConfig = {
   trades: Record<string, boolean>;
 };
 
-export function getMarketConfig(city?: string | null) {
-  return request<MarketConfig>(`/api/mobile/config${city ? `?city=${encodeURIComponent(city)}` : ""}`);
+export type GeoPoint = { lat: number; lng: number };
+
+// With a map point (GPS or job pin) the server checks it against the drawn service-zone geofence.
+export function getMarketConfig(city?: string | null, point?: GeoPoint | null) {
+  const q: string[] = [];
+  if (city) q.push(`city=${encodeURIComponent(city)}`);
+  if (point) q.push(`lat=${point.lat}`, `lng=${point.lng}`);
+  return request<MarketConfig>(`/api/mobile/config${q.length ? `?${q.join("&")}` : ""}`);
 }
 
-export function joinWaitlist(input: { trade?: string; role?: "CUSTOMER" | "PROVIDER"; city?: string; email?: string; phone?: string }) {
+export function joinWaitlist(input: { trade?: string; role?: "CUSTOMER" | "PROVIDER"; city?: string; email?: string; phone?: string; lat?: number; lng?: number; area?: string }) {
   return request<{ ok: true }>("/api/mobile/waitlist", { method: "POST", body: JSON.stringify(input) });
 }
 
@@ -382,4 +390,24 @@ export async function uploadFile(fileUri: string, fileName: string, mimeType: st
   }
   if (!data.url) throw new ApiError("Upload succeeded but no URL was returned", result.status);
   return data.url;
+}
+
+// ─── Referrals ───
+export type ReferralSummary = {
+  code: string;
+  enabled: boolean;
+  role: "CUSTOMER" | "PROVIDER";
+  yourRewardPKR: number;
+  friendRewardPKR: number;
+  jobsRequired: number;
+  earnedPKR: number;
+  availablePKR: number;
+  pendingCount: number;
+  releasedCount: number;
+  entries: { id: string; amountPKR: number; createdAt: string; used: boolean }[];
+  referrals: { id: string; name: string; status: "PENDING" | "RELEASED"; createdAt: string }[];
+};
+
+export function getReferral() {
+  return request<ReferralSummary>("/api/mobile/referral");
 }

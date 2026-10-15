@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import dynamic from "next/dynamic";
+import type { Ring } from "./ZoneMapEditor";
+
+const ZoneMapEditor = dynamic(() => import("./ZoneMapEditor").then((m) => m.ZoneMapEditor), {
+  ssr: false,
+  loading: () => <div className="h-[360px] animate-pulse rounded-[12px] bg-bg-elevated-2" />,
+});
 
 interface MarketView {
   id: string;
@@ -14,6 +21,9 @@ interface MarketView {
   currency: string;
   phoneCode: string;
   timezone: string;
+  polygons: Ring[];
+  center: [number, number];
+  waiting: number;
   activePros: number;
   waitingPros: number;
   categories: Record<string, { enabled: boolean; maxActivePros: number | null }>;
@@ -22,9 +32,11 @@ interface MarketView {
 interface WaitlistRow {
   countryCode: string;
   zone: string | null;
+  area: string | null;
   trade: string | null;
   role: string | null;
   count: number;
+  notified: number;
 }
 
 const STATUSES = ["WAITLIST", "PILOT", "LIVE"] as const;
@@ -63,6 +75,7 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
     phoneCode: market.phoneCode,
     timezone: market.timezone,
   });
+  const [polygons, setPolygons] = useState<Ring[]>(market.polygons);
   const [matrix, setMatrix] = useState<Record<string, { enabled: boolean; maxActivePros: string }>>(
     Object.fromEntries(allTrades.map((t) => [t, { enabled: market.categories[t]?.enabled ?? false, maxActivePros: market.categories[t]?.maxActivePros?.toString() ?? "" }])),
   );
@@ -72,8 +85,9 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
   async function saveMarket() {
     setBusy(true);
     try {
-      const data = await call(`/api/admin/markets/${market.id}`, "PUT", { ...form, cities: form.cities.split(",").map((s) => s.trim()).filter(Boolean) });
-      toast.success(data.activated ? `Saved. ${data.activated} waiting pro(s) activated.` : "Market saved");
+      const data = await call(`/api/admin/markets/${market.id}`, "PUT", { ...form, polygons, cities: form.cities.split(",").map((s) => s.trim()).filter(Boolean) });
+      const bits = [data.activated ? `${data.activated} waiting pro(s) activated` : "", data.notified ? `${data.notified} waiting customer(s) notified` : ""].filter(Boolean);
+      toast.success(bits.length ? `Saved. ${bits.join(", ")}.` : "Market saved");
       router.refresh();
     } catch (e) {
       toast.error((e as Error).message);
@@ -88,7 +102,8 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
         .filter((t) => matrix[t].enabled || market.categories[t])
         .map((t) => ({ trade: t, enabled: matrix[t].enabled, maxActivePros: matrix[t].maxActivePros === "" ? null : Number(matrix[t].maxActivePros) }));
       const data = await call(`/api/admin/markets/${market.id}/categories`, "PUT", { categories });
-      toast.success(data.activated ? `Saved. ${data.activated} waiting pro(s) activated.` : "Categories saved");
+      const bits = [data.activated ? `${data.activated} waiting pro(s) activated` : "", data.notified ? `${data.notified} waiting customer(s) notified` : ""].filter(Boolean);
+      toast.success(bits.length ? `Saved. ${bits.join(", ")}.` : "Categories saved");
       router.refresh();
     } catch (e) {
       toast.error((e as Error).message);
@@ -111,7 +126,7 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
             {market.name} <span className="text-text-muted">({market.countryCode})</span>
           </h2>
           <p className="text-xs text-text-muted">
-            {market.activePros} active pro(s) · {market.waitingPros} waiting ·{" "}
+            {market.activePros} active pro(s) · {market.waitingPros} waiting · {market.waiting} on the customer waitlist · {market.polygons.length ? `${market.polygons.length} area(s) drawn` : "city names only"} ·{" "}
             <span className={accepting ? "font-semibold text-secondary" : "font-semibold text-danger"}>{accepting ? "accepting jobs" : "NOT accepting jobs"}</span>
           </p>
         </div>
@@ -165,6 +180,14 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
               Timezone (for pro quiet hours)
               <input className={input} value={form.timezone} onChange={(e) => setForm({ ...form, timezone: e.target.value })} />
             </label>
+          </div>
+          <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-text-muted">Zone boundary (geofence)</h3>
+          <p className="mb-3 max-w-3xl text-xs text-text-muted">
+            Draw the area on the map. The Customer app checks the customer&apos;s GPS location or job pin against it, and the server rejects jobs outside active zones.
+            Leave it empty to use the named cities above instead. Saving an enabled zone notifies everyone waiting for it.
+          </p>
+          <div className="mb-6">
+            <ZoneMapEditor polygons={polygons} onChange={setPolygons} center={market.center} />
           </div>
           <div className="mb-6 flex gap-3">
             <button onClick={saveMarket} disabled={busy} className="rounded-[10px] bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground disabled:opacity-60">
@@ -268,9 +291,11 @@ function Waitlist({ rows }: { rows: WaitlistRow[] }) {
             <tr>
               <th className="p-4">Country</th>
               <th className="p-4">Zone</th>
-              <th className="p-4">Category</th>
+              <th className="p-4">Area</th>
+              <th className="p-4">Service</th>
               <th className="p-4">Who</th>
-              <th className="p-4">Signups</th>
+              <th className="p-4">Waiting</th>
+              <th className="p-4">Notified</th>
             </tr>
           </thead>
           <tbody>
@@ -280,15 +305,17 @@ function Waitlist({ rows }: { rows: WaitlistRow[] }) {
               .map((r, i) => (
                 <tr key={i} className="border-t border-border-subtle">
                   <td className="p-4 font-semibold">{r.countryCode}</td>
-                  <td className="p-4 text-text-muted">{r.zone ?? "—"}</td>
-                  <td className="p-4 text-text-muted">{r.trade ? pretty(r.trade) : "Whole area"}</td>
+                  <td className="p-4 text-text-muted">{r.zone ?? <span className="font-semibold text-danger">Outside every zone</span>}</td>
+                  <td className="p-4 text-text-muted">{r.area ?? "—"}</td>
+                  <td className="p-4 text-text-muted">{r.trade ? pretty(r.trade) : "Any service"}</td>
                   <td className="p-4 text-text-muted">{r.role === "PROVIDER" ? "Pros" : "Customers"}</td>
-                  <td className="p-4 font-bold">{r.count}</td>
+                  <td className="p-4 font-bold">{r.count - r.notified}</td>
+                  <td className="p-4 text-text-muted">{r.notified}</td>
                 </tr>
               ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-6 text-center text-text-muted">
+                <td colSpan={7} className="p-6 text-center text-text-muted">
                   No waitlist signups yet.
                 </td>
               </tr>

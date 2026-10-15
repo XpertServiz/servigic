@@ -9,6 +9,7 @@ import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
 import { useT } from "../lib/i18n";
 import { loadMarketConfig } from "../lib/market";
+import { getDeviceId } from "../lib/device";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Signup">;
 
@@ -19,6 +20,7 @@ export default function SignupScreen({ navigation }: Props) {
   const [name, setName] = useState("");
   const phone = usePhoneInput();
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +37,7 @@ export default function SignupScreen({ navigation }: Props) {
       // config (older backend / offline) keep the legacy default so nobody is locked out.
       const cfg = await loadMarketConfig(null);
       const city = cfg && !cfg.legacyOpen ? cfg.market?.cities?.[0] : "Karachi";
-      const { userId } = await api.register({ role: "CUSTOMER", name, phone: phone.e164, password, ...(city ? { city } : {}) });
+      const { userId } = await api.register({ role: "CUSTOMER", name, phone: phone.e164, password, ...(city ? { city } : {}), ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}), deviceId: await getDeviceId() });
       navigation.replace("VerifyOtp", { userId });
     } catch (e) {
       setError(e instanceof Error ? e.message : t("auth.signupFailed"));
@@ -59,6 +61,8 @@ export default function SignupScreen({ navigation }: Props) {
         <Field label={t("auth.fullName")} value={name} onChangeText={setName} />
         <PhoneField phone={phone} />
         <Field label={t("auth.password")} secureTextEntry value={password} onChangeText={setPassword} placeholder="••••••••" />
+
+        <Field label={t("referral.signupLabel")} value={referralCode} onChangeText={(v) => setReferralCode(v.toUpperCase())} autoCapitalize="characters" />
 
         {error && <Text style={styles.error}>{error}</Text>}
 

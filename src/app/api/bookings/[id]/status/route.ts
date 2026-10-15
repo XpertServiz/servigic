@@ -4,7 +4,7 @@ import { requireRole } from "@/lib/requireRole";
 import { bookingStatusSchema } from "@/lib/validation/booking";
 import { notify } from "@/lib/notify";
 import { getPaymentMode } from "@/lib/featureFlags";
-import { applyAdDiscountToBooking } from "@/lib/rewards";
+import { applyAdDiscountToBooking, applyReferralCreditsToBooking } from "@/lib/rewards";
 
 const NEXT_STATUS: Record<string, string> = {
   CONFIRMED: "ON_MY_WAY",
@@ -51,6 +51,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   let discountPKR = 0;
   if (parsed.data.status === "DONE" && (await getPaymentMode()) === "CASH_WALLET") {
     discountPKR = await applyAdDiscountToBooking({ id: booking.id, customerId: booking.customerId, commissionPKR: booking.commissionPKR });
+    // Referral credits (invite-a-friend rewards) stack on top, up to half the job price.
+    discountPKR += await applyReferralCreditsToBooking({ id: booking.id, customerId: booking.customerId, totalPKR: booking.totalPKR });
   }
 
   await notify({
@@ -60,7 +62,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     body:
       parsed.data.status === "DONE"
         ? discountPKR > 0
-          ? `Your ad reward took PKR ${discountPKR} off - pay PKR ${(booking.totalPKR - discountPKR).toLocaleString()} and confirm the job is done.`
+          ? `Your reward credit took PKR ${discountPKR} off - pay PKR ${(booking.totalPKR - discountPKR).toLocaleString()} and confirm the job is done.`
           : "Confirm the job is done to release payment."
         : "Track live on your booking page.",
     linkUrl: `/bookings/${id}`,

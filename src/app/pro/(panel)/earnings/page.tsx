@@ -14,6 +14,7 @@ const LEDGER_TYPE_TONE: Record<string, string> = {
   COMMISSION_DEBIT: "text-danger",
   TOPUP_CREDIT: "text-secondary",
   ADJUSTMENT: "text-text-muted",
+  REFERRAL_BONUS: "text-secondary",
 };
 
 export default async function ProviderEarningsPage() {

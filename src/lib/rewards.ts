@@ -62,3 +62,34 @@ export async function applyAdDiscountToBooking(booking: { id: string; customerId
   await prisma.booking.update({ where: { id: booking.id }, data: { rewardDiscountPKR: discount } });
   return discount;
 }
+
+// A referral credit may take at most this share of one job's price (so a credit never makes a job free).
+const REFERRAL_MAX_SHARE = 0.5;
+
+/**
+ * Applies pending REFERRAL credits (oldest first, whole credits only) to a booking that just reached DONE.
+ * Like the ad discount, the customer pays the pro that much less; unlike it, the discount is NOT capped at the
+ * commission - whatever exceeds the commission is paid into the pro's wallet when the job completes, so the
+ * pro always nets the agreed price. Adds to booking.rewardDiscountPKR and returns the PKR applied.
+ */
+export async function applyReferralCreditsToBooking(booking: { id: string; customerId: string; totalPKR: number }): Promise<number> {
+  const current = await prisma.booking.findUnique({ where: { id: booking.id }, select: { rewardDiscountPKR: true } });
+  let room = Math.floor(booking.totalPKR * REFERRAL_MAX_SHARE) - (current?.rewardDiscountPKR ?? 0);
+  if (room <= 0) return 0;
+
+  const credits = await prisma.rewardCredit.findMany({
+    where: { customerId: booking.customerId, kind: "REFERRAL", consumedAt: null },
+    orderBy: { earnedAt: "asc" },
+  });
+  let applied = 0;
+  for (const credit of credits) {
+    if (credit.amountPKR > room) break;
+    // Atomic claim: only one concurrent request can consume a given credit.
+    const claimed = await prisma.rewardCredit.updateMany({ where: { id: credit.id, consumedAt: null }, data: { consumedAt: new Date(), bookingId: booking.id } });
+    if (claimed.count !== 1) continue;
+    applied += credit.amountPKR;
+    room -= credit.amountPKR;
+  }
+  if (applied > 0) await prisma.booking.update({ where: { id: booking.id }, data: { rewardDiscountPKR: { increment: applied } } });
+  return applied;
+}

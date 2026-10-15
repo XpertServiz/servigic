@@ -4,7 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { verifyMobileToken } from "@/lib/mobileAuth";
-import { getMarkets, marketForCity } from "@/lib/marketConfig";
+import { getMarkets, marketForCity, marketForPoint } from "@/lib/marketConfig";
 import { Trade } from "@prisma/client";
 
 // "Notify me" capture for the apps (handoff §11.2/§11.6): either outside a launch area, or for a
@@ -17,6 +17,10 @@ const schema = z.object({
   email: z.string().trim().email().optional(),
   phone: z.string().trim().max(24).optional(),
   name: z.string().trim().max(120).optional(),
+  // Where they were (GPS or job pin) and a readable area name, so the admin sees demand by area.
+  lat: z.number().min(-90).max(90).optional(),
+  lng: z.number().min(-180).max(180).optional(),
+  area: z.string().trim().max(120).optional(),
 });
 
 export async function POST(req: Request) {
@@ -44,7 +48,7 @@ export async function POST(req: Request) {
 
   const city = input.city ?? user?.city ?? undefined;
   const markets = await getMarkets();
-  const market = marketForCity(markets, city);
+  const market = input.lat != null && input.lng != null ? marketForPoint(markets, { lat: input.lat, lng: input.lng }, city) : marketForCity(markets, city);
   const geo = headerList.get("x-vercel-ip-country")?.toUpperCase();
   const countryCode = market?.countryCode ?? input.countryCode?.toUpperCase() ?? geo ?? "XX";
 
@@ -62,6 +66,10 @@ export async function POST(req: Request) {
         name: user?.name ?? input.name,
         city,
         zone: market?.name,
+        lat: input.lat,
+        lng: input.lng,
+        area: input.area,
+        marketId: market?.id,
         trade: input.trade,
         role: user?.role === "PROVIDER" || input.role === "PROVIDER" ? "PROVIDER" : "CUSTOMER",
         userId: user?.id,

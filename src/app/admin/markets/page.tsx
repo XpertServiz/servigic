@@ -1,13 +1,31 @@
 import { prisma } from "@/lib/prisma";
 import { Trade } from "@prisma/client";
 import { MarketsClient } from "./MarketsClient";
+import { parsePolygons } from "@/lib/geofence";
+import { cityCenter } from "@/lib/cityCenters";
 
 export const dynamic = "force-dynamic";
+
+// Demand by area and service: one row per (country, zone or "outside every zone", area, service, role).
+function aggregateWaitlist(
+  rows: { countryCode: string; zone: string | null; area: string | null; city: string | null; trade: string | null; role: string | null; notifiedAt: Date | null }[],
+) {
+  const map = new Map<string, { countryCode: string; zone: string | null; area: string | null; trade: string | null; role: string | null; count: number; notified: number }>();
+  for (const w of rows) {
+    const area = w.area ?? w.city ?? null;
+    const key = [w.countryCode, w.zone ?? "", area ?? "", w.trade ?? "", w.role ?? ""].join("|");
+    const row = map.get(key) ?? { countryCode: w.countryCode, zone: w.zone, area, trade: w.trade, role: w.role, count: 0, notified: 0 };
+    row.count++;
+    if (w.notifiedAt) row.notified++;
+    map.set(key, row);
+  }
+  return Array.from(map.values());
+}
 
 export default async function AdminMarketsPage() {
   const [markets, waitlist, pros] = await Promise.all([
     prisma.market.findMany({ include: { categories: true }, orderBy: [{ countryCode: "asc" }, { name: "asc" }] }),
-    prisma.countryWaitlistEntry.groupBy({ by: ["countryCode", "zone", "trade", "role"], _count: { _all: true } }),
+    prisma.countryWaitlistEntry.findMany({ select: { countryCode: true, zone: true, area: true, city: true, trade: true, role: true, notifiedAt: true, marketId: true }, take: 20000 }),
     prisma.providerProfile.findMany({ where: { OR: [{ isVerified: true }, { verificationLevel: { gte: 1 } }] }, select: { activation: true, trades: true, user: { select: { city: true } } } }),
   ]);
 
@@ -32,6 +50,12 @@ export default async function AdminMarketsPage() {
       currency: m.currency,
       phoneCode: m.phoneCode,
       timezone: m.timezone,
+      polygons: parsePolygons(m.polygons),
+      center: ((): [number, number] => {
+        const c = m.cities.map((x) => cityCenter(x)).find(Boolean);
+        return c ? [c.lat, c.lng] : [24.8607, 67.0011];
+      })(),
+      waiting: waitlist.filter((w) => w.marketId === m.id && !w.notifiedAt).length,
       activePros: inMarket.filter((p) => p.activation === "ACTIVE").length,
       waitingPros: inMarket.filter((p) => p.activation === "WAITING").length,
       categories: Object.fromEntries(m.categories.map((c) => [c.trade, { enabled: c.enabled, maxActivePros: c.maxActivePros }])),
@@ -51,7 +75,7 @@ export default async function AdminMarketsPage() {
       <MarketsClient
         markets={view}
         allTrades={Object.values(Trade)}
-        waitlist={waitlist.map((w) => ({ countryCode: w.countryCode, zone: w.zone, trade: w.trade, role: w.role, count: w._count._all }))}
+        waitlist={aggregateWaitlist(waitlist)}
       />
     </div>
   );

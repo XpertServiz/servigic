@@ -16,6 +16,8 @@ export interface PostJournalEntryInput {
     | "AUTO_CHANGE_ORDER_PAYMENT_VERIFIED"
     | "AUTO_CASH_WALLET_COMMISSION_DEBIT"
     | "AUTO_TOPUP_VERIFIED"
+    | "AUTO_REFERRAL_REWARD"
+    | "AUTO_REFERRAL_DISCOUNT"
     | "MANUAL";
   referenceId?: string;
   createdById?: string;

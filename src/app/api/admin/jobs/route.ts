@@ -48,16 +48,16 @@ export async function POST(req: Request) {
     if (!sub) return NextResponse.json({ error: "That sub-service does not belong to the category" }, { status: 400 });
   }
 
-  // Same market rules as the app: a category / area that is switched off cannot receive jobs.
-  const availability = await checkJobAvailability(d.city, category.trade);
-  if (!availability.ok) return NextResponse.json({ error: availability.message, code: availability.code }, { status: 422 });
-
   const typed = parseLatLng(d.coords);
   if (d.coords && !typed) return NextResponse.json({ error: "Coordinates must look like: 24.8607, 67.0011" }, { status: 400 });
   const point = typed ?? cityCenter(d.city);
   if (!point) {
     return NextResponse.json({ error: `No map position known for ${d.city}. Paste the coordinates (right-click the spot in Google Maps and copy them).` }, { status: 400 });
   }
+
+  // Same zone / category rules as the app (including the drawn geofence): a switched-off area cannot receive jobs.
+  const availability = await checkJobAvailability(d.city, category.trade, point);
+  if (!availability.ok) return NextResponse.json({ error: availability.message, code: availability.code }, { status: 422 });
 
   // Find the customer by phone, or create the placeholder account.
   let customer = await prisma.user.findFirst({ where: { phone: { in: phoneVariants(phone) } } });

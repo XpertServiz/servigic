@@ -1,6 +1,7 @@
 import { unstable_cache, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import type { Trade, MarketStatus, Currency } from "@prisma/client";
+import { parsePolygons, pointInPolygons, type Ring } from "@/lib/geofence";
 
 // Market configuration (handoff §11.6). The whole table is tiny, so it is
 // read as one cached snapshot (60s, busted by the admin editor).
@@ -14,6 +15,8 @@ export interface MarketSnapshot {
   currency: Currency;
   phoneCode: string;
   timezone: string;
+  /** Drawn geofence (see geofence.ts); empty = the zone is defined by its city names only. */
+  polygons: Ring[];
   /** trade → { enabled, maxActivePros } */
   trades: Record<string, { enabled: boolean; maxActivePros: number | null }>;
 }
@@ -30,6 +33,7 @@ async function readMarkets(): Promise<MarketSnapshot[]> {
       currency: m.currency,
       phoneCode: m.phoneCode,
       timezone: m.timezone,
+      polygons: parsePolygons(m.polygons),
       trades: Object.fromEntries(m.categories.map((c) => [c.trade, { enabled: c.enabled, maxActivePros: c.maxActivePros }])),
     }));
 }
@@ -61,6 +65,18 @@ export function marketForCity(markets: MarketSnapshot[], city: string | null | u
   return markets.find((m) => m.cities.some((x) => norm(x) === c)) ?? null;
 }
 
+export type GeoPoint = { lat: number; lng: number };
+
+/**
+ * The zone a map point belongs to. A zone with a drawn geofence owns exactly the points inside it; zones
+ * without one fall back to their city names. A point inside no drawn zone and in no city-only zone is outside.
+ */
+export function marketForPoint(markets: MarketSnapshot[], point: GeoPoint, city?: string | null): MarketSnapshot | null {
+  const drawn = markets.find((m) => m.polygons.length > 0 && pointInPolygons(point.lat, point.lng, m.polygons));
+  if (drawn) return drawn;
+  return marketForCity(markets.filter((m) => m.polygons.length === 0), city);
+}
+
 /** First enabled market of a country (used before a city is known, e.g. on first launch). */
 export function marketForCountry(markets: MarketSnapshot[], countryCode: string | null | undefined): MarketSnapshot | null {
   if (!countryCode) return null;
@@ -90,10 +106,11 @@ export type Availability = { ok: true } | { ok: false; code: "MARKET_NOT_AVAILAB
  * at all (table empty / unreachable) we fail open so the platform keeps
  * working exactly as it did before market config existed.
  */
-export async function checkJobAvailability(city: string, trade: Trade | string): Promise<Availability> {
+export async function checkJobAvailability(city: string, trade: Trade | string, point?: GeoPoint): Promise<Availability> {
   const markets = await getMarkets();
   if (markets.length === 0) return { ok: true };
-  const market = marketForCity(markets, city);
+  // With a map point (the job pin) the geofence decides; without one we only know the city name.
+  const market = point ? marketForPoint(markets, point, city) : marketForCity(markets, city);
   if (!market || !acceptsJobs(market)) {
     return { ok: false, code: "MARKET_NOT_AVAILABLE", message: "Servigic isn't available in your area yet." };
   }
