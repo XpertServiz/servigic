@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, Linking, StyleSheet, Switch } from "react-native";
+import { View, Text, ScrollView, Pressable, Linking, StyleSheet, Switch, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
@@ -7,6 +7,7 @@ import * as api from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { Button, Field } from "../components/ui";
 import { Chip } from "../components/ds";
+import { RangeSlider } from "../components/RangeSlider";
 import { HeaderActions } from "../components/HeaderActions";
 import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
@@ -51,7 +52,8 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
   const [displayName, setDisplayName] = useState("");
-  const [trades, setTrades] = useState<string[]>([]);
+  const [trades, setTrades] = useState<string[]>([]); // approved + pending selection
+  const [tradeRequests, setTradeRequests] = useState<api.TradeRequest[]>([]);
   const [radiusKm, setRadiusKm] = useState("10");
   const [coords, setCoords] = useState({ lat: 24.8607, lng: 67.0011 });
   const [cnicUrl, setCnicUrl] = useState("");
@@ -98,12 +100,15 @@ export default function ProfileScreen() {
   useEffect(() => {
     api
       .getProviderProfile()
-      .then(({ profile }) => {
+      .then(({ profile, tradeRequests: requests }) => {
         if (!profile) return;
         const p = profile as Record<string, unknown>;
         setDisplayName((p.displayName as string) ?? "");
-        setTrades((p.trades as string[]) ?? []);
-        setRadiusKm(String(p.serviceRadiusKm ?? 10));
+        // The selection = approved trades plus the ones still waiting for approval.
+        const pending = (requests ?? []).filter((r) => r.status === "PENDING").map((r) => r.trade);
+        setTrades(Array.from(new Set([...((p.trades as string[]) ?? []), ...pending])));
+        setTradeRequests(requests ?? []);
+        setRadiusKm(String(p.serviceRadiusKm ?? 5));
         if (p.baseLat && p.baseLng) setCoords({ lat: p.baseLat as number, lng: p.baseLng as number });
         setCnicUrl((p.cnicUrl as string) ?? "");
         setSelfieUrl((p.selfieUrl as string) ?? "");
@@ -116,8 +121,27 @@ export default function ProfileScreen() {
       .catch(() => {});
   }, []);
 
+  const maxTrades = status?.limits.maxTrades ?? 3;
+  const radiusMin = status?.limits.radiusMinKm ?? 2;
+  const radiusMax = status?.limits.radiusMaxKm ?? 15;
+  const radiusValue = Math.min(radiusMax, Math.max(radiusMin, Number(radiusKm) || status?.limits.radiusDefaultKm || 5));
+  const requestOf = (trade: string) => tradeRequests.find((r) => r.trade === trade);
+
   function toggleTrade(trade: string) {
-    setTrades((cur) => (cur.includes(trade) ? cur.filter((x) => x !== trade) : [...cur, trade]));
+    setTrades((cur) => (cur.includes(trade) ? cur.filter((x) => x !== trade) : cur.length >= maxTrades ? cur : [...cur, trade]));
+  }
+
+  async function uploadCertificate(trade: string) {
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 });
+    if (result.canceled || !result.assets[0]) return;
+    const asset = result.assets[0];
+    try {
+      const url = await api.uploadFile(asset.uri, asset.fileName ?? "certificate.jpg", asset.mimeType ?? "image/jpeg");
+      await api.uploadTradeCertificate(trade, url);
+      setTradeRequests((cur) => cur.map((r) => (r.trade === trade ? { ...r, certificateUploaded: true } : r)));
+    } catch (e) {
+      Alert.alert(t("common.error"), e instanceof Error ? e.message : t("common.tryAgain"));
+    }
   }
 
   async function useMyLocation() {
@@ -142,10 +166,10 @@ export default function ProfileScreen() {
   async function save() {
     setSaving(true);
     try {
-      await api.updateProviderProfile({
+      const res = await api.updateProviderProfile({
         displayName,
         trades,
-        serviceRadiusKm: Number(radiusKm),
+        serviceRadiusKm: radiusValue,
         baseLat: coords.lat,
         baseLng: coords.lng,
         cnicUrl: cnicUrl || undefined,
@@ -156,7 +180,11 @@ export default function ProfileScreen() {
         agreementAccepted: true,
         ...(ocr ? { cnicOcr: ocr } : {}),
       });
+      if (res.tradeRequests) setTradeRequests(res.tradeRequests);
+      if (res.profile.serviceRadiusKm != null) setRadiusKm(String(res.profile.serviceRadiusKm));
       setEditing(false);
+    } catch (e) {
+      Alert.alert(t("common.error"), e instanceof Error ? e.message : t("common.tryAgain"));
     } finally {
       setSaving(false);
     }
@@ -168,7 +196,7 @@ export default function ProfileScreen() {
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: colors.bg }}
-      contentContainerStyle={{ padding: 20, paddingTop: insets.top + 16, paddingBottom: 40 }}
+      contentContainerStyle={{ padding: 20, paddingTop: insets.top + 16, paddingBottom: 40 + insets.bottom }}
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.titleRow}>
@@ -216,12 +244,43 @@ export default function ProfileScreen() {
       <Text style={styles.sectionLabel}>{t("account.trades")}</Text>
       <View style={styles.wrapRow}>
         {trades.length === 0 && <Text style={{ color: colors.textMuted, fontSize: 12 }}>{t("account.noTrades")}</Text>}
-        {trades.map((trade) => (
-          <View key={trade} style={styles.tradeChip}>
-            <Text style={{ color: colors.accent, fontWeight: "700", fontSize: 11 }}>{enumLabel(td, "trade", trade)}</Text>
+        {trades.map((trade) => {
+          const req = requestOf(trade);
+          const pending = req?.status === "PENDING";
+          return (
+            <View key={trade} style={[styles.tradeChip, pending && { borderStyle: "dashed", opacity: 0.85 }]}>
+              <Text style={{ color: colors.accent, fontWeight: "700", fontSize: 11 }}>
+                {enumLabel(td, "trade", trade)}
+                {pending ? ` · ${t("trades.pending")}` : ""}
+              </Text>
+            </View>
+          );
+        })}
+        {tradeRequests
+          .filter((r) => r.status === "REJECTED")
+          .map((r) => (
+            <View key={r.trade} style={[styles.tradeChip, { borderColor: "rgba(226,87,76,0.4)", backgroundColor: "rgba(226,87,76,0.08)" }]}>
+              <Text style={{ color: colors.dangerSoft, fontWeight: "700", fontSize: 11 }}>
+                {enumLabel(td, "trade", r.trade)} · {t("trades.rejected")}
+              </Text>
+            </View>
+          ))}
+      </View>
+      {tradeRequests
+        .filter((r) => r.status === "PENDING" && r.certificateRequested)
+        .map((r) => (
+          <View key={`cert-${r.trade}`} style={styles.certCard}>
+            <Text style={{ color: colors.text, fontWeight: "700", fontSize: 13 }}>
+              {enumLabel(td, "trade", r.trade)}: {r.certificateUploaded ? t("trades.certUploaded") : t("trades.certNeeded")}
+            </Text>
+            {!!r.adminNote && <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 4 }}>{r.adminNote}</Text>}
+            {!r.certificateUploaded && (
+              <Pressable onPress={() => uploadCertificate(r.trade)} style={{ marginTop: 8 }}>
+                <Text style={{ color: colors.accent, fontWeight: "800", fontSize: 13 }}>📷 {t("trades.uploadCert")}</Text>
+              </Pressable>
+            )}
           </View>
         ))}
-      </View>
 
       <View style={styles.verifyHeader}>
         <Text style={styles.sectionLabelInline}>{t("account.verifiedLevel", { n: verificationLevel })}</Text>
@@ -297,21 +356,30 @@ export default function ProfileScreen() {
             {TRADES.map((trade) => {
               // A trade that is switched off in this market can be kept if already chosen, but not newly added.
               const off = config != null && !config.legacyOpen && config.trades[trade] === false && !trades.includes(trade);
+              // At the cap, unselected trades are locked until one is removed.
+              const full = !trades.includes(trade) && trades.length >= maxTrades;
+              const pending = requestOf(trade)?.status === "PENDING";
+              const base = enumLabel(td, "trade", trade);
               return (
                 <Chip
                   key={trade}
-                  label={off ? `${enumLabel(td, "trade", trade)} · ${t("market.comingSoon")}` : enumLabel(td, "trade", trade)}
+                  label={off ? `${base} · ${t("market.comingSoon")}` : pending ? `${base} · ${t("trades.pending")}` : base}
                   active={trades.includes(trade)}
-                  onPress={() => (off ? undefined : toggleTrade(trade))}
+                  onPress={() => (off || full ? undefined : toggleTrade(trade))}
                 />
               );
             })}
           </View>
+          <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: -8, marginBottom: 14 }}>
+            {t("trades.limit", { n: maxTrades })} {trades.length >= maxTrades ? t("trades.full") : ""}
+          </Text>
           {config != null && !config.legacyOpen && TRADES.some((x) => config.trades[x] === false) && (
             <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: -8, marginBottom: 14 }}>{t("pro.tradesComingSoon")}</Text>
           )}
 
-          <Field label={t("account.serviceRadius")} keyboardType="number-pad" value={radiusKm} onChangeText={setRadiusKm} />
+          <Text style={styles.fieldLabel}>{t("profile.radiusSlider", { n: radiusValue })}</Text>
+          <RangeSlider min={radiusMin} max={radiusMax} value={radiusValue} onChange={(v) => setRadiusKm(String(v))} />
+          <Text style={{ color: colors.textMuted, fontSize: 11, marginBottom: 14 }}>{t("profile.radiusHint")}</Text>
 
           <Pressable onPress={useMyLocation} style={{ marginBottom: 16 }}>
             <Text style={{ color: colors.accent, fontWeight: "700" }}>📍 {t("account.useLocation")}</Text>
@@ -394,6 +462,7 @@ const styles = StyleSheet.create({
   rowValue: { color: colors.textMuted, fontSize: 13 },
   editCard: { marginTop: 12, backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: colors.borderSoft, borderRadius: 16, padding: 16 },
   fieldLabel: { color: colors.textMuted, fontSize: 12, fontWeight: "600", marginBottom: 8 },
+  certCard: { marginTop: 10, backgroundColor: colors.accentTint, borderWidth: 1, borderColor: colors.accentBorder, borderRadius: 12, padding: 12 },
   switchRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   legalLink: { color: colors.text, fontSize: 14, paddingVertical: 8 },
 });

@@ -50,9 +50,33 @@ function lookup(lang: LangCode, key: string): string | null {
   return table[key] ?? (en as Record<string, string>)[key] ?? null;
 }
 
+/**
+ * Plural-aware lookup. When the call passes a count ({n}), the language's plural category picks a variant:
+ * "home.jobsDone_one" for 1 in English ("1 job done"), "_few"/"_many"/"_other" where a language needs them.
+ * A variant is tried in the active language first, then the base key in that language, then English - so a
+ * language that has no plural variants yet behaves exactly as before.
+ */
+function lookupPlural(lang: LangCode, key: string, vars?: Vars): string | null {
+  const count = vars && typeof vars.n === "number" ? vars.n : null;
+  if (count !== null) {
+    let category = count === 1 ? "one" : "other";
+    try {
+      category = new Intl.PluralRules(lang).select(count);
+    } catch {
+      // keep the simple rule
+    }
+    const own = (TABLES[lang] as Record<string, string | undefined>)[`${key}_${category}`];
+    if (own) return own;
+    if (category !== "other" && (TABLES[lang] as Record<string, string | undefined>)[key]) return (TABLES[lang] as Record<string, string | undefined>)[key] ?? null;
+    const enVariant = lang === "en" ? (en as Record<string, string>)[`${key}_${category}`] : undefined;
+    if (enVariant) return enVariant;
+  }
+  return lookup(lang, key);
+}
+
 /** Translate into a specific language regardless of the active one (used by the language suggestion prompt). */
 export function translateIn(lang: LangCode, key: TKey, vars?: Vars): string {
-  return interpolate(lookup(lang, key) ?? key, vars);
+  return interpolate(lookupPlural(lang, key, vars) ?? key, vars);
 }
 
 async function store(key: string, value: string) {
@@ -187,7 +211,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     () => ({
       lang,
       ready,
-      t: (key, vars) => interpolate(lookup(lang, key) ?? key, vars),
+      t: (key, vars) => interpolate(lookupPlural(lang, key, vars) ?? key, vars),
       td: (key) => lookup(lang, key),
       suggestion,
       suggestedForCountry,

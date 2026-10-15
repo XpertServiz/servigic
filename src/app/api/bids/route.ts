@@ -41,6 +41,7 @@ export async function POST(req: Request) {
 
   const safeMessage = message ? scrubContactInfo(message) : undefined;
 
+  const alreadyBid = await prisma.bid.findUnique({ where: { jobId_providerId: { jobId, providerId: profile.id } }, select: { id: true } });
   const bid = await prisma.bid.upsert({
     where: { jobId_providerId: { jobId, providerId: profile.id } },
     update: { pricePKR, etaMinutes, message: safeMessage, estimatedPartsNote, status: "PENDING" },
@@ -55,13 +56,22 @@ export async function POST(req: Request) {
     },
   });
 
-  await notify({
-    userId: job.customerId,
-    type: "BID_RECEIVED",
-    title: "New bid on your job",
-    body: `PKR ${pricePKR.toLocaleString()} · ETA ${etaMinutes} min`,
-    linkUrl: `/jobs/${jobId}`,
-  });
+  // The customer's phone rings (own channel + sound) for the FIRST bid only. Later bids update the running count
+  // on a quiet channel ("3 pros have bid") so a busy job does not ring again and again. A pro editing an existing
+  // bid does not notify the customer again at all.
+  if (!alreadyBid) {
+    const totalBids = await prisma.bid.count({ where: { jobId, status: { in: ["PENDING", "COUNTERED"] } } });
+    const first = totalBids <= 1;
+    await notify({
+      userId: job.customerId,
+      type: "BID_RECEIVED",
+      title: first ? "A pro has bid on your job" : `${totalBids} pros have bid on your job`,
+      body: first ? `PKR ${pricePKR.toLocaleString()} · ETA ${etaMinutes} min - tap to review` : "Tap to compare prices and choose your pro",
+      linkUrl: `/jobs/${jobId}`,
+      pushChannelHint: first ? "BID_FIRST" : "BID_MORE",
+      pushData: { jobId, bidCount: totalBids },
+    });
+  }
 
   return NextResponse.json({ bid });
 }

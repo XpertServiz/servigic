@@ -5,13 +5,14 @@ import { providerProfileSchema } from "@/lib/validation/provider";
 import { encodeGeohash } from "@/lib/geo";
 import { getMarkets, marketForCity } from "@/lib/marketConfig";
 import { evaluateProActivation } from "@/lib/proActivation";
+import { listTradeRequests, requestTradeSelection } from "@/lib/providerTrades";
 
 export async function GET() {
   const auth = await requireRole("PROVIDER");
   if (!auth.ok) return auth.response;
 
   const profile = await prisma.providerProfile.findUnique({ where: { userId: auth.session.user.id } });
-  return NextResponse.json({ profile });
+  return NextResponse.json({ profile, tradeRequests: profile ? await listTradeRequests(profile.id) : [] });
 }
 
 export async function PUT(req: Request) {
@@ -23,13 +24,19 @@ export async function PUT(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
-  const { agreementAccepted, cnicUrl, selfieUrl, policeCertUrl, photoQualityOk, photoConsentPublic, cnicOcr, ...data } = parsed.data;
+  const { agreementAccepted, cnicUrl, selfieUrl, policeCertUrl, photoQualityOk, photoConsentPublic, cnicOcr, trades: requestedTrades, ...data } = parsed.data;
+  const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
+  const radiusMin = settings?.proRadiusMinKm ?? 2;
+  const radiusMax = settings?.proRadiusMaxKm ?? 15;
+  if (data.serviceRadiusKm !== undefined && (data.serviceRadiusKm < radiusMin || data.serviceRadiusKm > radiusMax)) {
+    return NextResponse.json({ error: `Service radius must be between ${radiusMin} and ${radiusMax} km.`, code: "RADIUS_OUT_OF_RANGE" }, { status: 400 });
+  }
   // Market config (handoff section 11.6): a pro can only choose trades that are switched on in their market.
-  if (data.trades) {
+  if (requestedTrades) {
     const [markets, me] = await Promise.all([getMarkets(), prisma.user.findUnique({ where: { id: auth.session.user.id }, select: { city: true } })]);
     const market = marketForCity(markets, me?.city);
     if (markets.length > 0 && market) {
-      const blocked = data.trades.filter((t) => !market.trades[t]?.enabled);
+      const blocked = requestedTrades.filter((t) => !market.trades[t]?.enabled);
       if (blocked.length > 0) {
         return NextResponse.json(
           { error: "Some of these trades are not available in your area yet.", code: "TRADE_NOT_AVAILABLE", trades: blocked },
@@ -82,8 +89,14 @@ export async function PUT(req: Request) {
     },
   });
 
-  // A trade change can move a pro between ACTIVE and WAITING (market cap / trade switched off).
-  if (data.trades) await evaluateProActivation(profile.id).catch((e) => console.error("[activation]", e));
+  // Trades are requests: each new one waits for an admin to approve it (max per pro is an admin setting).
+  if (requestedTrades) {
+    const result = await requestTradeSelection(profile.id, requestedTrades, settings?.maxTradesPerPro ?? 3);
+    if (!result.ok) return NextResponse.json({ error: result.error, code: result.code }, { status: 422 });
+    // Removing a trade can move a pro between ACTIVE and WAITING (market cap / trade switched off).
+    await evaluateProActivation(profile.id).catch((e) => console.error("[activation]", e));
+  }
 
-  return NextResponse.json({ profile });
+  const fresh = await prisma.providerProfile.findUnique({ where: { id: profile.id } });
+  return NextResponse.json({ profile: fresh ?? profile, tradeRequests: await listTradeRequests(profile.id) });
 }

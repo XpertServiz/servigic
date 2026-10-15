@@ -2,6 +2,7 @@
 
 // Draw a service zone on a map. A zone is one or more polygons; the Customer app and the server only allow
 // job posting inside them. Click the map to add corners, then "Finish area". Map tiles: OpenStreetMap.
+import { plural } from "@/lib/plural";
 import { useEffect, useRef, useState } from "react";
 import type * as LeafletNS from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -113,7 +114,7 @@ export function ZoneMapEditor({ polygons, onChange, center }: { polygons: Ring[]
           </>
         )}
         <span className="text-xs text-text-muted">
-          {drawing ? "Click the map to place each corner of the area." : `${polygons.length} area(s) drawn${polygons.length === 0 ? " - without a boundary the city names decide" : ""}`}
+          {drawing ? "Click the map to place each corner of the area." : `${plural(polygons.length, "area")} drawn${polygons.length === 0 ? " - without a boundary the city names decide" : ""}`}
         </span>
       </div>
       <div ref={el} className="h-[360px] w-full overflow-hidden rounded-[12px] border border-border-subtle" />

@@ -31,6 +31,13 @@ export function SettingsForm({
     referralCustomerCreditPKR: number;
     referralProBonusPKR: number;
     referralProJobsRequired: number;
+    referralNewProFreeJobs: number;
+    referralNewCustomerDiscountPKR: number;
+    referralNewCustomerMinJobPKR: number;
+    proRadiusMinKm: number;
+    proRadiusMaxKm: number;
+    proRadiusDefaultKm: number;
+    maxTradesPerPro: number;
     featureFlags: FeatureFlags;
   };
 }) {
@@ -192,6 +199,32 @@ export function SettingsForm({
       </div>
 
       <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Pro service radius &amp; trades</label>
+        <div className="flex flex-col gap-3">
+          {(
+            [
+              ["proRadiusMinKm", "Smallest radius a pro can set (km)", "The slider's left end."],
+              ["proRadiusMaxKm", "Largest radius a pro can set (km)", "The slider's right end. Older, bigger radii are capped to this when matching jobs."],
+              ["proRadiusDefaultKm", "Default radius for new pros (km)", "Must sit between the two limits."],
+              ["maxTradesPerPro", "Most trades one pro can have", "Each additional trade also needs your approval (Admin > Trade approvals)."],
+            ] as const
+          ).map(([key, label, desc]) => (
+            <div key={key}>
+              <label className="mb-1 block text-xs font-semibold text-text-muted">{label}</label>
+              <p className="mb-1.5 text-xs text-text-muted">{desc}</p>
+              <input
+                type="number"
+                min={1}
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: Number(e.target.value) })}
+                className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
         <label className="mb-2 block text-sm font-semibold text-text-muted">Referrals</label>
         <label className="mb-3 flex items-center justify-between gap-3 rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3">
           <div>
@@ -208,9 +241,12 @@ export function SettingsForm({
         <div className="flex flex-col gap-3">
           {(
             [
-              ["referralCustomerCreditPKR", "Customer referral credit (PKR, each)", "Both the customer who invited and the new customer get this credit, released after the new customer's first job is completed and paid. It comes off their next job."],
-              ["referralProBonusPKR", "Pro referral bonus (PKR)", "Paid into the referring pro's wallet once the new pro has completed the number of jobs below."],
-              ["referralProJobsRequired", "Jobs the new pro must complete (N)", "The referral bonus is released after this many completed jobs."],
+              ["referralNewCustomerDiscountPKR", "New customer discount (PKR)", "Off the new customer's first completed job (needs the minimum below). Servigic funds it: the pro's wallet is credited the same amount."],
+              ["referralNewCustomerMinJobPKR", "Minimum job value for that discount (PKR)", "The welcome discount only applies to a first job worth at least this much."],
+              ["referralCustomerCreditPKR", "Booking credit for a referring customer (PKR)", "Released to the customer who invited, after the invited person's first discounted job is completed. Comes off their next job - never cash."],
+              ["referralProBonusPKR", "Commission credit for a referring pro (PKR)", "Reduces what the pro owes Servigic once the pro they invited completes the number of jobs below - never cash."],
+              ["referralProJobsRequired", "Jobs a referred pro must complete before the referrer is rewarded", "Same count for a referring pro (commission credit) or a referring customer (booking credit)."],
+              ["referralNewProFreeJobs", "Commission-free jobs for a referred pro", "A pro who signs up with a referral code pays 0% commission on their first N jobs."],
             ] as const
           ).map(([key, label, desc]) => (
             <div key={key}>

@@ -131,6 +131,7 @@ export async function acceptBid(bidId: string, customerId: string, opts: { admin
         : "Job confirmed — head over once you're ready.",
     linkUrl: `/pro/bookings/${booking.id}`,
     channels: ["whatsapp"],
+    pushData: { bookingId: booking.id },
   });
 
   // Polite "this job was filled" for everyone who lost out — best-effort,

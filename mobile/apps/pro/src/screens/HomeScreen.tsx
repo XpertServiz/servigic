@@ -9,6 +9,7 @@ import { GlassCard, GradientButton, haptic } from "../components/ds";
 import { HeaderActions } from "../components/HeaderActions";
 import { JobPinMarker } from "../components/MapPins";
 import { NativeAdStrip } from "../components/AdSlots";
+import { DraggableSheet } from "../components/DraggableSheet";
 import { VerificationNotice } from "../components/VerificationNotice";
 import { colors, mapStyle, mapProvider } from "../lib/theme";
 import { navigateRoot } from "../navigation/ref";
@@ -171,9 +172,19 @@ export default function HomeScreen() {
         </GlassCard>
       </View>
 
-      <View style={styles.sheet}>
-        <View style={styles.handle} />
-
+      <DraggableSheet
+        initialSnap="half"
+        peek={
+          <View style={{ paddingBottom: 8 }}>
+            {profile.verificationLevel >= 1 && status?.activation !== "WAITING" && !(status && status.market && !status.market.open) && (
+              <Text style={styles.sheetSub}>{t("home.jobsAvailable", { n: jobs.length })}</Text>
+            )}
+            <Text style={styles.sheetTitle} numberOfLines={1}>
+              {placeLabel || t("home.yourArea")}
+            </Text>
+          </View>
+        }
+      >
         {debtPKR > 0 && (
           <View style={styles.debt}>
             <Text style={{ fontSize: 12, color: "#E07A7A" }}>{t("home.youOwe")}</Text>
@@ -194,12 +205,8 @@ export default function HomeScreen() {
           </View>
         ) : (
           <>
-            <Text style={styles.sheetSub}>{t("home.jobsAvailable", { n: jobs.length })}</Text>
-            <Text style={styles.sheetTitle} numberOfLines={1}>
-              {placeLabel || t("home.yourArea")}
-            </Text>
             {jobs.length === 0 && (
-              <View style={[styles.statusCard, { marginTop: -6 }]}>
+              <View style={styles.statusCard}>
                 <Text style={styles.statusTitle}>{t("pro.emptyTitle")}</Text>
                 <Text style={styles.statusBody}>{t("pro.emptyBody")}</Text>
                 {status && status.jobsThisWeek > 0 && (
@@ -221,10 +228,8 @@ export default function HomeScreen() {
 
         <GradientButton title={t("home.viewJobs")} onPress={() => navigateRoot("Main", { screen: "JobsTab", params: { screen: "Jobs" } })} />
 
-        <View style={{ marginTop: 14 }}>
-          <NativeAdStrip />
-        </View>
-      </View>
+        <NativeAdStrip />
+      </DraggableSheet>
     </View>
   );
 }
@@ -258,21 +263,6 @@ const styles = StyleSheet.create({
   },
   pillText: { color: colors.accent, fontSize: 13, fontWeight: "700" },
   trust: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "rgba(28,22,10,0.78)", borderColor: "rgba(245,166,35,0.25)" },
-  sheet: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.bgElevated,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 14,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(245,166,35,0.15)",
-  },
-  handle: { width: 36, height: 4, borderRadius: 2, backgroundColor: "#2E2A22", alignSelf: "center", marginBottom: 14 },
   debt: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -285,8 +275,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginBottom: 12,
   },
-  sheetSub: { fontSize: 14, color: colors.textMuted, marginBottom: 4 },
-  sheetTitle: { fontSize: 21, fontWeight: "700", color: colors.text, marginBottom: 16 },
+  sheetSub: { fontSize: 14, color: colors.textMuted, marginBottom: 2 },
+  sheetTitle: { fontSize: 21, fontWeight: "700", color: colors.text },
   statusCard: { backgroundColor: colors.accentTint, borderWidth: 1, borderColor: colors.accentBorder, borderRadius: 14, padding: 14, marginBottom: 14 },
   statusTitle: { color: colors.text, fontSize: 15, fontWeight: "800" },
   statusBody: { color: colors.textSecondary, fontSize: 12.5, lineHeight: 18, marginTop: 4 },

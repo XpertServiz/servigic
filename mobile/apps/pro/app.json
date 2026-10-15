@@ -21,7 +21,7 @@
     },
     "android": {
       "package": "com.servigic.pro",
-      "versionCode": 14,
+      "versionCode": 15,
       "adaptiveIcon": {
         "backgroundColor": "#0A0808",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -86,7 +86,9 @@
             "./assets/sounds/message_received.wav",
             "./assets/sounds/job_status_update.wav",
             "./assets/sounds/job_done.wav",
-            "./assets/sounds/payment_added.wav"
+            "./assets/sounds/payment_added.wav",
+            "./assets/sounds/new_bid.wav",
+            "./assets/sounds/booking_progress.wav"
           ]
         }
       ],

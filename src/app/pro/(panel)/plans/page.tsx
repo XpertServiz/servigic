@@ -1,3 +1,4 @@
+import { plural } from "@/lib/plural";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -26,7 +27,7 @@ export default async function ProPlansPage() {
 
       <div className="mb-6 rounded-[12px] border border-secondary/30 bg-secondary/10 px-5 py-4">
         <div className="font-display text-2xl font-bold text-secondary">~PKR {Math.round(monthlyRecurringPKR).toLocaleString()}</div>
-        <div className="text-xs text-text-muted">Estimated recurring revenue per month across {plans.length} plan(s)</div>
+        <div className="text-xs text-text-muted">Estimated recurring revenue per month across {plural(plans.length, "plan")}</div>
       </div>
 
       <div className="flex flex-col gap-3">

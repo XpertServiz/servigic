@@ -4,7 +4,7 @@ import { requireRole } from "@/lib/requireRole";
 import { bookingStatusSchema } from "@/lib/validation/booking";
 import { notify } from "@/lib/notify";
 import { getPaymentMode } from "@/lib/featureFlags";
-import { applyAdDiscountToBooking, applyReferralCreditsToBooking } from "@/lib/rewards";
+import { applyAdDiscountToBooking, applyReferralCreditsToBooking, applyReferralWelcomeDiscount } from "@/lib/rewards";
 
 const NEXT_STATUS: Record<string, string> = {
   CONFIRMED: "ON_MY_WAY",
@@ -51,7 +51,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   let discountPKR = 0;
   if (parsed.data.status === "DONE" && (await getPaymentMode()) === "CASH_WALLET") {
     discountPKR = await applyAdDiscountToBooking({ id: booking.id, customerId: booking.customerId, commissionPKR: booking.commissionPKR });
-    // Referral credits (invite-a-friend rewards) stack on top, up to half the job price.
+    // A referred customer's welcome discount (first job above the minimum) and referral booking credits stack on top.
+    discountPKR += await applyReferralWelcomeDiscount({ id: booking.id, customerId: booking.customerId, totalPKR: booking.totalPKR });
     discountPKR += await applyReferralCreditsToBooking({ id: booking.id, customerId: booking.customerId, totalPKR: booking.totalPKR });
   }
 
@@ -67,6 +68,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         : "Track live on your booking page.",
     linkUrl: `/bookings/${id}`,
     channels: ["whatsapp"],
+    // On the way / arrived ring on their own high-priority channel; later steps use the normal status channel.
+    ...(parsed.data.status === "ON_MY_WAY" || parsed.data.status === "ARRIVED" ? { pushChannelHint: "BOOKING_PROGRESS" } : {}),
+    pushData: { bookingId: id, status: parsed.data.status },
   });
 
   return NextResponse.json({ booking: updated });

@@ -20,6 +20,7 @@ const NAV = [
   { href: "/admin/exchange-rates", label: "Exchange Rates" },
   { href: "/admin/markets", label: "Markets & Launch" },
   { href: "/admin/referrals", label: "Referrals" },
+  { href: "/admin/trades", label: "Trade approvals" },
   { href: "/admin/locales", label: "Countries & Localization" },
   { href: "/admin/price-benchmarks", label: "Price Benchmarks" },
   { href: "/admin/maintenance-plans", label: "Maintenance Plans" },

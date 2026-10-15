@@ -129,7 +129,7 @@
   },
   "ticker": {
     "bid": "{category} bid {price} in {area}",
-    "jobsWeek": "{count} jobs completed this week",
+    "jobsWeek": "{count, plural, one {# job} other {# jobs}} completed this week",
     "paidWeek": "{amount} paid out to pros this week"
   },
   "price": {
@@ -140,7 +140,7 @@
     "loading": "Loading…",
     "notEnough": "Not enough completed jobs yet for {service} in {city} to show a reliable price range — still, you set your own budget when you post.",
     "estimate": "Starting-price estimate for {service} in {city} — updates to real completed-job data once enough jobs finish.",
-    "typical": "Typical price for {service} in {city} · based on {count} completed jobs · avg {avg}"
+    "typical": "Typical price for {service} in {city} · based on {count, plural, one {# completed job} other {# completed jobs}} · avg {avg}"
   },
   "problem": {
     "eyebrow": "The problem",
@@ -301,7 +301,7 @@
     "titleGeneric": "Verified pros across every trade.",
     "achiever": "🏆 Achiever",
     "achieverTitle": "Top-rated achiever",
-    "ratingJobs": "{rating}★ · {jobs} jobs"
+    "ratingJobs": "{rating}★ · {jobs, plural, one {# job} other {# jobs}}"
   },
   "forPros": {
     "customerTitle": "Customer?",
@@ -309,7 +309,7 @@
     "customerCta": "Post a Job",
     "proTitle": "Earn more. Keep 88%.",
     "zero": "{zero}",
-    "zeroActive": "Spent on leads by our {count} active providers this month",
+    "zeroActive": "Spent on leads by our {count, plural, one {# active provider} other {# active providers}} this month",
     "zeroGeneric": "Spent on leads. Ever. Every other platform charges you just to see a job — we don't.",
     "perks": [
       "No lead fees, ever",
@@ -458,7 +458,7 @@
     "sub": "Pay only when you win the job. Uber-style alerts in your pocket. Paid straight to EasyPaisa, JazzCash, or bank.",
     "cta": "Become a Servigic Pro",
     "videoTitle": "See how a pro earns on Servigic",
-    "zeroActive": "Spent on leads by our {count} active providers last month",
+    "zeroActive": "Spent on leads by our {count, plural, one {# active provider} other {# active providers}} last month",
     "zeroGeneric": "Spent on leads. Ever. Every other platform charges you just to see a job — we don't.",
     "compareServigic": "Servigic",
     "compareOther": "Typical lead-gen platform",
@@ -643,7 +643,7 @@
     "h1": "{service} in {city} — Bids in Minutes",
     "sub": "Post your {service} job and verified pros in {city} race to bid. Compare price, rating, and ETA — then pay your pro directly after the work.",
     "getRealBids": "Get real bids",
-    "avgWinning": "Avg. winning bid ({count} jobs, {days} days)",
+    "avgWinning": "Avg. winning bid ({count, plural, one {# job} other {# jobs}}, {days, plural, one {# day} other {# days}})",
     "priceVaries": "Price varies by job — post to compare",
     "startingPrice": "Typical starting price",
     "post": "Post a {service} job",

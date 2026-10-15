@@ -1,5 +1,6 @@
 "use client";
 
+import { plural } from "@/lib/plural";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -58,7 +59,7 @@ export function PostJobForm({ categories, cities }: { categories: Category[]; ci
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Could not post the job");
-      toast.success(`Job posted - ${data.dispatchedCount} pro(s) alerted${data.usedCityCenter ? " (approximate location)" : ""}`);
+      toast.success(`Job posted - ${plural(data.dispatchedCount, "pro")} alerted${data.usedCityCenter ? " (approximate location)" : ""}`);
       router.push(`/admin/jobs/${data.jobId}`);
     } catch (err) {
       toast.error((err as Error).message);

@@ -1,5 +1,6 @@
 "use client";
 
+import { plural } from "@/lib/plural";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -25,7 +26,7 @@ export function MaintenancePlansClient({ plans }: { plans: PlanRow[] }) {
       const res = await fetch("/api/admin/maintenance-plans/run-sweep", { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error();
-      toast.success(`Sweep complete — ${data.count} job(s) created`);
+      toast.success(`Sweep complete — ${plural(data.count, "job")} created`);
       router.refresh();
     } catch {
       toast.error("Sweep failed");

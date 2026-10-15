@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { View, Text, StyleSheet, KeyboardAvoidingView, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../navigation/RootNavigator";
 import { useAuth } from "../lib/auth";
 import { Button, Field, PhoneField, usePhoneInput } from "../components/ui";
 import { GlowBackground } from "../components/ds";
+import { WelcomeLogo } from "../components/WelcomeLogo";
 import { HeaderActions } from "../components/HeaderActions";
 import { colors } from "../lib/theme";
 import { useT } from "../lib/i18n";
@@ -45,8 +46,14 @@ export default function LoginScreen({ navigation }: Props) {
         <HeaderActions showBell={false} />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      {/* Edge-to-edge: Android no longer resizes the window for the keyboard, so pad for it on both platforms. */}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+        <ScrollView
+          contentContainerStyle={[styles.container, { paddingTop: insets.top + 64, paddingBottom: 32 + insets.bottom }]}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+        >
+          <WelcomeLogo />
           <Text style={styles.brand}>SERVIGIC</Text>
           <Text style={styles.title}>{t("auth.welcomeBack")}</Text>
           <Text style={styles.subtitle}>{t("auth.customerTagline")}</Text>

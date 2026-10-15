@@ -20,10 +20,10 @@ export function JobDoneView({ booking, onBackToJobs }: { booking: BookingData; o
   const [leaving, setLeaving] = useState(false);
   const cash = booking.paymentMode !== "PROTECTED";
   const reward = booking.rewardDiscountPKR ?? 0;
-  // A customer ad-reward comes out of Servigic's commission: the customer pays
-  // you that much less and you owe Servigic that much less - your net is unchanged.
-  const commission = (booking.commissionPKR ?? booking.totalPKR - booking.payoutPKR) - reward;
-  const pct = booking.commissionPct ?? (booking.totalPKR > 0 ? Math.round((commission / booking.totalPKR) * 100) : 12);
+  // Any customer discount (referral, rewarded ad) means you collect that much less in cash. Servigic funds it:
+  // you still owe the full commission, and the discount amount is credited to your wallet, so your net is unchanged.
+  const commission = booking.commissionPKR ?? booking.totalPKR - booking.payoutPKR;
+  const pct = commission === 0 ? 0 : (booking.commissionPct ?? (booking.totalPKR > 0 ? Math.round((commission / booking.totalPKR) * 100) : 12));
 
   useEffect(() => {
     preloadInterstitial();
@@ -55,6 +55,12 @@ export function JobDoneView({ booking, onBackToJobs }: { booking: BookingData; o
               <Text style={styles.statLabel}>{t("done.commission", { pct })}</Text>
               <Text style={styles.statValue}>PKR {commission.toLocaleString()}</Text>
             </View>
+            {cash && reward > 0 && (
+              <View style={{ alignItems: "center" }}>
+                <Text style={styles.statLabel}>{t("done.discountCredit")}</Text>
+                <Text style={[styles.statValue, { color: colors.success }]}>+PKR {reward.toLocaleString()}</Text>
+              </View>
+            )}
             <View style={{ alignItems: "flex-end" }}>
               <Text style={styles.statLabel}>{cash ? t("done.youKeep") : t("done.jobsTotal")}</Text>
               <Text style={styles.statValue}>{cash ? `PKR ${booking.payoutPKR.toLocaleString()}` : String(booking.jobsCompleted ?? "—")}</Text>

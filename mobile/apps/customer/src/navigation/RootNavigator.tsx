@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { useNotificationTaps } from "../lib/notificationNav";
 import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import { NavigationContainer, DarkTheme } from "@react-navigation/native";
@@ -148,12 +149,9 @@ function MainTabs() {
         if (cancelled) return;
         const total = jobs.filter((j) => j.status === "OPEN").reduce((sum, j) => sum + j._count.bids, 0);
         if (lastBidCount.current !== null && total > lastBidCount.current) {
-          sound.statusChanged();
+          // The ring itself comes from the server push on the "new bid" channel (first bid rings, later bids
+          // update quietly) - a local notification here would double it, so only a haptic nudge is left.
           haptic.success();
-          Notifications.scheduleNotificationAsync({
-            content: { title: t("push.newBidTitle"), body: t("push.newBidBody"), sound: "job_status_update.wav" },
-            trigger: Platform.OS === "android" ? { channelId: CHANNELS.status } : null,
-          }).catch(() => {});
         }
         lastBidCount.current = total;
       } catch {
@@ -180,6 +178,8 @@ function MainTabs() {
 }
 
 function MainRoot() {
+  // Tapping a bid / booking notification opens that job or booking.
+  useNotificationTaps(true);
   return (
     <RootStack.Navigator screenOptions={{ ...screenOptions, headerShown: false }}>
       <RootStack.Screen name="Main" component={MainTabs} />

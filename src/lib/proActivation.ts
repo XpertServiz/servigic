@@ -79,7 +79,7 @@ export async function evaluateProActivation(profileId: string): Promise<"ACTIVE"
       waitingSince: null,
       activatedAt: profile.activatedAt ?? new Date(),
       // Early-pro incentives: pros who join while their market is still a pilot.
-      ...(early ? { foundingPro: true, commissionFreeJobsLeft: settings?.earlyProFreeJobs ?? 0 } : {}),
+      ...(early ? { foundingPro: true, commissionFreeJobsLeft: { increment: settings?.earlyProFreeJobs ?? 0 } } : {}),
     },
   });
 

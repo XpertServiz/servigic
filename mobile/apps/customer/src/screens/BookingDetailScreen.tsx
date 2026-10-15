@@ -11,6 +11,7 @@ import { Button, Card, Field, Badge } from "../components/ui";
 import { StatusStepper, PriceText, RatingStars, ConfettiBurst, GradientButton, GlassCard, haptic } from "../components/ds";
 import { DestinationMarker, TrackedBikeMarker } from "../components/MapPins";
 import { Icon } from "../components/Icon";
+import { DraggableSheet } from "../components/DraggableSheet";
 import { sound } from "../lib/sound";
 import { colors, mapStyle, mapProvider } from "../lib/theme";
 import { enumLabel, STATUS_STEPS, statusStepIndex } from "../lib/status";
@@ -198,16 +199,8 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
   const etaMin = proLocation ? Math.max(1, Math.round((distanceKm(proLocation.lat, proLocation.lng, dest.latitude, dest.longitude) / AVERAGE_SPEED_KMH) * 60)) : null;
   const openChat = () => navigation.navigate("MessageThread", { bookingId, otherPartyName: proName });
 
-  return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.back} accessibilityLabel={t("common.back")}>
-          <Icon name="back" size={16} />
-        </Pressable>
-        <Text style={styles.headerLabel}>{done ? t("booking.jobDoneHeader") : t("booking.liveTracking")}</Text>
-      </View>
-
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: insets.bottom + 32 }}>
+  const body = (
+    <>
         <Text style={styles.title}>{booking.jobTitle as string}</Text>
         <View style={styles.priceRow}>
           <Text style={[styles.price, done && { color: colors.secondary }]}>PKR {(booking.totalPKR as number).toLocaleString()}</Text>
@@ -311,39 +304,6 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
           </View>
         )}
 
-        {tracked && (
-          <View style={styles.mapCard}>
-            <MapView
-              style={StyleSheet.absoluteFill}
-              provider={mapProvider}
-              customMapStyle={mapStyle}
-              initialRegion={{ ...dest, latitudeDelta: 0.04, longitudeDelta: 0.04 }}
-              toolbarEnabled={false}
-              showsCompass={false}
-              pitchEnabled={false}
-            >
-              <DestinationMarker coordinate={dest} />
-              {proLocation && (
-                <>
-                  <Polyline
-                    coordinates={[{ latitude: proLocation.lat, longitude: proLocation.lng }, dest]}
-                    strokeColor={colors.accent}
-                    strokeWidth={3}
-                    lineDashPattern={[2, 8]}
-                    lineCap="round"
-                  />
-                  <TrackedBikeMarker location={proLocation} />
-                </>
-              )}
-            </MapView>
-            <GlassCard style={styles.mapPill}>
-              <Text style={{ color: colors.accent, fontSize: 11, fontWeight: "700" }}>
-                {etaMin != null ? t("track.minutesAway", { name: proName, n: etaMin }) : t("track.onTheWay", { name: proName })}
-              </Text>
-            </GlassCard>
-          </View>
-        )}
-
         {status === "DONE" && (
           <View style={styles.confirmCard}>
             <Text style={styles.confirmTitle}>{t("done.proMarkedDone")}</Text>
@@ -440,6 +400,78 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
             <Badge label={enumLabel(td, "booking", status)} tone="muted" />
           </View>
         )}
+    </>
+  );
+
+  // Live tracking (pro on the way / arrived / working): a full-screen map with a draggable bottom sheet that
+  // holds everything else. Drag it down for an almost full-screen map, up for the details.
+  if (tracked) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.bg }}>
+        <MapView
+          style={StyleSheet.absoluteFill}
+          provider={mapProvider}
+          customMapStyle={mapStyle}
+          initialRegion={{ ...dest, latitudeDelta: 0.04, longitudeDelta: 0.04 }}
+          toolbarEnabled={false}
+          showsCompass={false}
+          pitchEnabled={false}
+        >
+          <DestinationMarker coordinate={dest} />
+          {proLocation && (
+            <>
+              <Polyline
+                coordinates={[{ latitude: proLocation.lat, longitude: proLocation.lng }, dest]}
+                strokeColor={colors.accent}
+                strokeWidth={3}
+                lineDashPattern={[2, 8]}
+                lineCap="round"
+              />
+              <TrackedBikeMarker location={proLocation} />
+            </>
+          )}
+        </MapView>
+
+        <View style={[styles.trackTop, { paddingTop: insets.top + 12 }]} pointerEvents="box-none">
+          <Pressable onPress={() => navigation.goBack()} style={styles.back} accessibilityLabel={t("common.back")}>
+            <Icon name="back" size={16} />
+          </Pressable>
+          <GlassCard style={styles.trackPill}>
+            <Text style={{ color: colors.accent, fontSize: 12, fontWeight: "700" }}>
+              {etaMin != null ? t("track.minutesAway", { name: proName, n: etaMin }) : t("track.onTheWay", { name: proName })}
+            </Text>
+          </GlassCard>
+        </View>
+
+        <DraggableSheet
+          initialSnap="half"
+          peek={
+            <View style={{ paddingBottom: 8 }}>
+              <Text style={styles.title} numberOfLines={1}>
+                {etaMin != null ? t("track.minutesAway", { name: proName, n: etaMin }) : t("track.onTheWay", { name: proName })}
+              </Text>
+            </View>
+          }
+        >
+          {body}
+        </DraggableSheet>
+        <ConfettiBurst trigger={confettiTrigger} />
+        <CancelBookingSheet visible={cancelSheetOpen} bookingId={bookingId} onClose={() => setCancelSheetOpen(false)} onCancelled={load} />
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+        <Pressable onPress={() => navigation.goBack()} style={styles.back} accessibilityLabel={t("common.back")}>
+          <Icon name="back" size={16} />
+        </Pressable>
+        <Text style={styles.headerLabel}>{done ? t("booking.jobDoneHeader") : t("booking.liveTracking")}</Text>
+      </View>
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: insets.bottom + 32 }}>
+        {body}
       </ScrollView>
       <ConfettiBurst trigger={confettiTrigger} />
       <CancelBookingSheet visible={cancelSheetOpen} bookingId={bookingId} onClose={() => setCancelSheetOpen(false)} onCancelled={load} />
@@ -480,6 +512,8 @@ const styles = StyleSheet.create({
   contactSub: { color: colors.textMuted, fontSize: 12, marginTop: 9 },
   contactActions: { flexDirection: "row", gap: 18, marginTop: 9 },
   contactAction: { color: colors.accent, fontSize: 12, fontWeight: "700" },
+  trackTop: { position: "absolute", top: 0, left: 0, right: 0, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", gap: 10 },
+  trackPill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999 },
   mapCard: { height: 260, borderRadius: 18, overflow: "hidden", marginTop: 16, backgroundColor: "#0E0C0A" },
   mapPill: { position: "absolute", bottom: 10, left: 12, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999 },
   confirmCard: { marginTop: 16, backgroundColor: "rgba(245,166,35,0.07)", borderWidth: 1, borderColor: "rgba(245,166,35,0.25)", borderRadius: 16, padding: 18 },

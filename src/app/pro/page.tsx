@@ -14,7 +14,6 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { LogoMark3D } from "@/components/brand/LogoMark3D";
 import { getDemoVideos } from "@/lib/siteVideos";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
-import { fmtNumber } from "@/lib/format";
 import { getDemoMoney } from "@/lib/money";
 import type { Locale } from "@/i18n/locales";
 
@@ -76,7 +75,7 @@ export default async function ProLandingPage() {
           <Reveal>
             <div className="rounded-3xl border border-secondary/30 bg-secondary/10 p-8">
               <div className="text-5xl font-extrabold text-secondary">{demo.zero}</div>
-              <p className="mt-2 text-sm text-text-muted">{showCount ? t("zeroActive", { count: fmtNumber(activeProviders, locale) }) : t("zeroGeneric")}</p>
+              <p className="mt-2 text-sm text-text-muted">{showCount ? t("zeroActive", { count: activeProviders }) : t("zeroGeneric")}</p>
             </div>
           </Reveal>
 

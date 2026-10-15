@@ -5,12 +5,17 @@ import { notify } from "@/lib/notify";
 import { phoneVariants } from "@/lib/phone";
 import { postJournalEntry, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
 
-// Referral programme. Every user gets a code; a new user who signs up with it is recorded as a PENDING
-// Referral. The reward is released only after the referred person has really worked:
-//  - a customer: their first COMPLETED job (both the referrer and the new customer get a credit that is
-//    taken off a future job, see applyReferralCreditsToBooking in rewards.ts)
-//  - a pro: their Nth completed job (the referrer's pro wallet is credited)
-// Amounts, N and the on/off switch live in SiteSettings and are frozen onto the Referral at signup.
+// Referral programme. Every user gets a code; someone who signs up with it becomes a PENDING Referral.
+//
+//  New CUSTOMER: PKR {referralNewCustomerDiscountPKR} off their first job worth at least
+//    {referralNewCustomerMinJobPKR} (applied when the job reaches DONE, see applyReferralWelcomeDiscount).
+//    The referrer is rewarded once that discounted job is COMPLETED (and paid).
+//  New PRO: 0% commission on their first {referralNewProFreeJobs} jobs (granted at signup through the same
+//    commissionFreeJobsLeft counter the early-pro perk uses). The referrer is rewarded once the new pro has
+//    completed {referralProJobsRequired} jobs.
+//  Referrer reward (never cash): a referring PRO gets a commission credit in their pro wallet; a referring
+//    CUSTOMER gets a booking credit (RewardCredit) that comes off a future job.
+// Every amount and job count is an admin setting, frozen onto the Referral at signup.
 
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I
 const MAX_REFERRALS_PER_DAY = 20;
@@ -55,24 +60,29 @@ export async function attachReferral(input: { newUserId: string; role: Role; pho
   if (!settings?.referralsEnabled) return { status: "off" };
 
   const referrer = await prisma.user.findUnique({ where: { referralCode: code }, select: { id: true, role: true, phone: true, signupDeviceId: true } });
-  // Customers invite customers, pros invite pros.
-  if (!referrer || referrer.role !== role) return { status: "invalid" };
+  // Customers and pros can both invite either kind of newcomer.
+  if (!referrer || (referrer.role !== "CUSTOMER" && referrer.role !== "PROVIDER")) return { status: "invalid" };
 
   const phoneKey = digitsOnly(phone);
-  const isPro = role === "PROVIDER";
+  const referredPro = role === "PROVIDER";
+  const referrerIsPro = referrer.role === "PROVIDER";
   const data = {
     referrerId: referrer.id,
+    referrerRole: referrer.role,
     referredUserId: newUserId,
     role,
-    referrerRewardPKR: isPro ? settings.referralProBonusPKR : settings.referralCustomerCreditPKR,
-    refereeRewardPKR: isPro ? 0 : settings.referralCustomerCreditPKR,
-    jobsRequired: isPro ? Math.max(1, settings.referralProJobsRequired) : 1,
+    // A referring pro is paid in commission credit, a referring customer in booking credit.
+    referrerRewardPKR: referrerIsPro && referredPro ? settings.referralProBonusPKR : settings.referralCustomerCreditPKR,
+    refereeRewardPKR: referredPro ? 0 : settings.referralNewCustomerDiscountPKR,
+    minJobPKR: referredPro ? 0 : settings.referralNewCustomerMinJobPKR,
+    freeJobsGranted: referredPro ? settings.referralNewProFreeJobs : 0,
+    jobsRequired: referredPro ? Math.max(1, settings.referralProJobsRequired) : 1,
     deviceId,
     phoneKey,
   };
 
   const reject = async (reason: string): Promise<AttachResult> => {
-    await prisma.referral.create({ data: { ...data, status: "REJECTED", rejectReason: reason } });
+    await prisma.referral.create({ data: { ...data, freeJobsGranted: 0, status: "REJECTED", rejectReason: reason } });
     return { status: "rejected", reason };
   };
 
@@ -97,6 +107,11 @@ export async function attachReferral(input: { newUserId: string; role: Role; pho
   if (recent >= MAX_REFERRALS_PER_DAY) return reject("RATE_LIMIT");
 
   await prisma.referral.create({ data: { ...data, status: "PENDING" } });
+
+  // The new pro's 0% commission jobs start now (the counter is consumed when they win a job, see acceptBid).
+  if (referredPro && data.freeJobsGranted > 0) {
+    await prisma.providerProfile.update({ where: { userId: newUserId }, data: { commissionFreeJobsLeft: { increment: data.freeJobsGranted } } }).catch(() => {});
+  }
   return { status: "applied" };
 }
 
@@ -105,8 +120,8 @@ export async function attachReferral(input: { newUserId: string; role: Role; pho
  * Releases any referral reward that this completion earns. Safe to call repeatedly: each referral is
  * claimed with a conditional update, so a reward can never be paid twice.
  */
-export async function onBookingCompleted(booking: { customerId: string; providerUserId: string; providerId: string }) {
-  await Promise.allSettled([releaseCustomerReferral(booking.customerId), releaseProReferral(booking.providerUserId, booking.providerId)]);
+export async function onBookingCompleted(booking: { id: string; customerId: string; providerUserId: string; providerId: string }) {
+  await Promise.allSettled([releaseCustomerReferral(booking), releaseProReferral(booking.providerUserId, booking.providerId)]);
 }
 
 async function claim(referralId: string) {
@@ -114,49 +129,16 @@ async function claim(referralId: string) {
   return res.count === 1;
 }
 
-async function releaseCustomerReferral(customerId: string) {
-  const referral = await prisma.referral.findUnique({ where: { referredUserId: customerId } });
-  if (!referral || referral.status !== "PENDING" || referral.role !== "CUSTOMER") return;
+type ReferralRow = NonNullable<Awaited<ReturnType<typeof prisma.referral.findUnique>>>;
 
-  const completed = await prisma.booking.count({ where: { customerId, status: "COMPLETED" } });
-  if (completed < referral.jobsRequired) return;
-  if (!(await claim(referral.id))) return;
-
-  await prisma.rewardCredit.createMany({
-    data: [
-      { customerId: referral.referrerId, kind: "REFERRAL", amountPKR: referral.referrerRewardPKR },
-      { customerId, kind: "REFERRAL", amountPKR: referral.refereeRewardPKR },
-    ].filter((c) => c.amountPKR > 0),
-  });
-  await Promise.allSettled([
-    notify({
-      userId: referral.referrerId,
-      type: "SYSTEM",
-      title: "Referral reward earned!",
-      body: `Your friend completed their first job. PKR ${referral.referrerRewardPKR.toLocaleString()} credit was added - it comes off your next job.`,
-    }),
-    notify({
-      userId: customerId,
-      type: "SYSTEM",
-      title: "You earned a welcome credit",
-      body: `PKR ${referral.refereeRewardPKR.toLocaleString()} referral credit was added - it comes off your next job.`,
-    }),
-  ]);
-}
-
-async function releaseProReferral(proUserId: string, proProfileId: string) {
-  const referral = await prisma.referral.findUnique({ where: { referredUserId: proUserId } });
-  if (!referral || referral.status !== "PENDING" || referral.role !== "PROVIDER") return;
-
-  const profile = await prisma.providerProfile.findUnique({ where: { id: proProfileId }, select: { jobsCompleted: true } });
-  if (!profile || profile.jobsCompleted < referral.jobsRequired) return;
-
-  const referrerProfile = await prisma.providerProfile.findUnique({ where: { userId: referral.referrerId }, select: { id: true } });
-  if (!referrerProfile) return;
-  if (!(await claim(referral.id))) return;
-
+/** Pays the referrer: commission credit into a pro's wallet, or a booking credit for a customer. Never cash. */
+async function rewardReferrer(referral: ReferralRow, reason: string) {
   const amount = referral.referrerRewardPKR;
-  if (amount > 0) {
+  if (amount <= 0) return;
+
+  if (referral.referrerRole === "PROVIDER") {
+    const referrerProfile = await prisma.providerProfile.findUnique({ where: { userId: referral.referrerId }, select: { id: true } });
+    if (!referrerProfile) return;
     const wallet = await prisma.proWallet.upsert({
       where: { providerId: referrerProfile.id },
       update: {},
@@ -167,13 +149,11 @@ async function releaseProReferral(proUserId: string, proProfileId: string) {
     });
     await prisma.$transaction([
       prisma.proWallet.update({ where: { id: wallet.id }, data: { balancePKR: { increment: amount } } }),
-      prisma.commissionLedgerEntry.create({
-        data: { walletId: wallet.id, type: "REFERRAL_BONUS", amountPKR: amount, memo: `Referral bonus - your referred pro completed ${referral.jobsRequired} job(s)` },
-      }),
+      prisma.commissionLedgerEntry.create({ data: { walletId: wallet.id, type: "REFERRAL_BONUS", amountPKR: amount, memo: `Referral commission credit - ${reason}` } }),
     ]);
-    // The bonus is a marketing cost: it raises what the wallet is worth to the pro, so book it against expenses.
+    // A marketing cost: it reduces what the pro owes Servigic, so book it against expenses.
     await postJournalEntry({
-      memo: `Pro referral bonus - referral ${referral.id.slice(0, 8)}`,
+      memo: `Referral commission credit - referral ${referral.id.slice(0, 8)}`,
       source: "AUTO_REFERRAL_REWARD",
       referenceId: referral.id,
       lines: [
@@ -181,19 +161,55 @@ async function releaseProReferral(proUserId: string, proProfileId: string) {
         { accountCode: SYSTEM_ACCOUNTS.PRO_WALLET_RECEIVABLE, creditPKR: amount },
       ],
     }).catch((e) => console.error("[referral] journal entry failed", e));
+    await notify({
+      userId: referral.referrerId,
+      type: "SYSTEM",
+      title: "Referral reward earned!",
+      body: `${reason}. PKR ${amount.toLocaleString()} commission credit was added - it reduces what you owe.`,
+      linkUrl: "/pro/earnings",
+    });
+  } else {
+    await prisma.rewardCredit.create({ data: { customerId: referral.referrerId, kind: "REFERRAL", amountPKR: amount } });
+    await notify({
+      userId: referral.referrerId,
+      type: "SYSTEM",
+      title: "Referral reward earned!",
+      body: `${reason}. PKR ${amount.toLocaleString()} booking credit was added - it comes off your next job.`,
+    });
   }
-  await notify({
-    userId: referral.referrerId,
-    type: "SYSTEM",
-    title: "Referral bonus earned!",
-    body: `The pro you referred completed ${referral.jobsRequired} job(s). PKR ${amount.toLocaleString()} was added to your wallet.`,
-    linkUrl: "/pro/earnings",
-  });
+}
+
+async function releaseCustomerReferral(booking: { id: string; customerId: string }) {
+  const referral = await prisma.referral.findUnique({ where: { referredUserId: booking.customerId } });
+  if (!referral || referral.status !== "PENDING" || referral.role !== "CUSTOMER") return;
+  // The reward follows the specific job that got the new customer's discount.
+  if (referral.discountBookingId !== booking.id) return;
+  if (referral.referrerRole === "PROVIDER") {
+    const hasProfile = await prisma.providerProfile.findUnique({ where: { userId: referral.referrerId }, select: { id: true } });
+    if (!hasProfile) return;
+  }
+  if (!(await claim(referral.id))) return;
+  await rewardReferrer(referral, "Your friend completed their first job");
+}
+
+async function releaseProReferral(proUserId: string, proProfileId: string) {
+  const referral = await prisma.referral.findUnique({ where: { referredUserId: proUserId } });
+  if (!referral || referral.status !== "PENDING" || referral.role !== "PROVIDER") return;
+
+  const profile = await prisma.providerProfile.findUnique({ where: { id: proProfileId }, select: { jobsCompleted: true } });
+  if (!profile || profile.jobsCompleted < referral.jobsRequired) return;
+
+  if (referral.referrerRole === "PROVIDER") {
+    const hasProfile = await prisma.providerProfile.findUnique({ where: { userId: referral.referrerId }, select: { id: true } });
+    if (!hasProfile) return;
+  }
+  if (!(await claim(referral.id))) return;
+  await rewardReferrer(referral, `The pro you referred completed ${referral.jobsRequired} job${referral.jobsRequired === 1 ? "" : "s"}`);
 }
 
 /** Everything the apps show on the "Invite friends" card. */
 export async function getReferralSummary(userId: string, role: Role) {
-  const [code, settings, referrals] = await Promise.all([
+  const [code, settings, referrals, mine] = await Promise.all([
     ensureReferralCode(userId),
     prisma.siteSettings.findUnique({ where: { id: "singleton" } }),
     prisma.referral.findMany({
@@ -202,9 +218,10 @@ export async function getReferralSummary(userId: string, role: Role) {
       orderBy: { createdAt: "desc" },
       take: 50,
     }),
+    // If this user themselves signed up with someone's code: what is waiting for them?
+    prisma.referral.findUnique({ where: { referredUserId: userId } }),
   ]);
   const isPro = role === "PROVIDER";
-  const rewardPKR = isPro ? (settings?.referralProBonusPKR ?? 0) : (settings?.referralCustomerCreditPKR ?? 0);
   const names = await prisma.user.findMany({ where: { id: { in: referrals.map((r) => r.referredUserId) } }, select: { id: true, name: true } });
   const nameById = new Map(names.map((n) => [n.id, n.name]));
 
@@ -212,8 +229,10 @@ export async function getReferralSummary(userId: string, role: Role) {
   let earnedPKR = 0;
   let availablePKR = 0;
   let entries: { id: string; amountPKR: number; createdAt: Date; used: boolean }[] = [];
+  let freeJobsLeft = 0;
   if (isPro) {
-    const profile = await prisma.providerProfile.findUnique({ where: { userId }, select: { id: true } });
+    const profile = await prisma.providerProfile.findUnique({ where: { userId }, select: { id: true, commissionFreeJobsLeft: true } });
+    freeJobsLeft = profile?.commissionFreeJobsLeft ?? 0;
     const ledger = profile
       ? await prisma.commissionLedgerEntry.findMany({ where: { type: "REFERRAL_BONUS", wallet: { providerId: profile.id } }, orderBy: { createdAt: "desc" }, take: 50 })
       : [];
@@ -231,10 +250,20 @@ export async function getReferralSummary(userId: string, role: Role) {
     code,
     enabled: Boolean(settings?.referralsEnabled),
     role: isPro ? "PROVIDER" : "CUSTOMER",
-    rewardPKR,
-    yourRewardPKR: rewardPKR,
-    friendRewardPKR: isPro ? 0 : (settings?.referralCustomerCreditPKR ?? 0),
-    jobsRequired: isPro ? Math.max(1, settings?.referralProJobsRequired ?? 1) : 1,
+    // What an invite is worth, from this user's point of view.
+    offer: {
+      customerDiscountPKR: settings?.referralNewCustomerDiscountPKR ?? 0,
+      customerMinJobPKR: settings?.referralNewCustomerMinJobPKR ?? 0,
+      customerReferrerCreditPKR: settings?.referralCustomerCreditPKR ?? 0,
+      proReferrerCreditPKR: isPro ? (settings?.referralProBonusPKR ?? 0) : (settings?.referralCustomerCreditPKR ?? 0),
+      proJobsRequired: Math.max(1, settings?.referralProJobsRequired ?? 1),
+      proFreeJobs: settings?.referralNewProFreeJobs ?? 0,
+    },
+    // This user's own welcome perk, if they joined with a code and it has not been used up yet.
+    myWelcome:
+      mine && mine.status === "PENDING"
+        ? { discountPKR: mine.refereeRewardPKR, minJobPKR: mine.minJobPKR, freeJobsLeft: isPro ? freeJobsLeft : 0 }
+        : null,
     earnedPKR,
     availablePKR,
     pendingCount: referrals.filter((r) => r.status === "PENDING").length,

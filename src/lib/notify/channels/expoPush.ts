@@ -6,7 +6,12 @@
 // (see mobile/apps/*/src/lib/notifications.ts). Channel ids are versioned
 // ("-v2") because Android fixes a channel's sound at creation.
 const CHANNEL_BY_TYPE: Record<string, string> = {
-  DISPATCH_ALERT: "new-job-alert-v2",
+  // v3: Android freezes a channel's sound/importance at creation, so the screen-off job alert got a fresh channel.
+  DISPATCH_ALERT: "new-job-alert-v3",
+  // Customer-side alerts: the first bid rings, further bids update quietly, progress steps get their own channel.
+  BID_FIRST: "new-bid-v1",
+  BID_MORE: "bid-update-v1",
+  BOOKING_PROGRESS: "booking-progress-v1",
   BID_ACCEPTED: "bid-accepted-v2",
   PAYMENT_VERIFIED: "payment-added-v2",
   PAYOUT_SENT: "payment-added-v2",
@@ -20,6 +25,8 @@ const DEFAULT_CHANNEL = "job-status-update-v2";
 // apps (expo-notifications "sounds" in app.json), so the names must match.
 const SOUND_BY_TYPE: Record<string, string> = {
   DISPATCH_ALERT: "new_job_alert.wav",
+  BID_FIRST: "new_bid.wav",
+  BOOKING_PROGRESS: "booking_progress.wav",
   BID_ACCEPTED: "bid_accepted.wav",
   PAYMENT_VERIFIED: "payment_added.wav",
   PAYOUT_SENT: "payment_added.wav",
@@ -44,9 +51,12 @@ export async function sendExpoPushChannel(input: {
       title: input.title,
       body: input.body,
       data: input.data ?? {},
+      // FCM high priority: delivered immediately even in Doze / with the screen off.
       priority: "high",
       channelId,
-      sound,
+      // Android plays the CHANNEL's sound (the app plays no audio of its own); iOS needs it on the push.
+      sound: type === "BID_MORE" ? null : sound,
+      ttl: type === "DISPATCH_ALERT" ? 3600 : 86400,
     }));
 
   if (messages.length === 0) return;

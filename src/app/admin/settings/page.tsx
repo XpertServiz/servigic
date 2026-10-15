@@ -25,8 +25,15 @@ export default async function AdminSettingsPage() {
           noBidsAfterMin: settings?.noBidsAfterMin ?? 20,
           referralsEnabled: settings?.referralsEnabled ?? false,
           referralCustomerCreditPKR: settings?.referralCustomerCreditPKR ?? 200,
-          referralProBonusPKR: settings?.referralProBonusPKR ?? 500,
-          referralProJobsRequired: settings?.referralProJobsRequired ?? 5,
+          referralProBonusPKR: settings?.referralProBonusPKR ?? 300,
+          referralProJobsRequired: settings?.referralProJobsRequired ?? 3,
+          referralNewProFreeJobs: settings?.referralNewProFreeJobs ?? 3,
+          referralNewCustomerDiscountPKR: settings?.referralNewCustomerDiscountPKR ?? 200,
+          referralNewCustomerMinJobPKR: settings?.referralNewCustomerMinJobPKR ?? 1000,
+          proRadiusMinKm: settings?.proRadiusMinKm ?? 2,
+          proRadiusMaxKm: settings?.proRadiusMaxKm ?? 15,
+          proRadiusDefaultKm: settings?.proRadiusDefaultKm ?? 5,
+          maxTradesPerPro: settings?.maxTradesPerPro ?? 3,
           featureFlags,
         }}
       />

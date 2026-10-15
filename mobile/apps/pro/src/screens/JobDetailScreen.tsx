@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, ScrollView, Pressable, StyleSheet, Alert } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { JobsStackParamList } from "../navigation/RootNavigator";
@@ -17,6 +18,7 @@ const ETA_MINUTES = [30, 60, 120];
 const PRICE_STEP = 100;
 
 export default function JobDetailScreen({ route, navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const { t, td } = useI18n();
   const { jobId } = route.params;
   const [job, setJob] = useState<Record<string, unknown> | null>(null);
@@ -132,7 +134,7 @@ export default function JobDetailScreen({ route, navigation }: Props) {
   const bidStatus = myBid ? (myBid as { status: string }).status : null;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 18, paddingBottom: 40 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 18, paddingBottom: 40 + insets.bottom }}>
       <Text style={{ color: colors.text, fontSize: 22, fontWeight: "800" }}>{job.title as string}</Text>
       <Text style={{ color: colors.textSecondary, marginTop: 8, lineHeight: 20 }}>{job.description as string}</Text>
       <Text style={{ color: colors.textMuted, marginTop: 10, fontSize: 13 }}>

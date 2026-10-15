@@ -258,12 +258,24 @@ export function setOnline(isOnline: boolean) {
   return request<{ isOnline: boolean }>("/api/provider/online", { method: "POST", body: JSON.stringify({ isOnline }) });
 }
 
+export type TradeRequest = {
+  trade: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  certificateRequested: boolean;
+  certificateUploaded: boolean;
+  adminNote: string | null;
+};
+
 export function getProviderProfile() {
-  return request<{ profile: Record<string, unknown> | null }>("/api/provider/profile");
+  return request<{ profile: Record<string, unknown> | null; tradeRequests?: TradeRequest[] }>("/api/provider/profile");
+}
+
+export function uploadTradeCertificate(trade: string, url: string) {
+  return request<{ ok: true }>("/api/provider/trade-certificate", { method: "POST", body: JSON.stringify({ trade, url }) });
 }
 
 export function updateProviderProfile(input: Record<string, unknown>) {
-  return request<{ profile: Record<string, unknown> }>("/api/provider/profile", {
+  return request<{ profile: Record<string, unknown>; tradeRequests?: TradeRequest[] }>("/api/provider/profile", {
     method: "PUT",
     body: JSON.stringify(input),
   });
@@ -414,6 +426,7 @@ export type ProviderStatus = {
   commissionFreeJobsLeft: number;
   market: { name: string; status: string; open: boolean } | null;
   jobsThisWeek: number;
+  limits: { radiusMinKm: number; radiusMaxKm: number; radiusDefaultKm: number; maxTrades: number };
   alerts: { paused: boolean; quietStartMin: number | null; quietEndMin: number | null; dailyCap: number };
 };
 
@@ -430,9 +443,15 @@ export type ReferralSummary = {
   code: string;
   enabled: boolean;
   role: "CUSTOMER" | "PROVIDER";
-  yourRewardPKR: number;
-  friendRewardPKR: number;
-  jobsRequired: number;
+  offer: {
+    customerDiscountPKR: number;
+    customerMinJobPKR: number;
+    customerReferrerCreditPKR: number;
+    proReferrerCreditPKR: number;
+    proJobsRequired: number;
+    proFreeJobs: number;
+  };
+  myWelcome: { discountPKR: number; minJobPKR: number; freeJobsLeft: number } | null;
   earnedPKR: number;
   availablePKR: number;
   pendingCount: number;
@@ -443,4 +462,9 @@ export type ReferralSummary = {
 
 export function getReferral() {
   return request<ReferralSummary>("/api/mobile/referral");
+}
+
+// Sends a test job alert to this phone after a short delay, so the pro can lock the phone / swipe the app away first.
+export function sendTestJobAlert(delaySec = 15) {
+  return request<{ ok: true; delaySec: number }>("/api/mobile/provider/test-alert", { method: "POST", body: JSON.stringify({ delaySec }) });
 }

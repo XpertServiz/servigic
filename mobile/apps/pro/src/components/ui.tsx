@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, Modal, Pressable, Text, TextInput, View, StyleSheet, type TextInputProps } from "react-native";
+import { ActivityIndicator, FlatList, KeyboardAvoidingView, Modal, Pressable, Text, TextInput, View, StyleSheet, type TextInputProps } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../lib/theme";
 import { haptic, GradientButton } from "./ds";
 import { Icon } from "./Icon";
@@ -203,6 +204,7 @@ function CountryPicker({
   onSelect: (c: CountryCode) => void;
 }) {
   const t = useT();
+  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState("");
   const list = useMemo(() => {
     const q = query.trim().toLowerCase().replace(/^\+/, "");
@@ -212,9 +214,9 @@ function CountryPicker({
   }, [query]);
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.6)" }}>
-        <View style={styles.pickerSheet}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent>
+      <KeyboardAvoidingView style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.6)" }} behavior="padding">
+        <View style={[styles.pickerSheet, { paddingBottom: 18 + insets.bottom }]}>
           <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
             <Text style={{ flex: 1, color: colors.text, fontSize: 17, fontWeight: "800" }}>{t("phone.country")}</Text>
             <Pressable onPress={onClose} hitSlop={10}>
@@ -245,7 +247,7 @@ function CountryPicker({
             )}
           />
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

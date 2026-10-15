@@ -24,7 +24,7 @@ export function ProviderProfileForm({ initial }: { initial: ProviderProfile | nu
     displayName: initial?.displayName ?? "",
     trades: initial?.trades ?? [],
     skillsNote: initial?.skillsNote ?? "",
-    serviceRadiusKm: initial?.serviceRadiusKm ?? 10,
+    serviceRadiusKm: Math.min(15, Math.max(2, initial?.serviceRadiusKm ?? 5)),
     baseLat: initial?.baseLat ?? 24.8607,
     baseLng: initial?.baseLng ?? 67.0011,
     cnicUrl: initial?.cnicUrl ?? "",
@@ -118,8 +118,8 @@ export function ProviderProfileForm({ initial }: { initial: ProviderProfile | nu
         </label>
         <input
           type="range"
-          min={1}
-          max={50}
+          min={2}
+          max={15}
           value={form.serviceRadiusKm}
           onChange={(e) => setForm({ ...form, serviceRadiusKm: Number(e.target.value) })}
           className="w-full accent-accent"

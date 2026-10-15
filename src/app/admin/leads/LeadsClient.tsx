@@ -60,7 +60,7 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
   const allFilteredSelected = filteredLeads.length > 0 && filteredLeads.every((l) => selected.has(l.id));
 
   function toggleSelectAll() {
-    setSelected((cur) => {
+    setSelected(() => {
       if (allFilteredSelected) return new Set();
       return new Set(filteredLeads.map((l) => l.id));
     });

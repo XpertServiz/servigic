@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Modal, View, Text, Pressable, ScrollView } from "react-native";
+import { Modal, View, Text, Pressable, ScrollView, KeyboardAvoidingView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as api from "../lib/api";
 import { Button, Field } from "../components/ui";
 import { colors, radius } from "../lib/theme";
@@ -25,6 +26,7 @@ export function CancelBookingSheet({
   onClose: () => void;
   onCancelled: () => void;
 }) {
+  const insets = useSafeAreaInsets();
   const t = useT();
   const [reasonCode, setReasonCode] = useState<(typeof REASONS)[number]["code"] | null>(null);
   const [note, setNote] = useState("");
@@ -45,11 +47,11 @@ export function CancelBookingSheet({
   }
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.6)" }}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent>
+      <KeyboardAvoidingView style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.6)" }} behavior="padding">
         <ScrollView
           style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, maxHeight: "85%" }}
-          contentContainerStyle={{ padding: 20 }}
+          contentContainerStyle={{ padding: 20, paddingBottom: 20 + insets.bottom }}
           keyboardShouldPersistTaps="handled"
         >
           <Text style={{ color: colors.dangerSoft, fontSize: 18, fontWeight: "800", marginBottom: 4 }}>{t("cancel.title")}</Text>
@@ -81,7 +83,7 @@ export function CancelBookingSheet({
             <Button title={t("cancel.neverMind")} variant="ghost" onPress={onClose} />
           </View>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

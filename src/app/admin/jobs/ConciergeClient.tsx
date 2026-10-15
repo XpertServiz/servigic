@@ -1,5 +1,6 @@
 "use client";
 
+import { plural } from "@/lib/plural";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -49,7 +50,7 @@ export function ConciergeClient({ jobs }: { jobs: ConciergeJob[] }) {
                 {j.title}
               </div>
               <div className="text-xs text-text-muted">
-                {j.areaLabel}, {j.city} · open {j.ageMin} min · {j.notified} pro(s) alerted, no bids
+                {j.areaLabel}, {j.city} · open {j.ageMin} min · {plural(j.notified, "pro")} alerted, no bids
               </div>
             </div>
             <div className="text-right text-xs text-text-muted">

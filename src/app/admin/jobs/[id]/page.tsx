@@ -1,3 +1,4 @@
+import { plural } from "@/lib/plural";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -35,7 +36,7 @@ export default async function AdminJobDetailPage({ params }: { params: Promise<{
         {job.title}
       </h1>
       <p className="mb-6 text-text-muted">
-        {job.areaLabel}, {job.city} · {job.status.replace("_", " ")} · {job._count.dispatchAlerts} pro(s) alerted
+        {job.areaLabel}, {job.city} · {job.status.replace("_", " ")} · {plural(job._count.dispatchAlerts, "pro")} alerted
         {adminPosted && <span className="ml-2 rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-xs font-bold text-accent">Posted by admin</span>}
       </p>
 

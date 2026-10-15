@@ -34,9 +34,9 @@ export const TRADES = [
 // string, received undefined" error.
 export const providerProfileSchema = z.object({
   displayName: z.string().trim().min(2).max(60).optional(),
-  trades: z.array(z.enum(TRADES)).min(1, "Select at least one trade").optional(),
+  trades: z.array(z.enum(TRADES)).min(1, "Select at least one trade").max(10).optional(),
   skillsNote: z.string().trim().max(500).optional(),
-  serviceRadiusKm: z.number().int().min(1).max(50).optional(),
+  serviceRadiusKm: z.number().int().min(1).max(50).optional(), // real limits come from admin settings (route)
   baseLat: z.number().min(-90).max(90).optional(),
   baseLng: z.number().min(-180).max(180).optional(),
   cnicUrl: z.string().url().optional().or(z.literal("")),

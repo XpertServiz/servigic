@@ -34,7 +34,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const jobCount = await prisma.job.count({ where: { categoryId: id } });
   if (jobCount > 0) {
     return NextResponse.json(
-      { error: `Can't delete — ${jobCount} job(s) exist in this category. Deactivate its cities instead.` },
+      { error: `Can't delete — ${jobCount === 1 ? "1 job exists" : `${jobCount} jobs exist`} in this category. Deactivate its cities instead.` },
       { status: 409 }
     );
   }

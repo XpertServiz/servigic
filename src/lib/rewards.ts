@@ -93,3 +93,25 @@ export async function applyReferralCreditsToBooking(booking: { id: string; custo
   if (applied > 0) await prisma.booking.update({ where: { id: booking.id }, data: { rewardDiscountPKR: { increment: applied } } });
   return applied;
 }
+
+/**
+ * A referred customer's welcome discount: PKR {refereeRewardPKR} off their first job worth at least
+ * {minJobPKR}. Applied when the job reaches DONE (cash-after-job mode), claimed atomically so it can only ever
+ * be used on one booking. Adds to booking.rewardDiscountPKR and returns the PKR taken off. The referrer's reward is
+ * released later, when this same booking is COMPLETED (see referrals.ts).
+ */
+export async function applyReferralWelcomeDiscount(booking: { id: string; customerId: string; totalPKR: number }): Promise<number> {
+  const referral = await prisma.referral.findUnique({ where: { referredUserId: booking.customerId } });
+  if (!referral || referral.status !== "PENDING" || referral.role !== "CUSTOMER") return 0;
+  if (referral.refereeRewardPKR <= 0 || referral.discountBookingId || booking.totalPKR < referral.minJobPKR) return 0;
+
+  const claimed = await prisma.referral.updateMany({
+    where: { id: referral.id, status: "PENDING", discountBookingId: null },
+    data: { discountBookingId: booking.id },
+  });
+  if (claimed.count !== 1) return 0;
+
+  const amount = Math.min(referral.refereeRewardPKR, booking.totalPKR);
+  await prisma.booking.update({ where: { id: booking.id }, data: { rewardDiscountPKR: { increment: amount } } });
+  return amount;
+}

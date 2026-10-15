@@ -1,5 +1,6 @@
 "use client";
 
+import { plural } from "@/lib/plural";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -86,7 +87,7 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
     setBusy(true);
     try {
       const data = await call(`/api/admin/markets/${market.id}`, "PUT", { ...form, polygons, cities: form.cities.split(",").map((s) => s.trim()).filter(Boolean) });
-      const bits = [data.activated ? `${data.activated} waiting pro(s) activated` : "", data.notified ? `${data.notified} waiting customer(s) notified` : ""].filter(Boolean);
+      const bits = [data.activated ? `${plural(data.activated, "waiting pro", "waiting pros")} activated` : "", data.notified ? `${plural(data.notified, "waiting customer", "waiting customers")} notified` : ""].filter(Boolean);
       toast.success(bits.length ? `Saved. ${bits.join(", ")}.` : "Market saved");
       router.refresh();
     } catch (e) {
@@ -126,7 +127,7 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
             {market.name} <span className="text-text-muted">({market.countryCode})</span>
           </h2>
           <p className="text-xs text-text-muted">
-            {market.activePros} active pro(s) · {market.waitingPros} waiting · {market.waiting} on the customer waitlist · {market.polygons.length ? `${market.polygons.length} area(s) drawn` : "city names only"} ·{" "}
+            {plural(market.activePros, "active pro", "active pros")} · {market.waitingPros} waiting · {market.waiting} on the customer waitlist · {market.polygons.length ? `${plural(market.polygons.length, "area")} drawn` : "city names only"} ·{" "}
             <span className={accepting ? "font-semibold text-secondary" : "font-semibold text-danger"}>{accepting ? "accepting jobs" : "NOT accepting jobs"}</span>
           </p>
         </div>

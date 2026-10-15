@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Modal, View, Text, Pressable, ScrollView } from "react-native";
+import { Modal, View, Text, Pressable, ScrollView, KeyboardAvoidingView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import * as api from "../lib/api";
 import { Button, Field } from "../components/ui";
@@ -10,6 +11,7 @@ import { useI18n } from "../lib/i18n";
 const METHODS = ["JAZZCASH", "EASYPAISA", "BANK_TRANSFER"] as const;
 
 export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean; onClose: () => void; onSubmitted: () => void }) {
+  const insets = useSafeAreaInsets();
   const { t, td } = useI18n();
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState<(typeof METHODS)[number]>("EASYPAISA");
@@ -40,11 +42,11 @@ export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean
   }
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.6)" }}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent>
+      <KeyboardAvoidingView style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.6)" }} behavior="padding">
         <ScrollView
           style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, maxHeight: "85%" }}
-          contentContainerStyle={{ padding: 20 }}
+          contentContainerStyle={{ padding: 20, paddingBottom: 20 + insets.bottom }}
           keyboardShouldPersistTaps="handled"
         >
           <Text style={{ color: colors.text, fontSize: 18, fontWeight: "800", marginBottom: 16 }}>{t("topup.title")}</Text>
@@ -84,7 +86,7 @@ export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean
             <Button title={t("common.cancel")} variant="ghost" onPress={onClose} />
           </View>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

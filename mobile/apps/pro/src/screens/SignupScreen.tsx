@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../navigation/RootNavigator";
@@ -60,7 +60,12 @@ export default function SignupScreen({ navigation }: Props) {
         </Pressable>
         <Text style={styles.headerTitle}>{t("auth.becomePro")}</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <ScrollView
+        contentContainerStyle={[styles.container, { paddingBottom: 22 + insets.bottom }]}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+      >
         <Text style={styles.title}>{t("auth.proSignupTitle")}</Text>
         <Text style={styles.subtitle}>{t("auth.proSignupSubtitle")}</Text>
 
@@ -84,6 +89,7 @@ export default function SignupScreen({ navigation }: Props) {
         <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || !email || password.length < 8} />
         <Text style={styles.legal}>{t("auth.legal")}</Text>
       </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }

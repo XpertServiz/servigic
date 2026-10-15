@@ -36,11 +36,34 @@ export function ReferralCard() {
     <View style={styles.card}>
       <Text style={styles.title}>{t("referral.title")}</Text>
       {data.enabled ? (
-        <Text style={styles.body}>
-          {isPro
-            ? t("referral.proPitch", { amount: data.yourRewardPKR.toLocaleString(), jobs: data.jobsRequired })
-            : t("referral.customerPitch", { amount: data.yourRewardPKR.toLocaleString() })}
-        </Text>
+        <>
+          {data.myWelcome && data.myWelcome.discountPKR > 0 && (
+            <Text style={[styles.body, { color: colors.success, fontWeight: "700" }]}>
+              {t("referral.myDiscount", { amount: data.myWelcome.discountPKR.toLocaleString(), min: data.myWelcome.minJobPKR.toLocaleString() })}
+            </Text>
+          )}
+          {data.myWelcome && data.myWelcome.freeJobsLeft > 0 && (
+            <Text style={[styles.body, { color: colors.success, fontWeight: "700" }]}>{t("referral.myFree", { n: data.myWelcome.freeJobsLeft })}</Text>
+          )}
+          {isPro ? (
+            <Text style={styles.body}>
+              {t("referral.proPitch", { free: data.offer.proFreeJobs, credit: data.offer.proReferrerCreditPKR.toLocaleString(), jobs: data.offer.proJobsRequired, n: data.offer.proJobsRequired })}
+            </Text>
+          ) : (
+            <>
+              <Text style={styles.body}>
+                {t("referral.customerPitch", {
+                  discount: data.offer.customerDiscountPKR.toLocaleString(),
+                  min: data.offer.customerMinJobPKR.toLocaleString(),
+                  credit: data.offer.customerReferrerCreditPKR.toLocaleString(),
+                })}
+              </Text>
+              <Text style={styles.body}>
+                {t("referral.customerInvitesPro", { credit: data.offer.proReferrerCreditPKR.toLocaleString(), jobs: data.offer.proJobsRequired, n: data.offer.proJobsRequired })}
+              </Text>
+            </>
+          )}
+        </>
       ) : (
         <Text style={styles.body}>{t("referral.off")}</Text>
       )}

@@ -1,7 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { publicAreaLabel } from "@/lib/anon";
-import { fmtMoney, fmtNumber } from "@/lib/format";
+import { fmtMoney } from "@/lib/format";
 import { getMoney } from "@/lib/money";
 
 // Real DB events only — hidden entirely below thresholds (Master Brief §7A, §12: no fake stats).
@@ -30,7 +30,7 @@ export async function ProofTicker() {
     const category = ts.has(bid.job.category.trade) ? ts(bid.job.category.trade) : bid.job.category.name;
     items.push(t("bid", { category, price: m(bid.pricePKR), area: publicAreaLabel(bid.job.areaLabel) }));
   }
-  if (completedJobs > 0) items.push(t("jobsWeek", { count: fmtNumber(completedJobs, locale) }));
+  if (completedJobs > 0) items.push(t("jobsWeek", { count: completedJobs }));
   if (payoutSum._sum.amountPKR) items.push(t("paidWeek", { amount: m(payoutSum._sum.amountPKR) }));
 
   if (items.length < MIN_EVENTS_TO_SHOW) return null;

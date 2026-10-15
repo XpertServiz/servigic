@@ -9,6 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import { GlassCard, GradientButton, ProviderAvatar, StatusStepper } from "../../components/ds";
 import { DestinationMarker, TrackedBikeMarker } from "../../components/MapPins";
 import { Icon } from "../../components/Icon";
+import { DraggableSheet } from "../../components/DraggableSheet";
 import { colors, mapStyle, mapProvider } from "../../lib/theme";
 import { enumLabel, STATUS_STEPS, statusStepIndex } from "../../lib/status";
 import { useI18n } from "../../lib/i18n";
@@ -90,30 +91,34 @@ export function OnTheWayView({
         )}
       </View>
 
-      <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 16) + 8 }]}>
-        <View style={styles.handle} />
-        <StatusStepper labels={stepLabels} activeIndex={statusStepIndex(booking.status)} />
-
-        <View style={styles.personRow}>
-          <ProviderAvatar name={booking.otherPartyName} size={46} />
-          <View style={{ flex: 1 }}>
-            <Text style={styles.personName}>{booking.otherPartyName}</Text>
-            <Text style={styles.personSub} numberOfLines={1}>
-              {booking.jobTitle} · PKR {booking.totalPKR.toLocaleString()}
-            </Text>
+      <DraggableSheet
+        initialSnap="half"
+        peek={
+          <View style={{ gap: 12, paddingBottom: 6 }}>
+            <View style={styles.personRow}>
+              <ProviderAvatar name={booking.otherPartyName} size={46} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.personName}>{booking.otherPartyName}</Text>
+                <Text style={styles.personSub} numberOfLines={1}>
+                  {booking.jobTitle} · PKR {booking.totalPKR.toLocaleString()}
+                </Text>
+              </View>
+              <Pressable onPress={actions.openMessages} style={styles.roundBtnLight} accessibilityLabel={t("common.message")}>
+                <Icon name="chat" size={16} />
+              </Pressable>
+            </View>
+            {/* The main action stays reachable even with the sheet pulled down to the full map. */}
+            <GradientButton title={ctaLabel} onPress={actions.advance} disabled={actions.busy} />
           </View>
-          <Pressable onPress={actions.openMessages} style={styles.roundBtnLight} accessibilityLabel={t("common.message")}>
-            <Icon name="chat" size={16} />
-          </Pressable>
-        </View>
+        }
+      >
+        <StatusStepper labels={stepLabels} activeIndex={statusStepIndex(booking.status)} />
 
         <View style={styles.addressCard}>
           <Text style={styles.addressLabel}>{t("booking.jobAddress")}</Text>
           <Text style={styles.addressValue}>{booking.exactAddress ?? booking.areaLabel ?? t("booking.addressLocked")}</Text>
           {!booking.exactAddress && <Text style={styles.addressHint}>{t("booking.addressHint")}</Text>}
         </View>
-
-        <GradientButton title={ctaLabel} onPress={actions.advance} disabled={actions.busy} />
 
         <View style={styles.linksRow}>
           {full && booking.exactAddress && (
@@ -127,7 +132,7 @@ export function OnTheWayView({
             </Pressable>
           )}
         </View>
-      </View>
+      </DraggableSheet>
     </View>
   );
 }
@@ -138,21 +143,6 @@ const styles = StyleSheet.create({
   roundBtnLight: { width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.06)", alignItems: "center", justifyContent: "center" },
   etaPill: { paddingVertical: 9, paddingHorizontal: 16, borderRadius: 999, backgroundColor: "rgba(245,166,35,0.14)", borderColor: "rgba(245,166,35,0.4)" },
   etaText: { color: colors.accent, fontSize: 13, fontWeight: "700" },
-  sheet: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.bgElevated,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(245,166,35,0.15)",
-    gap: 14,
-  },
-  handle: { width: 36, height: 4, borderRadius: 2, backgroundColor: "#2E2A22", alignSelf: "center" },
   personRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   personName: { color: colors.text, fontSize: 15, fontWeight: "700" },
   personSub: { color: colors.textMuted, fontSize: 12, marginTop: 2 },

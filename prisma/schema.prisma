@@ -168,6 +168,7 @@ enum LedgerEntryType {
   TOPUP_CREDIT
   ADJUSTMENT
   REFERRAL_BONUS
+  DISCOUNT_CREDIT // Servigic-funded customer discount paid into the pro wallet
 }
 
 enum TopUpStatus {
@@ -320,6 +321,8 @@ model OtpCode {
 }
 
 model ProviderProfile {
+  tradeRequests ProviderTrade[]
+
   id                  String        @id @default(cuid())
   userId              String        @unique
   user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -327,7 +330,7 @@ model ProviderProfile {
   serialNumber        Int           @unique @default(autoincrement())
   trades              Trade[]       @default([])
   skillsNote          String?
-  serviceRadiusKm     Int           @default(10)
+  serviceRadiusKm     Int           @default(5)
   baseLat             Float?
   baseLng             Float?
   geohash             String?
@@ -952,9 +955,17 @@ model SiteSettings {
   noBidsAfterMin          Int    @default(20)
   // Referral programme (all amounts in PKR; off until an admin switches it on).
   referralsEnabled          Boolean @default(false)
-  referralCustomerCreditPKR Int     @default(200) // credit for BOTH the referrer and the new customer
-  referralProBonusPKR       Int     @default(500) // bonus for the referring pro
-  referralProJobsRequired   Int     @default(5)   // jobs the new pro must complete first
+  referralCustomerCreditPKR Int     @default(200) // booking credit for a referring customer
+  referralProBonusPKR       Int     @default(300) // commission credit for a referring pro
+  referralProJobsRequired   Int     @default(3)   // jobs a referred pro must complete before the referrer is rewarded
+  referralNewProFreeJobs    Int     @default(3)   // a referred pro pays 0% commission on their first N jobs
+  referralNewCustomerDiscountPKR Int @default(200) // off a referred customer's first qualifying job
+  referralNewCustomerMinJobPKR   Int @default(1000) // minimum job value for that discount
+  // Pro service radius slider limits (km) and the cap on trades per pro.
+  proRadiusMinKm            Int     @default(2)
+  proRadiusMaxKm            Int     @default(15)
+  proRadiusDefaultKm        Int     @default(5)
+  maxTradesPerPro           Int     @default(3)
   updatedAt             DateTime @updatedAt
 }
 
@@ -1171,8 +1182,12 @@ model Referral {
   role              Role // role of the referred person (CUSTOMER or PROVIDER)
   status            ReferralStatus @default(PENDING)
   // Reward amounts are frozen at signup so later admin edits do not change what was promised.
+  referrerRole      Role           @default(CUSTOMER)
   referrerRewardPKR Int
-  refereeRewardPKR  Int            @default(0)
+  refereeRewardPKR  Int            @default(0) // new customer: discount off the first qualifying job
+  minJobPKR         Int            @default(0) // minimum job value for that discount
+  freeJobsGranted   Int            @default(0) // new pro: commission-free jobs granted at signup
+  discountBookingId String? // the booking the new customer's discount was applied to
   jobsRequired      Int            @default(1)
   rejectReason      String?
   deviceId          String?
@@ -1184,4 +1199,30 @@ model Referral {
   @@index([status])
   @@index([deviceId])
   @@index([phoneKey])
+}
+
+
+enum TradeRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// A pro's request to work in a trade. ProviderProfile.trades holds only APPROVED trades (everything that
+// matches pros to jobs reads that array), so a trade becomes active only when an admin approves it here.
+model ProviderTrade {
+  id                   String             @id @default(cuid())
+  providerId           String
+  provider             ProviderProfile    @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  trade                Trade
+  status               TradeRequestStatus @default(PENDING)
+  // Admin asked for a certificate / photo (e.g. gas, electrical, AC) before deciding.
+  certificateRequested Boolean            @default(false)
+  certificateUrl       String?
+  adminNote            String?
+  requestedAt          DateTime           @default(now())
+  reviewedAt           DateTime?
+
+  @@unique([providerId, trade])
+  @@index([status])
 }

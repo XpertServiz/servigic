@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { EarningsCalculator } from "@/components/landing/EarningsCalculator";
-import { fmtNumber } from "@/lib/format";
 import { getDemoMoney } from "@/lib/money";
 
 // Real count only — hidden below threshold rather than showing a fabricated
@@ -39,7 +38,7 @@ export async function ForPros() {
 
             <div className="relative mb-6 rounded-2xl border border-secondary/30 bg-secondary/10 p-5">
               <div className="text-4xl font-extrabold text-secondary">{t("zero", { zero: demo.zero })}</div>
-              <div className="mt-1 text-sm text-text-muted">{showCount ? t("zeroActive", { count: fmtNumber(activeProviders, locale) }) : t("zeroGeneric")}</div>
+              <div className="mt-1 text-sm text-text-muted">{showCount ? t("zeroActive", { count: activeProviders }) : t("zeroGeneric")}</div>
             </div>
 
             <ul className="relative mb-6 flex flex-col gap-3">

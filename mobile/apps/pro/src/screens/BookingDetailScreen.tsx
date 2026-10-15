@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, ScrollView, Pressable, Linking } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -47,6 +48,7 @@ const PING_INTERVAL_MS = 45000;
 const STATUS_POLL_MS = 6000;
 
 export default function BookingDetailScreen({ route, navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const { t, td } = useI18n();
   const { bookingId } = route.params;
   const [booking, setBooking] = useState<BookingData | null>(null);
@@ -160,7 +162,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
     body = <JobDoneView booking={booking} onBackToJobs={() => navigation.popToTop()} />;
   } else {
     body = (
-      <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 18, paddingBottom: 40 }}>
+      <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 18, paddingBottom: 40 + insets.bottom }}>
         <Text style={{ color: colors.text, fontSize: 22, fontWeight: "800" }}>{booking.jobTitle}</Text>
         <View style={{ marginTop: 8, flexDirection: "row", alignItems: "center", gap: 10 }}>
           <PriceText pkr={booking.payoutPKR} size="md" color={colors.secondary} />

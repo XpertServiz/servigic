@@ -397,9 +397,15 @@ export type ReferralSummary = {
   code: string;
   enabled: boolean;
   role: "CUSTOMER" | "PROVIDER";
-  yourRewardPKR: number;
-  friendRewardPKR: number;
-  jobsRequired: number;
+  offer: {
+    customerDiscountPKR: number;
+    customerMinJobPKR: number;
+    customerReferrerCreditPKR: number;
+    proReferrerCreditPKR: number;
+    proJobsRequired: number;
+    proFreeJobs: number;
+  };
+  myWelcome: { discountPKR: number; minJobPKR: number; freeJobsLeft: number } | null;
   earnedPKR: number;
   availablePKR: number;
   pendingCount: number;

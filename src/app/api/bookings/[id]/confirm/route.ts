@@ -44,12 +44,12 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     // Commission debt is recognized here, at completion — not at bid
     // acceptance — so a booking that later gets disputed/cancelled before
     // reaching COMPLETED never provisions debt for a job that didn't happen.
-    // A customer ad-reward discount is funded from Servigic's commission: the
-    // customer paid the pro that much less, so the pro owes that much less.
-    // A referral credit can be larger than the commission; the excess is paid into the pro's wallet below
-    // so the pro still nets the agreed price.
-    const commissionDuePKR = Math.max(0, booking.commissionPKR - booking.rewardDiscountPKR);
-    const discountExcessPKR = Math.max(0, booking.rewardDiscountPKR - booking.commissionPKR);
+    // The customer paid the pro in cash, so any discount the customer got (referral welcome discount, referral
+    // booking credit, the PKR 50 rewarded-ad discount) means the pro collected LESS than the agreed price.
+    // Servigic funds every such discount: the pro owes the full commission as usual, and the discount amount is
+    // credited to the pro's wallet as its own line, so the pro's earnings are unaffected.
+    const commissionDuePKR = booking.commissionPKR;
+    const discountFundedPKR = booking.rewardDiscountPKR;
     const wallet = await prisma.proWallet.upsert({
       where: { providerId: booking.providerId },
       update: {},
@@ -70,10 +70,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
             type: "COMMISSION_DEBIT",
             amountPKR: commissionDuePKR,
             bookingId: booking.id,
-            memo:
-              booking.rewardDiscountPKR > 0
-                ? `Commission owed (after PKR ${booking.rewardDiscountPKR} customer reward) — booking ${booking.id.slice(0, 8)}`
-                : `Commission owed — booking ${booking.id.slice(0, 8)}`,
+            memo: `Commission owed — booking ${booking.id.slice(0, 8)}`,
           },
         }),
       ]);
@@ -87,30 +84,28 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
         ],
       });
     }
-    if (discountExcessPKR > 0) {
-      // The customer's referral credit was bigger than Servigic's commission on this job: Servigic pays the
-      // difference into the pro's wallet (a marketing cost), so the pro nets the full agreed price.
+    if (discountFundedPKR > 0) {
       await prisma.$transaction([
-        prisma.proWallet.update({ where: { id: wallet.id }, data: { balancePKR: { increment: discountExcessPKR } } }),
+        prisma.proWallet.update({ where: { id: wallet.id }, data: { balancePKR: { increment: discountFundedPKR } } }),
         prisma.commissionLedgerEntry.create({
           data: {
             walletId: wallet.id,
-            type: "ADJUSTMENT",
-            amountPKR: discountExcessPKR,
+            type: "DISCOUNT_CREDIT",
+            amountPKR: discountFundedPKR,
             bookingId: booking.id,
-            memo: `Customer referral credit above the commission, paid by Servigic — booking ${booking.id.slice(0, 8)}`,
+            memo: `Customer discount funded by Servigic — you collected PKR ${discountFundedPKR.toLocaleString()} less in cash (booking ${booking.id.slice(0, 8)})`,
           },
         }),
       ]);
       await postJournalEntry({
-        memo: `Customer referral credit above commission — booking ${booking.id.slice(0, 8)}`,
+        memo: `Customer discount funded by Servigic — booking ${booking.id.slice(0, 8)}`,
         source: "AUTO_REFERRAL_DISCOUNT",
         referenceId: booking.id,
         lines: [
-          { accountCode: "5000", debitPKR: discountExcessPKR },
-          { accountCode: SYSTEM_ACCOUNTS.PRO_WALLET_RECEIVABLE, creditPKR: discountExcessPKR },
+          { accountCode: "5000", debitPKR: discountFundedPKR },
+          { accountCode: SYSTEM_ACCOUNTS.PRO_WALLET_RECEIVABLE, creditPKR: discountFundedPKR },
         ],
-      }).catch((e) => console.error("[referral] discount journal entry failed", e));
+      }).catch((e) => console.error("[discount] journal entry failed", e));
     }
     await recomputeProviderStanding(booking.providerId);
   }
@@ -122,13 +117,13 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     body:
       paymentMode === "PROTECTED"
         ? `PKR ${booking.payoutPKR.toLocaleString()} will be sent to your payout account.`
-        : `Collect PKR ${(booking.totalPKR - booking.rewardDiscountPKR).toLocaleString()} directly from the customer — Servigic doesn't collect this payment. Commission of PKR ${Math.max(0, booking.commissionPKR - booking.rewardDiscountPKR).toLocaleString()} has been added to your wallet balance.`,
+        : `Collect PKR ${(booking.totalPKR - booking.rewardDiscountPKR).toLocaleString()} directly from the customer — Servigic doesn't collect this payment. Commission of PKR ${booking.commissionPKR.toLocaleString()} has been added to your wallet balance${booking.rewardDiscountPKR > 0 ? `, and Servigic credited PKR ${booking.rewardDiscountPKR.toLocaleString()} for the customer discount` : ""}.`,
     linkUrl: `/pro/earnings`,
     channels: ["whatsapp"],
   });
 
   // Completed (and paid for, in this payment mode): this may be the job that earns a referral reward.
-  await onBookingCompleted({ customerId: booking.customerId, providerUserId: booking.providerUserId, providerId: booking.providerId });
+  await onBookingCompleted({ id: booking.id, customerId: booking.customerId, providerUserId: booking.providerUserId, providerId: booking.providerId });
 
   return NextResponse.json({ booking: updated });
 }

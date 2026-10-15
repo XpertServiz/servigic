@@ -1,5 +1,6 @@
 "use client";
 
+import { plural } from "@/lib/plural";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -109,7 +110,7 @@ export function PostJobForm({ categories, aiTriageEnabled }: { categories: Categ
         toast.error(data.error || "Failed to post job");
         return;
       }
-      toast.success(`Job posted — ${data.dispatchedCount} pro(s) alerted`);
+      toast.success(`Job posted — ${plural(data.dispatchedCount, "pro")} alerted`);
       router.push(`/jobs/${data.job.id}`);
     } catch {
       toast.error("Network error");

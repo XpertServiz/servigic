@@ -10,10 +10,11 @@ export async function GET() {
   const auth = await requireRole("PROVIDER");
   if (!auth.ok) return auth.response;
 
-  const [profile, user, markets] = await Promise.all([
+  const [profile, user, markets, settings] = await Promise.all([
     prisma.providerProfile.findUnique({ where: { userId: auth.session.user.id } }),
     prisma.user.findUnique({ where: { id: auth.session.user.id }, select: { city: true } }),
     getMarkets(),
+    prisma.siteSettings.findUnique({ where: { id: "singleton" } }),
   ]);
   if (!profile) return NextResponse.json({ error: "No provider profile" }, { status: 404 });
 
@@ -32,6 +33,12 @@ export async function GET() {
     commissionFreeJobsLeft: profile.commissionFreeJobsLeft,
     market: market ? { name: market.name, status: market.status, open: acceptsJobs(market) } : null,
     jobsThisWeek,
+    limits: {
+      radiusMinKm: settings?.proRadiusMinKm ?? 2,
+      radiusMaxKm: settings?.proRadiusMaxKm ?? 15,
+      radiusDefaultKm: settings?.proRadiusDefaultKm ?? 5,
+      maxTrades: settings?.maxTradesPerPro ?? 3,
+    },
     alerts: {
       paused: profile.alertsPaused,
       quietStartMin: profile.alertQuietStartMin,

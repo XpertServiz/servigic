@@ -1,11 +1,13 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { HomeStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
 import { Button, Card, Badge } from "../components/ui";
 import { PriceText, ProviderAvatar, SegmentedControl, EmptyState, haptic } from "../components/ds";
+import { WaitingHero } from "../components/WaitingHero";
 import { colors } from "../lib/theme";
 import { enumLabel } from "../lib/status";
 import { useI18n } from "../lib/i18n";
@@ -35,6 +37,7 @@ const DECLINE_REASONS = [
 type Sort = "PRICE" | "RATING" | "ETA";
 
 export default function JobDetailScreen({ route, navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const { t, td } = useI18n();
   const { jobId } = route.params;
   const [job, setJob] = useState<Record<string, unknown> | null>(null);
@@ -61,6 +64,14 @@ export default function JobDetailScreen({ route, navigation }: Props) {
   }, [jobId]);
 
   useFocusEffect(load);
+
+  // While the job is open, keep the screen live: bids and the notified count appear without pulling to refresh.
+  const jobOpen = job?.status === "OPEN";
+  useEffect(() => {
+    if (!jobOpen) return;
+    const id = setInterval(load, 8000);
+    return () => clearInterval(id);
+  }, [jobOpen, load]);
 
   const sortedBids = useMemo(() => {
     const copy = [...bids];
@@ -129,7 +140,7 @@ export default function JobDetailScreen({ route, navigation }: Props) {
   const isOpen = job.status === "OPEN";
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 18, paddingBottom: 40 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 18, paddingBottom: 40 + insets.bottom }}>
       <Text style={styles.title}>{job.title as string}</Text>
       <Text style={styles.desc}>{job.description as string}</Text>
       <Badge label={enumLabel(td, "job", job.status as string)} tone="muted" />
@@ -143,9 +154,9 @@ export default function JobDetailScreen({ route, navigation }: Props) {
         )}
       </View>
 
+      {isOpen && notified !== null && notified > 0 && <WaitingHero count={notified} compact={bids.length > 0} />}
       {bids.length === 0 && isOpen && notified !== null && notified > 0 && (
-        <EmptyState icon="📡" title={t("waiting.title")} subtitle={`${t("waiting.notified", { n: notified })}
-${t("bids.notifyingSub")}`} />
+        <Text style={{ color: colors.textMuted, fontSize: 13, textAlign: "center", marginBottom: 6 }}>{t("bids.notifyingSub")}</Text>
       )}
       {bids.length === 0 && isOpen && notified === 0 && (
         <View style={styles.notice}>

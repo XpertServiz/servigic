@@ -1,16 +1,36 @@
 import { prisma } from "@/lib/prisma";
 import { notify } from "@/lib/notify";
 import { geohashNeighborhood, haversineKm } from "@/lib/geo";
-import { getMarkets, marketForCity } from "@/lib/marketConfig";
+import { getMarkets, marketForCity, marketForPoint, acceptsJobs, tradeEnabled, type MarketSnapshot } from "@/lib/marketConfig";
 import type { Job } from "@prisma/client";
 
 // Rewarded-ad perk (ProviderProfile.visibilityBoostUntil): while active, a
 // pro's effective service radius is widened by this factor.
 export const BOOST_RADIUS_MULTIPLIER = 1.3;
 
-export function effectiveRadiusKm(provider: { serviceRadiusKm: number; visibilityBoostUntil: Date | null }): number {
+export type RadiusLimits = { min: number; max: number };
+export const DEFAULT_RADIUS_LIMITS: RadiusLimits = { min: 2, max: 15 };
+
+/** A pro's radius always sits inside the admin limits (older pros saved up to 50 km before the limits existed). */
+export function clampRadiusKm(km: number, limits: RadiusLimits = DEFAULT_RADIUS_LIMITS): number {
+  return Math.min(limits.max, Math.max(limits.min, km));
+}
+
+export function effectiveRadiusKm(provider: { serviceRadiusKm: number; visibilityBoostUntil: Date | null }, limits: RadiusLimits = DEFAULT_RADIUS_LIMITS): number {
   const boosted = provider.visibilityBoostUntil && provider.visibilityBoostUntil.getTime() > Date.now();
-  return boosted ? provider.serviceRadiusKm * BOOST_RADIUS_MULTIPLIER : provider.serviceRadiusKm;
+  const base = clampRadiusKm(provider.serviceRadiusKm, limits);
+  return boosted ? base * BOOST_RADIUS_MULTIPLIER : base;
+}
+
+/**
+ * Is this job inside an ACTIVE service zone, for a service that is switched on there? A job outside is never
+ * sent to anyone, whatever the pro radius (a zone can be switched off after the job was posted). With no zones
+ * configured at all the platform behaves as before (open).
+ */
+export function jobInActiveZone(markets: MarketSnapshot[], job: { lat: number; lng: number; city: string }, trade: string): boolean {
+  if (markets.length === 0) return true;
+  const zone = marketForPoint(markets, { lat: job.lat, lng: job.lng }, job.city);
+  return acceptsJobs(zone) && tradeEnabled(zone, trade);
 }
 
 /** A pro is never alerted more than this many times for the same job (handoff §11.5). */
@@ -83,7 +103,9 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
       ? prisma.dispatchAlert.findMany({ where: { jobId: job.id }, select: { providerId: true, alertCount: true } })
       : Promise.resolve([] as { providerId: string; alertCount: number }[]),
   ]);
+  if (!jobInActiveZone(markets, job, category.trade)) return 0;
   const nearestN = settings?.alertNearestN ?? 12;
+  const limits: RadiusLimits = { min: settings?.proRadiusMinKm ?? 2, max: settings?.proRadiusMaxKm ?? 15 };
   const timezone = marketForCity(markets, job.city)?.timezone ?? "Asia/Karachi";
   const alertedIds = new Set(alreadyAlerted.map((a) => a.providerId));
 
@@ -112,11 +134,11 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
       if (p.dispatchStatus === "SUSPENDED") return false;
       if (alertedIds.has(p.id) && options.onlyNew) return false;
       const distanceKm = haversineKm(job.lat, job.lng, p.baseLat!, p.baseLng!);
-      return distanceKm <= effectiveRadiusKm(p) + job.extraRadiusKm;
+      return distanceKm <= effectiveRadiusKm(p, limits) + job.extraRadiusKm;
     })
     .map((p) => ({ p, distanceKm: haversineKm(job.lat, job.lng, p.baseLat!, p.baseLng!) }))
-    // Online pros first (they can answer right now), then nearest.
-    .sort((a, b) => Number(b.p.isOnline) - Number(a.p.isOnline) || a.distanceKm - b.distanceKm)
+    // Nearest matching pros first (an offline pro gets the same push, so online status does not outrank distance).
+    .sort((a, b) => a.distanceKm - b.distanceKm || Number(b.p.isOnline) - Number(a.p.isOnline))
     .slice(0, options.onlyProviderId ? 1 : nearestN)
     .map((x) => x.p);
 
@@ -173,17 +195,24 @@ export async function findJobsForProvider(providerId: string) {
   // A pro still waiting on their market/trade cap sees no jobs yet.
   if (!provider || provider.trades.length === 0 || provider.activation !== "ACTIVE") return [];
 
-  const jobs = await prisma.job.findMany({
-    where: {
-      status: "OPEN",
-      city: provider.user.city ?? undefined,
-      category: { trade: { in: provider.trades } },
-    },
-    include: { category: true, bids: { where: { providerId }, select: { id: true } } },
-    orderBy: { createdAt: "desc" },
-  });
+  const [allJobs, markets, settings] = await Promise.all([
+    prisma.job.findMany({
+      where: {
+        status: "OPEN",
+        city: provider.user.city ?? undefined,
+        category: { trade: { in: provider.trades } },
+      },
+      include: { category: true, bids: { where: { providerId }, select: { id: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    getMarkets(),
+    prisma.siteSettings.findUnique({ where: { id: "singleton" } }),
+  ]);
+  const limits: RadiusLimits = { min: settings?.proRadiusMinKm ?? 2, max: settings?.proRadiusMaxKm ?? 15 };
+  // Never show (or alert) a job that sits outside an active zone.
+  const jobs = allJobs.filter((job) => jobInActiveZone(markets, job, job.category.trade));
 
   if (!provider.baseLat || !provider.baseLng) return jobs;
 
-  return jobs.filter((job) => haversineKm(job.lat, job.lng, provider.baseLat!, provider.baseLng!) <= effectiveRadiusKm(provider) + job.extraRadiusKm);
+  return jobs.filter((job) => haversineKm(job.lat, job.lng, provider.baseLat!, provider.baseLng!) <= effectiveRadiusKm(provider, limits) + job.extraRadiusKm);
 }

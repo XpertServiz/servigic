@@ -5,6 +5,7 @@ import { geohashNeighborhood, haversineKm } from "@/lib/geo";
 import { getPriceBenchmark } from "@/lib/priceBenchmark";
 import { estimateEtaMinutes } from "@/lib/eta";
 import { notify } from "@/lib/notify";
+import { clampRadiusKm } from "@/lib/dispatch";
 
 const EMERGENCY_SURCHARGE_PCT = 15;
 const OFFER_WINDOW_SECONDS = 90;
@@ -53,7 +54,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   const eligible = candidates
     .filter((p) => {
       if (p.user.city && p.user.city !== job.city) return false;
-      return haversineKm(job.lat, job.lng, p.baseLat!, p.baseLng!) <= p.serviceRadiusKm;
+      return haversineKm(job.lat, job.lng, p.baseLat!, p.baseLng!) <= clampRadiusKm(p.serviceRadiusKm);
     })
     .sort((a, b) => b.ratingAvg - a.ratingAvg || b.ratingCount - a.ratingCount || b.verificationLevel - a.verificationLevel);
 

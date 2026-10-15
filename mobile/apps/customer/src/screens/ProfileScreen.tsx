@@ -27,7 +27,7 @@ export default function ProfileScreen() {
   const currentLanguage = LANGUAGES.find((l) => l.code === lang);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 20, paddingTop: insets.top + 16, paddingBottom: 40 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 20, paddingTop: insets.top + 16, paddingBottom: 40 + insets.bottom }}>
       <View style={styles.titleRow}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 14, flex: 1 }}>
           <ProviderAvatar name={user?.name ?? "?"} size={62} />

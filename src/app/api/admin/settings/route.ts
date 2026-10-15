@@ -18,6 +18,13 @@ const schema = z.object({
   referralCustomerCreditPKR: z.number().int().min(0).max(100000).optional(),
   referralProBonusPKR: z.number().int().min(0).max(1000000).optional(),
   referralProJobsRequired: z.number().int().min(1).max(500).optional(),
+  referralNewProFreeJobs: z.number().int().min(0).max(500).optional(),
+  referralNewCustomerDiscountPKR: z.number().int().min(0).max(100000).optional(),
+  referralNewCustomerMinJobPKR: z.number().int().min(0).max(1000000).optional(),
+  proRadiusMinKm: z.number().int().min(1).max(100).optional(),
+  proRadiusMaxKm: z.number().int().min(1).max(200).optional(),
+  proRadiusDefaultKm: z.number().int().min(1).max(200).optional(),
+  maxTradesPerPro: z.number().int().min(1).max(10).optional(),
   featureFlags: z
     .object({
       aiJobTriage: z.boolean(),
@@ -38,6 +45,13 @@ export async function PUT(req: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message }, { status: 400 });
 
+  const d = parsed.data;
+  if (d.proRadiusMinKm != null && d.proRadiusMaxKm != null && d.proRadiusMinKm > d.proRadiusMaxKm) {
+    return NextResponse.json({ error: "The smallest pro radius cannot be bigger than the largest." }, { status: 400 });
+  }
+  if (d.proRadiusDefaultKm != null && d.proRadiusMinKm != null && d.proRadiusMaxKm != null && (d.proRadiusDefaultKm < d.proRadiusMinKm || d.proRadiusDefaultKm > d.proRadiusMaxKm)) {
+    return NextResponse.json({ error: "The default pro radius must sit between the smallest and largest." }, { status: 400 });
+  }
   const settings = await prisma.siteSettings.upsert({
     where: { id: "singleton" },
     update: parsed.data,
