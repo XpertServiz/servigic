@@ -48,6 +48,25 @@ export const MARKET_PRICES: Record<string, MarketPrices> = {
   },
 };
 
+const PK_BASE: Partial<Record<Trade, number>> = { ELECTRICIAN: 1000, PLUMBER: 1200, AC_TECHNICIAN: 1800 };
+
+/**
+ * How much bigger (or smaller) a typical job is in this market compared with Pakistan,
+ * from the researched electrician/plumber/AC minimums. Used to scale example amounts.
+ * Markets without researched data fall back to the plain exchange rate.
+ */
+export function demoFactor(country: string, fxRate: number): number {
+  const m = MARKET_PRICES[country];
+  if (!m) return fxRate;
+  const ratios = (Object.keys(PK_BASE) as Trade[]).map((t) => m.prices[t] / (PK_BASE[t] as number));
+  return ratios.reduce((a, b) => a + b, 0) / ratios.length;
+}
+
+/** The currency shown for this market: researched markets use their own currency. */
+export function marketCurrency(country: string, fallback: string): string {
+  return MARKET_PRICES[country]?.currency ?? fallback;
+}
+
 /**
  * "From …" label for a trade in the visitor's market: the local minimum in the
  * local currency when we have researched data for that country, otherwise

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import { fmtPKR } from "@/lib/format";
+import { useTranslations } from "next-intl";
+import { useDemoMoney } from "@/components/i18n/DemoMoney";
 
 const BIDS = [
   { key: "bidderPro", meta: "★4.9", eta: 40, price: 3500, avatar: "EP" },
@@ -12,7 +12,7 @@ const BIDS = [
 
 export function DispatchSimulation() {
   const t = useTranslations("sim");
-  const locale = useLocale();
+  const demo = useDemoMoney();
   const [visibleBids, setVisibleBids] = useState(0);
   const [won, setWon] = useState(false);
   const [statusStep, setStatusStep] = useState(0);
@@ -88,7 +88,7 @@ export function DispatchSimulation() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-extrabold text-accent">{fmtPKR(b.price, locale)}</span>
+              <span className="text-sm font-extrabold text-accent">{demo.price(b.price)}</span>
               {won && i === 0 && <span className="rounded-md bg-secondary px-2 py-0.5 text-[10px] font-extrabold text-secondary-foreground">{t("accepted")}</span>}
             </div>
           </div>
@@ -105,7 +105,7 @@ export function DispatchSimulation() {
             </span>
           ))}
         </div>
-        <div className={`text-[13px] font-extrabold text-secondary transition-opacity ${released ? "opacity-100" : "opacity-0"}`}>{t("paid")}</div>
+        <div className={`text-[13px] font-extrabold text-secondary transition-opacity ${released ? "opacity-100" : "opacity-0"}`}>{t("paid", { price: demo.price(3500) })}</div>
       </div>
     </div>
   );

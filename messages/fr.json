@@ -77,7 +77,7 @@
     "joinWaitlist": "Rejoindre la liste d’attente",
     "trusted": "La confiance des propriétaires à Karachi, Lahore et Islamabad",
     "chipPro": "Ahmed · ★4,9 · à 12 min",
-    "chipBid": "Nouvelle offre · PKR 3 500",
+    "chipBid": "Nouvelle offre · {price}",
     "chipVerified": "Pro vérifié ✓"
   },
   "live": {
@@ -108,7 +108,7 @@
     "statusAccepted": "Accepté",
     "statusOnTheWay": "En route",
     "statusDone": "Terminé",
-    "paid": "PKR 3 500 payés directement ✓",
+    "paid": "{price} payés directement ✓",
     "bidderPro": "Électricien pro n° 17",
     "bidderFast": "Fast Fix Services"
   },
@@ -132,7 +132,7 @@
     "title": "Trouver un bon artisan ne devrait pas être un coup de dé.",
     "items": [
       "Appeler 6 numéros d’un groupe WhatsApp en espérant",
-      "« L’appli annonçait PKR 1 500 — sur place, il en demandait 4 000 »",
+      "« L’appli annonçait {a} — sur place, il en demandait {b} »",
       "Aucune idée s’il vient vraiment, ni quand",
       "Payé en liquide, travail à moitié fait, numéro bloqué",
       "Aucun recours quand ça retombe en panne la semaine suivante"
@@ -162,7 +162,7 @@
     "emergencyLabel": "Pour les urgences",
     "emergencyTitle": "Ou sautez l’attente — Instant Match",
     "emergencyDesc": "Tuyau éclaté à 2 h du matin ? Mis en relation avec le pro vérifié le plus proche en quelques secondes. Sans attendre les offres.",
-    "emergencyMock": "🚨 Instant Match · Ahmed (pro vérifié, 4,8★) · PKR 2 875 · arrivée dans 12 min · 90 s pour accepter"
+    "emergencyMock": "🚨 Instant Match · Ahmed (pro vérifié, 4,8★) · {price} · arrivée dans 12 min · 90 s pour accepter"
   },
   "features": {
     "board": {
@@ -183,7 +183,7 @@
       "p2": "Du travail supplémentaire sur place ? Un avenant exige toujours votre accord au préalable — vous savez toujours ce que vous allez payer avant que cela n’arrive.",
       "steps": ["Comparer les offres", "Travail terminé", "Payer directement"],
       "badge": "🛠 Garantie de travaux — 7 jours",
-      "change": "Avenant : « Tuyau corrodé constaté — PKR 800 en plus »",
+      "change": "Avenant : « Tuyau corrodé constaté — {price} en plus »",
       "approve": "Approuver"
     },
     "protected": {
@@ -267,7 +267,7 @@
     "customerDesc": "Publiez gratuitement, recevez des offres en quelques minutes et payez votre pro directement une fois le travail terminé.",
     "customerCta": "Publier une demande",
     "proTitle": "Gagnez plus. Gardez 88 %.",
-    "zero": "PKR 0",
+    "zero": "{zero}",
     "zeroActive": "Dépensés en leads par nos {count} prestataires actifs ce mois-ci",
     "zeroGeneric": "Dépensés en leads. Jamais. Les autres plateformes vous font payer rien que pour voir un travail — pas nous.",
     "perks": [
@@ -378,8 +378,8 @@
     "compareServigic": "Servigic",
     "compareOther": "Plateforme de leads classique",
     "rows": [
-      { "feature": "Coût pour voir un travail ou y répondre", "servigic": "PKR 0", "other": "Facturé par lead, quel que soit le résultat" },
-      { "feature": "Coût si vous ne remportez pas le travail", "servigic": "PKR 0", "other": "Vous avez quand même payé le lead" },
+      { "feature": "Coût pour voir un travail ou y répondre", "servigic": "{zero}", "other": "Facturé par lead, quel que soit le résultat" },
+      { "feature": "Coût si vous ne remportez pas le travail", "servigic": "{zero}", "other": "Vous avez quand même payé le lead" },
       { "feature": "Commission sur les travaux terminés", "servigic": "10–12 %", "other": "N/A — déjà payée d’avance" }
     ],
     "earningsTitle": "Calculateur de revenus",

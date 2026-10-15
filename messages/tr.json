@@ -77,7 +77,7 @@
     "joinWaitlist": "Bekleme listesine katıl",
     "trusted": "Karaçi, Lahor ve İslamabad'daki ev sahiplerinin güvendiği platform",
     "chipPro": "Ahmed · ★4,9 · 12 dk uzakta",
-    "chipBid": "Yeni teklif · PKR 3.500",
+    "chipBid": "Yeni teklif · {price}",
     "chipVerified": "Doğrulanmış usta ✓"
   },
   "live": {
@@ -108,7 +108,7 @@
     "statusAccepted": "Kabul edildi",
     "statusOnTheWay": "Yolda",
     "statusDone": "Bitti",
-    "paid": "PKR 3.500 doğrudan ödendi ✓",
+    "paid": "{price} doğrudan ödendi ✓",
     "bidderPro": "Elektrikçi Usta #17",
     "bidderFast": "Fast Fix Services"
   },
@@ -132,7 +132,7 @@
     "title": "İyi bir usta bulmak kumar olmamalı.",
     "items": [
       "WhatsApp grubundan 6 numara arayıp şansa güvenmek",
-      "“Uygulama PKR 1.500 dedi — yerinde 4.000 istedi”",
+      "“Uygulama {a} dedi — yerinde {b} istedi”",
       "Gerçekten gelip gelmeyeceğini, ne zaman geleceğini bilmemek",
       "Nakit ödendi, iş yarım, numara engelli",
       "Önümüzdeki hafta tekrar bozulursa hiçbir başvuru yolu yok"
@@ -162,7 +162,7 @@
     "emergencyLabel": "Acil durumlar için",
     "emergencyTitle": "Ya da beklemeyi atlayın — Anında Eşleşme",
     "emergencyDesc": "Gece 2'de boru mu patladı? Saniyeler içinde en yakın doğrulanmış ustayla eşleşin. Tekliflerin gelmesini beklemeden.",
-    "emergencyMock": "🚨 Anında Eşleşme · Ahmed (doğrulanmış usta, 4,8★) · PKR 2.875 · 12 dk içinde gelir · kabul için 90 sn"
+    "emergencyMock": "🚨 Anında Eşleşme · Ahmed (doğrulanmış usta, 4,8★) · {price} · 12 dk içinde gelir · kabul için 90 sn"
   },
   "features": {
     "board": {
@@ -183,7 +183,7 @@
       "p2": "Yerinde ek iş çıktı mı? Değişiklik talebi yine önce sizin onayınızı ister — ne ödeyeceğinizi her zaman olmadan önce bilirsiniz.",
       "steps": ["Teklifleri karşılaştır", "İş bitti", "Doğrudan öde"],
       "badge": "🛠 İşçilik desteği — 7 gün",
-      "change": "Değişiklik talebi: “Paslanmış boru bulundu — ek PKR 800”",
+      "change": "Değişiklik talebi: “Paslanmış boru bulundu — ek {price}”",
       "approve": "Onayla"
     },
     "protected": {
@@ -267,7 +267,7 @@
     "customerDesc": "Ücretsiz iş yayınlayın, dakikalar içinde teklif alın ve iş bitince ustanıza doğrudan ödeyin.",
     "customerCta": "İş yayınla",
     "proTitle": "Daha çok kazan. %88'ini sen tut.",
-    "zero": "PKR 0",
+    "zero": "{zero}",
     "zeroActive": "Bu ay {count} aktif hizmet sağlayıcımızın müşteri yönlendirmeye harcadığı tutar",
     "zeroGeneric": "Müşteri yönlendirmeye harcanan. Asla. Diğer platformlar bir işi görmek için bile ücret alır — biz almayız.",
     "perks": [
@@ -378,8 +378,8 @@
     "compareServigic": "Servigic",
     "compareOther": "Tipik yönlendirme platformu",
     "rows": [
-      { "feature": "Bir işi görmenin veya teklif vermenin maliyeti", "servigic": "PKR 0", "other": "Sonuç ne olursa olsun yönlendirme başına ücret" },
-      { "feature": "İşi kazanamazsanız maliyet", "servigic": "PKR 0", "other": "Yönlendirmenin parasını yine de ödediniz" },
+      { "feature": "Bir işi görmenin veya teklif vermenin maliyeti", "servigic": "{zero}", "other": "Sonuç ne olursa olsun yönlendirme başına ücret" },
+      { "feature": "İşi kazanamazsanız maliyet", "servigic": "{zero}", "other": "Yönlendirmenin parasını yine de ödediniz" },
       { "feature": "Tamamlanan işlerde komisyon", "servigic": "%10–12", "other": "Geçerli değil — peşin ödendi" }
     ],
     "earningsTitle": "Kazanç hesaplayıcı",

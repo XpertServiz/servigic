@@ -77,7 +77,7 @@
     "joinWaitlist": "Dołącz do listy oczekujących",
     "trusted": "Zaufali nam właściciele domów w Karaczi, Lahaurze i Islamabadzie",
     "chipPro": "Ahmed · ★4,9 · 12 min stąd",
-    "chipBid": "Nowa oferta · PKR 3 500",
+    "chipBid": "Nowa oferta · {price}",
     "chipVerified": "Sprawdzony fachowiec ✓"
   },
   "live": {
@@ -108,7 +108,7 @@
     "statusAccepted": "Przyjęto",
     "statusOnTheWay": "W drodze",
     "statusDone": "Gotowe",
-    "paid": "PKR 3 500 zapłacone bezpośrednio ✓",
+    "paid": "{price} zapłacone bezpośrednio ✓",
     "bidderPro": "Elektryk Pro nr 17",
     "bidderFast": "Fast Fix Services"
   },
@@ -132,7 +132,7 @@
     "title": "Znalezienie dobrego fachowca nie powinno być loterią.",
     "items": [
       "Dzwonienie pod 6 numerów z grupy na WhatsAppie i liczenie na szczęście",
-      "„Aplikacja mówiła PKR 1 500 — na miejscu zażądał 4 000”",
+      "„Aplikacja mówiła {a} — na miejscu zażądał {b}”",
       "Nie wiadomo, czy w ogóle przyjedzie ani kiedy",
       "Zapłacone gotówką, praca w połowie, numer zablokowany",
       "Zero możliwości odwołania, gdy za tydzień znów się zepsuje"
@@ -162,7 +162,7 @@
     "emergencyLabel": "Na pilne przypadki",
     "emergencyTitle": "Albo pomiń czekanie — Instant Match",
     "emergencyDesc": "Pękła rura o 2 w nocy? W kilka sekund dopasujemy Ci najbliższego sprawdzonego fachowca. Bez czekania na oferty.",
-    "emergencyMock": "🚨 Instant Match · Ahmed (sprawdzony fachowiec, 4,8★) · PKR 2 875 · dojazd za 12 min · 90 s na akceptację"
+    "emergencyMock": "🚨 Instant Match · Ahmed (sprawdzony fachowiec, 4,8★) · {price} · dojazd za 12 min · 90 s na akceptację"
   },
   "features": {
     "board": {
@@ -183,7 +183,7 @@
       "p2": "Na miejscu wyszła dodatkowa praca? Zlecenie zmiany nadal wymaga najpierw Twojej zgody — zawsze wiesz, ile zapłacisz, zanim to nastąpi.",
       "steps": ["Porównaj oferty", "Praca wykonana", "Zapłać bezpośrednio"],
       "badge": "🛠 Gwarancja wykonania — 7 dni",
-      "change": "Zlecenie zmiany: „Znaleziono skorodowaną rurę — dodatkowo PKR 800”",
+      "change": "Zlecenie zmiany: „Znaleziono skorodowaną rurę — dodatkowo {price}”",
       "approve": "Zatwierdź"
     },
     "protected": {
@@ -267,7 +267,7 @@
     "customerDesc": "Dodaj zlecenie za darmo, odbierz oferty w kilka minut i zapłać fachowcowi bezpośrednio po zakończeniu pracy.",
     "customerCta": "Dodaj zlecenie",
     "proTitle": "Zarabiaj więcej. Zachowaj 88%.",
-    "zero": "PKR 0",
+    "zero": "{zero}",
     "zeroActive": "Wydane na leady przez naszych {count} aktywnych usługodawców w tym miesiącu",
     "zeroGeneric": "Wydane na leady. Nigdy. Inne platformy każą płacić już za samo zobaczenie zlecenia — my nie.",
     "perks": [
@@ -378,8 +378,8 @@
     "compareServigic": "Servigic",
     "compareOther": "Typowa platforma leadowa",
     "rows": [
-      { "feature": "Koszt zobaczenia zlecenia lub złożenia oferty", "servigic": "PKR 0", "other": "Opłata za lead niezależnie od wyniku" },
-      { "feature": "Koszt, gdy nie wygrasz zlecenia", "servigic": "PKR 0", "other": "Za lead i tak zapłaciłeś" },
+      { "feature": "Koszt zobaczenia zlecenia lub złożenia oferty", "servigic": "{zero}", "other": "Opłata za lead niezależnie od wyniku" },
+      { "feature": "Koszt, gdy nie wygrasz zlecenia", "servigic": "{zero}", "other": "Za lead i tak zapłaciłeś" },
       { "feature": "Prowizja od ukończonych zleceń", "servigic": "10–12%", "other": "Nie dotyczy — zapłacona z góry" }
     ],
     "earningsTitle": "Kalkulator zarobków",

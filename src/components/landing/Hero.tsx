@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/landing/Eyebrow";
 import { HeroVisual } from "@/components/hero/HeroVisual";
 import { prisma } from "@/lib/prisma";
+import { getDemoMoney } from "@/lib/money";
+import { getLocale } from "next-intl/server";
 
 function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -20,7 +22,8 @@ async function getTrustInitials(): Promise<string[]> {
 }
 
 export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
-  const [t, initials] = await Promise.all([getTranslations("hero"), getTrustInitials()]);
+  const [t, initials, locale] = await Promise.all([getTranslations("hero"), getTrustInitials(), getLocale()]);
+  const demo = await getDemoMoney(locale);
   const trustInitials = initials.length > 0 ? initials : ["AK", "SR", "MF", "HZ"];
 
   return (
@@ -77,7 +80,7 @@ export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
         <HeroVisual
           chips={[
             { label: t("chipPro"), tone: "accent" },
-            { label: t("chipBid"), tone: "green" },
+            { label: t("chipBid", { price: demo.price(3500) }), tone: "green" },
             { label: t("chipVerified"), tone: "red" },
           ]}
         />

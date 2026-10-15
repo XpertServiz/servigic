@@ -47,3 +47,19 @@ export function fmtMoney(pkr: number, locale: string, currency = "PKR", rate = 1
 export function fmtCurrency(amount: number, locale: string, currency: string): string {
   return new Intl.NumberFormat(tag(locale), { style: "currency", currency, maximumFractionDigits: 0 }).format(amount);
 }
+
+/** Rounds an example amount to a tidy figure (35 / 170 / 1,250) so scaled demos don't look machine-made. */
+export function demoAmount(pkr: number, factor: number): number {
+  const v = pkr * factor;
+  if (factor === 1) return pkr;
+  const step = v < 100 ? 5 : v < 1000 ? 10 : 50;
+  return Math.max(step, Math.round(v / step) * step);
+}
+
+/**
+ * Example price used in demos/illustrations, scaled to the visitor's market
+ * (a 3,500 PKR AC repair becomes ~175 SAR in Saudi Arabia, not a conversion).
+ */
+export function fmtDemo(pkr: number, locale: string, currency = "PKR", factor = 1): string {
+  return currency === "PKR" ? fmtPKR(pkr, locale) : fmtCurrency(demoAmount(pkr, factor), locale, currency);
+}

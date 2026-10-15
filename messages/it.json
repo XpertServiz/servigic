@@ -77,7 +77,7 @@
     "joinWaitlist": "Entra in lista d’attesa",
     "trusted": "La scelta di chi ha casa a Karachi, Lahore e Islamabad",
     "chipPro": "Ahmed · ★4,9 · a 12 min",
-    "chipBid": "Nuova offerta · PKR 3.500",
+    "chipBid": "Nuova offerta · {price}",
     "chipVerified": "Professionista verificato ✓"
   },
   "live": {
@@ -108,7 +108,7 @@
     "statusAccepted": "Accettata",
     "statusOnTheWay": "In arrivo",
     "statusDone": "Fatto",
-    "paid": "PKR 3.500 pagati direttamente ✓",
+    "paid": "{price} pagati direttamente ✓",
     "bidderPro": "Elettricista professionista n. 17",
     "bidderFast": "Fast Fix Services"
   },
@@ -132,7 +132,7 @@
     "title": "Trovare un bravo artigiano non dovrebbe essere una scommessa.",
     "items": [
       "Chiamare 6 numeri da un gruppo WhatsApp sperando nella fortuna",
-      "«L’app diceva PKR 1.500 — sul posto ne ha chiesti 4.000»",
+      "«L’app diceva {a} — sul posto ne ha chiesti {b}»",
       "Nessuna idea se arriva davvero, né quando",
       "Pagato in contanti, lavoro a metà, numero bloccato",
       "Nessun rimedio quando si rompe di nuovo la settimana dopo"
@@ -162,7 +162,7 @@
     "emergencyLabel": "Per le emergenze",
     "emergencyTitle": "Oppure salta l’attesa — Instant Match",
     "emergencyDesc": "Tubo scoppiato alle 2 di notte? Vieni abbinato al professionista verificato più vicino in pochi secondi. Senza aspettare le offerte.",
-    "emergencyMock": "🚨 Instant Match · Ahmed (professionista verificato, 4,8★) · PKR 2.875 · arriva in 12 min · 90 s per accettare"
+    "emergencyMock": "🚨 Instant Match · Ahmed (professionista verificato, 4,8★) · {price} · arriva in 12 min · 90 s per accettare"
   },
   "features": {
     "board": {
@@ -183,7 +183,7 @@
       "p2": "Lavoro extra scoperto sul posto? Un ordine di modifica richiede comunque prima la tua approvazione — sai sempre cosa pagherai prima che accada.",
       "steps": ["Confronta le offerte", "Lavoro finito", "Paga direttamente"],
       "badge": "🛠 Garanzia sul lavoro — 7 giorni",
-      "change": "Ordine di modifica: «Tubo corroso trovato — PKR 800 in più»",
+      "change": "Ordine di modifica: «Tubo corroso trovato — {price} in più»",
       "approve": "Approva"
     },
     "protected": {
@@ -267,7 +267,7 @@
     "customerDesc": "Pubblica un lavoro gratis, ricevi offerte in pochi minuti e paga direttamente il professionista a lavoro finito.",
     "customerCta": "Pubblica un lavoro",
     "proTitle": "Guadagna di più. Tieni l’88%.",
-    "zero": "PKR 0",
+    "zero": "{zero}",
     "zeroActive": "Spesi in contatti dai nostri {count} fornitori attivi questo mese",
     "zeroGeneric": "Spesi in contatti. Mai. Le altre piattaforme ti fanno pagare anche solo per vedere un lavoro — noi no.",
     "perks": [
@@ -378,8 +378,8 @@
     "compareServigic": "Servigic",
     "compareOther": "Tipica piattaforma di contatti",
     "rows": [
-      { "feature": "Costo per vedere un lavoro o fare un’offerta", "servigic": "PKR 0", "other": "Addebitato per contatto, a prescindere dall’esito" },
-      { "feature": "Costo se non ottieni il lavoro", "servigic": "PKR 0", "other": "Il contatto l’hai pagato comunque" },
+      { "feature": "Costo per vedere un lavoro o fare un’offerta", "servigic": "{zero}", "other": "Addebitato per contatto, a prescindere dall’esito" },
+      { "feature": "Costo se non ottieni il lavoro", "servigic": "{zero}", "other": "Il contatto l’hai pagato comunque" },
       { "feature": "Commissione sui lavori completati", "servigic": "10–12%", "other": "N/D — già pagata in anticipo" }
     ],
     "earningsTitle": "Calcolatore guadagni",

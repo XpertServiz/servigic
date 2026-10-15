@@ -77,7 +77,7 @@
     "joinWaitlist": "Unirme a la lista de espera",
     "trusted": "La confianza de propietarios en Karachi, Lahore e Islamabad",
     "chipPro": "Ahmed · ★4,9 · a 12 min",
-    "chipBid": "Nueva oferta · PKR 3.500",
+    "chipBid": "Nueva oferta · {price}",
     "chipVerified": "Profesional verificado ✓"
   },
   "live": {
@@ -108,7 +108,7 @@
     "statusAccepted": "Aceptada",
     "statusOnTheWay": "En camino",
     "statusDone": "Hecho",
-    "paid": "PKR 3.500 pagados directamente ✓",
+    "paid": "{price} pagados directamente ✓",
     "bidderPro": "Electricista profesional n.º 17",
     "bidderFast": "Fast Fix Services"
   },
@@ -132,7 +132,7 @@
     "title": "Encontrar un buen profesional no debería ser una apuesta.",
     "items": [
       "Llamar a 6 números de un grupo de WhatsApp y esperar suerte",
-      "«La app decía PKR 1.500; allí pedía 4.000»",
+      "«La app decía {a}; allí pedía {b}»",
       "Ni idea de si viene de verdad, ni cuándo",
       "Pagado en efectivo, trabajo a medias, número bloqueado",
       "Cero recurso cuando se vuelve a romper la semana siguiente"
@@ -162,7 +162,7 @@
     "emergencyLabel": "Para urgencias",
     "emergencyTitle": "O sáltate la espera — Instant Match",
     "emergencyDesc": "¿Tubería rota a las 2 de la madrugada? Te asignamos al profesional verificado más cercano en segundos. Sin esperar ofertas.",
-    "emergencyMock": "🚨 Instant Match · Ahmed (profesional verificado, 4,8★) · PKR 2.875 · llega en 12 min · 90 s para aceptar"
+    "emergencyMock": "🚨 Instant Match · Ahmed (profesional verificado, 4,8★) · {price} · llega en 12 min · 90 s para aceptar"
   },
   "features": {
     "board": {
@@ -183,7 +183,7 @@
       "p2": "¿Trabajo extra en el sitio? Una orden de cambio sigue necesitando tu aprobación antes: siempre sabes lo que vas a pagar antes de que ocurra.",
       "steps": ["Comparar ofertas", "Trabajo hecho", "Pagar directamente"],
       "badge": "🛠 Garantía del trabajo — 7 días",
-      "change": "Orden de cambio: «Tubería corroída — PKR 800 adicionales»",
+      "change": "Orden de cambio: «Tubería corroída — {price} adicionales»",
       "approve": "Aprobar"
     },
     "protected": {
@@ -267,7 +267,7 @@
     "customerDesc": "Publica un trabajo gratis, recibe ofertas en minutos y paga directamente a tu profesional cuando termine.",
     "customerCta": "Publicar trabajo",
     "proTitle": "Gana más. Quédate con el 88 %.",
-    "zero": "PKR 0",
+    "zero": "{zero}",
     "zeroActive": "Gastados en contactos por nuestros {count} proveedores activos este mes",
     "zeroGeneric": "Gastados en contactos. Nunca. Otras plataformas te cobran solo por ver un trabajo; nosotros no.",
     "perks": [
@@ -378,8 +378,8 @@
     "compareServigic": "Servigic",
     "compareOther": "Plataforma típica de contactos",
     "rows": [
-      { "feature": "Coste de ver un trabajo o ofertar en él", "servigic": "PKR 0", "other": "Se cobra por contacto, sea cual sea el resultado" },
-      { "feature": "Coste si no consigues el trabajo", "servigic": "PKR 0", "other": "El contacto lo pagaste igualmente" },
+      { "feature": "Coste de ver un trabajo o ofertar en él", "servigic": "{zero}", "other": "Se cobra por contacto, sea cual sea el resultado" },
+      { "feature": "Coste si no consigues el trabajo", "servigic": "{zero}", "other": "El contacto lo pagaste igualmente" },
       { "feature": "Comisión en trabajos completados", "servigic": "10–12 %", "other": "N/D: ya pagada por adelantado" }
     ],
     "earningsTitle": "Calculadora de ingresos",

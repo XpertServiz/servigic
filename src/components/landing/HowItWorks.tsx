@@ -1,4 +1,5 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { getDemoMoney } from "@/lib/money";
 import { SectionHead } from "@/components/ui/SectionHead";
 import { Reveal } from "@/components/ui/Reveal";
 import { TiltCard } from "@/components/ui/TiltCard";
@@ -10,7 +11,8 @@ interface Step {
 }
 
 export async function HowItWorks() {
-  const t = await getTranslations("how");
+  const [t, locale] = await Promise.all([getTranslations("how"), getLocale()]);
+  const demo = await getDemoMoney(locale);
   const steps = t.raw("steps") as Step[];
 
   return (
@@ -34,7 +36,7 @@ export async function HowItWorks() {
           <p className="mb-2 font-mono text-xs font-medium uppercase tracking-[0.14em] text-accent">{t("emergencyLabel")}</p>
           <h3 className="mb-2.5 text-xl font-bold md:text-2xl">{t("emergencyTitle")}</h3>
           <p className="mb-5 max-w-2xl text-[15px] text-text-muted">{t("emergencyDesc")}</p>
-          <div className="rounded-xl border border-accent/30 bg-bg-elevated-2 p-3.5 text-xs text-text-muted">{t("emergencyMock")}</div>
+          <div className="rounded-xl border border-accent/30 bg-bg-elevated-2 p-3.5 text-xs text-text-muted">{t("emergencyMock", { price: demo.price(2875) })}</div>
         </div>
       </Reveal>
     </section>

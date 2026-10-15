@@ -15,6 +15,7 @@ import { LogoMark3D } from "@/components/brand/LogoMark3D";
 import { getDemoVideos } from "@/lib/siteVideos";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 import { fmtNumber } from "@/lib/format";
+import { getDemoMoney } from "@/lib/money";
 import type { Locale } from "@/i18n/locales";
 
 // Real count only — hidden below threshold rather than showing a fabricated
@@ -36,6 +37,7 @@ export default async function ProLandingPage() {
     prisma.providerProfile.count({ where: { verificationLevel: { gte: 1 } } }).catch(() => 0),
   ]);
   const showCount = activeProviders >= MIN_PROVIDERS_TO_SHOW;
+  const demo = await getDemoMoney(locale);
   const rows = t.raw("rows") as { feature: string; servigic: string; other: string }[];
   const ladder = t.raw("ladder") as { level: string; title: string; desc: string }[];
 
@@ -73,7 +75,7 @@ export default async function ProLandingPage() {
         <section className="container-x max-w-[760px] pt-12 text-center">
           <Reveal>
             <div className="rounded-3xl border border-secondary/30 bg-secondary/10 p-8">
-              <div className="text-5xl font-extrabold text-secondary">PKR 0</div>
+              <div className="text-5xl font-extrabold text-secondary">{demo.zero}</div>
               <p className="mt-2 text-sm text-text-muted">{showCount ? t("zeroActive", { count: fmtNumber(activeProviders, locale) }) : t("zeroGeneric")}</p>
             </div>
           </Reveal>
@@ -91,7 +93,7 @@ export default async function ProLandingPage() {
                 {rows.map((r) => (
                   <tr key={r.feature}>
                     <td className="border-b border-border-subtle p-3 font-semibold text-text-muted">{r.feature}</td>
-                    <td className="border-b border-border-subtle p-3 font-bold text-secondary">{r.servigic}</td>
+                    <td className="border-b border-border-subtle p-3 font-bold text-secondary">{r.servigic.replace("{zero}", demo.zero)}</td>
                     <td className="border-b border-border-subtle p-3 text-danger">{r.other}</td>
                   </tr>
                 ))}

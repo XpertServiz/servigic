@@ -11,6 +11,8 @@ import { Splash } from "@/components/brand/Splash";
 import { RouteProgress } from "@/components/brand/RouteProgress";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { VisitorBeacon } from "@/components/analytics/VisitorBeacon";
+import { DemoMoneyProvider } from "@/components/i18n/DemoMoney";
+import { getDemoMoney } from "@/lib/money";
 import "./globals.css";
 
 // Same pairing as the OAQS Consultants site: Poppins for everything, Geist Mono for labels/figures.
@@ -52,6 +54,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const [messages, locale, theme, tc] = await Promise.all([getMessages(), getLocale(), getActiveTheme(), getTranslations("common")]);
+  const demo = await getDemoMoney(locale);
   const dir = RTL_LOCALES.includes(locale as Locale) ? "rtl" : "ltr";
 
   return (
@@ -66,12 +69,14 @@ export default async function RootLayout({
         <Splash tagline={tc("splashTagline")} label={tc("loading")} />
         <JsonLd data={[organizationJsonLd(), websiteJsonLd(locale as Locale)]} />
         <NextIntlClientProvider messages={messages}>
+          <DemoMoneyProvider value={{ currency: demo.currency, factor: demo.factor }}>
           <Suspense fallback={null}>
             <RouteProgress />
           </Suspense>
           <VisitorBeacon />
           {children}
           <Toaster theme="dark" position="top-center" richColors />
+          </DemoMoneyProvider>
         </NextIntlClientProvider>
       </body>
     </html>

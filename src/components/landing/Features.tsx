@@ -1,7 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Eyebrow } from "@/components/landing/Eyebrow";
 import { Reveal } from "@/components/ui/Reveal";
-import { fmtPKR } from "@/lib/format";
+import { getDemoMoney } from "@/lib/money";
 
 function Block({ eyebrow, tone, title, children, visual, flip }: { eyebrow: string; tone?: "accent" | "secondary"; title: string; children: React.ReactNode; visual: React.ReactNode; flip?: boolean }) {
   return (
@@ -22,6 +22,7 @@ const chip = "rounded-full border border-border-subtle px-2.5 py-1 text-[10.5px]
 
 export async function Features({ paymentMode }: { paymentMode: "CASH_WALLET" | "PROTECTED" }) {
   const [t, locale] = await Promise.all([getTranslations("features"), getLocale()]);
+  const demo = await getDemoMoney(locale);
   const cash = paymentMode === "CASH_WALLET";
   const payKey = cash ? "cash" : "protected";
   const paySteps = t.raw(`${payKey}.steps`) as string[];
@@ -52,7 +53,7 @@ export async function Features({ paymentMode }: { paymentMode: "CASH_WALLET" | "
                   <div className="text-[13px] font-bold">{b.name}</div>
                   <div className="text-[11px] text-text-muted">{b.meta}</div>
                 </div>
-                <div className="text-sm font-extrabold text-accent">{fmtPKR(b.price, locale)}</div>
+                <div className="text-sm font-extrabold text-accent">{demo.price(b.price)}</div>
               </div>
             ))}
             <div className="mt-3.5 flex flex-wrap gap-1.5">
@@ -87,7 +88,7 @@ export async function Features({ paymentMode }: { paymentMode: "CASH_WALLET" | "
             <div className="inline-flex items-center gap-1.5 rounded-full border border-secondary/30 bg-secondary/10 px-3 py-1.5 text-xs font-bold text-secondary">{t(`${payKey}.badge`)}</div>
             {cash && (
               <div className="mt-4 rounded-xl border border-border-subtle bg-bg-elevated-2 p-3.5 text-xs text-text-muted">
-                {t("cash.change")} <b className="text-secondary">{t("cash.approve")}</b>
+                {t("cash.change", { price: demo.price(800) })} <b className="text-secondary">{t("cash.approve")}</b>
               </div>
             )}
           </>

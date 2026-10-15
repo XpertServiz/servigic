@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { EarningsCalculator } from "@/components/landing/EarningsCalculator";
 import { fmtNumber } from "@/lib/format";
+import { getDemoMoney } from "@/lib/money";
 
 // Real count only — hidden below threshold rather than showing a fabricated
 // number (same rule ProofTicker follows: Master Brief §7A/§12, no fake stats).
@@ -16,6 +17,7 @@ export async function ForPros() {
     prisma.providerProfile.count({ where: { verificationLevel: { gte: 1 } } }),
   ]);
   const showCount = activeProviders >= MIN_PROVIDERS_TO_SHOW;
+  const demo = await getDemoMoney(locale);
   const perks = t.raw("perks") as string[];
 
   return (
@@ -36,7 +38,7 @@ export async function ForPros() {
             <h3 className="relative mb-5 text-2xl font-bold md:text-3xl">{t("proTitle")}</h3>
 
             <div className="relative mb-6 rounded-2xl border border-secondary/30 bg-secondary/10 p-5">
-              <div className="text-4xl font-extrabold text-secondary">{t("zero")}</div>
+              <div className="text-4xl font-extrabold text-secondary">{t("zero", { zero: demo.zero })}</div>
               <div className="mt-1 text-sm text-text-muted">{showCount ? t("zeroActive", { count: fmtNumber(activeProviders, locale) }) : t("zeroGeneric")}</div>
             </div>
 

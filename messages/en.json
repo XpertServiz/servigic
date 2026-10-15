@@ -92,7 +92,7 @@
     "joinWaitlist": "Join the waitlist",
     "trusted": "Trusted by homeowners across Karachi, Lahore & Islamabad",
     "chipPro": "Ahmed · ★4.9 · 12 min away",
-    "chipBid": "New bid · PKR 3,500",
+    "chipBid": "New bid · {price}",
     "chipVerified": "Verified pro ✓"
   },
   "live": {
@@ -123,7 +123,7 @@
     "statusAccepted": "Accepted",
     "statusOnTheWay": "On the way",
     "statusDone": "Done",
-    "paid": "PKR 3,500 paid directly ✓",
+    "paid": "{price} paid directly ✓",
     "bidderPro": "Electrician Pro #17",
     "bidderFast": "Fast Fix Services"
   },
@@ -147,7 +147,7 @@
     "title": "Finding a good mistri shouldn't be a gamble.",
     "items": [
       "Calling 6 numbers from a WhatsApp group and hoping",
-      "\"The app said PKR 1,500 — the guy on-site demanded 4,000\"",
+      "\"The app said {a} — the guy on-site demanded {b}\"",
       "No idea if he's actually coming, or when",
       "Cash paid, work half-done, number blocked",
       "Zero recourse when it breaks again next week"
@@ -177,7 +177,7 @@
     "emergencyLabel": "For emergencies",
     "emergencyTitle": "Or skip the wait — Instant Match",
     "emergencyDesc": "Burst pipe at 2am? Get matched to the nearest verified pro in seconds. No waiting for bids to come in.",
-    "emergencyMock": "🚨 Instant Match · Ahmed (Verified Pro, 4.8★) · PKR 2,875 · ETA 12 min · 90s to accept"
+    "emergencyMock": "🚨 Instant Match · Ahmed (Verified Pro, 4.8★) · {price} · ETA 12 min · 90s to accept"
   },
   "features": {
     "board": {
@@ -206,7 +206,7 @@
         "Pay directly"
       ],
       "badge": "🛠 Workmanship support — 7 days",
-      "change": "Change order: \"Found corroded pipe — extra PKR 800\"",
+      "change": "Change order: \"Found corroded pipe — extra {price}\"",
       "approve": "Approve"
     },
     "protected": {
@@ -308,7 +308,7 @@
     "customerDesc": "Post a job free, get bids in minutes, and pay your pro directly when the work is done.",
     "customerCta": "Post a Job",
     "proTitle": "Earn more. Keep 88%.",
-    "zero": "PKR 0",
+    "zero": "{zero}",
     "zeroActive": "Spent on leads by our {count} active providers this month",
     "zeroGeneric": "Spent on leads. Ever. Every other platform charges you just to see a job — we don't.",
     "perks": [
@@ -465,12 +465,12 @@
     "rows": [
       {
         "feature": "Cost to view or bid on a job",
-        "servigic": "PKR 0",
+        "servigic": "{zero}",
         "other": "Charged per lead, regardless of outcome"
       },
       {
         "feature": "Cost if you don't win the job",
-        "servigic": "PKR 0",
+        "servigic": "{zero}",
         "other": "You still paid for the lead"
       },
       {
