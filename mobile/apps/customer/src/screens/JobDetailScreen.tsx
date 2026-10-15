@@ -5,7 +5,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { HomeStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
 import { Button, Card, Badge } from "../components/ui";
-import { PriceText, ProviderAvatar, SegmentedControl, EmptyState } from "../components/ds";
+import { PriceText, ProviderAvatar, SegmentedControl, EmptyState, haptic } from "../components/ds";
 import { colors } from "../lib/theme";
 import { enumLabel } from "../lib/status";
 import { useI18n } from "../lib/i18n";
@@ -41,13 +41,21 @@ export default function JobDetailScreen({ route, navigation }: Props) {
   const [bids, setBids] = useState<BidView[]>([]);
   const [busyBidId, setBusyBidId] = useState<string | null>(null);
   const [sort, setSort] = useState<Sort>("PRICE");
+  // "Waiting for bids" empty states (handoff section 11.2).
+  const [notified, setNotified] = useState<number | null>(null);
+  const [ageMin, setAgeMin] = useState(0);
+  const [noBidsAfterMin, setNoBidsAfterMin] = useState(20);
+  const [widening, setWidening] = useState(false);
 
   const load = useCallback(() => {
     api
       .getJobDetail(jobId)
-      .then(({ job: j, bids: b }) => {
+      .then(({ job: j, bids: b, notifiedCount, noBidsAfterMin: wait }) => {
         setJob(j);
         setBids(b as unknown as BidView[]);
+        setNotified(notifiedCount ?? null);
+        setNoBidsAfterMin(wait ?? 20);
+        setAgeMin(typeof j.createdAt === "string" ? Math.floor((Date.now() - new Date(j.createdAt).getTime()) / 60000) : 0);
       })
       .catch(() => {});
   }, [jobId]);
@@ -102,7 +110,23 @@ export default function JobDetailScreen({ route, navigation }: Props) {
     );
   }
 
+  async function widen() {
+    if (widening) return;
+    setWidening(true);
+    haptic.light();
+    try {
+      const res = await api.widenJobSearch(jobId);
+      setNotified(res.notifiedCount);
+      Alert.alert(t("waiting.widen"), t("waiting.widened", { n: res.newlyNotified }));
+    } catch (e) {
+      Alert.alert(t("common.error"), e instanceof api.ApiError && e.code === "MAX_RADIUS" ? t("waiting.maxWidened") : e instanceof Error ? e.message : t("common.tryAgain"));
+    } finally {
+      setWidening(false);
+    }
+  }
+
   if (!job) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
+  const isOpen = job.status === "OPEN";
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 18, paddingBottom: 40 }}>
@@ -119,7 +143,26 @@ export default function JobDetailScreen({ route, navigation }: Props) {
         )}
       </View>
 
-      {bids.length === 0 && <EmptyState icon="📡" title={t("bids.notifying")} subtitle={t("bids.notifyingSub")} />}
+      {bids.length === 0 && isOpen && notified !== null && notified > 0 && (
+        <EmptyState icon="📡" title={t("waiting.title")} subtitle={`${t("waiting.notified", { n: notified })}
+${t("bids.notifyingSub")}`} />
+      )}
+      {bids.length === 0 && isOpen && notified === 0 && (
+        <View style={styles.notice}>
+          <Text style={styles.noticeTitle}>{t("waiting.noProsTitle")}</Text>
+          <Text style={styles.noticeBody}>{t("waiting.noProsBody")}</Text>
+        </View>
+      )}
+      {bids.length === 0 && isOpen && notified === null && <EmptyState icon="📡" title={t("bids.notifying")} subtitle={t("bids.notifyingSub")} />}
+      {bids.length === 0 && isOpen && ageMin >= noBidsAfterMin && (
+        <View style={styles.notice}>
+          <Text style={styles.noticeTitle}>{t("waiting.noBidsTitle")}</Text>
+          <Text style={styles.noticeBody}>{t("waiting.noBidsBody")}</Text>
+          <View style={{ marginTop: 10 }}>
+            <Button title={t("waiting.widen")} onPress={widen} loading={widening} />
+          </View>
+        </View>
+      )}
 
       {sortedBids.map((bid) => (
         <Card key={bid.id} style={{ marginTop: 10 }}>
@@ -155,6 +198,9 @@ export default function JobDetailScreen({ route, navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
+  notice: { marginTop: 12, backgroundColor: colors.accentTint, borderWidth: 1, borderColor: colors.accentBorder, borderRadius: 14, padding: 14 },
+  noticeTitle: { color: colors.accent, fontSize: 14, fontWeight: "800" },
+  noticeBody: { color: colors.textSecondary, fontSize: 12.5, lineHeight: 18, marginTop: 4 },
   title: { color: colors.text, fontSize: 22, fontWeight: "800", marginBottom: 8 },
   desc: { color: colors.textSecondary, marginBottom: 10, lineHeight: 20 },
   sortRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 20, marginBottom: 4, gap: 8 },

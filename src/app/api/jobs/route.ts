@@ -5,6 +5,7 @@ import { createJobSchema } from "@/lib/validation/job";
 import { encodeGeohash, haversineKm } from "@/lib/geo";
 import { dispatchJob } from "@/lib/dispatch";
 import { runExpirySweep } from "@/lib/expiry";
+import { checkJobAvailability } from "@/lib/marketConfig";
 
 const EMERGENCY_BIDDING_WINDOW_MIN = 30;
 const STANDARD_BIDDING_WINDOW_HOURS = 24;
@@ -31,6 +32,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
   const { allowDuplicate, ...data } = parsed.data;
+
+  // Market config (handoff section 11.6): reject posts for a category / area that is not switched on,
+  // so a stale or modified app cannot bypass the admin launch settings.
+  const category = await prisma.serviceCategory.findUnique({ where: { id: data.categoryId }, select: { trade: true } });
+  if (!category) return NextResponse.json({ error: "Unknown category" }, { status: 400 });
+  const availability = await checkJobAvailability(data.city, category.trade);
+  if (!availability.ok) {
+    return NextResponse.json({ error: availability.message, code: availability.code }, { status: 422 });
+  }
 
   // Soft cap + soft duplicate detection. Neither blocks posting outright
   // beyond the cap: the duplicate case returns a 409 the app turns into a

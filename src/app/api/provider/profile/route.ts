@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { providerProfileSchema } from "@/lib/validation/provider";
 import { encodeGeohash } from "@/lib/geo";
+import { getMarkets, marketForCity } from "@/lib/marketConfig";
+import { evaluateProActivation } from "@/lib/proActivation";
 
 export async function GET() {
   const auth = await requireRole("PROVIDER");
@@ -22,6 +24,21 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
   const { agreementAccepted, cnicUrl, selfieUrl, policeCertUrl, photoQualityOk, photoConsentPublic, cnicOcr, ...data } = parsed.data;
+  // Market config (handoff section 11.6): a pro can only choose trades that are switched on in their market.
+  if (data.trades) {
+    const [markets, me] = await Promise.all([getMarkets(), prisma.user.findUnique({ where: { id: auth.session.user.id }, select: { city: true } })]);
+    const market = marketForCity(markets, me?.city);
+    if (markets.length > 0 && market) {
+      const blocked = data.trades.filter((t) => !market.trades[t]?.enabled);
+      if (blocked.length > 0) {
+        return NextResponse.json(
+          { error: "Some of these trades are not available in your area yet.", code: "TRADE_NOT_AVAILABLE", trades: blocked },
+          { status: 422 }
+        );
+      }
+    }
+  }
+
   // Only re-derive the geohash when a new location was actually sent —
   // partial submissions (e.g. the KYC screen's docs-only update) must not
   // clobber the existing location with encodeGeohash(undefined, undefined).
@@ -64,6 +81,9 @@ export async function PUT(req: Request) {
         : {}),
     },
   });
+
+  // A trade change can move a pro between ACTIVE and WAITING (market cap / trade switched off).
+  if (data.trades) await evaluateProActivation(profile.id).catch((e) => console.error("[activation]", e));
 
   return NextResponse.json({ profile });
 }

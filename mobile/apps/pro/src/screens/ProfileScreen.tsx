@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, Linking, StyleSheet } from "react-native";
+import { View, Text, ScrollView, Pressable, Linking, StyleSheet, Switch } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
@@ -14,6 +14,14 @@ import { enumLabel } from "../lib/status";
 import { LANGUAGES, useI18n } from "../lib/i18n";
 import { navigateRoot } from "../navigation/ref";
 import { readIdCard, type IdOcr } from "../lib/idOcr";
+import { useMarketConfig } from "../lib/market";
+
+const QUIET_PRESETS: { label: string; start: number | null; end: number | null }[] = [
+  { label: "", start: null, end: null },
+  { label: "22:00 – 07:00", start: 22 * 60, end: 7 * 60 },
+  { label: "23:00 – 06:00", start: 23 * 60, end: 6 * 60 },
+];
+const DAILY_CAPS = [5, 10, 20, 50];
 
 function requestAccountDeletion(phone?: string) {
   const body = `Registered phone number/email:\n${phone ?? ""}\nAccount type (Customer/Pro): Pro\n`;
@@ -55,6 +63,36 @@ export default function ProfileScreen() {
   const [jobsCompleted, setJobsCompleted] = useState(0);
   const [editing, setEditing] = useState(false);
   const [ocr, setOcr] = useState<IdOcr | null>(null);
+  const { config } = useMarketConfig();
+  const [status, setStatus] = useState<api.ProviderStatus | null>(null);
+
+  useEffect(() => {
+    api
+      .getProviderStatus()
+      .then(setStatus)
+      .catch(() => {});
+  }, []);
+
+  async function saveAlerts(patch: Parameters<typeof api.updateAlertSettings>[0]) {
+    if (!status) return;
+    // Optimistic: flip the control immediately, roll back if the server says no.
+    const prev = status;
+    setStatus({
+      ...status,
+      alerts: {
+        paused: patch.paused ?? status.alerts.paused,
+        quietStartMin: patch.quietStartMin !== undefined ? patch.quietStartMin : status.alerts.quietStartMin,
+        quietEndMin: patch.quietEndMin !== undefined ? patch.quietEndMin : status.alerts.quietEndMin,
+        dailyCap: patch.dailyCap ?? status.alerts.dailyCap,
+      },
+    });
+    try {
+      const { alerts } = await api.updateAlertSettings(patch);
+      setStatus((cur) => (cur ? { ...cur, alerts } : cur));
+    } catch {
+      setStatus(prev);
+    }
+  }
 
   useEffect(() => {
     api
@@ -151,7 +189,13 @@ export default function ProfileScreen() {
         {cnicUrl ? <DocChip label={t("account.cnic")} /> : null}
         {selfieUrl ? <DocChip label={t("account.selfie")} /> : null}
         {policeCertUrl ? <DocChip label={t("account.police")} /> : null}
+        {status?.foundingPro ? <DocChip label={t("pro.foundingPro")} /> : null}
       </View>
+      {status?.foundingPro && status.commissionFreeJobsLeft > 0 && (
+        <Text style={{ color: colors.accent, fontSize: 12, fontWeight: "700", marginTop: 8 }}>
+          {t("pro.freeJobsLeft", { n: status.commissionFreeJobsLeft })}
+        </Text>
+      )}
 
       <View style={styles.statsRow}>
         <View style={styles.stat}>
@@ -187,6 +231,47 @@ export default function ProfileScreen() {
       </View>
       {!policeCertUrl && <Text style={styles.verifyHint}>{t("account.policeHint")}</Text>}
 
+      {status && (
+        <View style={styles.editCard}>
+          <Text style={styles.sectionLabel}>{t("alerts.title")}</Text>
+          <View style={styles.switchRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.rowText}>{t("alerts.pause")}</Text>
+              <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 2 }}>{t("alerts.pauseHint")}</Text>
+            </View>
+            <Switch
+              value={status.alerts.paused}
+              onValueChange={(v) => saveAlerts({ paused: v })}
+              trackColor={{ true: colors.accent, false: colors.border }}
+            />
+          </View>
+
+          <Text style={[styles.fieldLabel, { marginTop: 14 }]}>{t("alerts.quiet")}</Text>
+          <View style={styles.wrapRow}>
+            {QUIET_PRESETS.map((q) => (
+              <Chip
+                key={q.label || "off"}
+                label={q.label || t("alerts.quietOff")}
+                active={status.alerts.quietStartMin === q.start && status.alerts.quietEndMin === q.end}
+                onPress={() => saveAlerts({ quietStartMin: q.start, quietEndMin: q.end })}
+              />
+            ))}
+          </View>
+
+          <Text style={[styles.fieldLabel, { marginTop: 14 }]}>{t("alerts.dailyCap")}</Text>
+          <View style={styles.wrapRow}>
+            {DAILY_CAPS.map((n) => (
+              <Chip key={n} label={String(n)} active={status.alerts.dailyCap === n} onPress={() => saveAlerts({ dailyCap: n })} />
+            ))}
+          </View>
+
+          <Pressable onPress={() => navigateRoot("NeverMiss")} style={[styles.row, { marginTop: 16 }]}>
+            <Text style={styles.rowText}>🔔 {t("neverMiss.title")}</Text>
+            <Icon name="chevron-right" size={14} color={colors.textFaint} />
+          </Pressable>
+        </View>
+      )}
+
       <Pressable onPress={() => navigateRoot("Language")} style={styles.row}>
         <Icon name="globe" size={18} />
         <Text style={styles.rowText}>{t("lang.title")}</Text>
@@ -206,10 +291,22 @@ export default function ProfileScreen() {
 
           <Text style={styles.fieldLabel}>{t("account.trades")}</Text>
           <View style={[styles.wrapRow, { marginBottom: 16 }]}>
-            {TRADES.map((trade) => (
-              <Chip key={trade} label={enumLabel(td, "trade", trade)} active={trades.includes(trade)} onPress={() => toggleTrade(trade)} />
-            ))}
+            {TRADES.map((trade) => {
+              // A trade that is switched off in this market can be kept if already chosen, but not newly added.
+              const off = config != null && !config.legacyOpen && config.trades[trade] === false && !trades.includes(trade);
+              return (
+                <Chip
+                  key={trade}
+                  label={off ? `${enumLabel(td, "trade", trade)} · ${t("market.comingSoon")}` : enumLabel(td, "trade", trade)}
+                  active={trades.includes(trade)}
+                  onPress={() => (off ? undefined : toggleTrade(trade))}
+                />
+              );
+            })}
           </View>
+          {config != null && !config.legacyOpen && TRADES.some((x) => config.trades[x] === false) && (
+            <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: -8, marginBottom: 14 }}>{t("pro.tradesComingSoon")}</Text>
+          )}
 
           <Field label={t("account.serviceRadius")} keyboardType="number-pad" value={radiusKm} onChangeText={setRadiusKm} />
 
@@ -294,5 +391,6 @@ const styles = StyleSheet.create({
   rowValue: { color: colors.textMuted, fontSize: 13 },
   editCard: { marginTop: 12, backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: colors.borderSoft, borderRadius: 16, padding: 16 },
   fieldLabel: { color: colors.textMuted, fontSize: 12, fontWeight: "600", marginBottom: 8 },
+  switchRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   legalLink: { color: colors.text, fontSize: 14, paddingVertical: 8 },
 });

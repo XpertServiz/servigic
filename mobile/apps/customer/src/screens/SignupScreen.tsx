@@ -8,6 +8,7 @@ import { Button, Field, PhoneField, usePhoneInput } from "../components/ui";
 import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
 import { useT } from "../lib/i18n";
+import { loadMarketConfig } from "../lib/market";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Signup">;
 
@@ -30,7 +31,11 @@ export default function SignupScreen({ navigation }: Props) {
     }
     setLoading(true);
     try {
-      const { userId } = await api.register({ role: "CUSTOMER", name, phone: phone.e164, password, city: "Karachi" });
+      // Market config (handoff section 11.6): sign up into the market for the user's country. Without market
+      // config (older backend / offline) keep the legacy default so nobody is locked out.
+      const cfg = await loadMarketConfig(null);
+      const city = cfg && !cfg.legacyOpen ? cfg.market?.cities?.[0] : "Karachi";
+      const { userId } = await api.register({ role: "CUSTOMER", name, phone: phone.e164, password, ...(city ? { city } : {}) });
       navigation.replace("VerifyOtp", { userId });
     } catch (e) {
       setError(e instanceof Error ? e.message : t("auth.signupFailed"));

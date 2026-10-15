@@ -9,6 +9,8 @@ import * as api from "../lib/api";
 import { AnimatedTradeIcon, Chip, GlowBackground, haptic } from "../components/ds";
 import { HeaderActions } from "../components/HeaderActions";
 import { NativeAdStrip, RewardedDiscountCard, type AdDiscountState } from "../components/AdSlots";
+import { WaitlistCard } from "../components/MarketNotice";
+import { useMarketConfig } from "../lib/market";
 import { colors, accentGradientStops } from "../lib/theme";
 import { enumLabel } from "../lib/status";
 import { useI18n } from "../lib/i18n";
@@ -23,6 +25,9 @@ export default function HomeScreen({ navigation }: Props) {
   const { t, td } = useI18n();
   const insets = useSafeAreaInsets();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [acceptingJobs, setAcceptingJobs] = useState(true);
+  const [comingSoon, setComingSoon] = useState<Category | null>(null);
+  const market = useMarketConfig();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeBooking, setActiveBooking] = useState<Booking | null>(null);
@@ -45,7 +50,10 @@ export default function HomeScreen({ navigation }: Props) {
     setError(null);
     api
       .getCategories()
-      .then(({ categories: fetched }) => setCategories(fetched))
+      .then(({ categories: fetched, acceptingJobs: accepting }) => {
+        setCategories(fetched);
+        setAcceptingJobs(accepting !== false);
+      })
       .catch((e) => setError(e instanceof Error ? e.message : t("home.loadFailed")))
       .finally(() => setLoading(false));
     api
@@ -60,6 +68,9 @@ export default function HomeScreen({ navigation }: Props) {
   }, [t]);
 
   useFocusEffect(load);
+
+  // Market config (handoff section 11.6): outside a launch area there is nothing to post, only a waitlist.
+  const outsideArea = !acceptingJobs || market.outsideArea;
 
   const pulseScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 2.4] });
   const pulseOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] });
@@ -96,7 +107,13 @@ export default function HomeScreen({ navigation }: Props) {
           </Pressable>
         )}
 
-        <View style={styles.heroRow}>
+        {outsideArea && (
+          <View style={{ paddingHorizontal: 18, paddingTop: 18 }}>
+            <WaitlistCard title={t("market.outsideTitle")} body={t("market.outsideBody")} role="CUSTOMER" city={market.city} />
+          </View>
+        )}
+
+        {!outsideArea && <View style={styles.heroRow}>
           <Pressable
             style={{ flex: 1 }}
             onPress={() => {
@@ -126,7 +143,7 @@ export default function HomeScreen({ navigation }: Props) {
             <Text style={{ fontSize: 22 }}>⚡</Text>
             <Text style={styles.emergencyText}>{t("home.emergency")}</Text>
           </Pressable>
-        </View>
+        </View>}
 
         <View style={{ paddingHorizontal: 18, paddingTop: 16 }}>
           <RewardedDiscountCard
@@ -143,9 +160,9 @@ export default function HomeScreen({ navigation }: Props) {
           <NativeAdStrip />
         </View>
 
-        <Text style={styles.sectionTitle}>{t("home.browseTrades")}</Text>
+        {!outsideArea && <Text style={styles.sectionTitle}>{t("home.browseTrades")}</Text>}
 
-        {loading ? (
+        {outsideArea ? null : loading ? (
           <ActivityIndicator color={colors.accent} size="large" style={{ marginTop: 24 }} />
         ) : error ? (
           <View style={{ padding: 24, alignItems: "center" }}>
@@ -155,13 +172,30 @@ export default function HomeScreen({ navigation }: Props) {
         ) : (
           <View style={styles.grid}>
             {categories.map((item) => (
-              <Pressable key={item.id} style={styles.tile} onPress={() => navigation.navigate("PostJob", { categoryId: item.id })}>
+              <Pressable
+                key={item.id}
+                style={[styles.tile, !item.available && { opacity: 0.55 }]}
+                onPress={() => (item.available ? navigation.navigate("PostJob", { categoryId: item.id }) : setComingSoon(item))}
+              >
                 <AnimatedTradeIcon icon={item.icon} trade={item.trade} size={26} />
                 <Text style={styles.tileLabel} numberOfLines={2}>
                   {item.name}
                 </Text>
+                {!item.available && <Text style={styles.soon}>{t("market.comingSoon")}</Text>}
               </Pressable>
             ))}
+          </View>
+        )}
+        {comingSoon && !outsideArea && (
+          <View style={{ paddingHorizontal: 18, paddingTop: 14 }}>
+            <WaitlistCard
+              key={comingSoon.id}
+              title={`${comingSoon.name} · ${t("market.comingSoon")}`}
+              body={t("market.comingSoonBody", { service: comingSoon.name })}
+              trade={comingSoon.trade}
+              role="CUSTOMER"
+              city={market.city}
+            />
           </View>
         )}
       </ScrollView>
@@ -232,6 +266,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
+  soon: { color: colors.accent, fontSize: 9, fontWeight: "800", textTransform: "uppercase", letterSpacing: 0.4 },
   tileLabel: { color: colors.textSecondary, fontSize: 11, fontWeight: "600", textAlign: "center" },
 });
 

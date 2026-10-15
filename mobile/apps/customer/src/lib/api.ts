@@ -148,10 +148,30 @@ export function claimAdDiscount() {
   return request<AdDiscountState & { credit: { id: string; amountPKR: number } }>("/api/mobile/rewards/ad-discount", { method: "POST" });
 }
 
+
+// ─── Market config (handoff section 11.6) ───
+export type MarketConfig = {
+  legacyOpen: boolean;
+  country: string | null;
+  market: { id: string; name: string; status: "WAITLIST" | "PILOT" | "LIVE"; cities: string[]; currency: string; phoneCode: string; timezone: string } | null;
+  acceptingJobs: boolean;
+  trades: Record<string, boolean>;
+};
+
+export function getMarketConfig(city?: string | null) {
+  return request<MarketConfig>(`/api/mobile/config${city ? `?city=${encodeURIComponent(city)}` : ""}`);
+}
+
+export function joinWaitlist(input: { trade?: string; role?: "CUSTOMER" | "PROVIDER"; city?: string; email?: string; phone?: string }) {
+  return request<{ ok: true }>("/api/mobile/waitlist", { method: "POST", body: JSON.stringify(input) });
+}
+
 // ─── Categories ───
 export function getCategories() {
   return request<{
-    categories: { id: string; name: string; icon: string; slug: string; trade: string; subServices: { id: string; name: string }[] }[];
+    categories: { id: string; name: string; icon: string; slug: string; trade: string; available: boolean; subServices: { id: string; name: string }[] }[];
+    acceptingJobs: boolean;
+    market: { id: string; name: string; status: string } | null;
   }>("/api/mobile/categories");
 }
 
@@ -170,7 +190,12 @@ export function getMyJobs() {
 }
 
 export function getJobDetail(jobId: string) {
-  return request<{ job: Record<string, unknown>; bids: Record<string, unknown>[] }>(`/api/mobile/jobs/${jobId}`);
+  return request<{ job: Record<string, unknown>; bids: Record<string, unknown>[]; notifiedCount: number; noBidsAfterMin: number }>(`/api/mobile/jobs/${jobId}`);
+}
+
+// Customer widens the search for a job with no bids (+5 km per tap, server-capped).
+export function widenJobSearch(jobId: string) {
+  return request<{ extraRadiusKm: number; newlyNotified: number; notifiedCount: number }>(`/api/mobile/jobs/${jobId}/widen`, { method: "POST" });
 }
 
 export function acceptBid(bidId: string) {

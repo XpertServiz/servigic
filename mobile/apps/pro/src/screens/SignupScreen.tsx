@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -8,6 +8,7 @@ import { Button, Field, PhoneField, usePhoneInput } from "../components/ui";
 import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
 import { useT } from "../lib/i18n";
+import { loadMarketConfig } from "../lib/market";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Signup">;
 
@@ -20,6 +21,12 @@ export default function SignupScreen({ navigation }: Props) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [launching, setLaunching] = useState(false);
+
+  // Honest expectation-setting: if the market is not fully live yet, say so before the pro invests time.
+  useEffect(() => {
+    loadMarketConfig(null).then((cfg) => setLaunching(Boolean(cfg && !cfg.legacyOpen && (!cfg.market || cfg.market.status !== "LIVE"))));
+  }, []);
 
   async function handleSignup() {
     setError(null);
@@ -30,7 +37,11 @@ export default function SignupScreen({ navigation }: Props) {
     }
     setLoading(true);
     try {
-      const { userId } = await api.register({ role: "PROVIDER", name, phone: phone.e164, email, password, city: "Karachi" });
+      // Market config (handoff section 11.6): sign up into the market for the user's country. Without market
+      // config (older backend / offline) keep the legacy default so nobody is locked out.
+      const cfg = await loadMarketConfig(null);
+      const city = cfg && !cfg.legacyOpen ? cfg.market?.cities?.[0] : "Karachi";
+      const { userId } = await api.register({ role: "PROVIDER", name, phone: phone.e164, email, password, ...(city ? { city } : {}) });
       navigation.replace("VerifyOtp", { userId });
     } catch (e) {
       setError(e instanceof Error ? e.message : t("auth.signupFailed"));
@@ -65,6 +76,7 @@ export default function SignupScreen({ navigation }: Props) {
 
         {error && <Text style={styles.error}>{error}</Text>}
 
+        {launching && <Text style={{ color: colors.accent, fontSize: 12.5, lineHeight: 18, marginBottom: 12 }}>{t("pro.launchingNote")}</Text>}
         <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || !email || password.length < 8} />
         <Text style={styles.legal}>{t("auth.legal")}</Text>
       </ScrollView>

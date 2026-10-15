@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { notify } from "@/lib/notify";
+import { evaluateProActivation } from "@/lib/proActivation";
 
 const schema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("approve") }),
@@ -40,15 +41,20 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         verificationRejectedReason: null,
       },
     });
+    // Supply/demand balance: approved pros start ACTIVE only if their area/trade is open and under its cap.
+    const activation = await evaluateProActivation(profile.id).catch(() => "ACTIVE" as const);
     await notify({
       userId: profile.userId,
       type: "SYSTEM",
-      title: "You are verified",
-      body: "Your documents were approved - you can now receive job alerts and bid on jobs.",
+      title: activation === "ACTIVE" ? "You are verified" : "You are approved - we will let you know when jobs open",
+      body:
+        activation === "ACTIVE"
+          ? "Your documents were approved - you can now receive job alerts and bid on jobs."
+          : "Your documents were approved. Jobs have not opened for your area or trade yet - we will notify you the moment they do.",
       linkUrl: "/pro/profile",
       channels: ["whatsapp"],
     });
-    return NextResponse.json({ profile });
+    return NextResponse.json({ profile, activation });
   }
 
   const profile = await prisma.providerProfile.update({

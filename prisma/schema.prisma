@@ -362,6 +362,21 @@ model ProviderProfile {
   verificationReviewedById String?
   verificationRejectedAt  DateTime?
   verificationRejectedReason String?
+  // Supply/demand balance (handoff §11.4). WAITING = approved but the pro's
+  // market/trade is not open yet or is at its admin-set cap; they get no job
+  // alerts and cannot bid until activated (FIFO by waitingSince).
+  activation              ProActivation @default(ACTIVE)
+  waitingSince            DateTime?
+  activatedAt             DateTime?
+  // Early-pro incentives: granted when activated while their market is PILOT.
+  foundingPro             Boolean       @default(false)
+  commissionFreeJobsLeft  Int           @default(0)
+  // Job-alert controls (handoff §11.5). Quiet hours are minutes after local
+  // midnight in the market's timezone; a window may wrap midnight.
+  alertsPaused            Boolean       @default(false)
+  alertQuietStartMin      Int?
+  alertQuietEndMin        Int?
+  alertDailyCap           Int           @default(30)
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -505,6 +520,10 @@ model Job {
   // trade/city/radius fan-out. Precedented by MaintenancePlan.preferredProviderId.
   preferredProviderId String?
   preferredProvider   ProviderProfile? @relation("JobPreferredProvider", fields: [preferredProviderId], references: [id])
+  // Customer-widened search (handoff §11.2): extra km added to every pro's
+  // service radius for this job only.
+  extraRadiusKm       Int             @default(0)
+  noBidsNotifiedAt    DateTime?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -525,6 +544,11 @@ model DispatchAlert {
   job        Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
   providerId String
   channels   String[] @default([])
+  // How many times this pro was alerted for this job (handoff §11.5: never
+  // more than twice) and whether a push actually went out (quiet hours /
+  // paused / daily cap create the row without one).
+  alertCount Int      @default(1)
+  pushSent   Boolean  @default(false)
   createdAt  DateTime @default(now())
 
   @@index([jobId])
@@ -903,6 +927,13 @@ model SiteSettings {
   // Default ProWallet.ceilingPKR for newly created wallets (v6 §1.4) — admin
   // can still override per-pro afterward via /admin/wallets/[id].
   defaultWalletCeilingPKR Int    @default(3000)
+  // Early-pro incentive: first N completed jobs commission-free for pros
+  // activated while their market is PILOT (0 = off).
+  earlyProFreeJobs        Int    @default(0)
+  // Job alerts go to the nearest N matching pros (handoff §11.5).
+  alertNearestN           Int    @default(12)
+  // Customer is told their job has no bids after this many minutes (§11.2).
+  noBidsAfterMin          Int    @default(20)
   updatedAt             DateTime @updatedAt
 }
 
@@ -958,12 +989,64 @@ model LocaleConfig {
 model CountryWaitlistEntry {
   id          String   @id @default(cuid())
   countryCode String
-  email       String
+  email       String?
   name        String?
   city        String?
+  // Market config (handoff §11.6): which trade / zone / role the person is waiting for.
+  phone       String?
+  trade       Trade?
+  zone        String?
+  role        String?
+  userId      String?
   createdAt   DateTime @default(now())
 
   @@index([countryCode])
+  @@index([trade])
+}
+
+enum MarketStatus {
+  WAITLIST
+  PILOT
+  LIVE
+}
+
+enum ProActivation {
+  ACTIVE
+  WAITING
+}
+
+// Market configuration (handoff §11.6). One row per launch area: a zone or a
+// whole country. `cities` is how a job/user city maps to its market. A market
+// accepts jobs only while enabled AND status is PILOT or LIVE; which trades are
+// offered is the per-trade matrix (MarketCategory).
+model Market {
+  id          String         @id @default(cuid())
+  countryCode String // ISO 3166-1 alpha-2
+  name        String // zone or area label, e.g. "Karachi" or "Canada"
+  cities      String[]       @default([])
+  enabled     Boolean        @default(false)
+  status      MarketStatus   @default(WAITLIST)
+  currency    Currency       @default(PKR)
+  phoneCode   String         @default("+92")
+  timezone    String         @default("Asia/Karachi")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  categories MarketCategory[]
+
+  @@unique([countryCode, name])
+}
+
+model MarketCategory {
+  id            String  @id @default(cuid())
+  marketId      String
+  market        Market  @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  trade         Trade
+  enabled       Boolean @default(true)
+  // Admin cap on ACTIVE pros for this trade in this market (null = no cap).
+  maxActivePros Int?
+
+  @@unique([marketId, trade])
 }
 
 // ─────────────────────────────────────────────────────────────────────────

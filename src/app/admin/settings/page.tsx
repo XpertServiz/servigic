@@ -20,6 +20,9 @@ export default async function AdminSettingsPage() {
           demoVideoCustomerUrl: settings?.demoVideoCustomerUrl ?? "",
           demoVideoProUrl: settings?.demoVideoProUrl ?? "",
           defaultWalletCeilingPKR: settings?.defaultWalletCeilingPKR ?? 3000,
+          earlyProFreeJobs: settings?.earlyProFreeJobs ?? 0,
+          alertNearestN: settings?.alertNearestN ?? 12,
+          noBidsAfterMin: settings?.noBidsAfterMin ?? 20,
           featureFlags,
         }}
       />

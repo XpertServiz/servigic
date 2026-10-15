@@ -39,6 +39,7 @@ export default function HomeScreen() {
   const [me, setMe] = useState<{ latitude: number; longitude: number } | null>(null);
   const [placeLabel, setPlaceLabel] = useState("");
   const [debtPKR, setDebtPKR] = useState(0);
+  const [status, setStatus] = useState<api.ProviderStatus | null>(null);
   const pulse = useRef(new Animated.Value(0)).current;
 
   const load = useCallback(() => {
@@ -49,6 +50,10 @@ export default function HomeScreen() {
     api
       .getProviderJobFeed()
       .then((feed) => setJobs(feed.jobs.filter((j) => !j.alreadyBid)))
+      .catch(() => {});
+    api
+      .getProviderStatus()
+      .then(setStatus)
       .catch(() => {});
     api
       .getProviderEarnings()
@@ -180,12 +185,37 @@ export default function HomeScreen() {
           <View style={{ marginBottom: 14 }}>
             <VerificationNotice />
           </View>
+        ) : status?.activation === "WAITING" || (status && status.market && !status.market.open) ? (
+          // Approved, but this trade/area is not open yet — say so plainly instead of an empty map.
+          <View style={styles.statusCard}>
+            <Text style={styles.statusTitle}>{t("pro.waitingTitle")}</Text>
+            <Text style={styles.statusBody}>{t("pro.waitingBody")}</Text>
+            {status.market && !status.market.open && <Text style={[styles.statusBody, { marginTop: 6 }]}>{t("pro.launchingNote")}</Text>}
+          </View>
         ) : (
           <>
             <Text style={styles.sheetSub}>{t("home.jobsAvailable", { n: jobs.length })}</Text>
             <Text style={styles.sheetTitle} numberOfLines={1}>
               {placeLabel || t("home.yourArea")}
             </Text>
+            {jobs.length === 0 && (
+              <View style={[styles.statusCard, { marginTop: -6 }]}>
+                <Text style={styles.statusTitle}>{t("pro.emptyTitle")}</Text>
+                <Text style={styles.statusBody}>{t("pro.emptyBody")}</Text>
+                {status && status.jobsThisWeek > 0 && (
+                  <Text style={[styles.statusBody, { marginTop: 6, color: colors.accent }]}>{t("pro.demandHint", { n: status.jobsThisWeek })}</Text>
+                )}
+                {profile.verificationLevel >= 1 && !profile.baseLat && <Text style={[styles.statusBody, { marginTop: 6 }]}>{t("pro.completeProfile")}</Text>}
+              </View>
+            )}
+            {status?.foundingPro && (
+              <View style={styles.founding}>
+                <Text style={{ color: colors.accent, fontWeight: "800", fontSize: 12 }}>★ {t("pro.foundingPro")}</Text>
+                {status.commissionFreeJobsLeft > 0 && (
+                  <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{t("pro.freeJobsLeft", { n: status.commissionFreeJobsLeft })}</Text>
+                )}
+              </View>
+            )}
           </>
         )}
 
@@ -257,5 +287,9 @@ const styles = StyleSheet.create({
   },
   sheetSub: { fontSize: 14, color: colors.textMuted, marginBottom: 4 },
   sheetTitle: { fontSize: 21, fontWeight: "700", color: colors.text, marginBottom: 16 },
+  statusCard: { backgroundColor: colors.accentTint, borderWidth: 1, borderColor: colors.accentBorder, borderRadius: 14, padding: 14, marginBottom: 14 },
+  statusTitle: { color: colors.text, fontSize: 15, fontWeight: "800" },
+  statusBody: { color: colors.textSecondary, fontSize: 12.5, lineHeight: 18, marginTop: 4 },
+  founding: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
   verifyNote: { color: colors.accent, fontWeight: "700", marginBottom: 16, fontSize: 14 },
 });

@@ -16,6 +16,10 @@ export const DEFAULT_FEATURE_FLAGS = {
   aiDisputeSummarizer: true,
   aiBidWinHint: true,
   paymentMode: "CASH_WALLET" as PaymentMode,
+  // Phase-2 job-alert fallback (handoff §11.5): SMS/WhatsApp to matched pros that have not
+  // opened the push. Costs money per message, so it is OFF and only a stub until the founder
+  // approves a budget (see src/lib/jobAlertFallback.ts).
+  smsFallbackEnabled: false,
 };
 
 export type FeatureFlags = typeof DEFAULT_FEATURE_FLAGS;

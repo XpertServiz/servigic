@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { haversineKm } from "@/lib/geo";
+import { ConciergeClient, type ConciergeJob } from "./ConciergeClient";
 
 const STATUS_COLORS: Record<string, string> = {
   OPEN: "text-accent border-accent/30 bg-accent/10",
@@ -10,7 +12,52 @@ const STATUS_COLORS: Record<string, string> = {
   DISPUTED: "text-danger border-danger/30 bg-danger/10",
 };
 
+// Concierge matching (handoff section 11.2): open jobs nobody has bid on yet, oldest first, with the
+// verified active pros who could take them, so an admin can hand a job to a pro by phone/alert.
+async function getUnmatched(): Promise<ConciergeJob[]> {
+  const open = await prisma.job.findMany({
+    where: { status: "OPEN", biddingClosesAt: { gt: new Date() }, bids: { none: {} } },
+    orderBy: { createdAt: "asc" },
+    take: 30,
+    include: { category: true, customer: { select: { name: true, phone: true } }, _count: { select: { dispatchAlerts: true } } },
+  });
+  return Promise.all(
+    open.map(async (j) => {
+      const pros = await prisma.providerProfile.findMany({
+        where: { isVerified: true, activation: "ACTIVE", trades: { has: j.category.trade }, user: { city: j.city } },
+        include: { user: { select: { name: true, phone: true } } },
+        take: 30,
+      });
+      const candidates = pros
+        .map((p) => ({
+          id: p.id,
+          name: p.displayName || p.user.name,
+          phone: p.user.phone,
+          online: p.isOnline,
+          distanceKm: p.baseLat != null && p.baseLng != null ? haversineKm(j.lat, j.lng, p.baseLat, p.baseLng) : null,
+        }))
+        .sort((a, b) => (a.distanceKm ?? 1e9) - (b.distanceKm ?? 1e9))
+        .slice(0, 8);
+      return {
+        id: j.id,
+        title: j.title,
+        icon: j.category.icon,
+        city: j.city,
+        areaLabel: j.areaLabel,
+        ageMin: Math.round((Date.now() - j.createdAt.getTime()) / 60000),
+        notified: j._count.dispatchAlerts,
+        customerName: j.customer.name,
+        customerPhone: j.customer.phone,
+        candidates,
+      };
+    }),
+  );
+}
+
+export const dynamic = "force-dynamic";
+
 export default async function AdminJobsPage() {
+  const unmatched = await getUnmatched();
   const jobs = await prisma.job.findMany({
     orderBy: { createdAt: "desc" },
     take: 200,
@@ -20,7 +67,14 @@ export default async function AdminJobsPage() {
   return (
     <div>
       <h1 className="mb-1 font-display text-3xl font-bold">Jobs</h1>
-      <p className="mb-8 text-text-muted">All posted jobs across the platform.</p>
+      <p className="mb-8 text-text-muted">Unmatched open jobs first (concierge matching), then every job on the platform.</p>
+
+      <h2 className="mb-3 font-display text-xl font-bold">Unmatched open jobs</h2>
+      <div className="mb-10">
+        <ConciergeClient jobs={unmatched} />
+      </div>
+
+      <h2 className="mb-3 font-display text-xl font-bold">All jobs</h2>
 
       <div className="overflow-x-auto rounded-[14px] border border-border-subtle">
         <table className="w-full min-w-[800px] text-sm">

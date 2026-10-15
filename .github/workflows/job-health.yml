@@ -1,0 +1,23 @@
+name: Job health (no-bids reminders)
+
+# Every 10 minutes: customers whose open job still has no bids get a message with
+# the option to widen the search, and the (flag-gated, currently stubbed)
+# SMS/WhatsApp fallback runs. Needs the same CRON_SECRET repo secret as
+# verification-sla.yml. Scheduled workflows only run from the default branch.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call the job-health endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: https://www.servigic.com
+        run: |
+          if [ -z "$CRON_SECRET" ]; then echo "CRON_SECRET repo secret is not set"; exit 1; fi
+          curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" "$SITE_URL/api/cron/job-health"

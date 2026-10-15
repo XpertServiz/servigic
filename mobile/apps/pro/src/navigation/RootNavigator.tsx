@@ -27,6 +27,8 @@ import ProfileScreen from "../screens/ProfileScreen";
 import LanguageScreen from "../screens/LanguageScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
 import BidAcceptedScreen from "../screens/BidAcceptedScreen";
+import NeverMissJobScreen, { hasSeenNeverMiss } from "../screens/NeverMissJobScreen";
+import { useNotificationTaps } from "../lib/notificationNav";
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -41,7 +43,7 @@ export type HomeStackParamList = {
 
 export type JobsStackParamList = {
   Jobs: undefined;
-  JobDetail: { jobId: string };
+  JobDetail: { jobId: string; goOnline?: boolean };
   BookingDetail: { bookingId: string };
   MessageThread: { bookingId: string; otherPartyName: string };
 };
@@ -59,6 +61,7 @@ export type RootStackParamList = {
   BidAccepted: { bookingId: string };
   Language: undefined;
   Notifications: undefined;
+  NeverMiss: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -197,12 +200,24 @@ function MainTabs() {
 }
 
 function MainRoot() {
+  useNotificationTaps(true);
+  // First time in the app after approval: walk the pro through notification + battery settings once.
+  useEffect(() => {
+    let alive = true;
+    hasSeenNeverMiss().then((seen) => {
+      if (alive && !seen) setTimeout(() => navigateRoot("NeverMiss"), 1200);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
   return (
     <RootStack.Navigator screenOptions={{ ...screenOptions, headerShown: false }}>
       <RootStack.Screen name="Main" component={MainTabs} />
       <RootStack.Screen name="BidAccepted" component={BidAcceptedScreen} options={{ animation: "fade", gestureEnabled: false }} />
       <RootStack.Screen name="Language" component={LanguageScreen} options={{ presentation: "modal" }} />
       <RootStack.Screen name="Notifications" component={NotificationsScreen} options={{ presentation: "modal" }} />
+      <RootStack.Screen name="NeverMiss" component={NeverMissJobScreen} options={{ presentation: "modal" }} />
     </RootStack.Navigator>
   );
 }

@@ -66,7 +66,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   // extra commission rides along into the same CommissionLedgerEntry written
   // at completion (bookings/[id]/confirm/route.ts), not a separate one here.
   const commissionPct = changeOrder.booking.providerProfile.commissionPct;
-  const commissionCut = Math.round((changeOrder.extraAmountPKR * commissionPct) / 100);
+  // A commission-free (early-pro) booking stays commission-free when extra work is added.
+  const commissionCut = changeOrder.booking.commissionPKR === 0 ? 0 : Math.round((changeOrder.extraAmountPKR * commissionPct) / 100);
   const payoutCut = changeOrder.extraAmountPKR - commissionCut;
 
   const [updated] = await prisma.$transaction([

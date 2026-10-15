@@ -28,8 +28,15 @@ export default function JobDetailScreen({ route, navigation }: Props) {
   const [partsNote, setPartsNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [winHint, setWinHint] = useState<{ winProbability: number; isHeuristic: boolean } | null>(null);
+  const [online, setOnlineState] = useState(true);
+  const [goingOnline, setGoingOnline] = useState(false);
 
   const load = useCallback(() => {
+    // Opened from an alert while offline? Offer a one-tap "Go online and bid".
+    api
+      .getMe()
+      .then(({ user }) => setOnlineState((user.providerProfile as { isOnline?: boolean } | null)?.isOnline !== false))
+      .catch(() => {});
     api.getProviderJobDetail(jobId).then((data) => {
       // Once the customer accepts this bid, there's nothing left to do on
       // the job screen — the booking (contact, map, chat, status buttons)
@@ -96,6 +103,19 @@ export default function JobDetailScreen({ route, navigation }: Props) {
     }
   }
 
+  async function goOnline() {
+    setGoingOnline(true);
+    try {
+      const res = await api.setOnline(true);
+      setOnlineState(res.isOnline);
+      haptic.success();
+    } catch (e) {
+      Alert.alert(t("common.error"), e instanceof Error ? e.message : t("bid.failed"));
+    } finally {
+      setGoingOnline(false);
+    }
+  }
+
   async function respondToCounter(action: "accept" | "decline") {
     if (!myBid) return;
     setBusy(true);
@@ -118,6 +138,13 @@ export default function JobDetailScreen({ route, navigation }: Props) {
       <Text style={{ color: colors.textMuted, marginTop: 10, fontSize: 13 }}>
         {job.customerFirstName as string} · {job.distanceBand as string} · {job.areaLabel as string}
       </Text>
+
+      {!online && verificationLevel >= 1 && (
+        <Card style={{ marginTop: 20, borderColor: colors.accentBorder }}>
+          <Text style={{ color: colors.accent, fontWeight: "700", marginBottom: 10 }}>{t("alerts.goOnlineBid")}</Text>
+          <Button title={t("alerts.goOnlineButton")} onPress={goOnline} loading={goingOnline} />
+        </Card>
+      )}
 
       {verificationLevel < 1 ? (
         <Card style={{ marginTop: 20, borderColor: colors.accentBorder }}>

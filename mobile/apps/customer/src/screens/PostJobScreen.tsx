@@ -11,6 +11,7 @@ import * as api from "../lib/api";
 import { Field } from "../components/ui";
 import { GradientButton, SegmentedControl } from "../components/ds";
 import { Icon } from "../components/Icon";
+import { WaitlistCard } from "../components/MarketNotice";
 import { colors } from "../lib/theme";
 import { useI18n } from "../lib/i18n";
 
@@ -33,13 +34,23 @@ export default function PostJobScreen({ navigation, route }: Props) {
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Market config (handoff section 11.6): only categories switched on in the user's market are offered.
+  const [acceptingJobs, setAcceptingJobs] = useState(true);
+  const [userCity, setUserCity] = useState<string | null>(null);
 
   useEffect(() => {
     api
+      .getMe()
+      .then(({ user }) => setUserCity(typeof user.city === "string" ? user.city : null))
+      .catch(() => {});
+    api
       .getCategories()
-      .then(({ categories: fetched }) => {
+      .then(({ categories: fetched, acceptingJobs: accepting }) => {
         setCategories(fetched);
-        if (!route.params?.categoryId && fetched[0]) setCategoryId(fetched[0].id);
+        setAcceptingJobs(accepting !== false);
+        const firstAvailable = fetched.find((c) => c.available);
+        const wanted = fetched.find((c) => c.id === route.params?.categoryId && c.available);
+        if (!wanted && firstAvailable) setCategoryId(firstAvailable.id);
       })
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -91,7 +102,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
         description,
         photos,
         urgency,
-        city: "Karachi",
+        city: userCity ?? "Karachi",
         areaLabel,
         exactAddress,
         lat: coords.lat,
@@ -110,6 +121,10 @@ export default function PostJobScreen({ navigation, route }: Props) {
           { text: t("post.postAnyway"), onPress: () => submit(true) },
           { text: t("common.cancel"), style: "cancel" as const },
         ]);
+      } else if (e instanceof api.ApiError && e.code === "MARKET_NOT_AVAILABLE") {
+        setAcceptingJobs(false);
+      } else if (e instanceof api.ApiError && e.code === "CATEGORY_NOT_AVAILABLE") {
+        setError(t("market.categoryUnavailable"));
       } else {
         setError(e instanceof Error ? e.message : t("post.failed"));
       }
@@ -124,6 +139,19 @@ export default function PostJobScreen({ navigation, route }: Props) {
     { value: "SCHEDULED", label: t("urgency.SCHEDULED") },
   ];
 
+  const available = categories.filter((c) => c.available);
+
+  if (!acceptingJobs) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.bg, padding: 18, paddingTop: insets.top + 16, gap: 14 }}>
+        <Pressable onPress={() => navigation.goBack()} accessibilityLabel={t("common.back")}>
+          <Icon name="back" size={16} />
+        </Pressable>
+        <WaitlistCard title={t("market.outsideTitle")} body={t("market.outsideBody")} role="CUSTOMER" city={userCity} />
+      </View>
+    );
+  }
+
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.bg }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
@@ -136,7 +164,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
         <Text style={styles.label}>{t("post.category")}</Text>
         <View style={styles.rowWrap}>
-          {categories.map((c) => {
+          {available.map((c) => {
             const active = categoryId === c.id;
             return (
               <Pressable key={c.id} onPress={() => setCategoryId(c.id)} style={[styles.catChip, active && styles.catChipActive]}>

@@ -18,6 +18,10 @@ export interface NotifyPayload {
   /** Picks the mobile push sound/channel when it differs from `type` (e.g.
    * chat messages are stored as STATUS_UPDATE but should ping lightly). */
   pushChannelHint?: string;
+  /** false = write the in-app notification only (quiet hours / paused pros). Default true. */
+  push?: boolean;
+  /** Extra fields merged into the push `data` (e.g. jobId so a tap can deep-link). */
+  pushData?: Record<string, unknown>;
 }
 
 // Single entry point for every alert in the system (Master Brief §8: "All
@@ -25,7 +29,7 @@ export interface NotifyPayload {
 // written; external channels are config, not code — each adapter no-ops
 // safely when its credentials aren't set yet.
 export async function notify(payload: NotifyPayload) {
-  const { userId, type, title, body, linkUrl, channels = [], pushChannelHint } = payload;
+  const { userId, type, title, body, linkUrl, channels = [], pushChannelHint, push = true, pushData } = payload;
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -38,8 +42,8 @@ export async function notify(payload: NotifyPayload) {
   });
 
   await Promise.allSettled([
-    user.fcmTokens.length > 0
-      ? sendExpoPushChannel({ tokens: user.fcmTokens, title, body, data: { linkUrl, type: pushChannelHint ?? type } })
+    push && user.fcmTokens.length > 0
+      ? sendExpoPushChannel({ tokens: user.fcmTokens, title, body, data: { linkUrl, type: pushChannelHint ?? type, ...pushData } })
       : Promise.resolve(),
     channels.includes("email") && user.email
       ? sendEmailChannel({ to: user.email, subject: title, body })

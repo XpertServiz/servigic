@@ -28,7 +28,9 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   const paymentMode = await getPaymentMode();
   const commissionPct = bid.provider.commissionPct;
-  const commissionPKR = Math.round((bid.pricePKR * commissionPct) / 100);
+  // Early-pro incentive: the pro's first N jobs are commission-free (set at activation, see proActivation.ts).
+  const commissionWaived = bid.provider.commissionFreeJobsLeft > 0;
+  const commissionPKR = commissionWaived ? 0 : Math.round((bid.pricePKR * commissionPct) / 100);
   const payoutPKR = bid.pricePKR - commissionPKR;
   const isInstantMatch = Boolean(bid.itemized && typeof bid.itemized === "object" && (bid.itemized as { instantMatch?: boolean }).instantMatch);
 
@@ -53,6 +55,14 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
         data: { status: "ACCEPTED" },
       });
       if (claimedBid.count !== 1) throw new BidUnavailableError();
+
+      if (commissionWaived) {
+        const used = await tx.providerProfile.updateMany({
+          where: { id: bid.providerId, commissionFreeJobsLeft: { gt: 0 } },
+          data: { commissionFreeJobsLeft: { decrement: 1 } },
+        });
+        if (used.count !== 1) throw new BidUnavailableError();
+      }
 
       const created = await tx.booking.create({
         data: {

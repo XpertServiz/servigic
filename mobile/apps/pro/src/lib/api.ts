@@ -130,10 +130,30 @@ export function markNotificationsRead() {
   return request<{ ok: true }>("/api/mobile/notifications", { method: "POST" });
 }
 
+
+// ─── Market config (handoff section 11.6) ───
+export type MarketConfig = {
+  legacyOpen: boolean;
+  country: string | null;
+  market: { id: string; name: string; status: "WAITLIST" | "PILOT" | "LIVE"; cities: string[]; currency: string; phoneCode: string; timezone: string } | null;
+  acceptingJobs: boolean;
+  trades: Record<string, boolean>;
+};
+
+export function getMarketConfig(city?: string | null) {
+  return request<MarketConfig>(`/api/mobile/config${city ? `?city=${encodeURIComponent(city)}` : ""}`);
+}
+
+export function joinWaitlist(input: { trade?: string; role?: "CUSTOMER" | "PROVIDER"; city?: string; email?: string; phone?: string }) {
+  return request<{ ok: true }>("/api/mobile/waitlist", { method: "POST", body: JSON.stringify(input) });
+}
+
 // ─── Categories ───
 export function getCategories() {
   return request<{
-    categories: { id: string; name: string; icon: string; slug: string; subServices: { id: string; name: string }[] }[];
+    categories: { id: string; name: string; icon: string; slug: string; trade: string; available: boolean; subServices: { id: string; name: string }[] }[];
+    acceptingJobs: boolean;
+    market: { id: string; name: string; status: string } | null;
   }>("/api/mobile/categories");
 }
 
@@ -376,4 +396,23 @@ export async function uploadFile(fileUri: string, fileName: string, mimeType: st
   }
   if (!data.url) throw new ApiError("Upload succeeded but no URL was returned", result.status);
   return data.url;
+}
+
+// ─── Pro supply/demand + alert controls (handoff sections 11.4, 11.5) ───
+export type ProviderStatus = {
+  activation: "ACTIVE" | "WAITING";
+  approved: boolean;
+  foundingPro: boolean;
+  commissionFreeJobsLeft: number;
+  market: { name: string; status: string; open: boolean } | null;
+  jobsThisWeek: number;
+  alerts: { paused: boolean; quietStartMin: number | null; quietEndMin: number | null; dailyCap: number };
+};
+
+export function getProviderStatus() {
+  return request<ProviderStatus>("/api/mobile/provider/status");
+}
+
+export function updateAlertSettings(input: { paused?: boolean; quietStartMin?: number | null; quietEndMin?: number | null; dailyCap?: number }) {
+  return request<{ alerts: ProviderStatus["alerts"] }>("/api/mobile/provider/alerts", { method: "PUT", body: JSON.stringify(input) });
 }

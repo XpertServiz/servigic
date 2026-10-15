@@ -11,6 +11,9 @@ const schema = z.object({
   demoVideoCustomerUrl: z.string().trim().max(200).optional(),
   demoVideoProUrl: z.string().trim().max(200).optional(),
   defaultWalletCeilingPKR: z.number().min(0).optional(),
+  earlyProFreeJobs: z.number().int().min(0).max(100).optional(),
+  alertNearestN: z.number().int().min(1).max(100).optional(),
+  noBidsAfterMin: z.number().int().min(5).max(240).optional(),
   featureFlags: z
     .object({
       aiJobTriage: z.boolean(),
@@ -18,6 +21,7 @@ const schema = z.object({
       aiDisputeSummarizer: z.boolean(),
       aiBidWinHint: z.boolean(),
       paymentMode: z.enum(["CASH_WALLET", "PROTECTED"]),
+      smsFallbackEnabled: z.boolean().optional(),
     })
     .optional(),
 });

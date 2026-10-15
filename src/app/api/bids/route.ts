@@ -27,6 +27,13 @@ export async function POST(req: Request) {
     );
   }
 
+  if (profile.activation === "WAITING") {
+    return NextResponse.json(
+      { error: "You're approved, but jobs haven't opened for your area or trade yet. We'll notify you as soon as they do.", code: "PRO_WAITING" },
+      { status: 403 }
+    );
+  }
+
   const job = await prisma.job.findUnique({ where: { id: jobId } });
   if (!job || job.status !== "OPEN") {
     return NextResponse.json({ error: "This job is no longer accepting bids" }, { status: 400 });

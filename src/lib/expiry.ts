@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getPaymentMode } from "@/lib/featureFlags";
 import { recomputeAllActiveCancellationRates } from "@/lib/cancellationRate";
+import { notifyJobsWithoutBids } from "@/lib/jobHealth";
 
 // Auto-expiry side-effects (Master Brief §12): run as a cheap updateMany at
 // the top of the relevant page/API load instead of a scheduled cron job.
@@ -50,5 +51,6 @@ export async function runExpirySweep() {
     expireUnpaidBookings(),
     autoConfirmDoneBookings(),
     recomputeAllActiveCancellationRates(),
+    notifyJobsWithoutBids().catch(() => 0),
   ]);
 }

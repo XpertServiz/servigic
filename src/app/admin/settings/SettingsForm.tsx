@@ -11,6 +11,7 @@ const FLAG_LABELS: Record<Exclude<keyof FeatureFlags, "paymentMode">, { label: s
   aiLeadQualifier: { label: "Lead Qualifier Agent", desc: "\"AI Qualify\" priority score + drafted outreach in Leads CRM" },
   aiDisputeSummarizer: { label: "Dispute Summarizer Agent", desc: "\"Summarize with AI\" on the admin disputes queue" },
   aiBidWinHint: { label: "Bid-Win Probability (ML)", desc: "\"Price to win\" hint shown to providers on the bid form" },
+  smsFallbackEnabled: { label: "SMS/WhatsApp job-alert fallback (stub)", desc: "Phase 2: text pros who ignored the push. Costs money per message and is not implemented yet — leave off." },
 };
 
 export function SettingsForm({
@@ -23,6 +24,9 @@ export function SettingsForm({
     demoVideoCustomerUrl: string;
     demoVideoProUrl: string;
     defaultWalletCeilingPKR: number;
+    earlyProFreeJobs: number;
+    alertNearestN: number;
+    noBidsAfterMin: number;
     featureFlags: FeatureFlags;
   };
 }) {
@@ -156,6 +160,31 @@ export function SettingsForm({
           onChange={(e) => setForm({ ...form, defaultWalletCeilingPKR: Number(e.target.value) })}
           className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
         />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Launch, alerts &amp; early pros</label>
+        <div className="flex flex-col gap-3">
+          {(
+            [
+              ["earlyProFreeJobs", "Commission-free jobs for early pros (N)", "A pro activated while their market is in PILOT gets a Founding Pro badge and their first N jobs without commission. 0 = off."],
+              ["alertNearestN", "Job alerts: nearest N pros", "Each new job is pushed to the nearest N matching pros (online or offline)."],
+              ["noBidsAfterMin", "Tell the customer there are no bids after (minutes)", "One reminder with the option to widen the search or edit the job."],
+            ] as const
+          ).map(([key, label, desc]) => (
+            <div key={key}>
+              <label className="mb-1 block text-xs font-semibold text-text-muted">{label}</label>
+              <p className="mb-1.5 text-xs text-text-muted">{desc}</p>
+              <input
+                type="number"
+                min={0}
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: Number(e.target.value) })}
+                className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       <div>

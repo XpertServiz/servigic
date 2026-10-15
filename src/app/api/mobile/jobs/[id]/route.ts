@@ -25,6 +25,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  const [notifiedCount, settings] = await Promise.all([
+    prisma.dispatchAlert.count({ where: { jobId: job.id } }),
+    prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { noBidsAfterMin: true } }),
+  ]);
+
   const bids = job.bids.map((bid) => ({
     id: bid.id,
     proLabel: proSerial(bid.provider.serialNumber),
@@ -55,7 +60,12 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       areaLabel: job.areaLabel,
       categoryName: job.category.name,
       categoryIcon: job.category.icon,
+      createdAt: job.createdAt,
+      extraRadiusKm: job.extraRadiusKm,
     },
+    // Waiting-for-bids screen: how many nearby pros were notified, and when to tell the customer nothing came.
+    notifiedCount,
+    noBidsAfterMin: settings?.noBidsAfterMin ?? 20,
     bids,
   });
 }
