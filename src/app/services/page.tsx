@@ -13,7 +13,7 @@ import { getDemoVideos } from "@/lib/siteVideos";
 import { CITY_SLUGS, SERVICE_CATALOG, TRADE_ICONS } from "@/lib/catalog";
 import { breadcrumbJsonLd, pageMetadata, absoluteUrl, SITE_NAME } from "@/lib/seo";
 import { localizePath, type Locale } from "@/i18n/locales";
-import { fmtMoney } from "@/lib/format";
+import { minPriceLabel } from "@/lib/marketPrices";
 import { getMoney } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
@@ -85,7 +85,7 @@ export default async function ServicesIndexPage() {
                     <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-2xl">{TRADE_ICONS[c.trade] ?? "🛠️"}</span>
                     <div>
                       <h2 className="text-lg font-bold">{name(c)}</h2>
-                      {c.minPricePKR ? <p className="text-xs text-text-muted">{t("startingFrom", { price: fmtMoney(c.minPricePKR, locale, money.currency, money.rate) })}</p> : null}
+                      {(() => { const price = minPriceLabel({ trade: c.trade, pkr: c.minPricePKR, country: money.country, locale, currency: money.currency, rate: money.rate }); return price ? <p className="text-xs text-text-muted">{t("startingFrom", { price })}</p> : null; })()}
                     </div>
                   </div>
                   <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.14em] text-text-muted">{t("cities")}</p>

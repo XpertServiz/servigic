@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { SectionHead } from "@/components/ui/SectionHead";
 import { Reveal } from "@/components/ui/Reveal";
 import { TiltCard } from "@/components/ui/TiltCard";
-import { fmtMoney } from "@/lib/format";
+import { minPriceLabel } from "@/lib/marketPrices";
 import { getMoney } from "@/lib/money";
 
 interface PlanTeaserCard {
@@ -27,7 +27,7 @@ export async function PlansTeaser({ cards }: { cards: PlanTeaserCard[] }) {
               <div className="mb-2 text-3xl">{c.icon}</div>
               <h3 className="mb-1 text-lg font-bold">{ts.has(c.trade) ? ts(c.trade) : c.title}</h3>
               <p className="mb-4 text-sm text-text-muted">{t(`cadence.${c.trade}`)}</p>
-              <div className="text-lg font-bold text-accent">{t("from", { price: fmtMoney(c.fromPKR, locale, money.currency, money.rate) })}</div>
+              <div className="text-lg font-bold text-accent">{t("from", { price: minPriceLabel({ trade: c.trade, pkr: c.fromPKR, country: money.country, locale, currency: money.currency, rate: money.rate }) ?? "" })}</div>
             </TiltCard>
           </Reveal>
         ))}

@@ -42,3 +42,8 @@ export function fmtMoney(pkr: number, locale: string, currency = "PKR", rate = 1
   if (currency === "PKR") return fmtPKR(pkr, locale);
   return `~${new Intl.NumberFormat(tag(locale), { style: "currency", currency, maximumFractionDigits: 0 }).format(pkr * rate)}`;
 }
+
+/** An exact amount in a given currency (Latin digits). */
+export function fmtCurrency(amount: number, locale: string, currency: string): string {
+  return new Intl.NumberFormat(tag(locale), { style: "currency", currency, maximumFractionDigits: 0 }).format(amount);
+}

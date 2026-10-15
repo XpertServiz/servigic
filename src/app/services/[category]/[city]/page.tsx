@@ -12,6 +12,8 @@ import { AutoVideo } from "@/components/media/AutoVideo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { detectMarket } from "@/lib/geoDetect";
 import { formatApproxFromPKR } from "@/lib/currency";
+import { getMoney } from "@/lib/money";
+import { minPriceLabel } from "@/lib/marketPrices";
 import { getPriceBenchmark } from "@/lib/priceBenchmark";
 import { getDemoVideos } from "@/lib/siteVideos";
 import { CITY_SLUGS, TRADE_ICONS, slugToCity } from "@/lib/catalog";
@@ -71,10 +73,9 @@ export default async function ServiceCityPage({ params }: { params: Promise<{ ca
   const service = ts.has(data.category.trade) ? ts(data.category.trade) : data.category.name;
   const cityName = tc.has(data.cityLabel) ? tc(data.cityLabel) : data.cityLabel;
 
-  const [avgWinningBidLabel, minPriceLabel] = await Promise.all([
-    data.benchmark ? formatApproxFromPKR(data.benchmark.avgWinningPKR, market.currency) : Promise.resolve(null),
-    data.category.minPricePKR ? formatApproxFromPKR(data.category.minPricePKR, market.currency) : Promise.resolve(null),
-  ]);
+  const money = await getMoney();
+  const avgWinningBidLabel = data.benchmark ? await formatApproxFromPKR(data.benchmark.avgWinningPKR, market.currency) : null;
+  const startPrice = minPriceLabel({ trade: data.category.trade, pkr: data.category.minPricePKR, country: money.country, locale, currency: money.currency, rate: money.rate });
 
   const faqs = (t.raw("faq") as { q: string; a: string }[]).map((f) => ({
     q: f.q.replaceAll("{service}", service).replaceAll("{city}", cityName),
@@ -116,10 +117,10 @@ export default async function ServiceCityPage({ params }: { params: Promise<{ ca
                 {avgWinningBidLabel ? t("avgWinning", { count: data.benchmark!.sampleSize, days: data.benchmark!.windowDays }) : t("priceVaries")}
               </div>
             </div>
-            {minPriceLabel && (
+            {startPrice && (
               <div className="sv-card px-5 py-4">
                 <div className="text-2xl font-extrabold text-accent" dir="ltr">
-                  {minPriceLabel}+
+                  {startPrice}+
                 </div>
                 <div className="text-xs text-text-muted">{t("startingPrice")}</div>
               </div>

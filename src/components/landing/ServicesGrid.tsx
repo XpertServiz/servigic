@@ -1,10 +1,10 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { LLink } from "@/components/i18n/LLink";
 import { SectionHead } from "@/components/ui/SectionHead";
 import { Reveal } from "@/components/ui/Reveal";
-import { detectMarket } from "@/lib/geoDetect";
-import { formatApproxFromPKR } from "@/lib/currency";
+import { getMoney } from "@/lib/money";
+import { minPriceLabel } from "@/lib/marketPrices";
 import { SERVICE_CATALOG, TRADE_ICONS } from "@/lib/catalog";
 
 async function getCategories() {
@@ -18,10 +18,10 @@ async function getCategories() {
 }
 
 export async function ServicesGrid({ showAll = false }: { showAll?: boolean } = {}) {
-  const [t, ts, categories, market] = await Promise.all([getTranslations("services"), getTranslations("services.trades"), getCategories(), detectMarket()]);
+  const [t, ts, categories, money, locale] = await Promise.all([getTranslations("services"), getTranslations("services.trades"), getCategories(), getMoney(), getLocale()]);
   const shown = showAll ? categories : categories.slice(0, 12);
 
-  const priceLabels = await Promise.all(shown.map((c) => (c.minPricePKR ? formatApproxFromPKR(c.minPricePKR, market.currency) : Promise.resolve(null))));
+  const priceLabels = shown.map((c) => minPriceLabel({ trade: c.trade, pkr: c.minPricePKR, country: money.country, locale, currency: money.currency, rate: money.rate }));
 
   return (
     <section id="services" className="container-x py-16 md:py-24">
