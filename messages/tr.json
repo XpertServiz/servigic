@@ -1,0 +1,538 @@
+{
+  "meta": {
+    "home": {
+      "title": "Servigic — Pakistan'da Ev Hizmetleri | İş Ver, Teklif Al",
+      "description": "İşinizi ücretsiz yayınlayın; doğrulanmış tesisatçılar, elektrikçiler, klima teknisyenleri ve daha fazlası dakikalar içinde teklif versin. Gerçek fiyatları karşılaştırın, ustanızı seçin, iş bitince doğrudan ödeyin. Karaçi, Lahor, İslamabad.",
+      "keywords": "Pakistan ev hizmetleri, Karaçi tesisatçı, Lahor elektrikçi, İslamabad klima teknisyeni, doğrulanmış hizmet sağlayıcılar, online teklif al, yakınımdaki usta, Servigic"
+    },
+    "how": {
+      "title": "Servigic Nasıl Çalışır — Yayınla, Teklif Al, Çözdür",
+      "description": "Fotoğraflarla iş yayınlayın, doğrulanmış ustalar dakikalar içinde teklif versin, siz en iyi fiyatı seçin ve iş bitince ustanıza doğrudan ödeyin.",
+      "keywords": "online tesisatçı nasıl tutulur, ev hizmetleri teklif uygulaması, tamir tekliflerini karşılaştır, Servigic nasıl çalışır"
+    },
+    "pro": {
+      "title": "Servigic Ustası Ol — Sıfır Müşteri Yönlendirme Ücreti",
+      "description": "Doğrulanmış hizmet ustası olarak Servigic'e katılın. Yönlendirme ücreti yok, yalnızca işi kazanınca ödersiniz, anında iş bildirimleri ve EasyPaisa, JazzCash veya banka ile doğrudan ödeme.",
+      "keywords": "tesisatçı ortak ol, Pakistan elektrikçi işleri, hizmet sağlayıcı uygulaması, yönlendirme ücreti olmayan platform, Servigic usta"
+    },
+    "services": {
+      "title": "Pakistan'da Ev Hizmetleri — Tesisat, Elektrik, Klima ve Daha Fazlası",
+      "description": "Karaçi, Lahor, İslamabad ve Rawalpindi'de 12 meslek. Ücretsiz iş yayınlayın ve doğrulanmış ustaların tekliflerini karşılaştırın.",
+      "keywords": "tesisatçı, elektrikçi, klima teknisyeni, güneş enerjisi kurulumcusu, marangoz, boyacı, beyaz eşya tamiri, oto tamircisi, nakliyat, temizlik, duvarcı, tamirci, Pakistan"
+    },
+    "city": {
+      "title": "{city} {service} — Dakikalar İçinde Teklifler",
+      "description": "{city} için {service} işi yayınlayın ve dakikalar içinde doğrulanmış ustalardan teklif alın. Fiyatı, puanı ve varış süresini karşılaştırın, iş bitince ustanıza doğrudan ödeyin."
+    },
+    "trust": {
+      "title": "Güven ve Güvenlik — Doğrulanmış Ustalar, Gizli İletişim",
+      "description": "Servigic sizi nasıl korur: kimliği doğrulanmış ustalar, adli sicil kontrolü, gizlenen iletişim bilgileri, ek iş onayları ve anlaşmazlık arabuluculuğu.",
+      "keywords": "doğrulanmış tesisatçılar, güvenilir ev hizmetleri, hizmet sağlayıcıları güvenle tutmak"
+    },
+    "business": {
+      "title": "İşletmeler İçin Servigic — Çoklu Mülk Bakımı",
+      "description": "Her birim ve her meslek için tek panel. Mülk yöneticileri, villa yönetim şirketleri ve site yönetimleri için toplu iş yayınlama ve birleşik faturalama.",
+      "keywords": "Pakistan mülk bakımı, villa yönetimi bakım, tesis yönetimi tesisatçı elektrikçi"
+    },
+    "terms": { "title": "Kullanım Koşulları", "description": "Servigic pazaryerini kullanırken geçerli olan koşullar." },
+    "privacy": { "title": "Gizlilik Politikası", "description": "Servigic hangi verileri neden toplar ve nasıl korur." },
+    "login": { "title": "Giriş yap", "description": "İşlerinizi, tekliflerinizi ve rezervasyonlarınızı yönetmek için Servigic'e giriş yapın." },
+    "signup": { "title": "Hesap oluştur", "description": "İş yayınlamak veya doğrulanmış usta olarak teklif vermek için ücretsiz kaydolun." },
+    "verify": { "title": "Telefonunuzu doğrulayın", "description": "Telefonunuza gönderdiğimiz 6 haneli kodu girin." }
+  },
+  "common": {
+    "appName": "Servigic",
+    "loading": "Yükleniyor",
+    "splashTagline": "Ev hizmetleri · Pakistan · Bugün çözüldü",
+    "language": "Dil",
+    "currency": "Para birimi",
+    "free": "Ücretsiz",
+    "from": "Başlangıç",
+    "seePricing": "Fiyatları gör",
+    "perVisit": "/ziyaret",
+    "comingSoon": "Yakında",
+    "skipToContent": "İçeriğe geç",
+    "back": "Geri",
+    "learnMore": "Daha fazla bilgi"
+  },
+  "nav": {
+    "howItWorks": "Nasıl Çalışır",
+    "services": "Hizmetler",
+    "forPros": "Ustalar İçin",
+    "trust": "Güven ve Güvenlik",
+    "faq": "SSS",
+    "login": "Giriş yap",
+    "postJob": "İş yayınla",
+    "menu": "Menüyü aç",
+    "close": "Menüyü kapat"
+  },
+  "hero": {
+    "eyebrow": "Ustalar dakikalar içinde teklif verir — fiyatı siz seçersiniz",
+    "line1": "Bozuldu mu?",
+    "line2": "Çözülür",
+    "line3": "bugün.",
+    "sub": "İşinizi yayınlayın. Doğrulanmış ustalar teklif vermek için yarışır. İş bitince ustanıza doğrudan ödeyin.",
+    "ctaPrimary": "İş yayınla — dakikalar içinde teklif al",
+    "ctaSecondary": "Nasıl çalıştığını gör",
+    "joinWaitlist": "Bekleme listesine katıl",
+    "trusted": "Karaçi, Lahor ve İslamabad'daki ev sahiplerinin güvendiği platform",
+    "chipPro": "Ahmed · ★4,9 · 12 dk uzakta",
+    "chipBid": "Yeni teklif · PKR 3.500",
+    "chipVerified": "Doğrulanmış usta ✓"
+  },
+  "live": {
+    "eyebrow": "Servigic'te canlı",
+    "title": "Şu anda insanlar Servigic'te",
+    "sub": "Dünyanın dört bir yanından gerçek ve anonim ziyaretçi sayıları — birkaç saniyede bir güncellenir.",
+    "online": "Şu an çevrimiçi",
+    "today": "Bugünkü ziyaretçiler",
+    "total": "Toplam ziyaretçi",
+    "views": "Sayfa görüntüleme",
+    "countries": "Ziyaretçilerimiz nereden geliyor",
+    "countriesShort": "Ülkeler",
+    "visitors": "ziyaretçi",
+    "onlineHere": "çevrimiçi",
+    "empty": "İlk siz olun — ziyaretçiler geldikçe sayılar görünür.",
+    "unknown": "Bilinmeyen konum",
+    "privacy": "Çerezsiz ve anonim: ziyaretleri yalnızca ülkeye göre sayar, IP adreslerini asla saklamayız.",
+    "live": "CANLI"
+  },
+  "sim": {
+    "eyebrow": "İş başında görün",
+    "title": "Bir işin nasıl çözüldüğünü izleyin — 12 saniyede",
+    "job": "Klima soğutmuyor",
+    "area": "Gulshan-e-Iqbal",
+    "emergency": "Acil",
+    "eta": "{min} dk içinde gelir",
+    "accepted": "Kabul edildi ✓",
+    "statusAccepted": "Kabul edildi",
+    "statusOnTheWay": "Yolda",
+    "statusDone": "Bitti",
+    "paid": "PKR 3.500 doğrudan ödendi ✓",
+    "bidderPro": "Elektrikçi Usta #17",
+    "bidderFast": "Fast Fix Services"
+  },
+  "ticker": {
+    "bid": "{area} bölgesinde {category} teklifi: {price}",
+    "jobsWeek": "Bu hafta {count} iş tamamlandı",
+    "paidWeek": "Bu hafta ustalara {amount} ödendi"
+  },
+  "price": {
+    "eyebrow": "Gerçek fiyatlar, gerçek zamanlı",
+    "title": "İşler gerçekte ne kadara mal olur.",
+    "city": "Şehir",
+    "service": "Hizmet",
+    "loading": "Yükleniyor…",
+    "notEnough": "{city} için {service} hizmetinde güvenilir bir fiyat aralığı göstermeye yetecek kadar tamamlanmış iş henüz yok — yine de iş yayınlarken bütçeyi siz belirlersiniz.",
+    "estimate": "{city} için {service} başlangıç fiyatı tahmini — yeterli iş tamamlandığında gerçek verilerle güncellenir.",
+    "typical": "{city} için {service} tipik fiyatı · {count} tamamlanmış işe dayalı · ortalama {avg}"
+  },
+  "problem": {
+    "eyebrow": "Sorun",
+    "title": "İyi bir usta bulmak kumar olmamalı.",
+    "items": [
+      "WhatsApp grubundan 6 numara arayıp şansa güvenmek",
+      "“Uygulama PKR 1.500 dedi — yerinde 4.000 istedi”",
+      "Gerçekten gelip gelmeyeceğini, ne zaman geleceğini bilmemek",
+      "Nakit ödendi, iş yarım, numara engelli",
+      "Önümüzdeki hafta tekrar bozulursa hiçbir başvuru yolu yok"
+    ],
+    "fix": "Servigic beşini de çözer — teklif sistemi, doğrulanmış ustalar ve canlı takiple."
+  },
+  "how": {
+    "eyebrow": "Nasıl çalışır",
+    "title": "Üç adım. Sıfır kumar.",
+    "steps": [
+      {
+        "title": "İşinizi yayınlayın",
+        "desc": "30 saniye. Fotoğraflar + bölge. Usta seçene kadar tam adresiniz gizli kalır.",
+        "mock": "📷 3 fotoğraf · Klima teknisyeni · Gulshan-e-Iqbal · Acil"
+      },
+      {
+        "title": "Ustalar teklif için yarışır",
+        "desc": "Fiyat, puan ve varış süresini yan yana karşılaştırın — siz seçin ya da karşı teklif verin.",
+        "mock": "4 teklif alındı · fiyata göre sıralı ↓"
+      },
+      {
+        "title": "Canlı takip edin, iş bitince ödeyin",
+        "desc": "Ustanızın Uber gibi size gelişini izleyin. İş bitince ona doğrudan ödeyin.",
+        "mock": "Ahmed yolda · 35 dk içinde gelir"
+      }
+    ],
+    "emergencyLabel": "Acil durumlar için",
+    "emergencyTitle": "Ya da beklemeyi atlayın — Anında Eşleşme",
+    "emergencyDesc": "Gece 2'de boru mu patladı? Saniyeler içinde en yakın doğrulanmış ustayla eşleşin. Tekliflerin gelmesini beklemeden.",
+    "emergencyMock": "🚨 Anında Eşleşme · Ahmed (doğrulanmış usta, 4,8★) · PKR 2.875 · 12 dk içinde gelir · kabul için 90 sn"
+  },
+  "features": {
+    "board": {
+      "eyebrow": "Teklif panosu",
+      "title": "Ustalar yarışır. Siz kazanırsınız.",
+      "p1": "Her teklif fiyat, puan, mesafe ve varış süresini gösterir — istediğiniz gibi sıralayın.",
+      "p2": "Bir teklif hoşunuza gitmedi mi? Gerekçeyle reddedin ya da karşı teklif gönderin.",
+      "price": "Fiyat",
+      "rating": "Puan",
+      "eta": "Süre",
+      "etaMin": "{min} dk içinde gelir",
+      "declines": ["Çok pahalı", "Süre çok uzun", "Düşük puan"]
+    },
+    "cash": {
+      "eyebrow": "Ödemeyi iş bitince yaparsınız",
+      "title": "Peşin yok. Cüzdan yok. Ustanıza doğrudan ödeyin.",
+      "p1": "Teklifleri karşılaştırın, ustanızı seçin ve iş bitince nakit — ya da anlaştığınız şekilde — ödeyin. Basit, tanıdık, adil.",
+      "p2": "Yerinde ek iş çıktı mı? Değişiklik talebi yine önce sizin onayınızı ister — ne ödeyeceğinizi her zaman olmadan önce bilirsiniz.",
+      "steps": ["Teklifleri karşılaştır", "İş bitti", "Doğrudan öde"],
+      "badge": "🛠 İşçilik desteği — 7 gün",
+      "change": "Değişiklik talebi: “Paslanmış boru bulundu — ek PKR 800”",
+      "approve": "Onayla"
+    },
+    "protected": {
+      "eyebrow": "Ödeme koruması",
+      "title": "İş bitene kadar paranız yerinden oynamaz.",
+      "p1": "Ödendi → Tutuldu → İş bitti → Serbest bırakıldı. Her iş 7 günlük işçilik garantisi taşır.",
+      "p2": "Yerinde ek iş çıktı mı? Değişiklik talebi önce sizin onayınızı ister — yoksa yapılmaz.",
+      "steps": ["Ödendi", "Tutuldu", "İş bitti", "Serbest bırakıldı"],
+      "badge": "🛡 7 günlük işçilik garantisi"
+    },
+    "tracking": {
+      "eyebrow": "Canlı takip",
+      "title": "Ustanızın tam olarak nerede olduğunu bilin.",
+      "p1": "Ustanız işi kabul ettiği andan itibaren Uber tarzı canlı harita.",
+      "steps": ["Yolda", "Vardı", "Çalışıyor", "Bitti"],
+      "status": "Ahmed yolda · 35 dk içinde gelir"
+    },
+    "verified": {
+      "eyebrow": "Doğrulanmış ustalar, iki yönlü puanlama",
+      "title": "Kimliği doğrulanmış. 2. seviyede adli sicil kontrollü.",
+      "p1": "Gerçek işlerden sonra gerçek müşteriler tarafından puanlanır — ustalar da müşterileri puanlar.",
+      "badges": ["Doğrulanmış", "Doğrulanmış Usta", "Gold Ustad"],
+      "card": "Ahmed R. · ★4,9 · 212 iş tamamlandı",
+      "tags": ["Profesyonel", "Dakik", "Temiz iş"]
+    }
+  },
+  "services": {
+    "eyebrow": "Hizmetler",
+    "title": "12 meslek. Tek uygulama.",
+    "sub": "Damlayan musluktan komple güneş enerjisi kurulumuna kadar — bir kez yayınlayın, doğrulanmış ustalar işiniz için yarışsın.",
+    "from": "{price} ve üzeri",
+    "seePricing": "Fiyatları gör",
+    "trades": {
+      "PLUMBER": "Tesisatçı",
+      "ELECTRICIAN": "Elektrikçi",
+      "AC_TECHNICIAN": "Klima Teknisyeni",
+      "SOLAR_INSTALLER": "Güneş Enerjisi Kurulumcusu",
+      "CARPENTER": "Marangoz",
+      "PAINTER": "Boyacı",
+      "APPLIANCE_REPAIR": "Beyaz Eşya Tamiri",
+      "CAR_MECHANIC": "Oto Tamircisi",
+      "MOVERS": "Nakliyat",
+      "CLEANER": "Temizlik",
+      "MASON": "Duvarcı",
+      "HANDYMAN": "Tamirci",
+      "GENERATOR_REPAIR": "Jeneratör Tamiri",
+      "WATER_TANK_CLEANING": "Su Deposu Temizliği"
+    }
+  },
+  "cities": {
+    "Karachi": "Karaçi",
+    "Lahore": "Lahor",
+    "Islamabad": "İslamabad",
+    "Rawalpindi": "Rawalpindi"
+  },
+  "results": {
+    "eyebrow": "Sonuçlar",
+    "title": "Gerçek rakamlar. Uydurma istatistik yok.",
+    "launchNote": "Lansman aşaması — eşikler aşıldığında rakamlar canlı olarak güncellenir. Asla sahte yorum yok.",
+    "jobs": "Tamamlanan iş",
+    "paid": "Ustalara ödenen",
+    "firstBid": "İlk teklife ortalama süre",
+    "lessThanMin": "< 1 dk",
+    "minutes": "~{n} dk",
+    "hours": "~{n} saat",
+    "prev": "Önceki yorumlar",
+    "next": "Sonraki yorumlar",
+    "goto": "{n}. yorum sayfasına git"
+  },
+  "featuredPros": {
+    "eyebrow": "Öne çıkan doğrulanmış ustalar",
+    "title": "Gerçek ustalar. Doğrulanmış ve puanlanmış.",
+    "eyebrowGeneric": "Doğrulanmış ustalar",
+    "titleGeneric": "Her meslekte doğrulanmış ustalar.",
+    "achiever": "🏆 Başarılı",
+    "achieverTitle": "En yüksek puanlı usta",
+    "ratingJobs": "{rating}★ · {jobs} iş"
+  },
+  "forPros": {
+    "customerTitle": "Müşteri misiniz?",
+    "customerDesc": "Ücretsiz iş yayınlayın, dakikalar içinde teklif alın ve iş bitince ustanıza doğrudan ödeyin.",
+    "customerCta": "İş yayınla",
+    "proTitle": "Daha çok kazan. %88'ini sen tut.",
+    "zero": "PKR 0",
+    "zeroActive": "Bu ay {count} aktif hizmet sağlayıcımızın müşteri yönlendirmeye harcadığı tutar",
+    "zeroGeneric": "Müşteri yönlendirmeye harcanan. Asla. Diğer platformlar bir işi görmek için bile ücret alır — biz almayız.",
+    "perks": [
+      "Hiçbir zaman yönlendirme ücreti yok",
+      "Yalnızca işi kazanınca ödersiniz",
+      "Cebinizde Uber tarzı iş bildirimleri",
+      "Doğrudan EasyPaisa / JazzCash / bankaya ödeme",
+      "Rozet seviyeleri = daha düşük komisyon"
+    ],
+    "cta": "Servigic Ustası Ol"
+  },
+  "calc": {
+    "jobsPerWeek": "Haftalık iş",
+    "avgTicket": "Ortalama iş tutarı",
+    "monthly": "Tahmini aylık kazanç",
+    "note": "Servigic'in %12 komisyonu sonrası (Gold Ustad'da %10)."
+  },
+  "why": {
+    "eyebrow": "Neden Servigic",
+    "title": "Acımasızca dürüst karşılaştırma.",
+    "vs": "karşısında",
+    "tabs": {
+      "fixed": { "label": "Sabit fiyatlı uygulamalar", "sub": "Mahir, Karsaaz, HukumJanab tarzı" },
+      "lead": { "label": "Müşteri yönlendirme satan platformlar", "sub": "Thumbtack, Angi, Checkatrade, MyBuilder tarzı" },
+      "call": { "label": "Çağrı merkezleri", "sub": "HukumJanab tarzı telefon/uygulama yönlendirmesi" }
+    },
+    "features": [
+      "Gerçek fiyat rekabeti (teklif)",
+      "Ustaya aracısız doğrudan ödeme",
+      "Uber tarzı canlı takip",
+      "Ustalar için sıfır yönlendirme ücreti",
+      "Herkese açık doğrulama rozeti merdiveni"
+    ]
+  },
+  "plans": {
+    "eyebrow": "Kur ve unut",
+    "title": "Klima bakımını bir daha kaçırma.",
+    "from": "Ziyaret başına {price} ve üzeri",
+    "cta": "Plan oluştur",
+    "cadence": {
+      "AC_TECHNICIAN": "Üç ayda bir",
+      "GENERATOR_REPAIR": "6 ayda bir",
+      "WATER_TANK_CLEANING": "6 ayda bir"
+    }
+  },
+  "faq": {
+    "eyebrow": "SSS",
+    "title": "Sorunuz mu var? Cevaplar burada.",
+    "items": [
+      { "q": "İş yayınlamak ücretsiz mi?", "a": "Evet — iş yayınlamak her zaman ücretsizdir. Yalnızca bir teklifi kabul ettiğinizde ödersiniz ve iş bitince ustanıza doğrudan ödersiniz — Servigic ödemenizi asla tahsil etmez ya da tutmaz." },
+      { "q": "Peşin ödemiyorsam Servigic beni nasıl korur?", "a": "Paranızı tutmak yerine Servigic sizi doğrulanmış ustalarla (kimlik + selfie, üst seviyelerde adli sicil kontrolü), her işten sonra iki yönlü puanlamayla, ustanız yola çıkana kadar iletişim bilgilerini gizleyen uygulama içi sohbetle ve bir şeyler ters giderse devreye giren anlaşmazlık/arabuluculuk ekibiyle korur." },
+      { "q": "Usta yerinde ek iş bulursa ne olur?", "a": "Fotoğraf ve fiyatla bir değişiklik talebi sunar — ek iş başlamadan önce onaylarsınız ve ek tutar, ustanıza doğrudan ödediğinize eklenir." },
+      { "q": "Memnun kalmazsam ne olur?", "a": "Her iş 7 günlük işçilik desteği taşır. Anlaşmazlık açın; ekibimiz iki tarafın fotoğraflarını inceler ve ustanızla çözüm bulmanıza yardım eder." },
+      { "q": "Ustanın telefon numarasını neden hemen göremiyorum?", "a": "İletişim bilgileri, ustanız yolda olduğunu işaretleyene kadar uygulama içi sohbette gizli kalır — bu, platform dışı anlaşmaların önünü keser ve ikinizi de korur. Acil işlerde iletişim hemen açılır." },
+      { "q": "Teklifler ne kadar hızlı gelir?", "a": "Acil işlerde çoğu müşteri ilk teklifi 10 dakikadan kısa sürede görür; çünkü eşleşen yakındaki her usta anında bilgilendirilir." },
+      { "q": "Ustalar nasıl ödeme alır?", "a": "Doğrudan sizden — nakit, JazzCash, EasyPaisa ya da banka havalesi, ikinizin anlaştığı şekilde. Servigic bu ödemeye hiç dokunmaz; ustalar %12 komisyonlarını uygulama içi komisyon cüzdanlarından ayrıca öder." },
+      { "q": "Hangi şehirler?", "a": "Karaçi ile başlıyoruz, ardından Lahor ve İslamabad/Rawalpindi, sonra Körfez ülkeleri ve Kuzey Amerika." },
+      { "q": "Neden ustayı doğrudan aramak yerine Servigic üzerinden rezervasyon yapmalıyım?", "a": "Servigic ile doğrulanmış ve puanlanmış ustalar, iki yönlü yorumlar, bir sorun çıkarsa anlaşmazlık desteği ve gerçek tekliflerle fiyat rekabeti elde edersiniz — platformu atlarsanız bunların hiçbiri olmaz. Tekrar rezervasyonlar da “Tekrar rezerve et” ile tek dokunuştur." },
+      { "q": "Ben ya da ustam rezervasyonu iptal ederse ne olur?", "a": "Onaylı rezervasyonun iptali takip edilir — ara sıra iptal sorun değil ama yüksek iptal oranı bir süre iş yayınlama yeteneğinizi (veya bir ustanın iş bildirimlerini) durdurabilir. Bir usta sizden onunla doğrudan çalışmak için iptal etmenizi isterse bize bildirin — bu nedeni seçin, sizin aleyhinize saymak yerine ustanızı inceleriz." }
+    ]
+  },
+  "finalCta": {
+    "title1": "Kumarı bırak.",
+    "title2": "Çözdürmeye başla.",
+    "sub": "İlk işini ücretsiz yayınla. Dakikalar içinde teklifler. Doğrulanmış ustalar.",
+    "primary": "İş yayınla",
+    "secondary": "Usta ol",
+    "checks": ["Yayınlamak ücretsiz", "Sonra doğrudan öde", "Doğrulanmış ustalar", "7 gün destek"]
+  },
+  "waitlist": {
+    "eyebrow": "Yakında: {country}",
+    "title": "Burada başladığımızda ilk siz öğrenin.",
+    "desc": "Servigic henüz {country} ülkesinde hizmet vermiyor — orada henüz yerel usta ya da ödeme yöntemi bağlanmadı. E-postanızı bırakın, başlar başlamaz haber verelim.",
+    "email": "siz@ornek.com",
+    "name": "Ad (isteğe bağlı)",
+    "join": "Listeye katıl",
+    "joining": "Katılınıyor…",
+    "done": "Listedesiniz — Servigic {country} ülkesinde başladığında size e-posta göndereceğiz. 🎉",
+    "failed": "Bekleme listesine katılınamadı"
+  },
+  "footer": {
+    "tagline": "İş yayınla. Ustalar teklif için yarışır. Bugün çözülür.",
+    "services": "Hizmetler",
+    "company": "Şirket",
+    "forPros": "Ustalar İçin",
+    "legal": "Yasal",
+    "howItWorks": "Nasıl Çalışır",
+    "trust": "Güven ve Güvenlik",
+    "faq": "SSS",
+    "business": "Birden fazla mülk mü yönetiyorsunuz?",
+    "becomePro": "Usta Ol",
+    "earnings": "Kazanç hesaplayıcı",
+    "allServices": "Tüm hizmetler",
+    "terms": "Koşullar",
+    "privacy": "Gizlilik",
+    "rights": "© {year} Servigic. Tüm hakları saklıdır.",
+    "serviceLink": "{service} — {city}"
+  },
+  "pro": {
+    "eyebrow": "Ustalar için",
+    "title1": "Yönlendirme ücreti yok.",
+    "title2": "Asla.",
+    "sub": "Yalnızca işi kazanınca ödersiniz. Cebinizde Uber tarzı bildirimler. Doğrudan EasyPaisa, JazzCash veya bankaya ödeme.",
+    "cta": "Servigic Ustası Ol",
+    "videoTitle": "Bir ustanın Servigic'te nasıl kazandığını görün",
+    "zeroActive": "Geçen ay {count} aktif hizmet sağlayıcımızın müşteri yönlendirmeye harcadığı tutar",
+    "zeroGeneric": "Müşteri yönlendirmeye harcanan. Asla. Diğer platformlar bir işi görmek için bile ücret alır — biz almayız.",
+    "compareServigic": "Servigic",
+    "compareOther": "Tipik yönlendirme platformu",
+    "rows": [
+      { "feature": "Bir işi görmenin veya teklif vermenin maliyeti", "servigic": "PKR 0", "other": "Sonuç ne olursa olsun yönlendirme başına ücret" },
+      { "feature": "İşi kazanamazsanız maliyet", "servigic": "PKR 0", "other": "Yönlendirmenin parasını yine de ödediniz" },
+      { "feature": "Tamamlanan işlerde komisyon", "servigic": "%10–12", "other": "Geçerli değil — peşin ödendi" }
+    ],
+    "earningsTitle": "Kazanç hesaplayıcı",
+    "ladderTitle": "Doğrulama merdiveni",
+    "commission": "komisyon",
+    "ladder": [
+      { "level": "Seviye 1", "title": "Onaylı", "desc": "Kimlik + selfie yüklendi, yönetici onayladı. İşlere teklif verebilirsiniz." },
+      { "level": "Seviye 2", "title": "Doğrulanmış Usta", "desc": "Adli sicil belgesi. Öncelikli yönlendirme + teklif kartlarınızda rozet." },
+      { "level": "Seviye 3", "title": "Gold Ustad", "desc": "4,5★ veya üzeri puanla 10 tamamlanmış iş." }
+    ],
+    "readyTitle": "Kazanmaya başlamaya hazır mısınız?"
+  },
+  "howPage": {
+    "eyebrow": "Nasıl çalışır",
+    "title": "Yayınla. Teklif al. Çözdür. Bitti.",
+    "steps": [
+      { "title": "01 — İşinizi yayınlayın", "desc": "Bir kategori seçin, sorunu anlatın, en fazla 6 fotoğraf ekleyin ve aciliyeti belirleyin — Acil, Bugün veya Planlı. Tam adresiniz kaydedilir ancak usta seçene kadar gizli kalır." },
+      { "title": "02 — Ustalar teklif için yarışır", "desc": "O mesleği yapan yakındaki her doğrulanmış hizmet sağlayıcı anında bildirim alır — anlık bildirim, WhatsApp ve uygulama içi iş akışı. Fiyat, varış süresi ve bir mesaj gönderirler. Fiyata, puana veya süreye göre sıralanmış halde yan yana karşılaştırırsınız; gerekçeyle reddedebilir ya da teklif başına bir karşı teklif gönderebilirsiniz." },
+      { "title": "03 — Seçin, yazışın, canlı takip edin", "desc": "Bir teklifi kabul edin, uygulama içi sohbet açılır. Ustanız yola çıkınca iletişim bilgileri ve tam adresiniz açılır. Durumu gerçek zamanlı izleyin: Yolda → Vardı → Çalışıyor → Bitti; yoldayken canlı haritayla." },
+      { "title": "04 — Doğrudan ödeyin", "desc": "İş bitince ustanıza doğrudan ödeyin — nakit, JazzCash, EasyPaisa veya banka havalesi. Servigic ödemenizi asla tahsil etmez ya da tutmaz. Ek iş, yapılmadan önce değişiklik talebi olarak onayınızı gerektirir." },
+      { "title": "05 — Onaylayın ve puanlayın", "desc": "İşin bittiğini onaylayın (ya da anlaşmazlık yoksa “Bitti”den 24 saat sonra otomatik onaylanır). İki taraf birbirini puanlar ve her iş 7 günlük işçilik desteği taşır." }
+    ]
+  },
+  "trustPage": {
+    "eyebrow": "Güven ve güvenlik",
+    "title": "Doğrulama, gizleme ve arabuluculuk üzerine kurulu.",
+    "sections": [
+      { "title": "Doğrudan öde, kontrol sende kalsın", "desc": "Servigic'e hiçbir zaman peşin ödeme yapmazsınız. İş bittikten sonra ustanıza doğrudan ödersiniz ve her iş 7 günlük işçilik desteği taşır." },
+      { "title": "İletişim bilgilerinin gizlenmesi", "desc": "Usta yola çıkana kadar telefon numaraları ve tam adresler iki tarafta da gizli kalır. O zamana kadar hizmet sağlayıcılar anonim bir seri numarası (“Usta #42”), müşteriler ise yalnızca ad ve bölgeyle görünür." },
+      { "title": "Hizmet sağlayıcı doğrulama merdiveni", "desc": "Seviye 1: kimlik + selfie, yönetici onaylı — teklif verebilir. Seviye 2 “Doğrulanmış Usta”: adli sicil belgesi, öncelikli yönlendirme. Seviye 3 “Gold Ustad”: 4,5★ veya üzeri puanla 10 tamamlanmış iş, en düşük komisyon." },
+      { "title": "Değişiklik talepleri", "desc": "Bir hizmet sağlayıcı yerinde ek iş bulursa fotoğraf ve fiyatla değişiklik talebi sunar — ek iş başlamadan önce siz onaylarsınız." },
+      { "title": "Anlaşmazlıklar", "desc": "Bir sorun varsa onaylamadan önce anlaşmazlık açın — siz ve hizmet sağlayıcı fotoğraf gönderirsiniz, ekibimiz adil bir çözüm için arabuluculuk yapar." },
+      { "title": "Yalnızca platform kuralı", "desc": "Hizmet sağlayıcılar, Servigic üzerinden bulunan işleri Servigic üzerinde kapatmayı kabul eder. Bir yönlendirmeden sonra müşteriyi platform dışına çıkarmak listeden çıkarma sebebidir — bu, puanları, doğrulamayı ve anlaşmazlık desteğini herkes için anlamlı tutar." }
+    ]
+  },
+  "businessPage": {
+    "eyebrow": "İşletmeler için Servigic",
+    "title": "Tek panel. Her birim. Her meslek.",
+    "p1": "Birden fazla mülkün bakımını yönetmek; her birim, her meslek ve her ay için farklı ustaların peşinden koşmak demektir. İşletmeler için Servigic hepsini tek çatı altında toplar — bir kez yayınlayın, tüm mülklerinize dağıtın ve düzinelerce ayrı ödeme yerine tek bir birleşik fatura alın.",
+    "p2": "Villa yönetim şirketleri, site ve apartman kompleksi yöneticileri ile DHA tarzı topluluk yönetimi için tasarlandı — her Servigic işiyle aynı doğrulanmış usta ağı, yalnızca ölçeğe göre düzenlenmiş.",
+    "early": "Henüz erken aşamadayız — tam çoklu mülk panelini şimdi geliştiriyoruz. Bilgilerinizi aşağıya bırakın, portföyünüz için hazır olduğunda size ulaşalım.",
+    "form": {
+      "company": "Şirket adı",
+      "contact": "Adınız",
+      "phone": "Telefon numarası",
+      "email": "E-posta (isteğe bağlı)",
+      "units": "Birim sayısı (isteğe bağlı)",
+      "city": "Şehir",
+      "join": "Bekleme listesine katıl",
+      "joining": "Katılınıyor…",
+      "done": "Teşekkürler — İşletmeler için Servigic portföyünüze hazır olduğunda sizinle iletişime geçeceğiz. 🎉",
+      "failed": "Bekleme listesine katılınamadı"
+    }
+  },
+  "legal": {
+    "label": "Yasal",
+    "draft": "Taslak yer tutucu — yayına almadan önce lansman pazarlarınızda lisanslı bir avukata inceletin. Hukuki danışmanlığın yerini tutmaz.",
+    "termsTitle": "Kullanım Koşulları",
+    "terms": [
+      { "title": "1. Hizmet", "desc": "Servigic, ev hizmetlerine ihtiyaç duyan müşterilerle bağımsız hizmet sağlayıcıları (“ustalar”) buluşturan bir pazaryeri işletir. Servigic, müşteri ile usta arasındaki hizmet sözleşmesinin tarafı değildir." },
+      { "title": "2. Ödemeler", "desc": "Müşteriler tamamlanan iş için ustaya doğrudan öder. Servigic müşteri ödemelerini tahsil etmez ya da tutmaz; ustalar Servigic komisyonunu ayrıca öder. Anlaşmazlıklar Güven ve Güvenlik bölümünde anlatılan sürece tabidir." },
+      { "title": "3. Hizmet sağlayıcı yükümlülükleri", "desc": "Ustalar profillerinde doğru bilgi vermeli, teklif verdikleri meslekler için yasanın gerektirdiği yerde lisanslı/nitelikli olmalı ve Servigic'te ortaya çıkan işlerde platformu dolanmamayı kabul eder." },
+      { "title": "4. Sorumluluğun sınırlandırılması", "desc": "Servigic, destek ve anlaşmazlık süreci dışında bağımsız hizmet sağlayıcıların yaptığı işin kalitesinden sorumlu değildir." }
+    ],
+    "privacyTitle": "Gizlilik Politikası",
+    "privacy": [
+      { "title": "Topladığımız veriler", "desc": "Hesap bilgileri (ad, telefon, e-posta), iş ayrıntıları ve fotoğrafları, “yolda” durumundayken konum ve hizmet sağlayıcıların KYC belgeleri." },
+      { "title": "Nasıl kullanırız", "desc": "Pazaryerini işletmek için: işleri hizmet sağlayıcılarla eşleştirmek, kimlik doğrulamak ve işle ilgili bildirim göndermek." },
+      { "title": "Konum verisi", "desc": "Hizmet sağlayıcının konumu yalnızca eşleşen müşteriyle, yalnızca “yolda” durumundayken paylaşılır ve konum kayıtları 7 gün saklanır." },
+      { "title": "Web sitesi analitiği", "desc": "Ziyaretleri anonim sayarız: günlük değişen bir özet değeri ve ülkeniz — çerez yok, saklanan IP adresi yok." },
+      { "title": "Yönlendirme verileri (hizmet sağlayıcılar)", "desc": "Herkese açık listelerden (ör. Google Places) alınan ticari iletişim bilgileri yalnızca Pakistan'daki B2B işe alım çalışmaları için kullanılır; talep halinde vazgeçme hakkına saygı gösterilir." }
+    ]
+  },
+  "servicesPage": {
+    "eyebrow": "Hizmetler",
+    "title": "Pakistan'da ev hizmetleri — bir kez yayınla, ustalar teklif versin.",
+    "sub": "Bir meslek ve şehir seçin. Doğrulanmış ustalar işiniz için yarışır, gerçek teklifleri karşılaştırır ve iş bitince doğrudan ödersiniz.",
+    "videoTitle": "İş yayınlamanın nasıl işlediğini görün",
+    "cities": "Şehirler",
+    "startingFrom": "{price} ve üzeri",
+    "view": "{service} görüntüle",
+    "why": "Neden Servigic üzerinden rezervasyon?",
+    "whyItems": [
+      "Kimlik + selfie kontrollü doğrulanmış ustalar",
+      "Gerçek fiyat rekabeti — teklifleri karşılaştırın",
+      "Peşin ödeme yok — iş bitince ödersiniz",
+      "7 günlük işçilik desteği"
+    ]
+  },
+  "cityPage": {
+    "eyebrow": "{service} · {city}",
+    "h1": "{city} {service} — Dakikalar İçinde Teklifler",
+    "sub": "{service} işinizi yayınlayın, {city} şehrindeki doğrulanmış ustalar teklif için yarışsın. Fiyatı, puanı ve süreyi karşılaştırın — sonra ustanıza iş bitince doğrudan ödeyin.",
+    "getRealBids": "Gerçek teklifler alın",
+    "avgWinning": "Ortalama kazanan teklif ({count} iş, {days} gün)",
+    "priceVaries": "Fiyat işe göre değişir — karşılaştırmak için yayınlayın",
+    "startingPrice": "Tipik başlangıç fiyatı",
+    "post": "{service} işi yayınla",
+    "subServices": "Alt hizmetler",
+    "faqTitle": "SSS",
+    "videoTitle": "Nasıl çalıştığını izleyin",
+    "otherCities": "Diğer şehirlerde {service}",
+    "faq": [
+      { "q": "{city} şehrinde {service} ne kadar tutar?", "a": "Fiyatlar işe göre değişir — işinizi ücretsiz yayınlayın ve herhangi bir taahhütte bulunmadan önce {city} şehrindeki doğrulanmış ustaların gerçek tekliflerini karşılaştırın." },
+      { "q": "Peşin ödüyor muyum?", "a": "Hayır. İş bitince ustanıza doğrudan ödersiniz — Servigic ödemenizi asla tahsil etmez ya da tutmaz." },
+      { "q": "Teklifler ne kadar hızlı gelir?", "a": "Acil işler genellikle 10 dakikadan kısa sürede ilk teklifi alır; çünkü eşleşen yakındaki her usta anında bilgilendirilir." },
+      { "q": "Ustalar doğrulanmış mı?", "a": "Tüm hizmet sağlayıcılar Seviye 1 onayı için kimlik ve selfie gönderir; Seviye 2 ustaların adli sicili doğrulanmıştır." }
+    ]
+  },
+  "video": {
+    "soon": "Tanıtım videosu yakında",
+    "soonSub": "Kısa bir anlatım videosu çekiyoruz — yakında tekrar uğrayın.",
+    "unmute": "Ses için dokunun",
+    "mute": "Sesi kapat",
+    "play": "Videoyu oynat"
+  },
+  "auth": {
+    "welcome": "Tekrar hoş geldiniz",
+    "welcomeSub": "İşlerinizi, tekliflerinizi veya iş akışınızı yönetmek için giriş yapın.",
+    "phone": "Telefon numarası",
+    "password": "Şifre",
+    "login": "Giriş yap",
+    "loggingIn": "Giriş yapılıyor…",
+    "noAccount": "Hesabınız yok mu?",
+    "signUp": "Kaydol",
+    "createTitle": "Hesabınızı oluşturun",
+    "createSub": "İş yayınlayın veya teklif vermeye başlayın — Servigic'i nasıl kullanacağınızı seçin.",
+    "needService": "Hizmete ihtiyacım var",
+    "needServiceSub": "İş yayınla, teklif al",
+    "imPro": "Ustayım",
+    "imProSub": "Teklif ver, kazan, ödeme al",
+    "fullName": "Ad soyad",
+    "email": "E-posta",
+    "city": "Şehir",
+    "createAccount": "Hesap oluştur",
+    "creating": "Hesap oluşturuluyor…",
+    "haveAccount": "Zaten hesabınız var mı?",
+    "somethingWrong": "Bir şeyler ters gitti",
+    "networkError": "Ağ hatası — lütfen tekrar deneyin",
+    "verifyTitle": "Telefonunuzu doğrulayın",
+    "verifySub": "Telefonunuza gönderdiğimiz 6 haneli kodu girin.",
+    "verify": "Doğrula",
+    "verifying": "Doğrulanıyor…",
+    "verifyFailed": "Doğrulama başarısız",
+    "resend": "Kodu yeniden gönder",
+    "resent": "Kod yeniden gönderildi ✓",
+    "badCredentials": "Telefon numarası veya şifre hatalı",
+    "phoneHint": "Ülke kodunu ekleyin, ör. +90 532 123 45 67 veya +92 300 1234567."
+  },
+  "notFound": {
+    "title": "Sayfa bulunamadı",
+    "desc": "Bu sayfa mevcut değil — taşınmış olabilir. Sizi tekrar yola sokalım.",
+    "home": "Ana sayfaya dön",
+    "services": "Hizmetlere göz at"
+  }
+}

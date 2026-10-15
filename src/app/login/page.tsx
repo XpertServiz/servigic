@@ -1,64 +1,63 @@
 "use client";
 
-import { useActionState } from "react";
+import { Suspense, useActionState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { LLink } from "@/components/i18n/LLink";
+import { AuthShell, authButton, authInput, authLabel } from "@/components/landing/AuthShell";
 import { loginAction, type LoginState } from "./actions";
 
-export default function LoginPage() {
+function LoginForm() {
+  const t = useTranslations("auth");
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/post-login";
   const [state, formAction, pending] = useActionState<LoginState, FormData>(loginAction, null);
 
   return (
-    <main className="flex flex-1 items-center justify-center px-6 py-20">
-      <div className="w-full max-w-[420px]">
-        <Link href="/" className="mb-8 flex items-center gap-2.5 font-display text-xl font-bold">
-          <Image src="/logo.png" alt="Servigic" width={34} height={34} className="rounded-[9px]" />
-          Servigic
-        </Link>
-        <h1 className="mb-2 font-display text-3xl font-bold">Welcome back</h1>
-        <p className="mb-8 text-text-muted">Log in to manage your jobs, bids, or dispatch feed.</p>
+    <>
+      <h1 className="mb-2 text-3xl font-bold tracking-[-0.018em]">{t("welcome")}</h1>
+      <p className="mb-8 text-text-muted">{t("welcomeSub")}</p>
 
-        <form action={formAction} className="flex flex-col gap-4">
-          <input type="hidden" name="callbackUrl" value={callbackUrl} />
-          <div>
-            <label className="mb-1.5 block text-sm font-semibold text-text-muted">Phone number</label>
-            <input
-              name="phone"
-              type="tel"
-              required
-              placeholder="03001234567"
-              className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 text-text outline-none focus:border-accent"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-semibold text-text-muted">Password</label>
-            <input
-              name="password"
-              type="password"
-              required
-              className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 text-text outline-none focus:border-accent"
-            />
-          </div>
-          {state?.error && <p className="text-sm text-danger">{state.error}</p>}
-          <button
-            type="submit"
-            disabled={pending}
-            className="mt-2 rounded-[10px] bg-accent px-6 py-3.5 font-bold text-accent-foreground transition-opacity disabled:opacity-60"
-          >
-            {pending ? "Logging in…" : "Log In"}
-          </button>
-        </form>
+      <form action={formAction} className="flex flex-col gap-4">
+        <input type="hidden" name="callbackUrl" value={callbackUrl} />
+        <div>
+          <label htmlFor="phone" className={authLabel}>
+            {t("phone")}
+          </label>
+          <input id="phone" name="phone" type="tel" autoComplete="tel" required placeholder="+92 300 1234567" dir="ltr" className={authInput} />
+        </div>
+        <div>
+          <label htmlFor="password" className={authLabel}>
+            {t("password")}
+          </label>
+          <input id="password" name="password" type="password" autoComplete="current-password" required className={authInput} />
+        </div>
+        {state?.error && (
+          <p role="alert" className="text-sm text-danger">
+            {state.error === "BAD_CREDENTIALS" ? t("badCredentials") : state.error}
+          </p>
+        )}
+        <button type="submit" disabled={pending} className={authButton}>
+          {pending ? t("loggingIn") : t("login")}
+        </button>
+      </form>
 
-        <p className="mt-8 text-sm text-text-muted">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup?role=customer" className="font-semibold text-accent">
-            Sign up
-          </Link>
-        </p>
-      </div>
-    </main>
+      <p className="mt-8 text-sm text-text-muted">
+        {t("noAccount")}{" "}
+        <LLink href="/signup?role=customer" className="font-semibold text-accent">
+          {t("signUp")}
+        </LLink>
+      </p>
+    </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <AuthShell>
+      <Suspense fallback={null}>
+        <LoginForm />
+      </Suspense>
+    </AuthShell>
   );
 }

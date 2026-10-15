@@ -906,6 +906,25 @@ model SiteSettings {
   updatedAt             DateTime @updatedAt
 }
 
+// Privacy-friendly website analytics for the landing page's live-visitor panel.
+// One row per visitor per day: `visitorHash` is sha256(daily-rotating salt +
+// IP + user-agent), so no cookie is set and the hash can't be linked across
+// days or reversed to an IP. Only the country (from the platform geo header)
+// is kept.
+model SiteVisitor {
+  id          String   @id @default(cuid())
+  day         String // UTC date, "YYYY-MM-DD"
+  visitorHash String
+  country     String   @default("XX") // ISO 3166-1 alpha-2, "XX" = unknown
+  pageViews   Int      @default(1)
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+
+  @@unique([day, visitorHash])
+  @@index([lastSeenAt])
+  @@index([country])
+}
+
 // Display-only FX rates, admin-editable (no paid FX API wired). Rate is
 // "units of this currency per 1 PKR" — e.g. USD rate 0.0036 means
 // PKR 1,000 displays as ~$3.60.

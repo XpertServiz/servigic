@@ -17,6 +17,7 @@
   --secondary-foreground: #06170d;
   --secondary-glow: rgba(34, 197, 94, 0.3);
   --danger: #ef4444;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 [data-theme="ocean-blue"] {
@@ -49,22 +50,57 @@
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-danger: var(--danger);
-  --font-display: var(--font-space-grotesk);
-  --font-sans: var(--font-inter);
+  /* Poppins + Geist Mono — same pairing as the OAQS Consultants site. */
+  --font-display: var(--font-poppins), var(--font-arabic), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-poppins), var(--font-arabic), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 html {
   color-scheme: dark;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-poppins), var(--font-arabic), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: clip;
 }
 
 .font-display {
-  font-family: var(--font-display), Arial, Helvetica, sans-serif;
+  font-family: var(--font-poppins), var(--font-arabic), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Script-specific faces. Poppins has no Arabic/Devanagari glyphs; these load only for those languages. */
+:lang(ar),
+:lang(ar) .font-display {
+  font-family: var(--font-arabic), var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+}
+:lang(ur),
+:lang(ur) .font-display {
+  font-family: var(--font-urdu), var(--font-arabic), var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.9;
+}
+:lang(hi),
+:lang(hi) .font-display {
+  font-family: var(--font-devanagari), var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+}
+/* Tight negative tracking breaks Arabic-script joining. */
+:lang(ar) *,
+:lang(ur) * {
+  letter-spacing: 0 !important;
+}
+
+/* Nastaliq needs more size to stay legible at the same visual weight as Latin. */
+:lang(ur):root {
+  font-size: 112.5%;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--text);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -78,6 +114,7 @@ body {
   }
 }
 
+/* ─── Legacy marquee (dashboards) ─── */
 @keyframes marquee {
   from {
     transform: translateX(0);
@@ -90,3 +127,223 @@ body {
 .animate-marquee {
   animation: marquee 30s linear infinite;
 }
+[dir="rtl"] .animate-marquee {
+  animation-direction: reverse;
+}
+
+/* ===========================================================================
+   Marketing-site building blocks
+   =========================================================================== */
+.container-x {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+@media (min-width: 768px) {
+  .container-x {
+    padding-inline: 32px;
+  }
+}
+
+/* Frosted card with a hairline gradient border */
+.sv-card {
+  position: relative;
+  border-radius: 20px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bg-elevated-2) 92%, transparent), color-mix(in srgb, var(--bg-elevated) 92%, transparent));
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 20px 50px -30px rgba(0, 0, 0, 0.8);
+  transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease), transform 0.3s var(--ease);
+}
+.sv-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border-subtle));
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 24px 60px -28px var(--accent-glow);
+}
+
+.sv-glass {
+  background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid color-mix(in srgb, white 8%, transparent);
+}
+
+.text-gradient {
+  background: linear-gradient(100deg, #fff 0%, var(--accent) 55%, #ffd98a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Blueprint grid + soft radial glow used behind sections */
+.sv-grid-bg {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%);
+}
+.sv-glow {
+  background: radial-gradient(closest-side, var(--accent-glow), transparent);
+  filter: blur(20px);
+}
+
+/* Scroll-reveal (toggled by <Reveal>) — content stays visible without JS */
+.js .sv-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+  transition-delay: var(--d, 0ms);
+}
+.js .sv-reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Floating chips / idle motion */
+@keyframes sv-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.sv-float { animation: sv-float 6s ease-in-out infinite; }
+@keyframes sv-pulse-ring {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.sv-live-dot { position: relative; display: inline-block; width: 8px; height: 8px; border-radius: 99px; background: var(--secondary); }
+.sv-live-dot::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--secondary); animation: sv-pulse-ring 1.8s ease-out infinite; }
+
+/* Shimmer for primary buttons */
+.sv-shine { position: relative; overflow: hidden; }
+.sv-shine::after {
+  content: ""; position: absolute; inset: -30% auto -30% -40%; width: 35%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: rotate(18deg);
+  animation: sv-shine 4.5s var(--ease) infinite;
+}
+@keyframes sv-shine { 0%, 55% { left: -40%; } 100% { left: 140%; } }
+
+/* ===========================================================================
+   Servigic 3D logo mark, splash, route progress
+   The "S" is extruded from stacked glyph layers (CSS 3D) with the red "live"
+   dot floating in front. Pure CSS, so it paints before any JS runs.
+   =========================================================================== */
+.sv-mark-stage {
+  --s: 72px;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: calc(var(--s) * 1.15);
+  height: calc(var(--s) * 1.3);
+  perspective: calc(var(--s) * 8);
+}
+.sv-mark {
+  position: relative;
+  width: calc(var(--s) * 0.78);
+  height: var(--s);
+  transform-style: preserve-3d;
+  animation: sv-swing 4.2s ease-in-out infinite alternate;
+}
+.sv-mark--spin { animation: sv-spin 5.5s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+.sv-mark--still { animation: none; transform: rotateX(10deg) rotateY(-26deg); }
+.sv-layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: calc(var(--s) * 1.12);
+  line-height: 1;
+  letter-spacing: 0 !important;
+  user-select: none;
+  /* back layers get darker as they recede, which reads as extrusion depth */
+  color: color-mix(in srgb, var(--accent) calc(34% + var(--i) * 4%), #2a1a00);
+  transform: translateZ(calc((var(--i) - 12) * var(--s) * 0.013));
+}
+.sv-layer--front {
+  --i: 12;
+  background: linear-gradient(170deg, #ffe08a 0%, var(--accent) 48%, #e08a00 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 calc(var(--s) * 0.12) var(--accent-glow));
+}
+.sv-dot {
+  position: absolute;
+  top: 8%;
+  inset-inline-end: -6%;
+  width: calc(var(--s) * 0.2);
+  height: calc(var(--s) * 0.2);
+  border-radius: 99px;
+  background: #ef4444;
+  box-shadow: 0 0 calc(var(--s) * 0.22) rgba(239, 68, 68, 0.9);
+  transform: translateZ(calc(var(--s) * 0.09));
+}
+.sv-dot::before, .sv-dot::after {
+  content: ""; position: absolute; inset: -45%; border-radius: inherit; border: 2px solid rgba(239, 68, 68, 0.75);
+  animation: sv-pulse-ring 2s ease-out infinite;
+}
+.sv-dot::after { animation-delay: 1s; }
+.sv-mark-shadow {
+  position: absolute; bottom: 0; left: 50%; width: calc(var(--s) * 0.7); height: calc(var(--s) * 0.08);
+  transform: translateX(-50%); border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 50%, transparent), transparent);
+  animation: sv-shadow 4.2s ease-in-out infinite alternate;
+}
+@keyframes sv-swing {
+  from { transform: rotateX(10deg) rotateY(-34deg); }
+  to   { transform: rotateX(6deg) rotateY(34deg); }
+}
+@keyframes sv-spin {
+  0%   { transform: rotateX(10deg) rotateY(-30deg); }
+  60%  { transform: rotateX(8deg) rotateY(330deg); }
+  100% { transform: rotateX(10deg) rotateY(330deg); }
+}
+@keyframes sv-shadow {
+  from { opacity: 0.9; width: calc(var(--s) * 0.5); }
+  to   { opacity: 0.5; width: calc(var(--s) * 0.8); }
+}
+
+/* --- First-visit splash --------------------------------------------------- */
+#sv-splash {
+  position: fixed; inset: 0; z-index: 100;
+  display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  background: radial-gradient(ellipse 60% 50% at 50% 45%, color-mix(in srgb, var(--accent) 9%, var(--bg)), var(--bg) 70%);
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), filter 0.6s var(--ease);
+}
+html.sv-splash-on #sv-splash { display: flex; }
+html.sv-splash-on body { overflow: hidden; }
+html.sv-splash-out #sv-splash { opacity: 0; transform: scale(1.05); filter: blur(8px); pointer-events: none; }
+html.sv-splash-out body { overflow: auto; }
+.sv-splash-glow { position: absolute; width: 560px; height: 560px; max-width: 120vw; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 18%, transparent), transparent); }
+.sv-splash-word { position: relative; margin-top: 8px; font-weight: 700; font-size: 34px; letter-spacing: -0.03em; display: flex; direction: ltr; }
+.sv-splash-word span { display: inline-block; opacity: 0; transform: translateY(14px); animation: sv-rise 0.6s var(--ease) forwards; }
+.sv-splash-sub { position: relative; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-muted); opacity: 0; animation: sv-fade 0.6s 0.8s var(--ease) forwards; text-align: center; padding-inline: 24px; }
+.sv-splash-line { position: relative; margin-top: 10px; width: 160px; height: 2px; border-radius: 2px; overflow: hidden; background: var(--border-subtle); }
+.sv-splash-line span { position: absolute; inset: 0; width: 40%; background: var(--accent); box-shadow: 0 0 12px var(--accent); animation: sv-indeterminate 1.1s var(--ease) infinite; }
+@keyframes sv-rise { to { opacity: 1; transform: none; } }
+@keyframes sv-fade { to { opacity: 1; } }
+@keyframes sv-indeterminate { from { left: -40%; } to { left: 100%; } }
+
+/* --- Route progress (every navigation) ----------------------------------- */
+.sv-progress { position: fixed; inset: 0 0 auto 0; z-index: 90; height: 3px; pointer-events: none; opacity: 0; transition: opacity 0.3s var(--ease); direction: ltr; }
+.sv-progress[data-visible="true"] { opacity: 1; }
+.sv-progress__bar { position: relative; height: 100%; background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 40%, transparent), var(--accent)); box-shadow: 0 0 12px var(--accent); transition: width 0.25s var(--ease); }
+.sv-progress__tip { position: absolute; right: -14px; top: 4px; }
+.sv-dots span { animation: sv-blink 1.2s infinite; opacity: 0.2; }
+.sv-dots span:nth-child(2) { animation-delay: 0.2s; }
+.sv-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes sv-blink { 50% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sv-mark { animation: none; transform: rotateX(10deg) rotateY(-26deg); }
+  .sv-splash-word span, .sv-splash-sub { opacity: 1; transform: none; }
+  .js .sv-reveal { opacity: 1; transform: none; }
+}
+
+/* Hero WebGL canvas fades in once the first frame is ready */
+.sv-hero-canvas { opacity: 0; transition: opacity 1s var(--ease); }
+.sv-hero-canvas[data-ready="true"] { opacity: 1; }
+
+/* Visitor globe-ish ticker rows */
+.sv-bar { height: 6px; border-radius: 99px; background: color-mix(in srgb, var(--accent) 22%, transparent); overflow: hidden; }
+.sv-bar > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), #ffd98a); }

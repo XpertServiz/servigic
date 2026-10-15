@@ -1,11 +1,16 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { publicAreaLabel } from "@/lib/anon";
+import { fmtNumber, fmtPKR } from "@/lib/format";
 
 // Real DB events only — hidden entirely below thresholds (Master Brief §7A, §12: no fake stats).
 const MIN_EVENTS_TO_SHOW = 5;
 
-async function getTickerItems(): Promise<string[]> {
-  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+const weekAgoDate = () => new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+export async function ProofTicker() {
+  const [t, locale, ts] = await Promise.all([getTranslations("ticker"), getLocale(), getTranslations("services.trades")]);
+  const weekAgo = weekAgoDate();
 
   const [recentBids, completedJobs, payoutSum] = await Promise.all([
     prisma.bid.findMany({
@@ -20,26 +25,24 @@ async function getTickerItems(): Promise<string[]> {
 
   const items: string[] = [];
   for (const bid of recentBids) {
-    items.push(`${bid.job.category.name} bid PKR ${bid.pricePKR.toLocaleString()} in ${publicAreaLabel(bid.job.areaLabel)}`);
+    const category = ts.has(bid.job.category.trade) ? ts(bid.job.category.trade) : bid.job.category.name;
+    items.push(t("bid", { category, price: fmtPKR(bid.pricePKR, locale), area: publicAreaLabel(bid.job.areaLabel) }));
   }
-  if (completedJobs > 0) items.push(`${completedJobs} jobs completed this week`);
-  if (payoutSum._sum.amountPKR) items.push(`PKR ${payoutSum._sum.amountPKR.toLocaleString()} paid out to pros this week`);
+  if (completedJobs > 0) items.push(t("jobsWeek", { count: fmtNumber(completedJobs, locale) }));
+  if (payoutSum._sum.amountPKR) items.push(t("paidWeek", { amount: fmtPKR(payoutSum._sum.amountPKR, locale) }));
 
-  return items;
-}
-
-export async function ProofTicker() {
-  const items = await getTickerItems();
   if (items.length < MIN_EVENTS_TO_SHOW) return null;
-
   const track = [...items, ...items];
 
   return (
-    <div className="overflow-hidden border-y border-border-subtle bg-bg-elevated py-4">
+    <div className="overflow-hidden border-y border-white/[0.06] bg-bg-elevated/60 py-4" dir="ltr">
       <div className="animate-marquee flex w-max gap-12 whitespace-nowrap">
         {track.map((item, i) => (
-          <span key={i} className="text-sm text-text-muted">
+          <span key={i} className="flex items-center gap-12 text-sm text-text-muted">
             {item}
+            <span className="text-accent/60" aria-hidden>
+              ✦
+            </span>
           </span>
         ))}
       </div>

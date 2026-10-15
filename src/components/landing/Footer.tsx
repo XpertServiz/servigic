@@ -1,70 +1,105 @@
-import Link from "next/link";
 import Image from "next/image";
-import { getLocale } from "next-intl/server";
-import type { Locale } from "@/i18n/request";
+import { getLocale, getTranslations } from "next-intl/server";
+import type { Locale } from "@/i18n/locales";
+import { LLink } from "@/components/i18n/LLink";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { CurrencySwitcher } from "./CurrencySwitcher";
 import { detectMarket } from "@/lib/geoDetect";
 import { LegalDisclaimer } from "@/components/ui/LegalDisclaimer";
 
+const FEATURED_LINKS = [
+  { trade: "PLUMBER", slug: "plumber", city: "Karachi" },
+  { trade: "ELECTRICIAN", slug: "electrician", city: "Karachi" },
+  { trade: "AC_TECHNICIAN", slug: "ac-technician", city: "Lahore" },
+  { trade: "CARPENTER", slug: "carpenter", city: "Islamabad" },
+];
+
+const colTitle = "mb-4 font-mono text-[11.5px] uppercase tracking-[0.16em] text-text-muted";
+const list = "flex flex-col gap-2.5 text-sm text-text-muted [&_a:hover]:text-accent [&_a]:transition-colors";
+
 export async function Footer() {
-  const [locale, market] = await Promise.all([getLocale() as Promise<Locale>, detectMarket()]);
+  const [locale, market, t, ts, tc] = await Promise.all([
+    getLocale() as Promise<Locale>,
+    detectMarket(),
+    getTranslations("footer"),
+    getTranslations("services.trades"),
+    getTranslations("cities"),
+  ]);
+
   return (
-    <footer className="mt-16 border-t border-border-subtle py-16">
-      <div className="mx-auto max-w-[1200px] px-6">
+    <footer className="relative mt-16 border-t border-white/[0.07] bg-gradient-to-b from-transparent to-black/30 py-14 md:py-16">
+      <div className="container-x">
         <div className="mb-12 grid grid-cols-2 gap-8 md:grid-cols-5">
-          <div>
-            <Link href="/" className="mb-3 flex items-center gap-2.5 font-display text-xl font-bold">
-              <Image src="/logo.png" alt="Servigic" width={34} height={34} className="rounded-[9px]" />
+          <div className="col-span-2 md:col-span-1">
+            <LLink href="/" className="mb-3 flex items-center gap-2.5 text-xl font-bold tracking-[-0.018em]">
+              <Image src="/icons/icon-192.png" alt="" width={36} height={36} className="rounded-[10px]" />
               Servigic
-            </Link>
-            <p className="max-w-[260px] text-[13px] text-text-dim text-text-muted">
-              The Uber of home services. Post a job. Pros race to bid. Fixed today.
-            </p>
+            </LLink>
+            <p className="max-w-[260px] text-[13px] text-text-muted">{t("tagline")}</p>
           </div>
           <div>
-            <h5 className="mb-4 text-xs uppercase tracking-wide text-text-dim text-text-muted">Services</h5>
-            <ul className="flex flex-col gap-2.5 text-sm text-text-muted">
-              <li><Link href="/services/plumber/karachi">Plumber — Karachi</Link></li>
-              <li><Link href="/services/electrician/karachi">Electrician — Karachi</Link></li>
-              <li><Link href="/services/ac-technician/karachi">AC Technician — Karachi</Link></li>
-              <li><Link href="/services/carpenter/lahore">Carpenter — Lahore</Link></li>
+            <h4 className={colTitle}>{t("services")}</h4>
+            <ul className={list}>
+              {FEATURED_LINKS.map((l) => (
+                <li key={l.slug}>
+                  <LLink href={`/services/${l.slug}/${l.city.toLowerCase()}`}>{t("serviceLink", { service: ts(l.trade), city: tc(l.city) })}</LLink>
+                </li>
+              ))}
+              <li>
+                <LLink href="/services">{t("allServices")}</LLink>
+              </li>
             </ul>
           </div>
           <div>
-            <h5 className="mb-4 text-xs uppercase tracking-wide text-text-dim text-text-muted">Company</h5>
-            <ul className="flex flex-col gap-2.5 text-sm text-text-muted">
-              <li><Link href="/how-it-works">How It Works</Link></li>
-              <li><Link href="/trust-and-safety">Trust &amp; Safety</Link></li>
-              <li><a href="#faq">FAQ</a></li>
-              <li><Link href="/business">Managing multiple properties?</Link></li>
+            <h4 className={colTitle}>{t("company")}</h4>
+            <ul className={list}>
+              <li>
+                <LLink href="/how-it-works">{t("howItWorks")}</LLink>
+              </li>
+              <li>
+                <LLink href="/trust-and-safety">{t("trust")}</LLink>
+              </li>
+              <li>
+                <LLink href="/#faq">{t("faq")}</LLink>
+              </li>
+              <li>
+                <LLink href="/business">{t("business")}</LLink>
+              </li>
             </ul>
           </div>
           <div>
-            <h5 className="mb-4 text-xs uppercase tracking-wide text-text-dim text-text-muted">For Pros</h5>
-            <ul className="flex flex-col gap-2.5 text-sm text-text-muted">
-              <li><Link href="/pro">Become a Pro</Link></li>
-              <li><Link href="/pro#earnings">Earnings Calculator</Link></li>
+            <h4 className={colTitle}>{t("forPros")}</h4>
+            <ul className={list}>
+              <li>
+                <LLink href="/pro">{t("becomePro")}</LLink>
+              </li>
+              <li>
+                <LLink href="/pro#earnings">{t("earnings")}</LLink>
+              </li>
             </ul>
           </div>
           <div>
-            <h5 className="mb-4 text-xs uppercase tracking-wide text-text-dim text-text-muted">Legal</h5>
-            <ul className="flex flex-col gap-2.5 text-sm text-text-muted">
-              <li><Link href="/legal/terms">Terms</Link></li>
-              <li><Link href="/legal/privacy">Privacy</Link></li>
+            <h4 className={colTitle}>{t("legal")}</h4>
+            <ul className={list}>
+              <li>
+                <LLink href="/legal/terms">{t("terms")}</LLink>
+              </li>
+              <li>
+                <LLink href="/legal/privacy">{t("privacy")}</LLink>
+              </li>
             </ul>
           </div>
         </div>
         {market.legalDisclaimer && (
-          <div className="border-t border-border-subtle pt-6">
+          <div className="border-t border-white/[0.07] pt-6">
             <LegalDisclaimer text={market.legalDisclaimer} className="max-w-3xl" />
           </div>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border-subtle pt-6 text-[13px] text-text-dim text-text-muted">
-          <span>© 2026 Servigic. All rights reserved.</span>
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/[0.07] pt-6 text-[13px] text-text-muted">
+          <span>{t("rights", { year: new Date().getFullYear() })}</span>
           <div className="flex items-center gap-3">
             <CurrencySwitcher current={market.country} />
-            <LanguageSwitcher current={locale} />
+            <LanguageSwitcher current={locale} dropUp />
           </div>
         </div>
       </div>

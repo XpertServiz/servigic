@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Eyebrow } from "@/components/landing/Eyebrow";
+import { SectionHead } from "@/components/ui/SectionHead";
 
 interface FaqItem {
   q: string;
@@ -15,28 +15,31 @@ export function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="mx-auto max-w-[800px] px-6 py-24 md:py-32">
-      <div className="mb-16 max-w-[640px]">
-        <Eyebrow>{t("eyebrow")}</Eyebrow>
-        <h2 className="font-display text-[clamp(32px,5vw,52px)] font-bold uppercase leading-tight">{t("title")}</h2>
-      </div>
-      <div>
+    <section id="faq" className="container-x max-w-[860px] py-16 md:py-24">
+      <SectionHead eyebrow={t("eyebrow")} title={t("title")} />
+      <div className="sv-card divide-y divide-border-subtle px-5 md:px-8">
         {items.map((item, i) => {
           const open = openIndex === i;
           return (
-            <div key={item.q} className="border-b border-border-subtle">
-              <button
-                className="flex w-full items-center justify-between py-5.5 text-start text-[17px] font-semibold"
-                onClick={() => setOpenIndex(open ? null : i)}
-              >
-                {item.q}
-                <span className={`ms-4 flex-none text-xl text-accent transition-transform ${open ? "rotate-45" : ""}`}>+</span>
-              </button>
-              <div
-                className="overflow-hidden transition-[max-height] duration-250 ease-in-out"
-                style={{ maxHeight: open ? "200px" : "0px" }}
-              >
-                <p className="max-w-[760px] pb-5.5 text-[15px] text-text-muted">{item.a}</p>
+            <div key={item.q}>
+              <h3>
+                <button
+                  className="flex w-full items-center justify-between gap-4 py-5 text-start text-[16px] font-semibold md:text-[17px]"
+                  aria-expanded={open}
+                  aria-controls={`faq-${i}`}
+                  onClick={() => setOpenIndex(open ? null : i)}
+                >
+                  {item.q}
+                  <span className={`flex-none text-2xl leading-none text-accent transition-transform duration-300 ${open ? "rotate-45" : ""}`} aria-hidden>
+                    +
+                  </span>
+                </button>
+              </h3>
+              {/* Answers stay in the DOM (grid-rows trick) so crawlers and screen readers always see them. */}
+              <div id={`faq-${i}`} className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+                <div className="overflow-hidden">
+                  <p className="max-w-[760px] pb-5 text-[15px] leading-relaxed text-text-muted">{item.a}</p>
+                </div>
               </div>
             </div>
           );

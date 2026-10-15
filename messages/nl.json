@@ -1,0 +1,538 @@
+{
+  "meta": {
+    "home": {
+      "title": "Servigic — Klusdiensten in Pakistan | Plaats een klus, ontvang offertes",
+      "description": "Plaats je klus gratis en geverifieerde loodgieters, elektriciens, airco-monteurs en meer bieden binnen enkele minuten. Vergelijk echte prijzen, kies je vakman en betaal rechtstreeks na het werk. Karachi, Lahore, Islamabad.",
+      "keywords": "klusdiensten Pakistan, loodgieter Karachi, elektricien Lahore, airco-monteur Islamabad, geverifieerde vakmensen, online offertes, klusjesman in de buurt, Servigic"
+    },
+    "how": {
+      "title": "Hoe Servigic werkt — Plaatsen, bieden, oplossen",
+      "description": "Plaats een klus met foto’s, geverifieerde vakmensen bieden binnen enkele minuten, jij kiest de beste prijs en betaalt je vakman rechtstreeks zodra het werk klaar is.",
+      "keywords": "loodgieter online inhuren, klusdiensten app met offertes, reparatieofferte vergelijken, Servigic hoe het werkt"
+    },
+    "pro": {
+      "title": "Word Servigic-vakman — Nul leadkosten",
+      "description": "Sluit je aan bij Servigic als geverifieerde vakman. Geen leadkosten, je betaalt alleen als je de klus wint, directe klusmeldingen en uitbetaling via EasyPaisa, JazzCash of bank.",
+      "keywords": "partner loodgieter worden, elektricien klussen Pakistan, app voor dienstverleners, platform zonder leadkosten, Servigic vakman"
+    },
+    "services": {
+      "title": "Klusdiensten in Pakistan — Loodgieter, elektricien, airco en meer",
+      "description": "12 vakgebieden in Karachi, Lahore, Islamabad en Rawalpindi. Plaats gratis een klus en vergelijk de biedingen van geverifieerde vakmensen.",
+      "keywords": "loodgieter, elektricien, airco-monteur, zonnepaneleninstallateur, timmerman, schilder, apparatenreparatie, automonteur, verhuizers, schoonmaak, metselaar, klusjesman, Pakistan"
+    },
+    "city": {
+      "title": "{service} in {city} — Biedingen binnen enkele minuten",
+      "description": "Plaats een klus voor {service} in {city} en ontvang binnen enkele minuten biedingen van geverifieerde vakmensen. Vergelijk prijs, beoordeling en aankomsttijd en betaal je vakman rechtstreeks na het werk."
+    },
+    "trust": {
+      "title": "Vertrouwen en veiligheid — Geverifieerde vakmensen, verborgen contactgegevens",
+      "description": "Zo beschermt Servigic je: vakmensen met geverifieerde identiteit, politiecontrole, verborgen contactgegevens, goedkeuring van meerwerk en bemiddeling bij geschillen.",
+      "keywords": "geverifieerde loodgieters, betrouwbare klusdiensten, veilig vakmensen inhuren"
+    },
+    "business": {
+      "title": "Servigic voor bedrijven — Onderhoud van meerdere panden",
+      "description": "Eén dashboard voor elke eenheid en elk vak. Bulk-klussen plaatsen en gebundelde facturatie voor vastgoedbeheerders, villabeheerders en VvE’s.",
+      "keywords": "vastgoedonderhoud Pakistan, villabeheer onderhoud, facility management loodgieters elektriciens"
+    },
+    "terms": { "title": "Gebruiksvoorwaarden", "description": "De voorwaarden die gelden bij gebruik van de Servigic-marktplaats." },
+    "privacy": { "title": "Privacybeleid", "description": "Welke gegevens Servigic verzamelt, waarom en hoe ze worden beschermd." },
+    "login": { "title": "Inloggen", "description": "Log in bij Servigic om je klussen, biedingen en boekingen te beheren." },
+    "signup": { "title": "Account aanmaken", "description": "Meld je gratis aan om klussen te plaatsen of als geverifieerde vakman te bieden." },
+    "verify": { "title": "Verifieer je telefoon", "description": "Voer de 6-cijferige code in die we naar je telefoon hebben gestuurd." }
+  },
+  "common": {
+    "appName": "Servigic",
+    "loading": "Laden",
+    "splashTagline": "Klusdiensten · Pakistan · Vandaag opgelost",
+    "language": "Taal",
+    "currency": "Valuta",
+    "free": "Gratis",
+    "from": "Vanaf",
+    "seePricing": "Bekijk prijzen",
+    "perVisit": "/bezoek",
+    "comingSoon": "Binnenkort",
+    "skipToContent": "Naar de inhoud",
+    "back": "Terug",
+    "learnMore": "Meer informatie"
+  },
+  "nav": {
+    "howItWorks": "Hoe het werkt",
+    "services": "Diensten",
+    "forPros": "Voor vakmensen",
+    "trust": "Vertrouwen en veiligheid",
+    "faq": "Veelgestelde vragen",
+    "login": "Inloggen",
+    "postJob": "Klus plaatsen",
+    "menu": "Menu openen",
+    "close": "Menu sluiten"
+  },
+  "hero": {
+    "eyebrow": "Vakmensen bieden binnen enkele minuten — jij kiest de prijs",
+    "line1": "Kapot?",
+    "line2": "Vandaag",
+    "line3": "nog opgelost.",
+    "sub": "Plaats je klus. Geverifieerde vakmensen strijden om de beste bieding. Betaal je vakman rechtstreeks zodra de klus klaar is.",
+    "ctaPrimary": "Klus plaatsen — biedingen binnen minuten",
+    "ctaSecondary": "Bekijk hoe het werkt",
+    "joinWaitlist": "Op de wachtlijst",
+    "trusted": "Vertrouwd door huiseigenaren in Karachi, Lahore en Islamabad",
+    "chipPro": "Ahmed · ★4,9 · 12 min verderop",
+    "chipBid": "Nieuwe bieding · PKR 3.500",
+    "chipVerified": "Geverifieerde vakman ✓"
+  },
+  "live": {
+    "eyebrow": "Live op Servigic",
+    "title": "Er zijn nu mensen op Servigic",
+    "sub": "Echte, anonieme bezoekersaantallen van over de hele wereld — elke paar seconden ververst.",
+    "online": "Nu online",
+    "today": "Bezoekers vandaag",
+    "total": "Totaal aantal bezoekers",
+    "views": "Paginaweergaven",
+    "countries": "Waar onze bezoekers vandaan komen",
+    "countriesShort": "Landen",
+    "visitors": "bezoekers",
+    "onlineHere": "online",
+    "empty": "Wees de eerste — cijfers verschijnen zodra er bezoekers komen.",
+    "unknown": "Onbekende locatie",
+    "privacy": "Zonder cookies en anoniem: we tellen bezoeken alleen per land en slaan nooit IP-adressen op.",
+    "live": "LIVE"
+  },
+  "sim": {
+    "eyebrow": "Zie het in actie",
+    "title": "Zie hoe een klus wordt opgelost — in 12 seconden",
+    "job": "Airco koelt niet",
+    "area": "Gulshan-e-Iqbal",
+    "emergency": "Spoed",
+    "eta": "Aankomst over {min} min",
+    "accepted": "Geaccepteerd ✓",
+    "statusAccepted": "Geaccepteerd",
+    "statusOnTheWay": "Onderweg",
+    "statusDone": "Klaar",
+    "paid": "PKR 3.500 rechtstreeks betaald ✓",
+    "bidderPro": "Elektricien-vakman nr. 17",
+    "bidderFast": "Fast Fix Services"
+  },
+  "ticker": {
+    "bid": "{category}-bieding van {price} in {area}",
+    "jobsWeek": "{count} klussen deze week afgerond",
+    "paidWeek": "{amount} deze week uitbetaald aan vakmensen"
+  },
+  "price": {
+    "eyebrow": "Echte prijzen, in realtime",
+    "title": "Wat klussen echt kosten.",
+    "city": "Stad",
+    "service": "Dienst",
+    "loading": "Laden…",
+    "notEnough": "Nog niet genoeg afgeronde klussen voor {service} in {city} om een betrouwbare prijsrange te tonen — je bepaalt bij het plaatsen toch zelf je budget.",
+    "estimate": "Geschatte instapprijs voor {service} in {city} — wordt vervangen door echte gegevens zodra er genoeg klussen zijn afgerond.",
+    "typical": "Gebruikelijke prijs voor {service} in {city} · gebaseerd op {count} afgeronde klussen · gemiddeld {avg}"
+  },
+  "problem": {
+    "eyebrow": "Het probleem",
+    "title": "Een goede vakman vinden hoort geen gok te zijn.",
+    "items": [
+      "6 nummers uit een WhatsApp-groep bellen en hopen",
+      "“De app zei PKR 1.500 — ter plekke vroeg hij 4.000”",
+      "Geen idee of hij echt komt, of wanneer",
+      "Contant betaald, werk half af, nummer geblokkeerd",
+      "Geen verhaal te halen als het volgende week weer kapot gaat"
+    ],
+    "fix": "Servigic lost alle vijf op — met biedingen, geverifieerde vakmensen en live tracking."
+  },
+  "how": {
+    "eyebrow": "Hoe het werkt",
+    "title": "Drie stappen. Geen gok.",
+    "steps": [
+      {
+        "title": "Plaats je klus",
+        "desc": "30 seconden. Foto’s + buurt. Je exacte adres blijft verborgen tot je een vakman kiest.",
+        "mock": "📷 3 foto’s · Airco-monteur · Gulshan-e-Iqbal · Spoed"
+      },
+      {
+        "title": "Vakmensen strijden om de bieding",
+        "desc": "Vergelijk prijs, beoordeling en aankomsttijd naast elkaar — jij kiest, of doet een tegenbod.",
+        "mock": "4 biedingen ontvangen · gesorteerd op prijs ↓"
+      },
+      {
+        "title": "Volg live, betaal als het klaar is",
+        "desc": "Zie je vakman in Uber-stijl naar je toe rijden. Betaal hem rechtstreeks zodra het werk af is.",
+        "mock": "Ahmed is onderweg · aankomst over 35 min"
+      }
+    ],
+    "emergencyLabel": "Voor noodgevallen",
+    "emergencyTitle": "Of sla het wachten over — Instant Match",
+    "emergencyDesc": "Leiding gesprongen om 2 uur ’s nachts? Binnen enkele seconden gekoppeld aan de dichtstbijzijnde geverifieerde vakman. Zonder te wachten op biedingen.",
+    "emergencyMock": "🚨 Instant Match · Ahmed (geverifieerde vakman, 4,8★) · PKR 2.875 · aankomst over 12 min · 90 s om te accepteren"
+  },
+  "features": {
+    "board": {
+      "eyebrow": "Het biedingenbord",
+      "title": "Vakmensen concurreren. Jij wint.",
+      "p1": "Elke bieding toont prijs, beoordeling, afstand en aankomsttijd — gesorteerd zoals jij wilt.",
+      "p2": "Bieding niet naar wens? Wijs af met een reden, of stuur een tegenbod.",
+      "price": "Prijs",
+      "rating": "Beoordeling",
+      "eta": "Aankomst",
+      "etaMin": "Aankomst over {min} min",
+      "declines": ["Te duur", "Aankomst te laat", "Lage beoordeling"]
+    },
+    "cash": {
+      "eyebrow": "Je betaalt na de klus",
+      "title": "Geen vooruitbetaling. Geen tegoed. Betaal je vakman gewoon rechtstreeks.",
+      "p1": "Vergelijk biedingen, kies je vakman en betaal hem contant — of hoe jullie afspreken — zodra het werk klaar is. Eenvoudig, vertrouwd, eerlijk.",
+      "p2": "Meerwerk ontdekt ter plekke? Een wijzigingsopdracht heeft nog steeds eerst jouw goedkeuring nodig — je weet altijd wat je betaalt voordat het gebeurt.",
+      "steps": ["Biedingen vergelijken", "Klus klaar", "Rechtstreeks betalen"],
+      "badge": "🛠 Garantie op het werk — 7 dagen",
+      "change": "Wijzigingsopdracht: “Gecorrodeerde leiding gevonden — PKR 800 extra”",
+      "approve": "Goedkeuren"
+    },
+    "protected": {
+      "eyebrow": "Betalingsbescherming",
+      "title": "Je geld beweegt pas als de klus klaar is.",
+      "p1": "Betaald → Vastgehouden → Klus klaar → Vrijgegeven. Elke klus heeft 7 dagen garantie op het werk.",
+      "p2": "Meerwerk ontdekt ter plekke? Een wijzigingsopdracht heeft eerst jouw goedkeuring nodig — anders gebeurt het niet.",
+      "steps": ["Betaald", "Vastgehouden", "Klus klaar", "Vrijgegeven"],
+      "badge": "🛡 7 dagen garantie op het werk"
+    },
+    "tracking": {
+      "eyebrow": "Live tracking",
+      "title": "Weet precies waar je vakman is.",
+      "p1": "Live kaart in Uber-stijl vanaf het moment dat je vakman de klus accepteert.",
+      "steps": ["Onderweg", "Aangekomen", "Aan het werk", "Klaar"],
+      "status": "Ahmed is onderweg · aankomst over 35 min"
+    },
+    "verified": {
+      "eyebrow": "Geverifieerde vakmensen, van twee kanten beoordeeld",
+      "title": "Identiteit geverifieerd. Politiecontrole op niveau 2.",
+      "p1": "Beoordeeld door echte klanten na echte klussen — en vakmensen beoordelen ook klanten.",
+      "badges": ["Geverifieerd", "Geverifieerde vakman", "Gold Ustad"],
+      "card": "Ahmed R. · ★4,9 · 212 klussen afgerond",
+      "tags": ["Professioneel", "Op tijd", "Netjes werk"]
+    }
+  },
+  "services": {
+    "eyebrow": "Diensten",
+    "title": "12 vakgebieden. Eén app.",
+    "sub": "Van een druppelende kraan tot een complete zonne-installatie — plaats één keer en geverifieerde vakmensen strijden om jouw klus.",
+    "from": "Vanaf {price}",
+    "seePricing": "Bekijk prijzen",
+    "trades": {
+      "PLUMBER": "Loodgieter",
+      "ELECTRICIAN": "Elektricien",
+      "AC_TECHNICIAN": "Airco-monteur",
+      "SOLAR_INSTALLER": "Zonnepaneleninstallateur",
+      "CARPENTER": "Timmerman",
+      "PAINTER": "Schilder",
+      "APPLIANCE_REPAIR": "Apparatenreparatie",
+      "CAR_MECHANIC": "Automonteur",
+      "MOVERS": "Verhuizers",
+      "CLEANER": "Schoonmaak",
+      "MASON": "Metselaar",
+      "HANDYMAN": "Klusjesman",
+      "GENERATOR_REPAIR": "Generatorreparatie",
+      "WATER_TANK_CLEANING": "Watertankreiniging"
+    }
+  },
+  "cities": {
+    "Karachi": "Karachi",
+    "Lahore": "Lahore",
+    "Islamabad": "Islamabad",
+    "Rawalpindi": "Rawalpindi"
+  },
+  "results": {
+    "eyebrow": "Resultaten",
+    "title": "Echte cijfers. Geen verzonnen statistieken.",
+    "launchNote": "Startfase — cijfers worden live bijgewerkt zodra drempels zijn gehaald. Nooit nepreviews.",
+    "jobs": "Afgeronde klussen",
+    "paid": "Uitbetaald aan vakmensen",
+    "firstBid": "Gem. tijd tot eerste bieding",
+    "lessThanMin": "< 1 min",
+    "minutes": "~{n} min",
+    "hours": "~{n} uur",
+    "prev": "Vorige beoordelingen",
+    "next": "Volgende beoordelingen",
+    "goto": "Ga naar beoordelingenpagina {n}"
+  },
+  "featuredPros": {
+    "eyebrow": "Uitgelichte geverifieerde vakmensen",
+    "title": "Echte vakmensen. Geverifieerd en beoordeeld.",
+    "eyebrowGeneric": "Geverifieerde vakmensen",
+    "titleGeneric": "Geverifieerde vakmensen in elk vak.",
+    "achiever": "🏆 Topper",
+    "achieverTitle": "Hoogst beoordeelde vakman",
+    "ratingJobs": "{rating}★ · {jobs} klussen"
+  },
+  "forPros": {
+    "customerTitle": "Klant?",
+    "customerDesc": "Plaats gratis een klus, ontvang binnen enkele minuten biedingen en betaal je vakman rechtstreeks zodra het werk klaar is.",
+    "customerCta": "Klus plaatsen",
+    "proTitle": "Verdien meer. Houd 88% over.",
+    "zero": "PKR 0",
+    "zeroActive": "Deze maand uitgegeven aan leads door onze {count} actieve aanbieders",
+    "zeroGeneric": "Uitgegeven aan leads. Nooit. Andere platforms rekenen al om een klus te mogen zien — wij niet.",
+    "perks": [
+      "Nooit leadkosten",
+      "Je betaalt alleen als je de klus wint",
+      "Klusmeldingen in Uber-stijl in je zak",
+      "Rechtstreeks uitbetaald via EasyPaisa / JazzCash / bank",
+      "Badge-niveaus = lagere commissie"
+    ],
+    "cta": "Word Servigic-vakman"
+  },
+  "calc": {
+    "jobsPerWeek": "Klussen per week",
+    "avgTicket": "Gemiddeld bedrag",
+    "monthly": "Geschatte maandelijkse verdienste",
+    "note": "Na de Servigic-commissie van 12% (10% bij Gold Ustad)."
+  },
+  "why": {
+    "eyebrow": "Waarom Servigic",
+    "title": "Genadeloos eerlijke vergelijking.",
+    "vs": "tegenover",
+    "tabs": {
+      "fixed": { "label": "Apps met vaste prijzen", "sub": "Mahir-, Karsaaz-, HukumJanab-stijl" },
+      "lead": { "label": "Platforms die leads verkopen", "sub": "Thumbtack-, Angi-, Checkatrade-, MyBuilder-stijl" },
+      "call": { "label": "Callcenters", "sub": "telefoon-/appdispatch in HukumJanab-stijl" }
+    },
+    "features": [
+      "Echte prijsconcurrentie (biedingen)",
+      "Betaal je vakman rechtstreeks, zonder tussenpersoon",
+      "Live tracking in Uber-stijl",
+      "Nul leadkosten voor vakmensen",
+      "Openbare ladder van verificatiebadges"
+    ]
+  },
+  "plans": {
+    "eyebrow": "Instellen en vergeten",
+    "title": "Mis nooit meer het onderhoud van je airco.",
+    "from": "Vanaf {price}/bezoek",
+    "cta": "Plan instellen",
+    "cadence": {
+      "AC_TECHNICIAN": "Ieder kwartaal",
+      "GENERATOR_REPAIR": "Elke 6 maanden",
+      "WATER_TANK_CLEANING": "Elke 6 maanden"
+    }
+  },
+  "faq": {
+    "eyebrow": "Veelgestelde vragen",
+    "title": "Vragen? Antwoorden.",
+    "items": [
+      { "q": "Is een klus plaatsen gratis?", "a": "Ja — een klus plaatsen is altijd gratis. Je betaalt pas als je een bieding accepteert, en je betaalt je vakman rechtstreeks zodra de klus klaar is — Servigic int of houdt je betaling nooit vast." },
+      { "q": "Hoe beschermt Servigic mij als ik niet vooruitbetaal?", "a": "In plaats van je geld vast te houden, beschermt Servigic je met geverifieerde vakmensen (identiteitsbewijs + selfie, politiecontrole op hogere niveaus), wederzijdse beoordelingen na elke klus, een verborgen in-app chat die de contactgegevens van je vakman pas toont als hij onderweg is, en een team voor geschillen en bemiddeling als er iets misgaat." },
+      { "q": "Wat als de vakman ter plekke meerwerk vindt?", "a": "Hij dient een wijzigingsopdracht in met foto en prijs — jij keurt die goed voordat er meerwerk gebeurt, en het extra bedrag wordt gewoon opgeteld bij wat je je vakman rechtstreeks betaalt." },
+      { "q": "Wat als ik niet tevreden ben?", "a": "Elke klus heeft 7 dagen garantieondersteuning. Open een geschil en ons team bekijkt foto’s van beide kanten en helpt een oplossing met je vakman te bereiken." },
+      { "q": "Waarom zie ik het telefoonnummer van de vakman niet meteen?", "a": "Contactgegevens blijven verborgen in een in-app chat tot je vakman aangeeft dat hij onderweg is — zo sluiten we de mogelijkheid af om buiten het platform om afspraken te maken, wat jullie beiden beschermt. Bij spoedklussen worden de gegevens direct ontgrendeld." },
+      { "q": "Hoe snel komen biedingen binnen?", "a": "Bij spoedklussen zien de meeste klanten hun eerste bieding binnen 10 minuten, omdat elke passende vakman in de buurt meteen een melding krijgt." },
+      { "q": "Hoe worden vakmensen betaald?", "a": "Rechtstreeks door jou — contant, JazzCash, EasyPaisa of bankoverschrijving, zoals jullie afspreken. Servigic raakt die betaling nooit aan; vakmensen voldoen hun commissie van 12% apart via hun commissietegoed in de app." },
+      { "q": "Welke steden?", "a": "We starten in Karachi, daarna Lahore en Islamabad/Rawalpindi, gevolgd door de Golfstaten en Noord-Amerika." },
+      { "q": "Waarom boeken via Servigic in plaats van de vakman gewoon rechtstreeks te bellen?", "a": "Via Servigic krijg je geverifieerde en beoordeelde vakmensen, wederzijdse reviews, hulp bij geschillen en prijsconcurrentie door echte biedingen — niets daarvan bestaat als je om het platform heen gaat. Herhaalboekingen zijn bovendien één tik met “Opnieuw boeken”." },
+      { "q": "Wat gebeurt er als ik of mijn vakman een boeking annuleert?", "a": "Annuleren na een bevestigde boeking wordt bijgehouden — af en toe annuleren is prima, maar een hoog annuleringspercentage kan je mogelijkheid om klussen te plaatsen (of de klusmeldingen van een vakman) een tijd pauzeren. Als een vakman je vraagt te annuleren zodat je rechtstreeks met hem werkt, laat het ons weten — kies die reden en we beoordelen je vakman in plaats van het tegen jou te tellen." }
+    ]
+  },
+  "finalCta": {
+    "title1": "Stop met gokken.",
+    "title2": "Begin met oplossen.",
+    "sub": "Plaats je eerste klus gratis. Biedingen binnen minuten. Geverifieerde vakmensen.",
+    "primary": "Klus plaatsen",
+    "secondary": "Word vakman",
+    "checks": ["Gratis plaatsen", "Achteraf rechtstreeks betalen", "Geverifieerde vakmensen", "7 dagen ondersteuning"]
+  },
+  "waitlist": {
+    "eyebrow": "Binnenkort in {country}",
+    "title": "Wees de eerste als we hier lanceren.",
+    "desc": "Servigic is nog niet live in {country} — er zijn daar nog geen lokale vakmensen of betaalmethoden gekoppeld. Laat je e-mailadres achter en we laten het je weten zodra het zover is.",
+    "email": "jij@voorbeeld.nl",
+    "name": "Naam (optioneel)",
+    "join": "Op de wachtlijst",
+    "joining": "Bezig met aanmelden…",
+    "done": "Je staat op de lijst — we mailen je zodra Servigic lanceert in {country}. 🎉",
+    "failed": "Aanmelden voor de wachtlijst mislukt"
+  },
+  "footer": {
+    "tagline": "Plaats een klus. Vakmensen strijden om de bieding. Vandaag opgelost.",
+    "services": "Diensten",
+    "company": "Bedrijf",
+    "forPros": "Voor vakmensen",
+    "legal": "Juridisch",
+    "howItWorks": "Hoe het werkt",
+    "trust": "Vertrouwen en veiligheid",
+    "faq": "Veelgestelde vragen",
+    "business": "Meerdere panden beheren?",
+    "becomePro": "Word vakman",
+    "earnings": "Verdienstecalculator",
+    "allServices": "Alle diensten",
+    "terms": "Voorwaarden",
+    "privacy": "Privacy",
+    "rights": "© {year} Servigic. Alle rechten voorbehouden.",
+    "serviceLink": "{service} — {city}"
+  },
+  "pro": {
+    "eyebrow": "Voor vakmensen",
+    "title1": "Geen leadkosten.",
+    "title2": "Nooit.",
+    "sub": "Betaal alleen als je de klus wint. Meldingen in Uber-stijl in je zak. Rechtstreeks uitbetaald via EasyPaisa, JazzCash of bank.",
+    "cta": "Word Servigic-vakman",
+    "videoTitle": "Zie hoe een vakman verdient op Servigic",
+    "zeroActive": "Vorige maand uitgegeven aan leads door onze {count} actieve aanbieders",
+    "zeroGeneric": "Uitgegeven aan leads. Nooit. Andere platforms rekenen al om een klus te mogen zien — wij niet.",
+    "compareServigic": "Servigic",
+    "compareOther": "Typisch leadplatform",
+    "rows": [
+      { "feature": "Kosten om een klus te bekijken of erop te bieden", "servigic": "PKR 0", "other": "Per lead in rekening gebracht, ongeacht de uitkomst" },
+      { "feature": "Kosten als je de klus niet wint", "servigic": "PKR 0", "other": "De lead heb je toch betaald" },
+      { "feature": "Commissie op afgeronde klussen", "servigic": "10–12%", "other": "N.v.t. — al vooraf betaald" }
+    ],
+    "earningsTitle": "Verdienstecalculator",
+    "ladderTitle": "Verificatieladder",
+    "commission": "commissie",
+    "ladder": [
+      { "level": "Niveau 1", "title": "Goedgekeurd", "desc": "Identiteitsbewijs + selfie geüpload en door de beheerder goedgekeurd. Je kunt op klussen bieden." },
+      { "level": "Niveau 2", "title": "Geverifieerde vakman", "desc": "Verklaring omtrent gedrag van de politie. Voorrang bij verdeling + badge op je biedingen." },
+      { "level": "Niveau 3", "title": "Gold Ustad", "desc": "10 afgeronde klussen met 4,5★ of hoger." }
+    ],
+    "readyTitle": "Klaar om te gaan verdienen?"
+  },
+  "howPage": {
+    "eyebrow": "Hoe het werkt",
+    "title": "Plaatsen. Bieden. Oplossen. Klaar.",
+    "steps": [
+      { "title": "01 — Plaats je klus", "desc": "Kies een categorie, beschrijf het probleem, voeg tot 6 foto’s toe en bepaal de urgentie — Spoed, Vandaag of Gepland. Je exacte adres wordt vastgelegd, maar blijft verborgen tot je een vakman kiest." },
+      { "title": "02 — Vakmensen strijden om de bieding", "desc": "Elke geverifieerde aanbieder in de buurt die dat vak uitoefent krijgt direct een melding — pushmelding, WhatsApp en een in-app dispatchfeed. Zij sturen prijs, aankomsttijd en een bericht. Jij vergelijkt naast elkaar, gesorteerd op prijs, beoordeling of aankomsttijd, en kunt afwijzen met een reden of per bieding één tegenbod sturen." },
+      { "title": "03 — Kies, chat, volg live", "desc": "Accepteer een bieding en de in-app chat gaat open. Contactgegevens en je exacte adres worden ontgrendeld zodra je vakman onderweg is. Zie de status in realtime: Onderweg → Aangekomen → Aan het werk → Klaar, met een live kaart tijdens de rit." },
+      { "title": "04 — Betaal rechtstreeks", "desc": "Als het werk klaar is, betaal je je vakman rechtstreeks — contant, JazzCash, EasyPaisa of bankoverschrijving. Servigic int of houdt je betaling nooit vast. Meerwerk heeft jouw goedkeuring nodig als wijzigingsopdracht voordat het gebeurt." },
+      { "title": "05 — Bevestig en beoordeel", "desc": "Bevestig dat de klus klaar is (of het wordt 24 uur na “Klaar” automatisch bevestigd als er geen geschil is). Beide kanten beoordelen elkaar, en elke klus heeft 7 dagen garantieondersteuning." }
+    ]
+  },
+  "trustPage": {
+    "eyebrow": "Vertrouwen en veiligheid",
+    "title": "Gebouwd op verificatie, afscherming en bemiddeling.",
+    "sections": [
+      { "title": "Betaal rechtstreeks, houd de controle", "desc": "Je betaalt Servigic nooit vooraf. Je betaalt je vakman rechtstreeks na het werk, en elke klus heeft 7 dagen garantieondersteuning." },
+      { "title": "Afscherming van contactgegevens", "desc": "Telefoonnummers en exacte adressen blijven aan beide kanten verborgen tot de vakman onderweg is. Tot die tijd verschijnen aanbieders als een anoniem serienummer (“Vakman nr. 42”) en klanten alleen met voornaam en buurt." },
+      { "title": "Verificatieladder voor aanbieders", "desc": "Niveau 1: identiteitsbewijs + selfie, door de beheerder goedgekeurd — mag bieden. Niveau 2 “Geverifieerde vakman”: verklaring omtrent gedrag, voorrang bij verdeling. Niveau 3 “Gold Ustad”: 10 afgeronde klussen met 4,5★ of hoger, laagste commissie." },
+      { "title": "Wijzigingsopdrachten", "desc": "Als een aanbieder ter plekke meerwerk vindt, dient hij een wijzigingsopdracht in met foto en prijs — jij keurt die goed voordat er meerwerk gebeurt." },
+      { "title": "Geschillen", "desc": "Als er iets mis is, open dan een geschil vóór je bevestigt — jij en de aanbieder sturen foto’s, en ons team bemiddelt voor een eerlijke oplossing." },
+      { "title": "Regel “alleen via het platform”", "desc": "Aanbieders stemmen ermee in dat klussen die via Servigic zijn gevonden, ook op Servigic worden afgerond. Een klant na een lead buiten het platform meenemen is reden voor verwijdering — zo blijven beoordelingen, verificatie en geschillenondersteuning voor iedereen betekenisvol." }
+    ]
+  },
+  "businessPage": {
+    "eyebrow": "Servigic voor bedrijven",
+    "title": "Eén dashboard. Elke eenheid. Elk vak.",
+    "p1": "Onderhoud over meerdere panden beheren betekent elke eenheid, elk vak en elke maand andere vakmensen achterna zitten. Servigic voor bedrijven brengt alles onder één dak — plaats één keer, verdeel over al je panden en ontvang één gebundelde factuur in plaats van een dozijn losse betalingen.",
+    "p2": "Gebouwd voor villabeheerders, beheerders van appartementencomplexen en gemeenschapsbeheer in DHA-stijl — hetzelfde netwerk van geverifieerde vakmensen als bij elke andere Servigic-klus, alleen georganiseerd voor schaal.",
+    "early": "Dit is nog vroeg — we bouwen nu het volledige dashboard voor meerdere panden. Laat hieronder je gegevens achter en we nemen contact op zodra het klaar is voor jouw portefeuille.",
+    "form": {
+      "company": "Bedrijfsnaam",
+      "contact": "Je naam",
+      "phone": "Telefoonnummer",
+      "email": "E-mail (optioneel)",
+      "units": "Aantal eenheden (optioneel)",
+      "city": "Stad",
+      "join": "Op de wachtlijst",
+      "joining": "Bezig met aanmelden…",
+      "done": "Bedankt — we nemen contact op zodra Servigic voor bedrijven klaar is voor jouw portefeuille. 🎉",
+      "failed": "Aanmelden voor de wachtlijst mislukt"
+    }
+  },
+  "legal": {
+    "label": "Juridisch",
+    "draft": "Conceptplaatshouder — laat dit controleren door een advocaat met bevoegdheid in je lanceringsmarkten voordat je live gaat. Het vervangt geen juridisch advies.",
+    "termsTitle": "Gebruiksvoorwaarden",
+    "terms": [
+      { "title": "1. De dienst", "desc": "Servigic exploiteert een marktplaats die klanten die klusdiensten nodig hebben, verbindt met zelfstandige dienstverleners (“vakmensen”). Servigic is geen partij bij de overeenkomst tussen klant en vakman." },
+      { "title": "2. Betalingen", "desc": "Klanten betalen de vakman rechtstreeks voor afgerond werk. Servigic int of houdt klantbetalingen niet vast; vakmensen betalen de commissie van Servigic apart. Geschillen volgen het proces dat bij Vertrouwen en veiligheid wordt beschreven." },
+      { "title": "3. Verplichtingen van aanbieders", "desc": "Vakmensen moeten eerlijk zijn in hun profiel, waar wettelijk vereist bevoegd/gekwalificeerd zijn voor de vakken waarop ze bieden, en stemmen ermee in het platform niet te omzeilen bij klussen die via Servigic zijn ontstaan." },
+      { "title": "4. Beperking van aansprakelijkheid", "desc": "Servigic is niet aansprakelijk voor de kwaliteit van werk door zelfstandige aanbieders, buiten het ondersteunings- en geschillenproces om." }
+    ],
+    "privacyTitle": "Privacybeleid",
+    "privacy": [
+      { "title": "Gegevens die we verzamelen", "desc": "Accountgegevens (naam, telefoon, e-mail), klusdetails en foto’s, locatie terwijl een klus de status “onderweg” heeft, en kyc-documenten van aanbieders." },
+      { "title": "Hoe we ze gebruiken", "desc": "Om de marktplaats te laten werken: klussen aan aanbieders koppelen, identiteit verifiëren en klusgerelateerde meldingen sturen." },
+      { "title": "Locatiegegevens", "desc": "De locatie van de aanbieder wordt alleen gedeeld met de gekoppelde klant, alleen zolang de status “onderweg” is, en locatiepings worden 7 dagen bewaard." },
+      { "title": "Websiteanalyse", "desc": "We tellen bezoeken anoniem: een dagelijks wisselende hash en je land, zonder cookies en zonder opgeslagen IP-adressen." },
+      { "title": "Leadgegevens (aanbieders)", "desc": "Zakelijke contactgegevens uit openbare vermeldingen (bijv. Google Places) worden alleen gebruikt voor B2B-werving in Pakistan, waarbij afmelden op verzoek wordt gerespecteerd." }
+    ]
+  },
+  "servicesPage": {
+    "eyebrow": "Diensten",
+    "title": "Klusdiensten in Pakistan — plaats één keer, vakmensen bieden.",
+    "sub": "Kies een vak en een stad. Geverifieerde vakmensen strijden om jouw klus, jij vergelijkt echte biedingen en betaalt rechtstreeks na het werk.",
+    "videoTitle": "Zie hoe een klus plaatsen werkt",
+    "cities": "Steden",
+    "startingFrom": "Vanaf {price}",
+    "view": "Bekijk {service}",
+    "why": "Waarom boeken via Servigic?",
+    "whyItems": [
+      "Geverifieerde vakmensen met identiteits- en selfiecontrole",
+      "Echte prijsconcurrentie — vergelijk biedingen",
+      "Geen vooruitbetaling — betaal na het werk",
+      "7 dagen garantieondersteuning"
+    ]
+  },
+  "cityPage": {
+    "eyebrow": "{service} · {city}",
+    "h1": "{service} in {city} — Biedingen binnen enkele minuten",
+    "sub": "Plaats je klus voor {service} en geverifieerde vakmensen in {city} strijden om de bieding. Vergelijk prijs, beoordeling en aankomsttijd — en betaal je vakman daarna rechtstreeks.",
+    "getRealBids": "Ontvang echte biedingen",
+    "avgWinning": "Gem. winnende bieding ({count} klussen, {days} dagen)",
+    "priceVaries": "Prijs verschilt per klus — plaats om te vergelijken",
+    "startingPrice": "Gebruikelijke instapprijs",
+    "post": "Klus plaatsen voor {service}",
+    "subServices": "Subdiensten",
+    "faqTitle": "Veelgestelde vragen",
+    "videoTitle": "Zie hoe het werkt",
+    "otherCities": "{service} in andere steden",
+    "faq": [
+      { "q": "Wat kost {service} in {city}?", "a": "Prijzen verschillen per klus — plaats je klus gratis en vergelijk echte biedingen van geverifieerde vakmensen in {city} voordat je je aan iets verbindt." },
+      { "q": "Betaal ik vooraf?", "a": "Nee. Je betaalt je vakman rechtstreeks zodra het werk klaar is — Servigic int of houdt je betaling nooit vast." },
+      { "q": "Hoe snel komen biedingen binnen?", "a": "Spoedklussen krijgen meestal binnen 10 minuten een eerste bieding, omdat elke passende vakman in de buurt meteen een melding krijgt." },
+      { "q": "Zijn de vakmensen geverifieerd?", "a": "Alle aanbieders sturen een identiteitsbewijs en selfie in voor goedkeuring op niveau 1; vakmensen van niveau 2 zijn door de politie gecontroleerd." }
+    ]
+  },
+  "video": {
+    "soon": "Demovideo binnenkort",
+    "soonSub": "We nemen een korte rondleiding op — kom snel terug.",
+    "unmute": "Tik voor geluid",
+    "mute": "Dempen",
+    "play": "Video afspelen"
+  },
+  "auth": {
+    "welcome": "Welkom terug",
+    "welcomeSub": "Log in om je klussen, biedingen of dispatchfeed te beheren.",
+    "phone": "Telefoonnummer",
+    "password": "Wachtwoord",
+    "login": "Inloggen",
+    "loggingIn": "Bezig met inloggen…",
+    "noAccount": "Nog geen account?",
+    "signUp": "Aanmelden",
+    "createTitle": "Maak je account aan",
+    "createSub": "Plaats klussen of begin met bieden — kies hoe je Servigic gaat gebruiken.",
+    "needService": "Ik heb een dienst nodig",
+    "needServiceSub": "Klussen plaatsen, biedingen ontvangen",
+    "imPro": "Ik ben vakman",
+    "imProSub": "Bieden, verdienen, uitbetaald worden",
+    "fullName": "Volledige naam",
+    "email": "E-mail",
+    "city": "Stad",
+    "createAccount": "Account aanmaken",
+    "creating": "Account wordt aangemaakt…",
+    "haveAccount": "Heb je al een account?",
+    "somethingWrong": "Er is iets misgegaan",
+    "networkError": "Netwerkfout — probeer het opnieuw",
+    "verifyTitle": "Verifieer je telefoon",
+    "verifySub": "Voer de 6-cijferige code in die we naar je telefoon hebben gestuurd.",
+    "verify": "Verifiëren",
+    "verifying": "Bezig met verifiëren…",
+    "verifyFailed": "Verificatie mislukt",
+    "resend": "Code opnieuw versturen",
+    "resent": "Code opnieuw verstuurd ✓",
+    "badCredentials": "Onjuist telefoonnummer of wachtwoord",
+    "phoneHint": "Voeg de landcode toe, bijv. +31 6 12345678 of +92 300 1234567."
+  },
+  "notFound": {
+    "title": "Pagina niet gevonden",
+    "desc": "Die pagina bestaat niet — mogelijk is hij verplaatst. We helpen je terug op weg.",
+    "home": "Terug naar home",
+    "services": "Bekijk diensten"
+  }
+}

@@ -1,54 +1,28 @@
 import type { Metadata } from "next";
-import { InfoPageShell } from "@/components/landing/InfoPageShell";
+import { getLocale, getTranslations } from "next-intl/server";
+import { InfoPageShell, InfoBlock } from "@/components/landing/InfoPageShell";
+import { Reveal } from "@/components/ui/Reveal";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, pageMetadata, SITE_NAME } from "@/lib/seo";
+import type { Locale } from "@/i18n/locales";
 
-export const metadata: Metadata = { title: "Trust & Safety | Servigic" };
+export async function generateMetadata(): Promise<Metadata> {
+  const [t, locale] = await Promise.all([getTranslations("meta.trust"), getLocale()]);
+  return pageMetadata({ path: "/trust-and-safety", locale: locale as Locale, title: t("title"), description: t("description"), keywords: t("keywords").split(",").map((k) => k.trim()) });
+}
 
-export default function TrustAndSafetyPage() {
+export default async function TrustAndSafetyPage() {
+  const [t, locale] = await Promise.all([getTranslations("trustPage"), getLocale()]);
+  const sections = t.raw("sections") as { title: string; desc: string }[];
+
   return (
-    <InfoPageShell eyebrow="Trust & Safety" title="Built on Payment Protection, Verification, and Masking.">
-      <div>
-        <h2>Payment Protection</h2>
-        <p>
-          Your payment is held by Servigic — never sent directly to the provider — until you confirm the job is done.
-          Every job carries a 7-day workmanship warranty.
-        </p>
-      </div>
-      <div>
-        <h2>Contact Masking</h2>
-        <p>
-          Phone numbers and exact addresses stay hidden on both sides until payment is verified. Providers appear as
-          an anonymous serial number (&quot;Pro #42&quot;) and customers by first name and area only, until then.
-        </p>
-      </div>
-      <div>
-        <h2>Provider Verification Ladder</h2>
-        <p>
-          Level 1: CNIC + selfie, admin-approved — can bid. Level 2 &quot;Verified Pro&quot;: police verification
-          certificate, priority dispatch. Level 3 &quot;Gold Ustad&quot;: 10 completed jobs at 4.5★ or higher, lowest
-          commission.
-        </p>
-      </div>
-      <div>
-        <h2>Change Orders</h2>
-        <p>
-          If a provider finds extra work on-site, they submit a Change Order with a photo and price — you approve
-          (and pay the difference into Payment Protection) before any extra work happens.
-        </p>
-      </div>
-      <div>
-        <h2>Disputes</h2>
-        <p>
-          If something&apos;s wrong, open a dispute before confirming — funds freeze, you and the provider submit
-          photos, and our team resolves it: release, partial refund, or full refund.
-        </p>
-      </div>
-      <div>
-        <h2>Platform-Only Rule</h2>
-        <p>
-          Providers agree that jobs found through Servigic close on Servigic. Taking a customer off-platform after a
-          lead is grounds for delisting — this keeps Payment Protection meaningful for everyone.
-        </p>
-      </div>
+    <InfoPageShell eyebrow={t("eyebrow")} title={t("title")}>
+      <JsonLd data={breadcrumbJsonLd([{ name: SITE_NAME, path: "/" }, { name: t("eyebrow"), path: "/trust-and-safety" }], locale as Locale)} />
+      {sections.map((s, i) => (
+        <Reveal key={s.title} delay={i * 50}>
+          <InfoBlock title={s.title}>{s.desc}</InfoBlock>
+        </Reveal>
+      ))}
     </InfoPageShell>
   );
 }

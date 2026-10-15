@@ -1,70 +1,55 @@
 "use client";
 
 import { useState } from "react";
-import { Eyebrow } from "@/components/landing/Eyebrow";
+import { useTranslations } from "next-intl";
+import { SectionHead } from "@/components/ui/SectionHead";
 
-const FEATURES = [
-  "Real price competition (bidding)",
-  "Full-amount Payment Protection",
-  "Live Uber-style tracking",
-  "Zero lead fees for pros",
-  "Public verified badge ladder",
-];
-
-const TABS = [
-  { key: "fixed-price", label: "Fixed-Price Apps", sublabel: "Mahir, Karsaaz, HukumJanab-style" },
-  { key: "lead-selling", label: "Lead-Selling Platforms", sublabel: "Thumbtack, Angi, Checkatrade, MyBuilder-style" },
-  { key: "call-centers", label: "Call Centers", sublabel: "HukumJanab-style phone/app dispatch" },
-] as const;
+const TAB_KEYS = ["fixed", "lead", "call"] as const;
 
 export function WhySection() {
-  const [tab, setTab] = useState<(typeof TABS)[number]["key"]>("fixed-price");
-  const active = TABS.find((t) => t.key === tab)!;
+  const t = useTranslations("why");
+  const features = t.raw("features") as string[];
+  const [tab, setTab] = useState<(typeof TAB_KEYS)[number]>("fixed");
 
   return (
-    <section className="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
-      <div className="mb-10 max-w-[640px]">
-        <Eyebrow>Why Servigic</Eyebrow>
-        <h2 className="font-display text-[clamp(32px,5vw,52px)] font-bold uppercase leading-tight">
-          BRUTALLY HONEST COMPARISON.
-        </h2>
-      </div>
+    <section className="container-x py-16 md:py-24">
+      <SectionHead eyebrow={t("eyebrow")} title={t("title")} />
 
-      <div className="mb-3 flex flex-wrap gap-2">
-        {TABS.map((t) => (
+      <div role="tablist" className="mb-3 flex flex-wrap gap-2">
+        {TAB_KEYS.map((k) => (
           <button
-            key={t.key}
+            key={k}
             type="button"
-            onClick={() => setTab(t.key)}
+            role="tab"
+            aria-selected={tab === k}
+            onClick={() => setTab(k)}
             className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
-              tab === t.key ? "border-accent bg-accent/10 text-accent" : "border-border-subtle text-text-muted hover:border-accent/40"
+              tab === k ? "border-accent bg-accent/10 text-accent" : "border-border-subtle text-text-muted hover:border-accent/40"
             }`}
           >
-            {t.label}
+            {t(`tabs.${k}.label`)}
           </button>
         ))}
       </div>
-      <p className="mb-6 text-xs text-text-muted">vs. {active.sublabel}</p>
+      <p className="mb-6 text-xs text-text-muted">
+        {t("vs")} {t(`tabs.${tab}.sub`)}
+      </p>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px] border-collapse text-sm">
+      <div className="sv-card overflow-x-auto p-2 md:p-4">
+        <table className="w-full min-w-[520px] border-collapse text-sm">
           <thead>
             <tr>
               <th className="border-b border-border-subtle p-4 text-start" />
-              <th className="border-b border-border-subtle p-4 text-start text-xs font-semibold uppercase tracking-wide text-text-muted">
-                {active.label}
-              </th>
-              <th className="border-b border-border-subtle p-4 text-start text-xs font-semibold uppercase tracking-wide text-accent">
-                Servigic
-              </th>
+              <th className="border-b border-border-subtle p-4 text-center font-mono text-xs font-semibold uppercase tracking-wide text-text-muted">{t(`tabs.${tab}.label`)}</th>
+              <th className="border-b border-border-subtle p-4 text-center font-mono text-xs font-semibold uppercase tracking-wide text-accent">Servigic</th>
             </tr>
           </thead>
           <tbody>
-            {FEATURES.map((feature) => (
+            {features.map((feature) => (
               <tr key={feature}>
                 <td className="border-b border-border-subtle p-4 font-semibold text-text-muted">{feature}</td>
-                <td className="border-b border-border-subtle p-4 font-bold text-danger">✕</td>
-                <td className="border-b border-border-subtle p-4 font-bold text-secondary">✓</td>
+                <td className="border-b border-border-subtle p-4 text-center font-bold text-danger">✕</td>
+                <td className="border-b border-border-subtle p-4 text-center font-bold text-secondary">✓</td>
               </tr>
             ))}
           </tbody>

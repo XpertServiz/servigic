@@ -1,38 +1,39 @@
-import Link from "next/link";
-import { Eyebrow } from "@/components/landing/Eyebrow";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Button } from "@/components/ui/Button";
+import { SectionHead } from "@/components/ui/SectionHead";
+import { Reveal } from "@/components/ui/Reveal";
+import { TiltCard } from "@/components/ui/TiltCard";
+import { fmtPKR } from "@/lib/format";
 
 interface PlanTeaserCard {
+  trade: string;
   icon: string;
   title: string;
-  cadence: string;
   fromPKR: number;
 }
 
-export function PlansTeaser({ cards }: { cards: PlanTeaserCard[] }) {
+export async function PlansTeaser({ cards }: { cards: PlanTeaserCard[] }) {
+  const [t, ts, locale] = await Promise.all([getTranslations("plans"), getTranslations("services.trades"), getLocale()]);
   if (cards.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-[1000px] px-6 py-20">
-      <Eyebrow>Set It &amp; Forget It</Eyebrow>
-      <h2 className="mb-8 font-display text-[clamp(28px,4.5vw,44px)] font-bold uppercase leading-tight">
-        Never miss your AC service again.
-      </h2>
-      <div className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-        {cards.map((c) => (
-          <div key={c.title} className="rounded-[14px] border border-border-subtle bg-bg-elevated p-6">
-            <div className="mb-2 text-2xl">{c.icon}</div>
-            <h3 className="mb-1 text-lg font-bold">{c.title}</h3>
-            <p className="mb-4 text-sm text-text-muted">{c.cadence}</p>
-            <div className="font-display text-xl font-bold text-accent">From PKR {c.fromPKR.toLocaleString()}/visit</div>
-          </div>
+    <section className="container-x max-w-[1000px] py-16 md:py-20">
+      <SectionHead eyebrow={t("eyebrow")} title={t("title")} />
+      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
+        {cards.map((c, i) => (
+          <Reveal key={c.trade} delay={i * 80}>
+            <TiltCard className="h-full p-6">
+              <div className="mb-2 text-3xl">{c.icon}</div>
+              <h3 className="mb-1 text-lg font-bold">{ts.has(c.trade) ? ts(c.trade) : c.title}</h3>
+              <p className="mb-4 text-sm text-text-muted">{t(`cadence.${c.trade}`)}</p>
+              <div className="text-lg font-bold text-accent">{t("from", { price: fmtPKR(c.fromPKR, locale) })}</div>
+            </TiltCard>
+          </Reveal>
         ))}
       </div>
-      <Link
-        href="/signup?role=customer"
-        className="inline-block rounded-[10px] bg-accent px-6 py-3 font-bold text-accent-foreground"
-      >
-        Set Up a Plan →
-      </Link>
+      <Button href="/signup?role=customer">
+        {t("cta")} <span aria-hidden className="rtl:rotate-180">→</span>
+      </Button>
     </section>
   );
 }

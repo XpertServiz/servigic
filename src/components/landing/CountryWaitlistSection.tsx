@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Eyebrow } from "@/components/landing/Eyebrow";
 
+const inputCls = "flex-1 rounded-full border border-border-subtle bg-bg-elevated px-5 py-3 text-sm text-text outline-none transition-colors focus:border-accent";
+
 export function CountryWaitlistSection({ countryCode, countryName }: { countryCode: string; countryName: string }) {
+  const t = useTranslations("waitlist");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [pending, setPending] = useState(false);
@@ -21,7 +25,7 @@ export function CountryWaitlistSection({ countryCode, countryName }: { countryCo
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error || "Failed to join waitlist");
+        toast.error(data.error || t("failed"));
         return;
       }
       setSubmitted(true);
@@ -31,42 +35,19 @@ export function CountryWaitlistSection({ countryCode, countryName }: { countryCo
   }
 
   return (
-    <section id="waitlist" className="mx-auto max-w-[700px] px-6 py-20 text-center">
-      <Eyebrow>Coming Soon to {countryName}</Eyebrow>
-      <h2 className="mb-4 font-display text-[clamp(28px,4.5vw,44px)] font-bold uppercase leading-tight">
-        Be first when we launch here.
-      </h2>
-      <p className="mb-8 text-text-muted">
-        Servigic isn&apos;t live in {countryName} yet — no local pros or payment methods are wired up here. Leave
-        your email and we&apos;ll notify you the moment it is.
-      </p>
+    <section id="waitlist" className="container-x max-w-[720px] py-16 text-center md:py-20">
+      <Eyebrow>{t("eyebrow", { country: countryName })}</Eyebrow>
+      <h2 className="mb-4 text-[clamp(26px,4.2vw,42px)] font-bold leading-tight tracking-[-0.018em]">{t("title")}</h2>
+      <p className="mb-8 text-text-muted">{t("desc", { country: countryName })}</p>
 
       {submitted ? (
-        <div className="rounded-[14px] border border-secondary/30 bg-secondary/10 p-6 text-secondary">
-          You&apos;re on the list — we&apos;ll email you when Servigic launches in {countryName}. 🎉
-        </div>
+        <div className="rounded-2xl border border-secondary/30 bg-secondary/10 p-6 text-secondary">{t("done", { country: countryName })}</div>
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-3 sm:flex-row">
-          <input
-            required
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="flex-1 rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 text-sm text-text outline-none focus:border-accent"
-          />
-          <input
-            placeholder="Name (optional)"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="flex-1 rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 text-sm text-text outline-none focus:border-accent"
-          />
-          <button
-            type="submit"
-            disabled={pending}
-            className="rounded-[10px] bg-accent px-6 py-3 font-bold text-accent-foreground disabled:opacity-60"
-          >
-            {pending ? "Joining…" : "Join Waitlist"}
+          <input required type="email" placeholder={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} dir="ltr" />
+          <input placeholder={t("name")} value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
+          <button type="submit" disabled={pending} className="rounded-full bg-accent px-7 py-3 font-semibold text-accent-foreground disabled:opacity-60">
+            {pending ? t("joining") : t("join")}
           </button>
         </form>
       )}

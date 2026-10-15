@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const OPTIONS = [
   { country: "PK", label: "🇵🇰 PKR" },
@@ -15,6 +16,7 @@ const OPTIONS = [
 ];
 
 export function CurrencySwitcher({ current }: { current: string }) {
+  const t = useTranslations("common");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -30,9 +32,10 @@ export function CurrencySwitcher({ current }: { current: string }) {
   return (
     <select
       value={current}
+      aria-label={t("currency")}
       onChange={(e) => setCountry(e.target.value)}
       disabled={pending}
-      className="rounded-md border border-border-subtle bg-bg-elevated px-2.5 py-1 text-[13px] text-text-muted disabled:opacity-60"
+      className="rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[13px] text-text-muted transition-colors hover:border-accent/50 disabled:opacity-60"
     >
       {OPTIONS.map((o) => (
         <option key={o.country} value={o.country}>

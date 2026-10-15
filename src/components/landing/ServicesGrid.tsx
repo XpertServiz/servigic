@@ -1,78 +1,43 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
-import { Eyebrow } from "@/components/landing/Eyebrow";
+import { LLink } from "@/components/i18n/LLink";
+import { SectionHead } from "@/components/ui/SectionHead";
+import { Reveal } from "@/components/ui/Reveal";
 import { detectMarket } from "@/lib/geoDetect";
 import { formatApproxFromPKR } from "@/lib/currency";
-
-const TRADE_ICONS: Record<string, string> = {
-  PLUMBER: "🔧",
-  ELECTRICIAN: "💡",
-  AC_TECHNICIAN: "❄️",
-  SOLAR_INSTALLER: "☀️",
-  CARPENTER: "🪚",
-  PAINTER: "🎨",
-  APPLIANCE_REPAIR: "🧺",
-  CAR_MECHANIC: "🚗",
-  MOVERS: "📦",
-  CLEANER: "🧹",
-  MASON: "🧱",
-  HANDYMAN: "🛠️",
-};
-
-const FALLBACK = [
-  { trade: "PLUMBER", name: "Plumber", slug: "plumber", minPricePKR: 1200 },
-  { trade: "ELECTRICIAN", name: "Electrician", slug: "electrician", minPricePKR: 1000 },
-  { trade: "AC_TECHNICIAN", name: "AC Technician", slug: "ac-technician", minPricePKR: 1800 },
-  { trade: "SOLAR_INSTALLER", name: "Solar Installer", slug: "solar-installer", minPricePKR: 8500 },
-  { trade: "CARPENTER", name: "Carpenter", slug: "carpenter", minPricePKR: 1500 },
-  { trade: "PAINTER", name: "Painter", slug: "painter", minPricePKR: 3000 },
-  { trade: "APPLIANCE_REPAIR", name: "Appliance Repair", slug: "appliance-repair", minPricePKR: 1400 },
-  { trade: "CAR_MECHANIC", name: "Car Mechanic", slug: "car-mechanic", minPricePKR: 1600 },
-  { trade: "MOVERS", name: "Movers", slug: "movers", minPricePKR: 4000 },
-  { trade: "CLEANER", name: "Cleaner", slug: "cleaner", minPricePKR: 1800 },
-  { trade: "MASON", name: "Mason", slug: "mason", minPricePKR: 2200 },
-  { trade: "HANDYMAN", name: "Handyman", slug: "handyman", minPricePKR: 900 },
-];
+import { SERVICE_CATALOG, TRADE_ICONS } from "@/lib/catalog";
 
 async function getCategories() {
   try {
     const categories = await prisma.serviceCategory.findMany({ orderBy: { name: "asc" } });
-    if (categories.length === 0) return FALLBACK;
-    return categories;
+    if (categories.length > 0) return categories.map((c) => ({ trade: c.trade as string, name: c.name, slug: c.slug, minPricePKR: c.minPricePKR }));
   } catch {
-    return FALLBACK;
+    // fall through to the static catalog
   }
+  return SERVICE_CATALOG.map((c) => ({ trade: c.trade as string, name: c.trade, slug: c.slug, minPricePKR: c.minPricePKR as number | null }));
 }
 
-export async function ServicesGrid() {
-  const [categories, market] = await Promise.all([getCategories(), detectMarket()]);
-  const defaultCity = "karachi";
+export async function ServicesGrid({ showAll = false }: { showAll?: boolean } = {}) {
+  const [t, ts, categories, market] = await Promise.all([getTranslations("services"), getTranslations("services.trades"), getCategories(), detectMarket()]);
+  const shown = showAll ? categories : categories.slice(0, 12);
 
-  const priceLabels = await Promise.all(
-    categories.map((c) => (c.minPricePKR ? formatApproxFromPKR(c.minPricePKR, market.currency) : Promise.resolve(null)))
-  );
+  const priceLabels = await Promise.all(shown.map((c) => (c.minPricePKR ? formatApproxFromPKR(c.minPricePKR, market.currency) : Promise.resolve(null))));
 
   return (
-    <section id="services" className="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
-      <div className="mb-16 max-w-[640px]">
-        <Eyebrow>Services</Eyebrow>
-        <h2 className="font-display text-[clamp(32px,5vw,52px)] font-bold uppercase leading-tight">12 TRADES. ONE APP.</h2>
-      </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-        {categories.map((c, i) => (
-          <Link
-            key={c.trade}
-            href={`/services/${c.slug}/${defaultCity}`}
-            className="rounded-xl border border-border-subtle bg-bg-elevated p-5.5 transition-all hover:-translate-y-0.5 hover:border-accent"
-          >
-            <div className="mb-3.5 flex h-10 w-10 items-center justify-center rounded-[10px] bg-accent/10 text-lg text-accent">
-              {TRADE_ICONS[c.trade] ?? "🛠️"}
-            </div>
-            <h4 className="text-[15px] font-bold">{c.name}</h4>
-            <small className="text-xs text-text-dim text-text-muted">
-              {priceLabels[i] ? `From ${priceLabels[i]}` : "See pricing"}
-            </small>
-          </Link>
+    <section id="services" className="container-x py-16 md:py-24">
+      <SectionHead eyebrow={t("eyebrow")} title={t("title")} sub={t("sub")} />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+        {shown.map((c, i) => (
+          <Reveal key={c.trade} delay={(i % 4) * 70}>
+            <LLink
+              href={`/services/${c.slug}/karachi`}
+              className="sv-card group flex h-full flex-col p-4 sm:p-5"
+            >
+              <div className="mb-3.5 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">{TRADE_ICONS[c.trade] ?? "🛠️"}</div>
+              <h3 className="text-[15px] font-bold">{ts.has(c.trade) ? ts(c.trade) : c.name}</h3>
+              <small className="mt-1 text-xs text-text-muted">{priceLabels[i] ? t("from", { price: priceLabels[i] as string }) : t("seePricing")}</small>
+            </LLink>
+          </Reveal>
         ))}
       </div>
     </section>

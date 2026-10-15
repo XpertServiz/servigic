@@ -1,38 +1,538 @@
 {
+  "meta": {
+    "home": {
+      "title": "Servigic — Usługi domowe w Pakistanie | Dodaj zlecenie, odbierz oferty",
+      "description": "Dodaj zlecenie za darmo, a sprawdzeni hydraulicy, elektrycy, technicy klimatyzacji i inni złożą oferty w kilka minut. Porównaj prawdziwe ceny, wybierz fachowca i zapłać mu bezpośrednio po pracy. Karaczi, Lahaur, Islamabad.",
+      "keywords": "usługi domowe Pakistan, hydraulik Karaczi, elektryk Lahaur, technik klimatyzacji Islamabad, sprawdzeni fachowcy, wyceny online, złota rączka w pobliżu, Servigic"
+    },
+    "how": {
+      "title": "Jak działa Servigic — Dodaj, odbierz oferty, napraw",
+      "description": "Dodaj zlecenie ze zdjęciami, sprawdzeni fachowcy składają oferty w kilka minut, Ty wybierasz najlepszą cenę i płacisz fachowcowi bezpośrednio po zakończeniu pracy.",
+      "keywords": "jak zatrudnić hydraulika online, aplikacja do usług domowych z ofertami, porównanie wycen napraw, Servigic jak to działa"
+    },
+    "pro": {
+      "title": "Zostań fachowcem Servigic — Zero opłat za leady",
+      "description": "Dołącz do Servigic jako sprawdzony fachowiec. Bez opłat za leady, płacisz tylko za wygrane zlecenie, natychmiastowe powiadomienia i wypłaty przez EasyPaisa, JazzCash lub bank.",
+      "keywords": "zostań partnerem hydraulikiem, praca elektryka Pakistan, aplikacja dla usługodawców, platforma bez opłat za leady, Servigic fachowiec"
+    },
+    "services": {
+      "title": "Usługi domowe w Pakistanie — hydraulik, elektryk, klimatyzacja i więcej",
+      "description": "12 zawodów w Karaczi, Lahaurze, Islamabadzie i Rawalpindi. Dodaj zlecenie za darmo i porównaj oferty sprawdzonych fachowców.",
+      "keywords": "hydraulik, elektryk, technik klimatyzacji, instalator fotowoltaiki, stolarz, malarz, naprawa sprzętu AGD, mechanik samochodowy, przeprowadzki, sprzątanie, murarz, złota rączka, Pakistan"
+    },
+    "city": {
+      "title": "{service} w mieście {city} — Oferty w kilka minut",
+      "description": "Dodaj zlecenie: {service}, miasto {city}, i odbierz oferty sprawdzonych fachowców w kilka minut. Porównaj cenę, ocenę i czas dojazdu, a po pracy zapłać fachowcowi bezpośrednio."
+    },
+    "trust": {
+      "title": "Zaufanie i bezpieczeństwo — Sprawdzeni fachowcy, ukryte dane kontaktowe",
+      "description": "Jak Servigic Cię chroni: fachowcy z weryfikacją tożsamości, sprawdzeni przez policję, ukryte dane kontaktowe, akceptacja prac dodatkowych i mediacja w sporach.",
+      "keywords": "sprawdzeni hydraulicy, zaufane usługi domowe, bezpieczne zatrudnianie usługodawców"
+    },
+    "business": {
+      "title": "Servigic dla firm — Utrzymanie wielu nieruchomości",
+      "description": "Jeden panel dla każdej jednostki i każdej branży. Masowe dodawanie zleceń i zbiorcze faktury dla zarządców nieruchomości, firm zarządzających willami i wspólnot.",
+      "keywords": "utrzymanie nieruchomości Pakistan, konserwacja willi, facility management hydraulicy elektrycy"
+    },
+    "terms": { "title": "Regulamin", "description": "Zasady korzystania z platformy Servigic." },
+    "privacy": { "title": "Polityka prywatności", "description": "Jakie dane zbiera Servigic, po co i jak je chroni." },
+    "login": { "title": "Zaloguj się", "description": "Zaloguj się do Servigic, aby zarządzać zleceniami, ofertami i rezerwacjami." },
+    "signup": { "title": "Załóż konto", "description": "Zarejestruj się za darmo, aby dodawać zlecenia lub składać oferty jako sprawdzony fachowiec." },
+    "verify": { "title": "Zweryfikuj telefon", "description": "Wpisz 6-cyfrowy kod wysłany na Twój telefon." }
+  },
+  "common": {
+    "appName": "Servigic",
+    "loading": "Ładowanie",
+    "splashTagline": "Usługi domowe · Pakistan · Naprawione dziś",
+    "language": "Język",
+    "currency": "Waluta",
+    "free": "Za darmo",
+    "from": "Od",
+    "seePricing": "Zobacz ceny",
+    "perVisit": "/wizyta",
+    "comingSoon": "Wkrótce",
+    "skipToContent": "Przejdź do treści",
+    "back": "Wstecz",
+    "learnMore": "Dowiedz się więcej"
+  },
   "nav": {
     "howItWorks": "Jak to działa",
     "services": "Usługi",
     "forPros": "Dla fachowców",
+    "trust": "Zaufanie i bezpieczeństwo",
     "faq": "FAQ",
     "login": "Zaloguj się",
-    "postJob": "Dodaj zlecenie"
+    "postJob": "Dodaj zlecenie",
+    "menu": "Otwórz menu",
+    "close": "Zamknij menu"
   },
   "hero": {
-    "eyebrow": "Fachowcy licytują w kilka minut — Ty wybierasz cenę",
-    "line1": "ZEPSUTE?",
-    "line2": "NAPRAWIONE",
-    "line3": "DZISIAJ.",
-    "sub": "Dodaj swoje zlecenie. Zweryfikowani fachowcy rywalizują o zlecenie. Zapłać fachowcowi bezpośrednio, gdy praca zostanie ukończona.",
+    "eyebrow": "Fachowcy składają oferty w kilka minut — Ty wybierasz cenę",
+    "line1": "Zepsute?",
+    "line2": "Naprawione",
+    "line3": "dziś.",
+    "sub": "Dodaj zlecenie. Sprawdzeni fachowcy ścigają się z ofertami. Zapłać fachowcowi bezpośrednio po wykonaniu pracy.",
     "ctaPrimary": "Dodaj zlecenie — oferty w kilka minut",
-    "ctaSecondary": "Zobacz jak to działa — 60 sek."
+    "ctaSecondary": "Zobacz, jak to działa",
+    "joinWaitlist": "Dołącz do listy oczekujących",
+    "trusted": "Zaufali nam właściciele domów w Karaczi, Lahaurze i Islamabadzie",
+    "chipPro": "Ahmed · ★4,9 · 12 min stąd",
+    "chipBid": "Nowa oferta · PKR 3 500",
+    "chipVerified": "Sprawdzony fachowiec ✓"
   },
-  "common": {
-    "appName": "Servigic"
+  "live": {
+    "eyebrow": "Na żywo w Servigic",
+    "title": "W tej chwili ludzie korzystają z Servigic",
+    "sub": "Prawdziwe, anonimowe liczby odwiedzających z całego świata — odświeżane co kilka sekund.",
+    "online": "Teraz online",
+    "today": "Odwiedzający dziś",
+    "total": "Odwiedzający łącznie",
+    "views": "Wyświetlenia stron",
+    "countries": "Skąd pochodzą nasi odwiedzający",
+    "countriesShort": "Kraje",
+    "visitors": "odwiedzających",
+    "onlineHere": "online",
+    "empty": "Bądź pierwszy — liczby pojawią się, gdy ktoś wejdzie.",
+    "unknown": "Nieznana lokalizacja",
+    "privacy": "Bez plików cookie i anonimowo: liczymy wizyty tylko według kraju i nigdy nie zapisujemy adresów IP.",
+    "live": "NA ŻYWO"
+  },
+  "sim": {
+    "eyebrow": "Zobacz to w akcji",
+    "title": "Zobacz, jak zlecenie zostaje naprawione — w 12 sekund",
+    "job": "Klimatyzacja nie chłodzi",
+    "area": "Gulshan-e-Iqbal",
+    "emergency": "Pilne",
+    "eta": "Dojazd za {min} min",
+    "accepted": "Przyjęto ✓",
+    "statusAccepted": "Przyjęto",
+    "statusOnTheWay": "W drodze",
+    "statusDone": "Gotowe",
+    "paid": "PKR 3 500 zapłacone bezpośrednio ✓",
+    "bidderPro": "Elektryk Pro nr 17",
+    "bidderFast": "Fast Fix Services"
+  },
+  "ticker": {
+    "bid": "Oferta {category} na {price} w {area}",
+    "jobsWeek": "{count} zleceń ukończonych w tym tygodniu",
+    "paidWeek": "{amount} wypłacone fachowcom w tym tygodniu"
+  },
+  "price": {
+    "eyebrow": "Prawdziwe ceny, na żywo",
+    "title": "Ile naprawdę kosztują zlecenia.",
+    "city": "Miasto",
+    "service": "Usługa",
+    "loading": "Ładowanie…",
+    "notEnough": "Brak jeszcze dość ukończonych zleceń dla usługi {service} (miasto: {city}), by pokazać wiarygodny przedział cen — mimo to budżet ustalasz sam przy dodawaniu zlecenia.",
+    "estimate": "Szacunkowa cena wyjściowa: {service}, miasto {city} — zostanie zastąpiona prawdziwymi danymi, gdy ukończy się dość zleceń.",
+    "typical": "Typowa cena: {service}, miasto {city} · na podstawie {count} ukończonych zleceń · średnio {avg}"
+  },
+  "problem": {
+    "eyebrow": "Problem",
+    "title": "Znalezienie dobrego fachowca nie powinno być loterią.",
+    "items": [
+      "Dzwonienie pod 6 numerów z grupy na WhatsAppie i liczenie na szczęście",
+      "„Aplikacja mówiła PKR 1 500 — na miejscu zażądał 4 000”",
+      "Nie wiadomo, czy w ogóle przyjedzie ani kiedy",
+      "Zapłacone gotówką, praca w połowie, numer zablokowany",
+      "Zero możliwości odwołania, gdy za tydzień znów się zepsuje"
+    ],
+    "fix": "Servigic rozwiązuje wszystkie pięć — ofertami, sprawdzonymi fachowcami i śledzeniem na żywo."
+  },
+  "how": {
+    "eyebrow": "Jak to działa",
+    "title": "Trzy kroki. Zero loterii.",
+    "steps": [
+      {
+        "title": "Dodaj zlecenie",
+        "desc": "30 sekund. Zdjęcia + okolica. Dokładny adres pozostaje ukryty, dopóki nie wybierzesz fachowca.",
+        "mock": "📷 3 zdjęcia · Technik klimatyzacji · Gulshan-e-Iqbal · Pilne"
+      },
+      {
+        "title": "Fachowcy ścigają się z ofertami",
+        "desc": "Porównaj cenę, ocenę i czas dojazdu obok siebie — wybierasz Ty albo składasz kontrofertę.",
+        "mock": "Otrzymano 4 oferty · sortowanie wg ceny ↓"
+      },
+      {
+        "title": "Śledź na żywo, płać po pracy",
+        "desc": "Obserwuj dojazd fachowca jak w Uberze. Zapłać mu bezpośrednio po zakończeniu pracy.",
+        "mock": "Ahmed jest w drodze · dojazd za 35 min"
+      }
+    ],
+    "emergencyLabel": "Na pilne przypadki",
+    "emergencyTitle": "Albo pomiń czekanie — Instant Match",
+    "emergencyDesc": "Pękła rura o 2 w nocy? W kilka sekund dopasujemy Ci najbliższego sprawdzonego fachowca. Bez czekania na oferty.",
+    "emergencyMock": "🚨 Instant Match · Ahmed (sprawdzony fachowiec, 4,8★) · PKR 2 875 · dojazd za 12 min · 90 s na akceptację"
+  },
+  "features": {
+    "board": {
+      "eyebrow": "Tablica ofert",
+      "title": "Fachowcy konkurują. Ty wygrywasz.",
+      "p1": "Każda oferta pokazuje cenę, ocenę, odległość i czas dojazdu — sortowane, jak chcesz.",
+      "p2": "Oferta Ci nie odpowiada? Odrzuć ją z podaniem powodu lub wyślij kontrofertę.",
+      "price": "Cena",
+      "rating": "Ocena",
+      "eta": "Dojazd",
+      "etaMin": "Dojazd za {min} min",
+      "declines": ["Za drogo", "Za długi dojazd", "Niska ocena"]
+    },
+    "cash": {
+      "eyebrow": "Płacisz po pracy",
+      "title": "Bez zaliczki. Bez portfela. Po prostu zapłać fachowcowi bezpośrednio.",
+      "p1": "Porównaj oferty, wybierz fachowca i zapłać mu gotówką — albo jak się umówicie — po zakończeniu pracy. Prosto, znajomo, uczciwie.",
+      "p2": "Na miejscu wyszła dodatkowa praca? Zlecenie zmiany nadal wymaga najpierw Twojej zgody — zawsze wiesz, ile zapłacisz, zanim to nastąpi.",
+      "steps": ["Porównaj oferty", "Praca wykonana", "Zapłać bezpośrednio"],
+      "badge": "🛠 Gwarancja wykonania — 7 dni",
+      "change": "Zlecenie zmiany: „Znaleziono skorodowaną rurę — dodatkowo PKR 800”",
+      "approve": "Zatwierdź"
+    },
+    "protected": {
+      "eyebrow": "Ochrona płatności",
+      "title": "Twoje pieniądze nie ruszają się, dopóki praca nie jest zrobiona.",
+      "p1": "Opłacone → Wstrzymane → Praca wykonana → Wypłacone. Każde zlecenie ma 7-dniową gwarancję wykonania.",
+      "p2": "Na miejscu wyszła dodatkowa praca? Zlecenie zmiany wymaga najpierw Twojej zgody — inaczej do niej nie dojdzie.",
+      "steps": ["Opłacone", "Wstrzymane", "Praca wykonana", "Wypłacone"],
+      "badge": "🛡 7-dniowa gwarancja wykonania"
+    },
+    "tracking": {
+      "eyebrow": "Śledzenie na żywo",
+      "title": "Wiedz dokładnie, gdzie jest Twój fachowiec.",
+      "p1": "Mapa na żywo jak w Uberze od chwili, gdy fachowiec przyjmie zlecenie.",
+      "steps": ["W drodze", "Na miejscu", "Pracuje", "Gotowe"],
+      "status": "Ahmed jest w drodze · dojazd za 35 min"
+    },
+    "verified": {
+      "eyebrow": "Sprawdzeni fachowcy, oceniani z obu stron",
+      "title": "Zweryfikowana tożsamość. Sprawdzenie policyjne na poziomie 2.",
+      "p1": "Oceniani przez prawdziwych klientów po prawdziwych zleceniach — a fachowcy oceniają też klientów.",
+      "badges": ["Zweryfikowany", "Sprawdzony fachowiec", "Gold Ustad"],
+      "card": "Ahmed R. · ★4,9 · 212 ukończonych zleceń",
+      "tags": ["Profesjonalnie", "Punktualnie", "Czysta robota"]
+    }
+  },
+  "services": {
+    "eyebrow": "Usługi",
+    "title": "12 zawodów. Jedna aplikacja.",
+    "sub": "Od cieknącego kranu po pełną instalację solarną — dodaj raz, a sprawdzeni fachowcy rywalizują o Twoje zlecenie.",
+    "from": "Od {price}",
+    "seePricing": "Zobacz ceny",
+    "trades": {
+      "PLUMBER": "Hydraulik",
+      "ELECTRICIAN": "Elektryk",
+      "AC_TECHNICIAN": "Technik klimatyzacji",
+      "SOLAR_INSTALLER": "Instalator fotowoltaiki",
+      "CARPENTER": "Stolarz",
+      "PAINTER": "Malarz",
+      "APPLIANCE_REPAIR": "Naprawa sprzętu AGD",
+      "CAR_MECHANIC": "Mechanik samochodowy",
+      "MOVERS": "Przeprowadzki",
+      "CLEANER": "Sprzątanie",
+      "MASON": "Murarz",
+      "HANDYMAN": "Złota rączka",
+      "GENERATOR_REPAIR": "Naprawa agregatów",
+      "WATER_TANK_CLEANING": "Czyszczenie zbiorników na wodę"
+    }
+  },
+  "cities": {
+    "Karachi": "Karaczi",
+    "Lahore": "Lahaur",
+    "Islamabad": "Islamabad",
+    "Rawalpindi": "Rawalpindi"
+  },
+  "results": {
+    "eyebrow": "Wyniki",
+    "title": "Prawdziwe liczby. Żadnych zmyślonych statystyk.",
+    "launchNote": "Faza startowa — liczby będą się aktualizować na żywo po osiągnięciu progów. Nigdy fałszywych opinii.",
+    "jobs": "Ukończone zlecenia",
+    "paid": "Wypłacono fachowcom",
+    "firstBid": "Śr. czas do pierwszej oferty",
+    "lessThanMin": "< 1 min",
+    "minutes": "~{n} min",
+    "hours": "~{n} godz.",
+    "prev": "Poprzednie opinie",
+    "next": "Następne opinie",
+    "goto": "Przejdź do strony opinii {n}"
+  },
+  "featuredPros": {
+    "eyebrow": "Wyróżnieni sprawdzeni fachowcy",
+    "title": "Prawdziwi fachowcy. Sprawdzeni i oceniani.",
+    "eyebrowGeneric": "Sprawdzeni fachowcy",
+    "titleGeneric": "Sprawdzeni fachowcy w każdym zawodzie.",
+    "achiever": "🏆 Najlepszy",
+    "achieverTitle": "Najwyżej oceniany fachowiec",
+    "ratingJobs": "{rating}★ · {jobs} zleceń"
+  },
+  "forPros": {
+    "customerTitle": "Klient?",
+    "customerDesc": "Dodaj zlecenie za darmo, odbierz oferty w kilka minut i zapłać fachowcowi bezpośrednio po zakończeniu pracy.",
+    "customerCta": "Dodaj zlecenie",
+    "proTitle": "Zarabiaj więcej. Zachowaj 88%.",
+    "zero": "PKR 0",
+    "zeroActive": "Wydane na leady przez naszych {count} aktywnych usługodawców w tym miesiącu",
+    "zeroGeneric": "Wydane na leady. Nigdy. Inne platformy każą płacić już za samo zobaczenie zlecenia — my nie.",
+    "perks": [
+      "Nigdy żadnych opłat za leady",
+      "Płacisz tylko za wygrane zlecenie",
+      "Powiadomienia o zleceniach jak w Uberze w kieszeni",
+      "Wypłata prosto na EasyPaisa / JazzCash / konto bankowe",
+      "Poziomy odznak = niższa prowizja"
+    ],
+    "cta": "Zostań fachowcem Servigic"
+  },
+  "calc": {
+    "jobsPerWeek": "Zleceń tygodniowo",
+    "avgTicket": "Średnia wartość zlecenia",
+    "monthly": "Szacowane miesięczne zarobki",
+    "note": "Po odliczeniu prowizji Servigic 12% (10% dla Gold Ustad)."
+  },
+  "why": {
+    "eyebrow": "Dlaczego Servigic",
+    "title": "Brutalnie szczere porównanie.",
+    "vs": "kontra",
+    "tabs": {
+      "fixed": { "label": "Aplikacje ze stałą ceną", "sub": "w stylu Mahir, Karsaaz, HukumJanab" },
+      "lead": { "label": "Platformy sprzedające leady", "sub": "w stylu Thumbtack, Angi, Checkatrade, MyBuilder" },
+      "call": { "label": "Call center", "sub": "dyspozytornia telefoniczna/aplikacyjna w stylu HukumJanab" }
+    },
+    "features": [
+      "Prawdziwa konkurencja cenowa (oferty)",
+      "Płacisz fachowcowi bezpośrednio, bez pośrednika",
+      "Śledzenie na żywo jak w Uberze",
+      "Zero opłat za leady dla fachowców",
+      "Publiczna drabinka odznak weryfikacji"
+    ]
+  },
+  "plans": {
+    "eyebrow": "Ustaw i zapomnij",
+    "title": "Nigdy więcej nie przegap serwisu klimatyzacji.",
+    "from": "Od {price}/wizyta",
+    "cta": "Ustaw plan",
+    "cadence": {
+      "AC_TECHNICIAN": "Co kwartał",
+      "GENERATOR_REPAIR": "Co 6 miesięcy",
+      "WATER_TANK_CLEANING": "Co 6 miesięcy"
+    }
   },
   "faq": {
     "eyebrow": "FAQ",
-    "title": "PYTANIA? MAMY ODPOWIEDZI.",
+    "title": "Pytania? Odpowiedzi.",
     "items": [
-      { "q": "Czy dodanie zlecenia jest bezpłatne?", "a": "Tak — dodanie zlecenia jest zawsze bezpłatne. Płacisz dopiero po zaakceptowaniu oferty, a płatność trafia bezpośrednio do fachowca po zakończeniu pracy — Servigic nigdy nie przyjmuje ani nie przechowuje Twojej płatności." },
-      { "q": "Jak Servigic mnie chroni, skoro nie płacę z góry?", "a": "Zamiast przechowywać Twoje pieniądze, Servigic chroni Cię poprzez zweryfikowanych fachowców (dowód tożsamości + selfie, weryfikacja policyjna na wyższych poziomach), obustronne oceny po każdym zleceniu, zamaskowany czat w aplikacji, który ujawnia dane kontaktowe fachowca dopiero, gdy jest w drodze, oraz zespół mediacyjny na wypadek problemów." },
-      { "q": "Co jeśli fachowiec znajdzie dodatkową pracę na miejscu?", "a": "Składa zlecenie zmiany ze zdjęciem i ceną — zatwierdzasz je, zanim rozpocznie się dodatkowa praca, a dodatkowa kwota jest po prostu doliczana do tego, co płacisz fachowcowi bezpośrednio." },
-      { "q": "Co jeśli nie jestem zadowolony?", "a": "Każde zlecenie objęte jest 7-dniowym wsparciem gwarancyjnym na jakość wykonania. Otwórz spór, a nasz zespół przeanalizuje zdjęcia obu stron i pomoże wypracować rozwiązanie z Twoim fachowcem." },
-      { "q": "Dlaczego nie widzę od razu numeru telefonu fachowca?", "a": "Dane kontaktowe pozostają ukryte w czacie w aplikacji, dopóki fachowiec nie oznaczy, że jest w drodze — to zamyka okazję do zawierania transakcji poza platformą, chroniąc obie strony. W przypadku zleceń awaryjnych dane kontaktowe odblokowują się natychmiast." },
-      { "q": "Jak szybko pojawiają się oferty?", "a": "W przypadku zleceń awaryjnych większość klientów otrzymuje pierwszą ofertę w mniej niż 10 minut, ponieważ każdy pasujący pobliski fachowiec jest natychmiast powiadamiany." },
-      { "q": "Jak fachowcy otrzymują zapłatę?", "a": "Bezpośrednio od Ciebie — gotówką, przez EasyPaisa, JazzCash lub przelewem bankowym, w sposób uzgodniony między Wami. Servigic nigdy nie dotyka tej płatności; fachowcy rozliczają swoją 12% prowizję osobno, poprzez swój portfel prowizyjny w aplikacji." },
-      { "q": "W jakich miastach?", "a": "Start w Karaczi, następnie Lahore i Islamabad/Rawalpindi, a potem kraje Zatoki Perskiej i Ameryka Północna." },
-      { "q": "Dlaczego powinienem rezerwować przez Servigic, zamiast dzwonić bezpośrednio do fachowca?", "a": "Rezerwacja przez Servigic daje Ci zweryfikowanych i ocenianych fachowców, obustronne opinie, wsparcie w sporach oraz realną konkurencję cenową dzięki prawdziwym ofertom — niczego z tego nie ma, gdy omijasz platformę. Ponowna rezerwacja to też jedno kliknięcie dzięki „Zarezerwuj ponownie”." },
-      { "q": "Co się stanie, jeśli ja lub mój fachowiec anulujemy rezerwację?", "a": "Anulowanie po potwierdzeniu rezerwacji jest rejestrowane — sporadyczne anulowania są w porządku, ale wysoki wskaźnik anulowań może tymczasowo zawiesić Twoją możliwość dodawania zleceń (lub powiadomienia o zleceniach dla fachowca). Jeśli fachowiec poprosi Cię o anulowanie, aby pracować z Tobą bezpośrednio, poinformuj nas — wybierz ten powód, a my sprawdzimy fachowca zamiast liczyć to na Twoją niekorzyść." }
+      { "q": "Czy dodanie zlecenia jest darmowe?", "a": "Tak — dodanie zlecenia zawsze jest darmowe. Płacisz dopiero po przyjęciu oferty, i to bezpośrednio fachowcowi po wykonaniu pracy — Servigic nigdy nie pobiera ani nie wstrzymuje Twojej płatności." },
+      { "q": "Jak Servigic mnie chroni, skoro nie płacę z góry?", "a": "Zamiast wstrzymywać Twoje pieniądze, Servigic chroni Cię sprawdzonymi fachowcami (dokument tożsamości + selfie, na wyższych poziomach sprawdzenie policyjne), wzajemnymi ocenami po każdym zleceniu, ukrytym czatem w aplikacji, który ujawnia kontakt do fachowca dopiero, gdy ten jest w drodze, oraz zespołem do sporów i mediacji, gdyby coś poszło nie tak." },
+      { "q": "A jeśli fachowiec znajdzie na miejscu dodatkową pracę?", "a": "Składa zlecenie zmiany ze zdjęciem i ceną — zatwierdzasz je, zanim zacznie się jakakolwiek dodatkowa praca, a dodatkowa kwota po prostu dolicza się do tego, co płacisz fachowcowi bezpośrednio." },
+      { "q": "A jeśli nie jestem zadowolony?", "a": "Każde zlecenie ma 7-dniowe wsparcie gwarancyjne. Otwórz spór, a nasz zespół przejrzy zdjęcia obu stron i pomoże wypracować rozwiązanie z Twoim fachowcem." },
+      { "q": "Dlaczego nie widzę od razu numeru telefonu fachowca?", "a": "Dane kontaktowe pozostają ukryte w czacie w aplikacji, dopóki fachowiec nie zaznaczy, że jest w drodze — to zamyka okno na ustalenia poza platformą i chroni Was oboje. W pilnych zleceniach kontakt odblokowuje się od razu." },
+      { "q": "Jak szybko przychodzą oferty?", "a": "W pilnych zleceniach większość klientów widzi pierwszą ofertę w mniej niż 10 minut, bo każdy pasujący fachowiec w pobliżu dostaje powiadomienie natychmiast." },
+      { "q": "Jak fachowcy dostają zapłatę?", "a": "Bezpośrednio od Ciebie — gotówką, JazzCash, EasyPaisa lub przelewem, jak się umówicie. Servigic nigdy nie dotyka tej płatności; fachowcy rozliczają swoją 12% prowizję osobno przez portfel prowizji w aplikacji." },
+      { "q": "Które miasta?", "a": "Zaczynamy w Karaczi, potem Lahaur i Islamabad/Rawalpindi, a następnie kraje Zatoki Perskiej i Ameryka Północna." },
+      { "q": "Dlaczego rezerwować przez Servigic zamiast dzwonić bezpośrednio do fachowca?", "a": "Przez Servigic dostajesz sprawdzonych i ocenianych fachowców, wzajemne opinie, wsparcie w sporach i konkurencję cenową opartą na prawdziwych ofertach — czego nie ma, gdy omijasz platformę. Powtórne rezerwacje to też jedno dotknięcie dzięki „Zarezerwuj ponownie”." },
+      { "q": "Co się dzieje, gdy ja lub mój fachowiec anulujemy rezerwację?", "a": "Anulowanie po potwierdzeniu rezerwacji jest odnotowywane — sporadyczne anulowania są w porządku, ale wysoki wskaźnik anulowań może na jakiś czas wstrzymać możliwość dodawania zleceń (lub powiadomienia fachowca). Jeśli fachowiec prosi Cię o anulowanie, byś współpracował z nim bezpośrednio, daj nam znać — wybierz ten powód, a sprawdzimy fachowca, zamiast liczyć to na Twoją niekorzyść." }
     ]
+  },
+  "finalCta": {
+    "title1": "Koniec z loterią.",
+    "title2": "Czas naprawiać.",
+    "sub": "Dodaj pierwsze zlecenie za darmo. Oferty w kilka minut. Sprawdzeni fachowcy.",
+    "primary": "Dodaj zlecenie",
+    "secondary": "Zostań fachowcem",
+    "checks": ["Dodanie za darmo", "Płatność bezpośrednio po pracy", "Sprawdzeni fachowcy", "7 dni wsparcia"]
+  },
+  "waitlist": {
+    "eyebrow": "Wkrótce w kraju: {country}",
+    "title": "Bądź pierwszy, gdy tu wystartujemy.",
+    "desc": "Servigic nie działa jeszcze w kraju: {country} — nie ma tam jeszcze lokalnych fachowców ani metod płatności. Zostaw e-mail, a powiadomimy Cię od razu, gdy to się zmieni.",
+    "email": "ty@example.com",
+    "name": "Imię (opcjonalnie)",
+    "join": "Dołącz do listy",
+    "joining": "Dołączanie…",
+    "done": "Jesteś na liście — napiszemy do Ciebie, gdy Servigic wystartuje (kraj: {country}). 🎉",
+    "failed": "Nie udało się dołączyć do listy oczekujących"
+  },
+  "footer": {
+    "tagline": "Dodaj zlecenie. Fachowcy ścigają się z ofertami. Naprawione dziś.",
+    "services": "Usługi",
+    "company": "Firma",
+    "forPros": "Dla fachowców",
+    "legal": "Prawne",
+    "howItWorks": "Jak to działa",
+    "trust": "Zaufanie i bezpieczeństwo",
+    "faq": "FAQ",
+    "business": "Zarządzasz wieloma nieruchomościami?",
+    "becomePro": "Zostań fachowcem",
+    "earnings": "Kalkulator zarobków",
+    "allServices": "Wszystkie usługi",
+    "terms": "Regulamin",
+    "privacy": "Prywatność",
+    "rights": "© {year} Servigic. Wszelkie prawa zastrzeżone.",
+    "serviceLink": "{service} — {city}"
+  },
+  "pro": {
+    "eyebrow": "Dla fachowców",
+    "title1": "Bez opłat za leady.",
+    "title2": "Nigdy.",
+    "sub": "Płacisz tylko za wygrane zlecenie. Powiadomienia jak w Uberze w kieszeni. Wypłata prosto na EasyPaisa, JazzCash lub konto.",
+    "cta": "Zostań fachowcem Servigic",
+    "videoTitle": "Zobacz, jak fachowiec zarabia w Servigic",
+    "zeroActive": "Wydane na leady przez naszych {count} aktywnych usługodawców w zeszłym miesiącu",
+    "zeroGeneric": "Wydane na leady. Nigdy. Inne platformy każą płacić już za samo zobaczenie zlecenia — my nie.",
+    "compareServigic": "Servigic",
+    "compareOther": "Typowa platforma leadowa",
+    "rows": [
+      { "feature": "Koszt zobaczenia zlecenia lub złożenia oferty", "servigic": "PKR 0", "other": "Opłata za lead niezależnie od wyniku" },
+      { "feature": "Koszt, gdy nie wygrasz zlecenia", "servigic": "PKR 0", "other": "Za lead i tak zapłaciłeś" },
+      { "feature": "Prowizja od ukończonych zleceń", "servigic": "10–12%", "other": "Nie dotyczy — zapłacona z góry" }
+    ],
+    "earningsTitle": "Kalkulator zarobków",
+    "ladderTitle": "Drabinka weryfikacji",
+    "commission": "prowizji",
+    "ladder": [
+      { "level": "Poziom 1", "title": "Zatwierdzony", "desc": "Dokument tożsamości + selfie przesłane i zatwierdzone przez administratora. Możesz składać oferty." },
+      { "level": "Poziom 2", "title": "Sprawdzony fachowiec", "desc": "Zaświadczenie z policji. Priorytetowe kierowanie zleceń + odznaka na Twoich ofertach." },
+      { "level": "Poziom 3", "title": "Gold Ustad", "desc": "10 ukończonych zleceń z oceną 4,5★ lub wyższą." }
+    ],
+    "readyTitle": "Gotowy, by zacząć zarabiać?"
+  },
+  "howPage": {
+    "eyebrow": "Jak to działa",
+    "title": "Dodaj. Odbierz oferty. Napraw. Gotowe.",
+    "steps": [
+      { "title": "01 — Dodaj zlecenie", "desc": "Wybierz kategorię, opisz problem, dodaj do 6 zdjęć i określ pilność — Pilne, Dziś lub Zaplanowane. Dokładny adres jest zapisywany, ale pozostaje ukryty, dopóki nie wybierzesz fachowca." },
+      { "title": "02 — Fachowcy ścigają się z ofertami", "desc": "Każdy sprawdzony usługodawca w pobliżu, który wykonuje dany zawód, dostaje natychmiastowe powiadomienie — push, WhatsApp i kanał zleceń w aplikacji. Składa cenę, czas dojazdu i wiadomość. Porównujesz obok siebie, sortując wg ceny, oceny lub czasu dojazdu, i możesz odrzucić z podaniem powodu albo wysłać jedną kontrofertę do każdej oferty." },
+      { "title": "03 — Wybierz, pisz, śledź na żywo", "desc": "Przyjmij ofertę, a czat w aplikacji się otworzy. Dane kontaktowe i Twój dokładny adres odblokowują się, gdy fachowiec jest w drodze. Obserwuj status w czasie rzeczywistym: W drodze → Na miejscu → Pracuje → Gotowe, z mapą na żywo podczas dojazdu." },
+      { "title": "04 — Zapłać bezpośrednio", "desc": "Po wykonaniu pracy zapłać fachowcowi bezpośrednio — gotówką, JazzCash, EasyPaisa lub przelewem. Servigic nigdy nie pobiera ani nie wstrzymuje Twojej płatności. Dodatkowa praca wymaga Twojej zgody jako zlecenie zmiany, zanim zostanie wykonana." },
+      { "title": "05 — Potwierdź i oceń", "desc": "Potwierdź wykonanie pracy (albo potwierdzi się automatycznie 24 godziny po „Gotowe”, jeśli nie ma sporu). Obie strony oceniają się nawzajem, a każde zlecenie ma 7-dniowe wsparcie gwarancyjne." }
+    ]
+  },
+  "trustPage": {
+    "eyebrow": "Zaufanie i bezpieczeństwo",
+    "title": "Zbudowane na weryfikacji, maskowaniu i mediacji.",
+    "sections": [
+      { "title": "Płać bezpośrednio, zachowaj kontrolę", "desc": "Nigdy nie płacisz Servigic z góry. Płacisz fachowcowi bezpośrednio po pracy, a każde zlecenie ma 7-dniowe wsparcie gwarancyjne." },
+      { "title": "Maskowanie danych kontaktowych", "desc": "Numery telefonów i dokładne adresy pozostają ukryte po obu stronach, dopóki fachowiec nie jest w drodze. Do tego czasu usługodawcy widoczni są jako anonimowy numer („Fachowiec nr 42”), a klienci tylko z imienia i okolicy." },
+      { "title": "Drabinka weryfikacji usługodawców", "desc": "Poziom 1: dokument tożsamości + selfie, zatwierdzone przez administratora — może składać oferty. Poziom 2 „Sprawdzony fachowiec”: zaświadczenie z policji, priorytetowe kierowanie zleceń. Poziom 3 „Gold Ustad”: 10 ukończonych zleceń z oceną 4,5★ lub wyższą, najniższa prowizja." },
+      { "title": "Zlecenia zmiany", "desc": "Jeśli usługodawca znajdzie na miejscu dodatkową pracę, składa zlecenie zmiany ze zdjęciem i ceną — zatwierdzasz je, zanim zacznie się jakakolwiek dodatkowa praca." },
+      { "title": "Spory", "desc": "Jeśli coś jest nie tak, otwórz spór przed potwierdzeniem — Ty i usługodawca przesyłacie zdjęcia, a nasz zespół pośredniczy w uczciwym rozwiązaniu." },
+      { "title": "Zasada „tylko platforma”", "desc": "Usługodawcy zgadzają się, że zlecenia znalezione przez Servigic zamykają na Servigic. Zabranie klienta poza platformę po otrzymaniu leada jest podstawą do usunięcia — dzięki temu oceny, weryfikacja i wsparcie w sporach mają znaczenie dla wszystkich." }
+    ]
+  },
+  "businessPage": {
+    "eyebrow": "Servigic dla firm",
+    "title": "Jeden panel. Każda jednostka. Każda branża.",
+    "p1": "Zarządzanie konserwacją wielu nieruchomości oznacza ganianie za różnymi fachowcami dla każdej jednostki, każdej branży, każdego miesiąca. Servigic dla firm łączy wszystko pod jednym dachem — dodaj raz, rozdziel na wszystkie nieruchomości i otrzymaj jedną zbiorczą fakturę zamiast tuzina osobnych płatności.",
+    "p2": "Stworzone dla firm zarządzających willami, zarządców osiedli i kompleksów apartamentowych oraz zarządzania wspólnotami w stylu DHA — ta sama sieć sprawdzonych fachowców co przy każdym zleceniu Servigic, tylko zorganizowana na dużą skalę.",
+    "early": "To początek — budujemy teraz pełny panel dla wielu nieruchomości. Zostaw dane poniżej, a odezwiemy się, gdy będzie gotowy dla Twojego portfolio.",
+    "form": {
+      "company": "Nazwa firmy",
+      "contact": "Twoje imię i nazwisko",
+      "phone": "Numer telefonu",
+      "email": "E-mail (opcjonalnie)",
+      "units": "Liczba jednostek (opcjonalnie)",
+      "city": "Miasto",
+      "join": "Dołącz do listy oczekujących",
+      "joining": "Dołączanie…",
+      "done": "Dziękujemy — odezwiemy się, gdy Servigic dla firm będzie gotowy dla Twojego portfolio. 🎉",
+      "failed": "Nie udało się dołączyć do listy oczekujących"
+    }
+  },
+  "legal": {
+    "label": "Prawne",
+    "draft": "Wersja robocza — przed uruchomieniem niech sprawdzi ją prawnik z uprawnieniami na Twoich rynkach startowych. Nie zastępuje porady prawnej.",
+    "termsTitle": "Regulamin",
+    "terms": [
+      { "title": "1. Usługa", "desc": "Servigic prowadzi platformę łączącą klientów potrzebujących usług domowych z niezależnymi usługodawcami („fachowcami”). Servigic nie jest stroną umowy o usługę między klientem a fachowcem." },
+      { "title": "2. Płatności", "desc": "Klienci płacą fachowcowi bezpośrednio za wykonaną pracę. Servigic nie pobiera ani nie wstrzymuje płatności klientów; fachowcy rozliczają prowizję Servigic osobno. Spory przebiegają według procesu opisanego w sekcji Zaufanie i bezpieczeństwo." },
+      { "title": "3. Obowiązki usługodawców", "desc": "Fachowcy muszą być prawdomówni w swoim profilu, mieć uprawnienia/kwalifikacje do zawodów, na które składają oferty, jeśli wymaga tego prawo, i zobowiązują się nie omijać platformy w zleceniach pochodzących z Servigic." },
+      { "title": "4. Ograniczenie odpowiedzialności", "desc": "Servigic nie odpowiada za jakość pracy wykonanej przez niezależnych usługodawców poza procesem wsparcia i sporów." }
+    ],
+    "privacyTitle": "Polityka prywatności",
+    "privacy": [
+      { "title": "Jakie dane zbieramy", "desc": "Dane konta (imię i nazwisko, telefon, e-mail), szczegóły i zdjęcia zleceń, lokalizację w statusie „w drodze” oraz dokumenty KYC usługodawców." },
+      { "title": "Jak ich używamy", "desc": "Do prowadzenia platformy: dopasowywania zleceń do usługodawców, weryfikacji tożsamości i wysyłania powiadomień związanych ze zleceniami." },
+      { "title": "Dane lokalizacyjne", "desc": "Lokalizacja usługodawcy jest udostępniana tylko dopasowanemu klientowi, tylko w statusie „w drodze”, a zapisy lokalizacji przechowujemy przez 7 dni." },
+      { "title": "Analityka strony", "desc": "Zliczamy wizyty anonimowo: codziennie zmieniany skrót i Twój kraj, bez plików cookie i bez zapisywania adresów IP." },
+      { "title": "Dane leadowe (usługodawcy)", "desc": "Firmowe dane kontaktowe pochodzące z publicznych wykazów (np. Google Places) służą wyłącznie do rekrutacji B2B w Pakistanie, z poszanowaniem rezygnacji na życzenie." }
+    ]
+  },
+  "servicesPage": {
+    "eyebrow": "Usługi",
+    "title": "Usługi domowe w Pakistanie — dodaj raz, fachowcy składają oferty.",
+    "sub": "Wybierz zawód i miasto. Sprawdzeni fachowcy rywalizują o Twoje zlecenie, porównujesz prawdziwe oferty i płacisz bezpośrednio po pracy.",
+    "videoTitle": "Zobacz, jak działa dodawanie zlecenia",
+    "cities": "Miasta",
+    "startingFrom": "Od {price}",
+    "view": "Zobacz: {service}",
+    "why": "Dlaczego rezerwować przez Servigic?",
+    "whyItems": [
+      "Sprawdzeni fachowcy z weryfikacją dokumentu i selfie",
+      "Prawdziwa konkurencja cenowa — porównuj oferty",
+      "Bez zaliczki — płacisz po pracy",
+      "7-dniowe wsparcie gwarancyjne"
+    ]
+  },
+  "cityPage": {
+    "eyebrow": "{service} · {city}",
+    "h1": "{service} w mieście {city} — oferty w kilka minut",
+    "sub": "Dodaj zlecenie: {service}, a sprawdzeni fachowcy z miasta {city} ścigają się z ofertami. Porównaj cenę, ocenę i czas dojazdu — potem zapłać fachowcowi bezpośrednio po pracy.",
+    "getRealBids": "Odbierz prawdziwe oferty",
+    "avgWinning": "Średnia zwycięska oferta ({count} zleceń, {days} dni)",
+    "priceVaries": "Cena zależy od zlecenia — dodaj, aby porównać",
+    "startingPrice": "Typowa cena wyjściowa",
+    "post": "Dodaj zlecenie: {service}",
+    "subServices": "Podusługi",
+    "faqTitle": "FAQ",
+    "videoTitle": "Zobacz, jak to działa",
+    "otherCities": "{service} w innych miastach",
+    "faq": [
+      { "q": "Ile kosztuje usługa „{service}” w mieście {city}?", "a": "Ceny zależą od zlecenia — dodaj je za darmo i porównaj prawdziwe oferty sprawdzonych fachowców z miasta {city}, zanim się na cokolwiek zdecydujesz." },
+      { "q": "Czy płacę z góry?", "a": "Nie. Płacisz fachowcowi bezpośrednio po wykonaniu pracy — Servigic nigdy nie pobiera ani nie wstrzymuje Twojej płatności." },
+      { "q": "Jak szybko przyjdą oferty?", "a": "Pilne zlecenia zwykle dostają pierwszą ofertę w mniej niż 10 minut, bo każdy pasujący fachowiec w pobliżu dostaje powiadomienie natychmiast." },
+      { "q": "Czy fachowcy są sprawdzeni?", "a": "Wszyscy usługodawcy przesyłają dokument tożsamości i selfie do zatwierdzenia na poziomie 1; fachowcy poziomu 2 są sprawdzani przez policję." }
+    ]
+  },
+  "video": {
+    "soon": "Film demonstracyjny wkrótce",
+    "soonSub": "Nagrywamy krótki przewodnik — zajrzyj niebawem.",
+    "unmute": "Dotknij, by włączyć dźwięk",
+    "mute": "Wycisz",
+    "play": "Odtwórz film"
+  },
+  "auth": {
+    "welcome": "Witaj ponownie",
+    "welcomeSub": "Zaloguj się, aby zarządzać zleceniami, ofertami lub kanałem zleceń.",
+    "phone": "Numer telefonu",
+    "password": "Hasło",
+    "login": "Zaloguj się",
+    "loggingIn": "Logowanie…",
+    "noAccount": "Nie masz konta?",
+    "signUp": "Zarejestruj się",
+    "createTitle": "Załóż konto",
+    "createSub": "Dodawaj zlecenia lub zacznij składać oferty — wybierz, jak będziesz korzystać z Servigic.",
+    "needService": "Potrzebuję usługi",
+    "needServiceSub": "Dodawaj zlecenia, odbieraj oferty",
+    "imPro": "Jestem fachowcem",
+    "imProSub": "Składaj oferty, zarabiaj, odbieraj wypłaty",
+    "fullName": "Imię i nazwisko",
+    "email": "E-mail",
+    "city": "Miasto",
+    "createAccount": "Załóż konto",
+    "creating": "Tworzenie konta…",
+    "haveAccount": "Masz już konto?",
+    "somethingWrong": "Coś poszło nie tak",
+    "networkError": "Błąd sieci — spróbuj ponownie",
+    "verifyTitle": "Zweryfikuj telefon",
+    "verifySub": "Wpisz 6-cyfrowy kod wysłany na Twój telefon.",
+    "verify": "Zweryfikuj",
+    "verifying": "Weryfikacja…",
+    "verifyFailed": "Weryfikacja nie powiodła się",
+    "resend": "Wyślij kod ponownie",
+    "resent": "Kod wysłany ponownie ✓",
+    "badCredentials": "Nieprawidłowy numer telefonu lub hasło",
+    "phoneHint": "Podaj numer kierunkowy kraju, np. +48 512 345 678 lub +92 300 1234567."
+  },
+  "notFound": {
+    "title": "Nie znaleziono strony",
+    "desc": "Taka strona nie istnieje — mogła zostać przeniesiona. Wracajmy na właściwą drogę.",
+    "home": "Wróć na stronę główną",
+    "services": "Przeglądaj usługi"
   }
 }
