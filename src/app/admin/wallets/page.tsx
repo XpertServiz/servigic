@@ -14,6 +14,8 @@ export default async function AdminWalletsPage() {
           <h1 className="mb-1 font-display text-3xl font-bold">Pro Wallets</h1>
           <p className="text-text-muted">Commission owed by each pro under the cash-after-job payment model.</p>
         </div>
+        {/* A file download from an API route, not a page: next/link would try client-side navigation. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/api/admin/wallets/export"
           className="rounded-[10px] border border-border-subtle px-4 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent"

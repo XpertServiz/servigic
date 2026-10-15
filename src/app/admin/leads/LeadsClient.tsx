@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Lead } from "@prisma/client";
@@ -29,7 +29,10 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
   const [filterCity, setFilterCity] = useState<string | "ALL">("ALL");
   const [filterStatus, setFilterStatus] = useState<(typeof STATUSES)[number] | "ALL">("ALL");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [page, setPage] = useState(1);
+  // The page belongs to the filter combination it was chosen under: changing a filter falls back to page 1
+  // without needing an effect to reset it.
+  const filterKey = `${filterTrade}|${filterCity}|${filterStatus}`;
+  const [pageState, setPageState] = useState({ key: filterKey, page: 1 });
 
   const filteredLeads = useMemo(
     () =>
@@ -44,18 +47,10 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
 
   const totalPages = Math.max(1, Math.ceil(filteredLeads.length / PAGE_SIZE));
 
-  // Jump back to page 1 whenever the filters narrow the result set — staying
-  // on, say, page 4 of a now-shorter list would just show a blank page.
-  useEffect(() => {
-    setPage(1);
-  }, [filterTrade, filterCity, filterStatus]);
-
-  // Clamp separately from the reset above — this also covers the list
-  // itself getting shorter (e.g. after router.refresh()) without re-running
-  // on every filter change.
-  useEffect(() => {
-    setPage((p) => Math.min(p, totalPages));
-  }, [totalPages]);
+  // Stay on a valid page when the list shrinks (filters, or router.refresh() after an edit).
+  const page = pageState.key === filterKey ? Math.min(pageState.page, totalPages) : 1;
+  const setPage = (next: number | ((p: number) => number)) =>
+    setPageState({ key: filterKey, page: typeof next === "function" ? next(page) : next });
 
   const pagedLeads = useMemo(
     () => filteredLeads.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
