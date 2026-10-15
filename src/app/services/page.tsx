@@ -13,7 +13,8 @@ import { getDemoVideos } from "@/lib/siteVideos";
 import { CITY_SLUGS, SERVICE_CATALOG, TRADE_ICONS } from "@/lib/catalog";
 import { breadcrumbJsonLd, pageMetadata, absoluteUrl, SITE_NAME } from "@/lib/seo";
 import { localizePath, type Locale } from "@/i18n/locales";
-import { fmtPKR } from "@/lib/format";
+import { fmtMoney } from "@/lib/format";
+import { getMoney } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ async function getCategories() {
 }
 
 export default async function ServicesIndexPage() {
-  const [t, ts, tc, tn, locale, videos, categories] = await Promise.all([
+  const [t, ts, tc, tn, locale, videos, categories, money] = await Promise.all([
     getTranslations("servicesPage"),
     getTranslations("services.trades"),
     getTranslations("cities"),
@@ -41,6 +42,7 @@ export default async function ServicesIndexPage() {
     getLocale(),
     getDemoVideos(),
     getCategories(),
+    getMoney(),
   ]);
   const why = t.raw("whyItems") as string[];
   const name = (c: { trade: string; name: string }) => (ts.has(c.trade) ? ts(c.trade) : c.name);
@@ -83,7 +85,7 @@ export default async function ServicesIndexPage() {
                     <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-2xl">{TRADE_ICONS[c.trade] ?? "🛠️"}</span>
                     <div>
                       <h2 className="text-lg font-bold">{name(c)}</h2>
-                      {c.minPricePKR ? <p className="text-xs text-text-muted">{t("startingFrom", { price: fmtPKR(c.minPricePKR, locale) })}</p> : null}
+                      {c.minPricePKR ? <p className="text-xs text-text-muted">{t("startingFrom", { price: fmtMoney(c.minPricePKR, locale, money.currency, money.rate) })}</p> : null}
                     </div>
                   </div>
                   <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.14em] text-text-muted">{t("cities")}</p>

@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/Button";
 import { SectionHead } from "@/components/ui/SectionHead";
 import { Reveal } from "@/components/ui/Reveal";
 import { TiltCard } from "@/components/ui/TiltCard";
-import { fmtPKR } from "@/lib/format";
+import { fmtMoney } from "@/lib/format";
+import { getMoney } from "@/lib/money";
 
 interface PlanTeaserCard {
   trade: string;
@@ -13,7 +14,7 @@ interface PlanTeaserCard {
 }
 
 export async function PlansTeaser({ cards }: { cards: PlanTeaserCard[] }) {
-  const [t, ts, locale] = await Promise.all([getTranslations("plans"), getTranslations("services.trades"), getLocale()]);
+  const [t, ts, locale, money] = await Promise.all([getTranslations("plans"), getTranslations("services.trades"), getLocale(), getMoney()]);
   if (cards.length === 0) return null;
 
   return (
@@ -26,7 +27,7 @@ export async function PlansTeaser({ cards }: { cards: PlanTeaserCard[] }) {
               <div className="mb-2 text-3xl">{c.icon}</div>
               <h3 className="mb-1 text-lg font-bold">{ts.has(c.trade) ? ts(c.trade) : c.title}</h3>
               <p className="mb-4 text-sm text-text-muted">{t(`cadence.${c.trade}`)}</p>
-              <div className="text-lg font-bold text-accent">{t("from", { price: fmtPKR(c.fromPKR, locale) })}</div>
+              <div className="text-lg font-bold text-accent">{t("from", { price: fmtMoney(c.fromPKR, locale, money.currency, money.rate) })}</div>
             </TiltCard>
           </Reveal>
         ))}

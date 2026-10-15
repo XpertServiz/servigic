@@ -33,3 +33,12 @@ export function flagEmoji(code: string): string {
   if (!/^[A-Z]{2}$/.test(code) || code === "XX") return "🌐";
   return String.fromCodePoint(...[...code].map((c) => 0x1f1a5 + c.charCodeAt(0)));
 }
+
+/**
+ * Display-only price in the visitor's market currency. PKR is the real
+ * transactional price; anything else is an approximation (hence the "~").
+ */
+export function fmtMoney(pkr: number, locale: string, currency = "PKR", rate = 1): string {
+  if (currency === "PKR") return fmtPKR(pkr, locale);
+  return `~${new Intl.NumberFormat(tag(locale), { style: "currency", currency, maximumFractionDigits: 0 }).format(pkr * rate)}`;
+}

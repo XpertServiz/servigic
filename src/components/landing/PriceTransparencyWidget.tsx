@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { SectionHead } from "@/components/ui/SectionHead";
 import { Reveal } from "@/components/ui/Reveal";
-import { fmtPKR } from "@/lib/format";
+import { fmtMoney } from "@/lib/format";
 
 interface CategoryOption {
   id: string;
@@ -24,7 +24,7 @@ interface Benchmark {
 const selectCls =
   "rounded-full border border-white/10 bg-bg-elevated px-4 py-2.5 text-sm outline-none transition-colors focus:border-accent";
 
-export function PriceTransparencyWidget({ categories, cities }: { categories: CategoryOption[]; cities: string[] }) {
+export function PriceTransparencyWidget({ categories, cities, currency = "PKR", rate = 1 }: { categories: CategoryOption[]; cities: string[]; currency?: string; rate?: number }) {
   const t = useTranslations("price");
   const ts = useTranslations("services.trades");
   const tc = useTranslations("cities");
@@ -86,12 +86,12 @@ export function PriceTransparencyWidget({ categories, cities }: { categories: Ca
           ) : (
             <>
               <div className="text-3xl font-extrabold tracking-[-0.018em] text-accent" dir="ltr">
-                {fmtPKR(benchmark.minPKR, locale)}–{fmtPKR(benchmark.maxPKR, locale).replace("PKR ", "")}
+                {fmtMoney(benchmark.minPKR, locale, currency, rate)}–{fmtMoney(benchmark.maxPKR, locale, currency, rate).replace(/^(~|PKR )/, "")}
               </div>
               <p className="mt-2 text-sm text-text-muted">
                 {benchmark.isEstimate
                   ? t("estimate", { service, city: cityName })
-                  : t("typical", { service, city: cityName, count: benchmark.sampleSize, avg: fmtPKR(benchmark.avgWinningPKR, locale) })}
+                  : t("typical", { service, city: cityName, count: benchmark.sampleSize, avg: fmtMoney(benchmark.avgWinningPKR, locale, currency, rate) })}
               </p>
             </>
           )}

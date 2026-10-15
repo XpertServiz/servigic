@@ -1,7 +1,8 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { publicAreaLabel } from "@/lib/anon";
-import { fmtNumber, fmtPKR } from "@/lib/format";
+import { fmtMoney, fmtNumber } from "@/lib/format";
+import { getMoney } from "@/lib/money";
 
 // Real DB events only — hidden entirely below thresholds (Master Brief §7A, §12: no fake stats).
 const MIN_EVENTS_TO_SHOW = 5;
@@ -9,7 +10,8 @@ const MIN_EVENTS_TO_SHOW = 5;
 const weekAgoDate = () => new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
 export async function ProofTicker() {
-  const [t, locale, ts] = await Promise.all([getTranslations("ticker"), getLocale(), getTranslations("services.trades")]);
+  const [t, locale, ts, money] = await Promise.all([getTranslations("ticker"), getLocale(), getTranslations("services.trades"), getMoney()]);
+  const m = (n: number) => fmtMoney(n, locale, money.currency, money.rate);
   const weekAgo = weekAgoDate();
 
   const [recentBids, completedJobs, payoutSum] = await Promise.all([
@@ -26,10 +28,10 @@ export async function ProofTicker() {
   const items: string[] = [];
   for (const bid of recentBids) {
     const category = ts.has(bid.job.category.trade) ? ts(bid.job.category.trade) : bid.job.category.name;
-    items.push(t("bid", { category, price: fmtPKR(bid.pricePKR, locale), area: publicAreaLabel(bid.job.areaLabel) }));
+    items.push(t("bid", { category, price: m(bid.pricePKR), area: publicAreaLabel(bid.job.areaLabel) }));
   }
   if (completedJobs > 0) items.push(t("jobsWeek", { count: fmtNumber(completedJobs, locale) }));
-  if (payoutSum._sum.amountPKR) items.push(t("paidWeek", { amount: fmtPKR(payoutSum._sum.amountPKR, locale) }));
+  if (payoutSum._sum.amountPKR) items.push(t("paidWeek", { amount: m(payoutSum._sum.amountPKR) }));
 
   if (items.length < MIN_EVENTS_TO_SHOW) return null;
   const track = [...items, ...items];

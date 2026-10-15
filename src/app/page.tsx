@@ -5,6 +5,7 @@ import { LIVE_CITIES } from "@/lib/markets";
 import { detectMarket } from "@/lib/geoDetect";
 import { getPaymentMode } from "@/lib/featureFlags";
 import { getVisitorStats } from "@/lib/visitors";
+import { getMoney } from "@/lib/money";
 import { pageMetadata, localBusinessJsonLd, faqJsonLd } from "@/lib/seo";
 import type { Locale } from "@/i18n/locales";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -60,7 +61,7 @@ const PLAN_TEASER_TRADES = [
 ];
 
 export default async function LandingPage() {
-  const [whatsappNumber, categories, planCategories, market, paymentMode, visitors, tDesc, tFaq, tSim] = await Promise.all([
+  const [whatsappNumber, categories, planCategories, market, paymentMode, visitors, tDesc, tFaq, tSim, money] = await Promise.all([
     getWhatsappNumber(),
     prisma.serviceCategory.findMany({ select: { id: true, name: true, trade: true, icon: true }, orderBy: { name: "asc" } }),
     prisma.serviceCategory.findMany({
@@ -73,6 +74,7 @@ export default async function LandingPage() {
     getTranslations("meta.home"),
     getTranslations("faq"),
     getTranslations("sim"),
+    getMoney(),
   ]);
 
   const planTeaserCards = PLAN_TEASER_TRADES.map((t) => {
@@ -95,7 +97,7 @@ export default async function LandingPage() {
           <SectionHead eyebrow={tSim("eyebrow")} title={tSim("title")} align="center" />
           <DispatchSimulation />
         </section>
-        <PriceTransparencyWidget categories={categories} cities={LIVE_CITIES} />
+        <PriceTransparencyWidget categories={categories} cities={LIVE_CITIES} currency={money.currency} rate={money.rate} />
         <Problem />
         <HowItWorks />
         <Features paymentMode={paymentMode} />
