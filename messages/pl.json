@@ -408,7 +408,7 @@
     "title": "Zbudowane na weryfikacji, maskowaniu i mediacji.",
     "sections": [
       { "title": "Płać bezpośrednio, zachowaj kontrolę", "desc": "Nigdy nie płacisz Servigic z góry. Płacisz fachowcowi bezpośrednio po pracy, a każde zlecenie ma 7-dniowe wsparcie gwarancyjne." },
-      { "title": "Maskowanie danych kontaktowych", "desc": "Numery telefonów i dokładne adresy pozostają ukryte po obu stronach, dopóki fachowiec nie jest w drodze. Do tego czasu usługodawcy widoczni są jako anonimowy numer („Fachowiec nr 42”), a klienci tylko z imienia i okolicy." },
+      { "title": "Maskowanie danych kontaktowych", "desc": "Numery telefonów i dokładne adresy pozostają ukryte po obu stronach, dopóki fachowiec nie jest w drodze. Do tego czasu usługodawcy widoczni są jako anonimowy numer („Fachowiec nr 42”), a klienci tylko z imienia i okolicy. W pilnych zleceniach dane kontaktowe odblokowują się od razu po potwierdzeniu rezerwacji." },
       { "title": "Drabinka weryfikacji usługodawców", "desc": "Poziom 1: dokument tożsamości + selfie, zatwierdzone przez administratora — może składać oferty. Poziom 2 „Sprawdzony fachowiec”: zaświadczenie z policji, priorytetowe kierowanie zleceń. Poziom 3 „Gold Ustad”: 10 ukończonych zleceń z oceną 4,5★ lub wyższą, najniższa prowizja." },
       { "title": "Zlecenia zmiany", "desc": "Jeśli usługodawca znajdzie na miejscu dodatkową pracę, składa zlecenie zmiany ze zdjęciem i ceną — zatwierdzasz je, zanim zacznie się jakakolwiek dodatkowa praca." },
       { "title": "Spory", "desc": "Jeśli coś jest nie tak, otwórz spór przed potwierdzeniem — Ty i usługodawca przesyłacie zdjęcia, a nasz zespół pośredniczy w uczciwym rozwiązaniu." },

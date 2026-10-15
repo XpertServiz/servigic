@@ -408,7 +408,7 @@
     "title": "Doğrulama, gizleme ve arabuluculuk üzerine kurulu.",
     "sections": [
       { "title": "Doğrudan öde, kontrol sende kalsın", "desc": "Servigic'e hiçbir zaman peşin ödeme yapmazsınız. İş bittikten sonra ustanıza doğrudan ödersiniz ve her iş 7 günlük işçilik desteği taşır." },
-      { "title": "İletişim bilgilerinin gizlenmesi", "desc": "Usta yola çıkana kadar telefon numaraları ve tam adresler iki tarafta da gizli kalır. O zamana kadar hizmet sağlayıcılar anonim bir seri numarası (“Usta #42”), müşteriler ise yalnızca ad ve bölgeyle görünür." },
+      { "title": "İletişim bilgilerinin gizlenmesi", "desc": "Usta yola çıkana kadar telefon numaraları ve tam adresler iki tarafta da gizli kalır. O zamana kadar hizmet sağlayıcılar anonim bir seri numarası (“Usta #42”), müşteriler ise yalnızca ad ve bölgeyle görünür. Acil işlerde iletişim bilgileri, rezervasyon onaylanır onaylanmaz açılır." },
       { "title": "Hizmet sağlayıcı doğrulama merdiveni", "desc": "Seviye 1: kimlik + selfie, yönetici onaylı — teklif verebilir. Seviye 2 “Doğrulanmış Usta”: adli sicil belgesi, öncelikli yönlendirme. Seviye 3 “Gold Ustad”: 4,5★ veya üzeri puanla 10 tamamlanmış iş, en düşük komisyon." },
       { "title": "Değişiklik talepleri", "desc": "Bir hizmet sağlayıcı yerinde ek iş bulursa fotoğraf ve fiyatla değişiklik talebi sunar — ek iş başlamadan önce siz onaylarsınız." },
       { "title": "Anlaşmazlıklar", "desc": "Bir sorun varsa onaylamadan önce anlaşmazlık açın — siz ve hizmet sağlayıcı fotoğraf gönderirsiniz, ekibimiz adil bir çözüm için arabuluculuk yapar." },

@@ -408,7 +408,7 @@
     "title": "Bâti sur la vérification, le masquage et la médiation.",
     "sections": [
       { "title": "Payez directement, gardez le contrôle", "desc": "Vous ne payez jamais Servigic d’avance. Vous payez votre pro directement après le travail, et chaque travail bénéficie de 7 jours de garantie." },
-      { "title": "Masquage des coordonnées", "desc": "Les numéros de téléphone et adresses exactes restent masqués des deux côtés jusqu’à ce que le pro soit en route. D’ici là, les prestataires apparaissent sous un numéro anonyme (« Pro n° 42 ») et les clients par leur prénom et leur quartier seulement." },
+      { "title": "Masquage des coordonnées", "desc": "Les numéros de téléphone et adresses exactes restent masqués des deux côtés jusqu’à ce que le pro soit en route. D’ici là, les prestataires apparaissent sous un numéro anonyme (« Pro n° 42 ») et les clients par leur prénom et leur quartier seulement. Pour les urgences, les coordonnées sont débloquées dès la confirmation de la réservation." },
       { "title": "Échelle de vérification des prestataires", "desc": "Niveau 1 : pièce d’identité + selfie, approuvés par l’admin — peut répondre. Niveau 2 « Pro vérifié » : certificat de police, dispatch prioritaire. Niveau 3 « Gold Ustad » : 10 travaux terminés avec 4,5★ ou plus, commission la plus basse." },
       { "title": "Avenants", "desc": "Si un prestataire découvre du travail supplémentaire sur place, il soumet un avenant avec photo et prix — vous approuvez avant tout travail supplémentaire." },
       { "title": "Litiges", "desc": "En cas de problème, ouvrez un litige avant de confirmer — vous et le prestataire envoyez des photos, et notre équipe médiatise une solution équitable." },

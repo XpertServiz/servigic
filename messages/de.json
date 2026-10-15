@@ -408,7 +408,7 @@
     "title": "Gebaut auf Prüfung, Maskierung und Vermittlung.",
     "sections": [
       { "title": "Direkt zahlen, Kontrolle behalten", "desc": "Sie zahlen Servigic nie im Voraus. Sie bezahlen Ihren Profi direkt nach getaner Arbeit, und jeder Auftrag hat 7 Tage Gewährleistung." },
-      { "title": "Kontaktmaskierung", "desc": "Telefonnummern und genaue Adressen bleiben auf beiden Seiten verborgen, bis der Profi unterwegs ist. Bis dahin erscheinen Anbieter als anonyme Nummer („Profi Nr. 42“) und Kunden nur mit Vornamen und Gegend." },
+      { "title": "Kontaktmaskierung", "desc": "Telefonnummern und genaue Adressen bleiben auf beiden Seiten verborgen, bis der Profi unterwegs ist. Bis dahin erscheinen Anbieter als anonyme Nummer („Profi Nr. 42“) und Kunden nur mit Vornamen und Gegend. Bei Notfällen werden die Kontaktdaten sofort nach der Bestätigung der Buchung freigeschaltet." },
       { "title": "Prüfstufen für Anbieter", "desc": "Stufe 1: Ausweis + Selfie, vom Admin freigegeben — darf bieten. Stufe 2 „Geprüfter Profi“: polizeiliches Führungszeugnis, bevorzugte Vermittlung. Stufe 3 „Gold Ustad“: 10 abgeschlossene Aufträge mit 4,5★ oder besser, niedrigste Provision." },
       { "title": "Änderungsaufträge", "desc": "Findet ein Anbieter vor Ort zusätzliche Arbeit, reicht er einen Änderungsauftrag mit Foto und Preis ein — Sie genehmigen, bevor zusätzliche Arbeit beginnt." },
       { "title": "Streitfälle", "desc": "Stimmt etwas nicht, eröffnen Sie vor der Bestätigung einen Streitfall — Sie und der Anbieter reichen Fotos ein, und unser Team vermittelt eine faire Lösung." },

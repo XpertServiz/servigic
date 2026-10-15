@@ -537,7 +537,7 @@
       },
       {
         "title": "Contact masking",
-        "desc": "Phone numbers and exact addresses stay hidden on both sides until the pro is on the way. Providers appear as an anonymous serial number (\"Pro #42\") and customers by first name and area only, until then."
+        "desc": "Phone numbers and exact addresses stay hidden on both sides until the pro is on the way. Providers appear as an anonymous serial number (\"Pro #42\") and customers by first name and area only, until then. Emergency jobs unlock contact details as soon as the booking is confirmed."
       },
       {
         "title": "Provider verification ladder",
