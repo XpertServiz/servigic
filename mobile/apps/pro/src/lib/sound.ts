@@ -16,7 +16,7 @@ import { Platform, Vibration } from "react-native";
 import * as Notifications from "expo-notifications";
 import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from "expo-audio";
 import * as Haptics from "expo-haptics";
-import { CHANNELS } from "./notifications";
+import { voiceChannelId, voiceSoundFile } from "./notifications";
 
 let modeConfigured = false;
 async function ensureAudioMode() {
@@ -97,10 +97,10 @@ async function fireRingOnce(job?: { title: string; body: string }) {
         content: {
           title: job?.title ?? "New job nearby",
           body: job?.body ?? "Open Servigic Pro to view and bid.",
-          sound: "new_job_alert.wav",
+          sound: voiceSoundFile("new_job"),
           priority: Notifications.AndroidNotificationPriority.MAX,
         },
-        trigger: Platform.OS === "android" ? { channelId: CHANNELS.newJob } : null,
+        trigger: Platform.OS === "android" ? { channelId: voiceChannelId("new_job") } : null,
       });
       return;
     }

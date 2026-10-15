@@ -18,16 +18,18 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   const { delaySec } = parsed.data;
 
-  const user = await prisma.user.findUnique({ where: { id: auth.session.user.id }, select: { fcmTokens: true } });
+  const user = await prisma.user.findUnique({ where: { id: auth.session.user.id }, select: { fcmTokens: true, language: true } });
   if (!user || user.fcmTokens.length === 0) {
     return NextResponse.json({ error: "This phone is not registered for push alerts yet. Allow notifications first.", code: "NO_PUSH_TOKEN" }, { status: 409 });
   }
 
   const tokens = user.fcmTokens;
+  const language = user.language;
   after(async () => {
     await new Promise((r) => setTimeout(r, delaySec * 1000));
     await sendExpoPushChannel({
       tokens,
+      language,
       title: "New Plumber job - Today (TEST)",
       body: "This is a test alert from Servigic. If you can hear this with the screen off, job alerts will reach you.",
       data: { type: "DISPATCH_ALERT", test: true },

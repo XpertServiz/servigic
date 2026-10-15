@@ -13,7 +13,7 @@ import * as Notifications from "expo-notifications";
 import * as SecureStore from "expo-secure-store";
 import * as Application from "expo-application";
 import * as api from "../lib/api";
-import { CHANNELS, getJobAlertChannelState } from "../lib/notifications";
+import { voiceChannelId, getJobAlertChannelState } from "../lib/notifications";
 import { Button, Card } from "../components/ui";
 import { GradientButton } from "../components/ds";
 import { colors } from "../lib/theme";
@@ -88,7 +88,7 @@ export default function NeverMissJobScreen() {
     try {
       await Linking.sendIntent("android.settings.CHANNEL_NOTIFICATION_SETTINGS", [
         { key: "android.provider.extra.APP_PACKAGE", value: Application.applicationId ?? "com.servigic.pro" },
-        { key: "android.provider.extra.CHANNEL_ID", value: CHANNELS.newJob },
+        { key: "android.provider.extra.CHANNEL_ID", value: voiceChannelId("new_job") },
       ]);
     } catch {
       Linking.openSettings().catch(() => {});

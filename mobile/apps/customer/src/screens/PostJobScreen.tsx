@@ -13,6 +13,7 @@ import { GradientButton, SegmentedControl } from "../components/ds";
 import { Icon } from "../components/Icon";
 import { WaitlistCard } from "../components/MarketNotice";
 import { loadMarketConfig } from "../lib/market";
+import { playRequestSent } from "../lib/requestSent";
 import { colors } from "../lib/theme";
 import { useI18n } from "../lib/i18n";
 
@@ -142,6 +143,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
         lng: coords.lng,
         ...(allowDuplicate ? { allowDuplicate: true } : {}),
       });
+      playRequestSent();
       navigation.replace("JobDetail", { jobId: job.id });
     } catch (e) {
       if (e instanceof api.ApiError && e.code === "DUPLICATE_OPEN_JOB") {

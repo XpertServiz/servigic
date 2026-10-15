@@ -14,6 +14,7 @@ import * as SecureStore from "expo-secure-store";
 import * as Updates from "expo-updates";
 import { getLocales } from "expo-localization";
 import * as api from "../api";
+import { setAlertLanguage } from "../notifications";
 import { DEFAULT_LANG, isLangCode, isRtlLang, type LangCode } from "./languages";
 import { en, type TKey } from "./locales/en";
 import { ur } from "./locales/ur";
@@ -141,6 +142,11 @@ const I18nContext = createContext<I18nState | null>(null);
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<LangCode>(DEFAULT_LANG);
+
+  // Spoken alerts (notification channels) follow the selected app language.
+  useEffect(() => {
+    setAlertLanguage(lang);
+  }, [lang]);
   const [ready, setReady] = useState(false);
   const [suggestion, setSuggestion] = useState<LangCode | null>(null);
   const [suggestedForCountry, setSuggestedForCountry] = useState<LangCode | null>(null);

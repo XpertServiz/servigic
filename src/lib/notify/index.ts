@@ -47,7 +47,7 @@ export async function notify(payload: NotifyPayload) {
 
   await Promise.allSettled([
     push && user.fcmTokens.length > 0
-      ? sendExpoPushChannel({ tokens: user.fcmTokens, title, body, data: { linkUrl, type: pushChannelHint ?? type, ...pushData } })
+      ? sendExpoPushChannel({ tokens: user.fcmTokens, title, body, language: user.language, data: { linkUrl, type: pushChannelHint ?? type, ...pushData } })
       : Promise.resolve(),
     channels.includes("email") && user.email
       ? sendEmailChannel({ to: user.email, subject: title, body })

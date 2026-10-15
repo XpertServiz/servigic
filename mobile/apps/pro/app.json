@@ -21,7 +21,7 @@
     },
     "android": {
       "package": "com.servigic.pro",
-      "versionCode": 15,
+      "versionCode": 16,
       "adaptiveIcon": {
         "backgroundColor": "#0A0808",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -88,7 +88,31 @@
             "./assets/sounds/job_done.wav",
             "./assets/sounds/payment_added.wav",
             "./assets/sounds/new_bid.wav",
-            "./assets/sounds/booking_progress.wav"
+            "./assets/sounds/booking_progress.wav",
+            "./assets/sounds/bid_accepted_ar.ogg",
+            "./assets/sounds/bid_accepted_de.ogg",
+            "./assets/sounds/bid_accepted_en.ogg",
+            "./assets/sounds/bid_accepted_es.ogg",
+            "./assets/sounds/bid_accepted_fr.ogg",
+            "./assets/sounds/bid_accepted_hi.ogg",
+            "./assets/sounds/bid_accepted_pa.ogg",
+            "./assets/sounds/bid_accepted_ur.ogg",
+            "./assets/sounds/job_cancelled_ar.ogg",
+            "./assets/sounds/job_cancelled_de.ogg",
+            "./assets/sounds/job_cancelled_en.ogg",
+            "./assets/sounds/job_cancelled_es.ogg",
+            "./assets/sounds/job_cancelled_fr.ogg",
+            "./assets/sounds/job_cancelled_hi.ogg",
+            "./assets/sounds/job_cancelled_pa.ogg",
+            "./assets/sounds/job_cancelled_ur.ogg",
+            "./assets/sounds/new_job_ar.ogg",
+            "./assets/sounds/new_job_de.ogg",
+            "./assets/sounds/new_job_en.ogg",
+            "./assets/sounds/new_job_es.ogg",
+            "./assets/sounds/new_job_fr.ogg",
+            "./assets/sounds/new_job_hi.ogg",
+            "./assets/sounds/new_job_pa.ogg",
+            "./assets/sounds/new_job_ur.ogg"
           ]
         }
       ],

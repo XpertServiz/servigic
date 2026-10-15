@@ -69,7 +69,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     linkUrl: `/bookings/${id}`,
     channels: ["whatsapp"],
     // On the way / arrived ring on their own high-priority channel; later steps use the normal status channel.
-    ...(parsed.data.status === "ON_MY_WAY" || parsed.data.status === "ARRIVED" ? { pushChannelHint: "BOOKING_PROGRESS" } : {}),
+    ...(parsed.data.status === "ON_MY_WAY" ? { pushChannelHint: "PRO_ON_THE_WAY" } : parsed.data.status === "ARRIVED" ? { pushChannelHint: "PRO_ARRIVED" } : {}),
     pushData: { bookingId: id, status: parsed.data.status },
   });
 

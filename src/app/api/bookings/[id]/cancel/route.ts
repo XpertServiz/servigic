@@ -98,6 +98,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     body: role === "CUSTOMER" ? "The customer cancelled this booking." : "The pro cancelled this booking.",
     linkUrl: role === "CUSTOMER" ? `/pro/bookings/${id}` : `/bookings/${id}`,
     channels: ["whatsapp"],
+    // When the customer cancels, the pro hears the spoken "job cancelled" alert and the tap opens the booking.
+    ...(role === "CUSTOMER" ? { pushChannelHint: "JOB_CANCELLED" } : {}),
+    pushData: { bookingId: id },
   });
 
   return NextResponse.json({ ok: true });
