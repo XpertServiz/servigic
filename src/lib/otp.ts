@@ -41,9 +41,29 @@ export async function verifyOtp(userId: string, code: string, purpose = "PHONE_V
   });
   if (!record) return false;
 
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { managedByAdmin: true, pendingPasswordHash: true, pendingName: true, pendingEmail: true },
+  });
+  // Claiming an admin-created account: the person registering has now proven they control the phone, so
+  // the password they chose becomes the real one. Until this point the placeholder stayed unusable, so
+  // nobody can take over a customer's job history by registering with their number without the code.
+  const claim =
+    user?.managedByAdmin && user.pendingPasswordHash
+      ? {
+          managedByAdmin: false,
+          passwordHash: user.pendingPasswordHash,
+          ...(user.pendingName ? { name: user.pendingName } : {}),
+          email: user.pendingEmail,
+          pendingPasswordHash: null,
+          pendingName: null,
+          pendingEmail: null,
+        }
+      : {};
+
   await prisma.$transaction([
     prisma.otpCode.update({ where: { id: record.id }, data: { consumedAt: new Date() } }),
-    prisma.user.update({ where: { id: userId }, data: { phoneVerified: true } }),
+    prisma.user.update({ where: { id: userId }, data: { phoneVerified: true, ...claim } }),
   ]);
   return true;
 }

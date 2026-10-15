@@ -2,13 +2,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { createJobSchema } from "@/lib/validation/job";
-import { encodeGeohash, haversineKm } from "@/lib/geo";
-import { dispatchJob } from "@/lib/dispatch";
+import { haversineKm } from "@/lib/geo";
+import { createAndDispatchJob } from "@/lib/jobCreate";
 import { runExpirySweep } from "@/lib/expiry";
 import { checkJobAvailability } from "@/lib/marketConfig";
-
-const EMERGENCY_BIDDING_WINDOW_MIN = 30;
-const STANDARD_BIDDING_WINDOW_HOURS = 24;
 
 // A customer may run several requests at once (reverse-marketplace model, not
 // single-dispatch) — this is only an abuse guard. Overridable per deployment;
@@ -80,35 +77,9 @@ export async function POST(req: Request) {
     }
   }
 
-  const biddingClosesAt =
-    data.urgency === "EMERGENCY"
-      ? new Date(Date.now() + EMERGENCY_BIDDING_WINDOW_MIN * 60 * 1000)
-      : new Date(Date.now() + STANDARD_BIDDING_WINDOW_HOURS * 60 * 60 * 1000);
+  const { job, dispatchedCount } = await createAndDispatchJob(auth.session.user.id, data);
 
-  const job = await prisma.job.create({
-    data: {
-      customerId: auth.session.user.id,
-      categoryId: data.categoryId,
-      subServiceId: data.subServiceId,
-      title: data.title,
-      description: data.description,
-      photos: data.photos,
-      urgency: data.urgency,
-      scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
-      city: data.city,
-      areaLabel: data.areaLabel,
-      exactAddress: data.exactAddress,
-      lat: data.lat,
-      lng: data.lng,
-      geohash: encodeGeohash(data.lat, data.lng),
-      budgetPKR: data.budgetPKR,
-      biddingClosesAt,
-    },
-  });
-
-  const dispatchedCount = await dispatchJob(job);
-
-  return NextResponse.json({ job, dispatchedCount: dispatchedCount ?? 0 });
+  return NextResponse.json({ job, dispatchedCount });
 }
 
 export async function GET(req: Request) {

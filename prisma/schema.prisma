@@ -289,6 +289,13 @@ model User {
   cancellationRate30d      Float               @default(0)
   cancellationCount30d     Int                 @default(0)
   postingPaused            Boolean             @default(false) // >=5 cancels/30d — job-posting paused pending review
+  // Admin-posted jobs: a placeholder customer account created by an admin from a phone number. It has
+  // no usable password; when the real customer registers with the same phone, the register details wait
+  // in the pending* fields until the phone OTP is verified, then the account is claimed (job history kept).
+  managedByAdmin           Boolean             @default(false)
+  pendingPasswordHash      String?
+  pendingName              String?
+  pendingEmail             String?
 
   @@index([role])
   @@index([city])
@@ -524,6 +531,8 @@ model Job {
   // service radius for this job only.
   extraRadiusKm       Int             @default(0)
   noBidsNotifiedAt    DateTime?
+  // Set when an admin posted this job on a customer's behalf (admin panel > Jobs > Post a job for a customer).
+  postedByAdminId     String?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -605,6 +614,8 @@ model Booking {
   payoutPKR       Int
   status          BookingStatus   @default(PENDING_PAYMENT)
   matchType       MatchType       @default(BID)
+  // Set when an admin confirmed the winning bid on the customer's behalf.
+  confirmedByAdminId String?
   // Nullable since PR#57 (v6 addendum) — only meaningful in PROTECTED
   // payment mode (72h window to submit escrow payment proof). CASH_WALLET
   // bookings go straight to CONFIRMED and never set this.

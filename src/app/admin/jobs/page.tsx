@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { haversineKm } from "@/lib/geo";
 import { ConciergeClient, type ConciergeJob } from "./ConciergeClient";
@@ -66,7 +67,12 @@ export default async function AdminJobsPage() {
 
   return (
     <div>
-      <h1 className="mb-1 font-display text-3xl font-bold">Jobs</h1>
+      <div className="mb-1 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-display text-3xl font-bold">Jobs</h1>
+        <Link href="/admin/jobs/new" className="rounded-[10px] bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground">
+          + Post a job for a customer
+        </Link>
+      </div>
       <p className="mb-8 text-text-muted">Unmatched open jobs first (concierge matching), then every job on the platform.</p>
 
       <h2 className="mb-3 font-display text-xl font-bold">Unmatched open jobs</h2>
@@ -91,8 +97,11 @@ export default async function AdminJobsPage() {
             {jobs.map((j) => (
               <tr key={j.id} className="border-t border-border-subtle">
                 <td className="p-4">
-                  <span className="mr-2">{j.category.icon}</span>
-                  {j.title}
+                  <Link href={`/admin/jobs/${j.id}`} className="hover:text-accent">
+                    <span className="mr-2">{j.category.icon}</span>
+                    {j.title}
+                  </Link>
+                  {j.postedByAdminId && <span className="ml-2 rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-bold text-accent">ADMIN</span>}
                 </td>
                 <td className="p-4 text-text-muted">{j.customer.name}</td>
                 <td className="p-4 text-text-muted">{j.city}</td>

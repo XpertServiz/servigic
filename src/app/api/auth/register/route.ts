@@ -15,6 +15,20 @@ export async function POST(req: Request) {
 
   const existing = await prisma.user.findFirst({ where: { phone: { in: phoneVariants(phone) } } });
   if (existing) {
+    // An admin posted jobs for this number before the customer had the app: this registration claims that
+    // account (so the job history carries over) once the phone code is verified — see verifyOtp().
+    if (existing.managedByAdmin && existing.role === "CUSTOMER" && role === "CUSTOMER") {
+      if (email) {
+        const emailTaken = await prisma.user.findFirst({ where: { email, id: { not: existing.id } }, select: { id: true } });
+        if (emailTaken) return NextResponse.json({ error: "An account with this email already exists" }, { status: 409 });
+      }
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: { pendingPasswordHash: await bcrypt.hash(password, 12), pendingName: name, pendingEmail: email ?? null, city: existing.city ?? city },
+      });
+      await issueOtp(existing.id, existing.phone, "PHONE_VERIFY", email);
+      return NextResponse.json({ userId: existing.id, phone: existing.phone });
+    }
     return NextResponse.json({ error: "An account with this phone number already exists" }, { status: 409 });
   }
 

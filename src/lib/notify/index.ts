@@ -33,13 +33,17 @@ export async function notify(payload: NotifyPayload) {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, phone: true, name: true, language: true, fcmTokens: true },
+    select: { id: true, email: true, phone: true, name: true, language: true, fcmTokens: true, managedByAdmin: true },
   });
   if (!user) return;
 
   await prisma.notification.create({
     data: { userId, type, title, body, linkUrl },
   });
+
+  // A placeholder customer (job posted by an admin on their behalf) has not agreed to receive messages from
+  // the app: the admin talks to them directly. Keep the in-app record, so it is there when they claim the account.
+  if (user.managedByAdmin) return;
 
   await Promise.allSettled([
     push && user.fcmTokens.length > 0
