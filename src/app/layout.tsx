@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
     formatDetection: { telephone: false },
     appleWebApp: { capable: true, title: SITE_NAME, statusBarStyle: "black-translucent" },
     verification: {
-      google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
+      google: process.env.GOOGLE_SITE_VERIFICATION || "REEG_z0iosDx3CG37GwTXsPKymJPRbvmKr00iIuZOsc",
       other: process.env.BING_SITE_VERIFICATION ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION } : undefined,
     },
   };
