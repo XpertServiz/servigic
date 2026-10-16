@@ -68,6 +68,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
         if (prev && prev !== b.status) {
           if (b.status === "DONE") sound.jobDone();
           else if (b.status === "COMPLETED") (b.paymentMode === "PROTECTED" ? sound.paymentAdded : sound.jobDone)();
+          else if (b.status === "CANCELLED") sound.jobCancelled();
           else sound.statusChanged();
           haptic.success();
         }

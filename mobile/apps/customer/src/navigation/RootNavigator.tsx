@@ -136,6 +136,7 @@ const BID_POLL_MS = 15000;
 function MainTabs() {
   const { t } = useI18n();
   const lastBidCount = useRef<number | null>(null);
+  const bidsPerJob = useRef<Map<string, number> | null>(null);
 
   // App-wide "new bid" watcher — fires regardless of which tab is open, so
   // the customer hears/feels it even if they're not sitting on a job's bid
@@ -152,8 +153,12 @@ function MainTabs() {
           // The ring itself comes from the server push on the "new bid" channel (first bid rings, later bids
           // update quietly) - a local notification here would double it, so only a haptic nudge is left.
           haptic.success();
+          // The FIRST bid on a job is spoken (first_bid); later bids only show the running count.
+          const prev = bidsPerJob.current;
+          if (prev && jobs.some((j) => j.status === "OPEN" && (prev.get(j.id) ?? 1) === 0 && j._count.bids >= 1)) sound.firstBid();
         }
         lastBidCount.current = total;
+        bidsPerJob.current = new Map(jobs.map((j) => [j.id, j._count.bids]));
       } catch {
         // Best-effort background poll — JobDetailScreen's own fetch surfaces real errors.
       }

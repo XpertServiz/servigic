@@ -6,7 +6,7 @@ import type { AuthStackParamList } from "../navigation/RootNavigator";
 import { useAuth } from "../lib/auth";
 import { Button, Field, PhoneField, usePhoneInput } from "../components/ui";
 import { GlowBackground } from "../components/ds";
-import { WelcomeLogo } from "../components/WelcomeLogo";
+import { LogoMark3D } from "../components/LogoMark";
 import { HeaderActions } from "../components/HeaderActions";
 import { colors } from "../lib/theme";
 import { useT } from "../lib/i18n";
@@ -53,7 +53,10 @@ export default function LoginScreen({ navigation }: Props) {
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
         >
-          <WelcomeLogo />
+          {/* The same animated 3D "S" as the loading screen. */}
+          <View style={{ alignItems: "center", marginBottom: 14 }}>
+            <LogoMark3D size={104} />
+          </View>
           <Text style={styles.brand}>SERVIGIC PRO</Text>
           <Text style={styles.title}>{t("auth.welcomeBack")}</Text>
           <Text style={styles.subtitle}>{t("auth.proTagline")}</Text>

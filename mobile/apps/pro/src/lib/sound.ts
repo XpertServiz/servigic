@@ -16,7 +16,8 @@ import { Platform, Vibration } from "react-native";
 import * as Notifications from "expo-notifications";
 import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from "expo-audio";
 import * as Haptics from "expo-haptics";
-import { voiceChannelId, voiceSoundFile } from "./notifications";
+import { voiceChannelId, voiceSoundFile, type VoiceEvent } from "./notifications";
+import { hasVoiceAsset, playVoiceAlert, stopVoiceAlert } from "./voiceAlerts";
 
 let modeConfigured = false;
 async function ensureAudioMode() {
@@ -82,7 +83,7 @@ async function playOnce(name: Exclude<SoundName, "new_job_alert">) {
 // matching ride-hailing dispatch timing — a longer ring slows dispatch for
 // the customer without helping the Pro notice any better.
 export const RING_LOOP_MS = 5600;
-export const RING_WINDOW_MS = 15000;
+export const RING_WINDOW_MS = 16000; // one full pass of the new_job recording (ring, voice, ring, voice ...)
 const RING_NOTIFICATION_ID = "servigic-job-ring";
 
 let ringTimers: ReturnType<typeof setTimeout>[] = [];
@@ -116,27 +117,40 @@ async function fireRingOnce(job?: { title: string; body: string }) {
   } catch {}
 }
 
+// Voice recording when there is one for the event (and the user's language), the old short tone otherwise.
+const voiceOr = (event: VoiceEvent, fallback: () => void) => () => {
+  if (hasVoiceAsset(event)) playVoiceAlert(event);
+  else fallback();
+};
+
 export const sound = {
   // Bid submitted successfully.
   bidSent: () => playOnce("job_status_update"),
-  // Booking status changed (on the way / arrived / working / confirmed).
+  // Booking status changed (working / confirmed ...). On the way / arrived have spoken versions below.
   statusChanged: () => playOnce("job_status_update"),
-  bidAccepted: () => playOnce("bid_accepted"),
+  bidAccepted: voiceOr("bid_accepted", () => playOnce("bid_accepted")),
+  jobCancelled: voiceOr("job_cancelled", () => playOnce("job_status_update")),
+  proOnTheWay: voiceOr("pro_on_the_way", () => playOnce("job_status_update")),
+  proArrived: voiceOr("pro_arrived", () => playOnce("job_status_update")),
+  firstBid: voiceOr("first_bid", () => playOnce("job_status_update")),
   jobDone: () => playOnce("job_done"),
   paymentAdded: () => playOnce("payment_added"),
   messageReceived: () => playOnce("message_received"),
 
-  // Starts the repeating job ring; auto-stops after RING_WINDOW_MS and calls
-  // onTimeout. Any Accept/Decline/tap must call sound.stopRing() immediately.
+  // The incoming-job ring: the recording already contains the whole pattern (ring, voice, ring, voice, ring, voice,
+  // ring), so it plays once and the ring window is its length. Any Accept/Decline/tap must call sound.stopRing().
   startRing: (job?: { title: string; body: string }, onTimeout?: () => void) => {
     sound.stopRing();
     ringActive = true;
     try {
       Vibration.vibrate(RING_PATTERN, true);
     } catch {}
-    fireRingOnce(job);
-    for (let at = RING_LOOP_MS; at < RING_WINDOW_MS; at += RING_LOOP_MS) {
-      ringTimers.push(setTimeout(() => ringActive && fireRingOnce(job), at));
+    if (hasVoiceAsset("new_job")) playVoiceAlert("new_job", { dedupeMs: 0 });
+    else fireRingOnce(job); // no recording: the old repeating ring notification
+    if (!hasVoiceAsset("new_job")) {
+      for (let at = RING_LOOP_MS; at < RING_WINDOW_MS; at += RING_LOOP_MS) {
+        ringTimers.push(setTimeout(() => ringActive && fireRingOnce(job), at));
+      }
     }
     ringTimers.push(
       setTimeout(() => {
@@ -153,6 +167,7 @@ export const sound = {
     try {
       Vibration.cancel();
     } catch {}
+    stopVoiceAlert();
     try {
       players.new_job_alert?.pause();
     } catch {}

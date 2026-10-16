@@ -96,6 +96,24 @@ jobs:
       # admin is an internal-only sideloaded tool with no EAS project
       # registered, so it skips EAS entirely and just does a plain Gradle
       # debug build (auto-signed with the runner's throwaway debug keystore).
+      # Firebase config for Android push (FCM). Add repository secrets GOOGLE_SERVICES_PRO_B64 and
+      # GOOGLE_SERVICES_CUSTOMER_B64 (the google-services.json files, base64-encoded). Without them the build still
+      # succeeds, but the app cannot register for push notifications.
+      - name: Write google-services.json from secret (FCM)
+        if: matrix.app != 'admin'
+        env:
+          GS_PRO: ${{ secrets.GOOGLE_SERVICES_PRO_B64 }}
+          GS_CUSTOMER: ${{ secrets.GOOGLE_SERVICES_CUSTOMER_B64 }}
+        run: |
+          if [ "${{ matrix.app }}" = "pro" ]; then secret="$GS_PRO"; else secret="$GS_CUSTOMER"; fi
+          if [ -n "$secret" ]; then
+            echo "$secret" | base64 -d > "$RUNNER_TEMP/google-services-${{ matrix.app }}.json"
+            echo "GOOGLE_SERVICES_JSON=$RUNNER_TEMP/google-services-${{ matrix.app }}.json" >> "$GITHUB_ENV"
+            echo "google-services.json written for ${{ matrix.app }}"
+          else
+            echo "::warning::No Firebase secret for ${{ matrix.app }}: the app cannot receive push notifications."
+          fi
+
       - name: Build APK/AAB locally (EAS, customer/pro)
         if: matrix.app != 'admin'
         env:

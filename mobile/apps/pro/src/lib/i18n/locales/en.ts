@@ -511,6 +511,7 @@ export const en = {
   "neverMiss.openSettings": "Open settings",
   "neverMiss.done": "Done",
   "neverMiss.later": "Maybe later",
+  "neverMiss.pushNotReady": "Push alerts are not available in this version of the app (Firebase is not set up for it yet). Voice alerts and ringing will only work while the app is open.",
   "home.listening_one": "1 job nearby · listening",
   "home.jobsDone_one": "1 job done",
   "home.jobsAvailable_one": "1 job available near you",

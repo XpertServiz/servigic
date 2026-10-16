@@ -7,6 +7,7 @@ import { useAuth } from "../lib/auth";
 import { colors } from "../lib/theme";
 import * as api from "../lib/api";
 import { useI18n } from "../lib/i18n";
+import { sound } from "../lib/sound";
 import { navigationRef, navigateRoot } from "./ref";
 import { AppTabBar } from "../components/TabBar";
 import { LanguageSuggestion } from "../components/LanguageSuggestion";
@@ -128,6 +129,7 @@ function MainTabs() {
   const [incomingJob, setIncomingJob] = useState<IncomingJob | null>(null);
   const seenJobIds = useRef<Set<string>>(new Set());
   const seenBookingIds = useRef<Set<string> | null>(null);
+  const bookingStatus = useRef<Map<string, string>>(new Map());
   const seeded = useRef(false);
 
   // App-wide watcher — deliberately independent of which tab is focused, so a
@@ -153,6 +155,10 @@ function MainTabs() {
           if (fresh) setIncomingJob(fresh);
         }
         jobs.forEach((j) => seenJobIds.current.add(j.id));
+
+        // A booking that turned CANCELLED since the last poll: the customer cancelled - speak the "job cancelled" alert.
+        if (bookings.some((x) => x.status === "CANCELLED" && bookingStatus.current.has(x.id) && bookingStatus.current.get(x.id) !== "CANCELLED")) sound.jobCancelled();
+        bookingStatus.current = new Map(bookings.map((x) => [x.id, x.status]));
 
         // A booking we've never seen = a customer just accepted one of our bids.
         const known = seenBookingIds.current ?? new Set<string>();

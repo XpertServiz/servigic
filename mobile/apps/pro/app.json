@@ -21,7 +21,7 @@
     },
     "android": {
       "package": "com.servigic.pro",
-      "versionCode": 16,
+      "versionCode": 17,
       "adaptiveIcon": {
         "backgroundColor": "#0A0808",
         "foregroundImage": "./assets/android-icon-foreground.png",

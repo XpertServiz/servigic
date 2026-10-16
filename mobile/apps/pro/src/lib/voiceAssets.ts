@@ -1,0 +1,28 @@
+// Recorded voice alerts bundled with THIS app (not shared: Pro and Customer have different events).
+// Metro needs static require() calls; metro.config.js adds .ogg as an asset type.
+export const VOICE_SOURCES: Record<string, number> = {
+  new_job_en: require("../../assets/sounds/new_job_en.ogg"),
+  new_job_ur: require("../../assets/sounds/new_job_ur.ogg"),
+  new_job_ar: require("../../assets/sounds/new_job_ar.ogg"),
+  new_job_hi: require("../../assets/sounds/new_job_hi.ogg"),
+  new_job_pa: require("../../assets/sounds/new_job_pa.ogg"),
+  new_job_fr: require("../../assets/sounds/new_job_fr.ogg"),
+  new_job_de: require("../../assets/sounds/new_job_de.ogg"),
+  new_job_es: require("../../assets/sounds/new_job_es.ogg"),
+  bid_accepted_en: require("../../assets/sounds/bid_accepted_en.ogg"),
+  bid_accepted_ur: require("../../assets/sounds/bid_accepted_ur.ogg"),
+  bid_accepted_ar: require("../../assets/sounds/bid_accepted_ar.ogg"),
+  bid_accepted_hi: require("../../assets/sounds/bid_accepted_hi.ogg"),
+  bid_accepted_pa: require("../../assets/sounds/bid_accepted_pa.ogg"),
+  bid_accepted_fr: require("../../assets/sounds/bid_accepted_fr.ogg"),
+  bid_accepted_de: require("../../assets/sounds/bid_accepted_de.ogg"),
+  bid_accepted_es: require("../../assets/sounds/bid_accepted_es.ogg"),
+  job_cancelled_en: require("../../assets/sounds/job_cancelled_en.ogg"),
+  job_cancelled_ur: require("../../assets/sounds/job_cancelled_ur.ogg"),
+  job_cancelled_ar: require("../../assets/sounds/job_cancelled_ar.ogg"),
+  job_cancelled_hi: require("../../assets/sounds/job_cancelled_hi.ogg"),
+  job_cancelled_pa: require("../../assets/sounds/job_cancelled_pa.ogg"),
+  job_cancelled_fr: require("../../assets/sounds/job_cancelled_fr.ogg"),
+  job_cancelled_de: require("../../assets/sounds/job_cancelled_de.ogg"),
+  job_cancelled_es: require("../../assets/sounds/job_cancelled_es.ogg"),
+};

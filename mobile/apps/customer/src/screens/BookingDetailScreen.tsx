@@ -80,6 +80,8 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
         const prev = prevStatusRef.current;
         if (prev && prev !== newStatus) {
           if (newStatus === "DONE" || newStatus === "COMPLETED") sound.jobDone();
+          else if (newStatus === "ON_MY_WAY") sound.proOnTheWay();
+          else if (newStatus === "ARRIVED") sound.proArrived();
           else sound.statusChanged();
           haptic.success();
         }

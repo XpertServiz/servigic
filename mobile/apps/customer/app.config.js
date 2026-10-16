@@ -9,10 +9,22 @@ const REAL_APP_ID = "ca-app-pub-1826338688325435~6973604391"; // com.servigic.cu
 // Create the iOS app in AdMob, then replace this (the SDK crashes on iOS without one).
 const IOS_APP_ID = "ca-app-pub-3940256099942544~1458002511";
 
+const fs = require("fs");
+const path = require("path");
+
+// Android push notifications are delivered by Firebase Cloud Messaging. Without a google-services.json the app can
+// never obtain a push token, so NO push (voice alerts included) reaches a closed or locked phone. Provide the file
+// (from Firebase console > Project settings > your Android app) as ./google-services.json or via the
+// GOOGLE_SERVICES_JSON environment variable (a path), which CI sets from a repository secret.
+const googleServicesFile =
+  process.env.GOOGLE_SERVICES_JSON ||
+  (fs.existsSync(path.join(__dirname, "google-services.json")) ? "./google-services.json" : undefined);
+
 module.exports = ({ config }) => {
   const production = process.env.EAS_BUILD_PROFILE === "production" || process.env.EXPO_PUBLIC_ADMOB_ENV === "production";
   return {
     ...config,
+    android: { ...config.android, ...(googleServicesFile ? { googleServicesFile } : {}) },
     // Google Maps on iOS (needed for the amber map style): set GOOGLE_MAPS_IOS_API_KEY
     // in the build environment together with EXPO_PUBLIC_IOS_GOOGLE_MAPS=true.
     ios: {

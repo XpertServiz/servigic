@@ -10,6 +10,7 @@ import { RootNavigator } from "./src/navigation/RootNavigator";
 import { configureApiClient } from "./src/lib/api";
 import { applyGlobalFont } from "./src/lib/globalFont";
 import { initAds } from "./src/lib/ads";
+import { hasVoiceAsset, playVoiceAlert, voiceEventForPushType } from "./src/lib/voiceAlerts";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -18,12 +19,15 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 // take down the whole app before it even has a chance to render.
 try {
   Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowBanner: true,
-      shouldShowList: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-    }),
+    handleNotification: async (notification) => {
+      // A voice alert (new job, first bid, pro on the way ...) arriving while the app is open is spoken in-app, in
+      // the user's language, instead of the system's channel sound - never both. Closed/background pushes still use
+      // the channel sound (set on the per-language channel).
+      const event = voiceEventForPushType(notification.request.content.data?.type);
+      const spoken = event !== null && hasVoiceAsset(event);
+      if (spoken && event) playVoiceAlert(event);
+      return { shouldShowBanner: true, shouldShowList: true, shouldPlaySound: !spoken, shouldSetBadge: false };
+    },
   });
 } catch (e) {
   console.warn("[push] setNotificationHandler failed", e);

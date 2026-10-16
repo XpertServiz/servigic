@@ -35,6 +35,7 @@ export default function NeverMissJobScreen() {
   const insets = useSafeAreaInsets();
   const [notifOn, setNotifOn] = useState(false);
   const [channelState, setChannelState] = useState<"ok" | "muted" | "missing" | "unknown">("unknown");
+  const [pushReady, setPushReady] = useState<boolean | null>(null);
   const [testState, setTestState] = useState<"idle" | "busy" | "sent" | "error">("idle");
 
   const check = useCallback(async () => {
@@ -42,6 +43,13 @@ export default function NeverMissJobScreen() {
       const { status } = await Notifications.getPermissionsAsync();
       setNotifOn(status === "granted");
       setChannelState(await getJobAlertChannelState());
+      // Without Firebase (google-services.json) Android cannot hand out a push token at all.
+      try {
+        await Notifications.getExpoPushTokenAsync();
+        setPushReady(true);
+      } catch {
+        setPushReady(false);
+      }
     } catch {
       setNotifOn(false);
     }
@@ -110,6 +118,11 @@ export default function NeverMissJobScreen() {
       <Text style={styles.emoji}>🔔</Text>
       <Text style={styles.title}>{t("neverMiss.title")}</Text>
       <Text style={styles.body}>{t("neverMiss.body")}</Text>
+      {pushReady === false && (
+        <Card style={{ marginTop: 14, borderColor: "rgba(226,87,76,0.5)" }}>
+          <Text style={{ color: colors.dangerSoft, fontWeight: "700", fontSize: 13, lineHeight: 19 }}>{t("neverMiss.pushNotReady")}</Text>
+        </Card>
+      )}
 
       <Card style={{ marginTop: 18 }}>
         <Text style={styles.step}>1 · {t("neverMiss.notifTitle")}</Text>
