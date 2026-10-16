@@ -38,6 +38,8 @@ export const en = {
   "auth.proTagline": "Go online, bid on jobs, get paid.",
   "auth.customerTagline": "Log in to post jobs and track bids.",
   "auth.password": "Password",
+  "auth.showPassword": "Show",
+  "auth.hidePassword": "Hide",
   "auth.logIn": "Log In",
   "auth.loginFailed": "Login failed",
   "auth.newToServigic": "New to Servigic?",

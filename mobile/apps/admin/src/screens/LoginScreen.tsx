@@ -8,6 +8,7 @@ export function LoginScreen() {
   const { signIn } = useAuth();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,14 +48,27 @@ export function LoginScreen() {
 
       <View style={styles.field}>
         <Text style={styles.label}>Password</Text>
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          placeholder="••••••••"
-          placeholderTextColor={colors.textMuted}
-          secureTextEntry
-          style={styles.input}
-        />
+        <View>
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder="••••••••"
+            placeholderTextColor={colors.textMuted}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+            style={[styles.input, { paddingRight: 64 }]}
+          />
+          <Pressable
+            onPress={() => setShowPassword((v) => !v)}
+            hitSlop={10}
+            accessibilityRole="button"
+            accessibilityLabel={showPassword ? "Hide password" : "Show password"}
+            style={{ position: "absolute", right: 14, top: 0, bottom: 0, justifyContent: "center" }}
+          >
+            <Text style={{ color: colors.accent, fontWeight: "700", fontSize: 13 }}>{showPassword ? "Hide" : "Show"}</Text>
+          </Pressable>
+        </View>
       </View>
 
       {error && <Text style={styles.error}>{error}</Text>}

@@ -57,7 +57,11 @@ export function Field({
   helper,
   ...props
 }: { label: string; error?: string | null; helper?: React.ReactNode } & TextInputProps) {
+  const t = useT();
   const [focused, setFocused] = useState(false);
+  // A password box: the user can show / hide what they typed, while typing and afterwards.
+  const isPassword = !!props.secureTextEntry;
+  const [reveal, setReveal] = useState(false);
   return (
     <View style={{ marginBottom: 16 }}>
       <Text style={styles.label}>{label}</Text>
@@ -72,6 +76,9 @@ export function Field({
           placeholderTextColor={colors.textFaint}
           style={[styles.input, props.multiline && { minHeight: 88, textAlignVertical: "top" }]}
           {...props}
+          secureTextEntry={isPassword && !reveal}
+          autoCapitalize={isPassword ? "none" : props.autoCapitalize}
+          autoCorrect={isPassword ? false : props.autoCorrect}
           onFocus={(e) => {
             setFocused(true);
             props.onFocus?.(e);
@@ -81,6 +88,16 @@ export function Field({
             props.onBlur?.(e);
           }}
         />
+        {isPassword && (
+          <Pressable
+            onPress={() => setReveal((v) => !v)}
+            hitSlop={10}
+            accessibilityRole="button"
+            accessibilityLabel={reveal ? t("auth.hidePassword") : t("auth.showPassword")}
+          >
+            <Text style={{ color: colors.accent, fontWeight: "700", fontSize: 12.5 }}>{reveal ? t("auth.hidePassword") : t("auth.showPassword")}</Text>
+          </Pressable>
+        )}
         {!!error && <Icon name="warning" size={17} color={colors.danger} />}
       </View>
       {!!error && (

@@ -35,6 +35,8 @@ export const ur: Partial<Record<TKey, string>> = {
   "auth.proTagline": "آن لائن ہوں، کام پر بولی لگائیں، کمائیں۔",
   "auth.customerTagline": "کام پوسٹ کرنے اور بولیاں دیکھنے کے لیے لاگ اِن کریں۔",
   "auth.password": "پاس ورڈ",
+  "auth.showPassword": "دکھائیں",
+  "auth.hidePassword": "چھپائیں",
   "auth.logIn": "لاگ اِن",
   "auth.loginFailed": "لاگ اِن ناکام",
   "auth.newToServigic": "سروجک پر نئے ہیں؟",

@@ -35,6 +35,8 @@ export const ar: Partial<Record<TKey, string>> = {
   "auth.proTagline": "اتصل بالإنترنت، قدّم عروضك، واربح.",
   "auth.customerTagline": "سجّل الدخول لنشر الطلبات ومتابعة العروض.",
   "auth.password": "كلمة المرور",
+  "auth.showPassword": "إظهار",
+  "auth.hidePassword": "إخفاء",
   "auth.logIn": "تسجيل الدخول",
   "auth.loginFailed": "فشل تسجيل الدخول",
   "auth.newToServigic": "جديد في سيرفيجيك؟",

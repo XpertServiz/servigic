@@ -30,6 +30,8 @@ export const hi: Partial<Record<TKey, string>> = {
   "auth.proTagline": "ऑनलाइन आएँ, काम पर बोली लगाएँ, कमाएँ।",
   "auth.customerTagline": "काम पोस्ट करने और बोलियाँ देखने के लिए लॉग इन करें।",
   "auth.password": "पासवर्ड",
+  "auth.showPassword": "दिखाएं",
+  "auth.hidePassword": "छिपाएं",
   "auth.logIn": "लॉग इन",
   "auth.loginFailed": "लॉग इन विफल",
   "auth.newToServigic": "Servigic पर नए हैं?",

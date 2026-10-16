@@ -1,5 +1,6 @@
 "use client";
 
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -98,7 +99,7 @@ function SignupForm() {
           <label htmlFor="password" className={authLabel}>
             {t("password")}
           </label>
-          <input id="password" type="password" required autoComplete="new-password" minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className={authInput} />
+          <PasswordInput id="password" required autoComplete="new-password" minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className={authInput} />
         </div>
         {error && (
           <p role="alert" className="text-sm text-danger">

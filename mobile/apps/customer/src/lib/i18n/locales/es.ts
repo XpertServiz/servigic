@@ -30,6 +30,8 @@ export const es: Partial<Record<TKey, string>> = {
   "auth.proTagline": "Conéctate, ofrece precios, cobra.",
   "auth.customerTagline": "Inicia sesión para publicar trabajos y seguir ofertas.",
   "auth.password": "Contraseña",
+  "auth.showPassword": "Mostrar",
+  "auth.hidePassword": "Ocultar",
   "auth.logIn": "Iniciar sesión",
   "auth.loginFailed": "Error al iniciar sesión",
   "auth.newToServigic": "¿Nuevo en Servigic?",

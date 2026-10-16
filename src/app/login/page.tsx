@@ -1,5 +1,6 @@
 "use client";
 
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Suspense, useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -30,7 +31,7 @@ function LoginForm() {
           <label htmlFor="password" className={authLabel}>
             {t("password")}
           </label>
-          <input id="password" name="password" type="password" autoComplete="current-password" required className={authInput} />
+          <PasswordInput id="password" name="password" autoComplete="current-password" required className={authInput} />
         </div>
         {state?.error && (
           <p role="alert" className="text-sm text-danger">
