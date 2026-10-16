@@ -158,6 +158,14 @@ export type MarketConfig = {
   market: { id: string; name: string; status: "WAITLIST" | "PILOT" | "LIVE"; cities: string[]; currency: string; phoneCode: string; timezone: string } | null;
   acceptingJobs: boolean;
   trades: Record<string, boolean>;
+  // Admin-controlled (Admin > Settings): announcement, minimum app version, store links, support WhatsApp.
+  app?: {
+    announcement: { title: string; body: string; audience: "ALL" | "CUSTOMER" | "PROVIDER" } | null;
+    minVersionCode: number;
+    storeUrls: { pro: string | null; customer: string | null };
+    supportWhatsapp: string | null;
+    minTopUpPKR: number;
+  };
 };
 
 export type GeoPoint = { lat: number; lng: number };

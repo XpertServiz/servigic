@@ -15,6 +15,7 @@ import { enumLabel } from "../lib/status";
 import { LANGUAGES, useI18n } from "../lib/i18n";
 import { navigateRoot } from "../navigation/ref";
 import { ReferralCard } from "../components/ReferralCard";
+import { SupportRow } from "../components/AppNotices";
 import { readIdCard, type IdOcr } from "../lib/idOcr";
 import { useMarketConfig } from "../lib/market";
 
@@ -346,6 +347,8 @@ export default function ProfileScreen() {
           </Pressable>
         </View>
       )}
+
+      <SupportRow rowStyle={styles.row} textStyle={styles.rowText} />
 
       <Pressable onPress={() => navigateRoot("Language")} style={styles.row}>
         <Icon name="globe" size={18} />

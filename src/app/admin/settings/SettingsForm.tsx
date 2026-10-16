@@ -38,6 +38,21 @@ export function SettingsForm({
     proRadiusMaxKm: number;
     proRadiusDefaultKm: number;
     maxTradesPerPro: number;
+    payJazzcashNumber: string;
+    payJazzcashTitle: string;
+    payEasypaisaNumber: string;
+    payEasypaisaTitle: string;
+    payBankName: string;
+    payBankAccountTitle: string;
+    payBankAccountNumber: string;
+    announcementActive: boolean;
+    announcementTitle: string;
+    announcementBody: string;
+    announcementAudience: "ALL" | "CUSTOMER" | "PROVIDER";
+    minAndroidVersionCode: number;
+    storeUrlPro: string;
+    storeUrlCustomer: string;
+    minTopUpPKR: number;
     featureFlags: FeatureFlags;
   };
 }) {
@@ -191,6 +206,108 @@ export function SettingsForm({
                 min={0}
                 value={form[key]}
                 onChange={(e) => setForm({ ...form, [key]: Number(e.target.value) })}
+                className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Announcement banner in the apps</label>
+        <p className="mb-3 text-xs text-text-muted">A message shown at the top of the home screen (maintenance, new feature, a reminder). Users can dismiss it. Changing it needs no app update.</p>
+        <label className="mb-3 flex items-center justify-between gap-3 rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3">
+          <span className="text-sm font-semibold">Show the banner</span>
+          <input type="checkbox" checked={form.announcementActive} onChange={(e) => setForm({ ...form, announcementActive: e.target.checked })} className="h-5 w-5 accent-accent" />
+        </label>
+        <div className="grid gap-3">
+          <input
+            placeholder="Title (short)"
+            value={form.announcementTitle}
+            onChange={(e) => setForm({ ...form, announcementTitle: e.target.value })}
+            className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+          />
+          <textarea
+            placeholder="Message"
+            rows={3}
+            value={form.announcementBody}
+            onChange={(e) => setForm({ ...form, announcementBody: e.target.value })}
+            className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+          />
+          <select
+            value={form.announcementAudience}
+            onChange={(e) => setForm({ ...form, announcementAudience: e.target.value as typeof form.announcementAudience })}
+            className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+          >
+            <option value="ALL">Show to everyone</option>
+            <option value="PROVIDER">Pros only</option>
+            <option value="CUSTOMER">Customers only</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">App updates &amp; wallet</label>
+        <div className="grid gap-3">
+          {(
+            [
+              ["minAndroidVersionCode", "Oldest Android app version still allowed (version code)", "Apps older than this show a \"please update\" screen. 0 = off. Use it when an old build is broken or unsafe."],
+              ["minTopUpPKR", "Smallest wallet top-up (PKR)", "A pro cannot submit a top-up below this amount."],
+            ] as const
+          ).map(([key, label, desc]) => (
+            <div key={key}>
+              <label className="mb-1 block text-xs font-semibold text-text-muted">{label}</label>
+              <p className="mb-1.5 text-xs text-text-muted">{desc}</p>
+              <input
+                type="number"
+                min={0}
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: Number(e.target.value) })}
+                className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+              />
+            </div>
+          ))}
+          {(
+            [
+              ["storeUrlPro", "Servigic Pro update link (Play Store URL)"],
+              ["storeUrlCustomer", "Servigic customer update link (Play Store URL)"],
+            ] as const
+          ).map(([key, label]) => (
+            <div key={key}>
+              <label className="mb-1 block text-xs font-semibold text-text-muted">{label}</label>
+              <input
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                placeholder="https://play.google.com/store/apps/details?id=..."
+                className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Where pros send wallet top-ups</label>
+        <p className="mb-3 text-xs text-text-muted">
+          Shown inside the Pro app&apos;s &quot;Top up wallet&quot; sheet, so the pro knows exactly where to send the money. A method is hidden if its number is empty or a placeholder (zeros).
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              ["payJazzcashNumber", "JazzCash number"],
+              ["payJazzcashTitle", "JazzCash account name"],
+              ["payEasypaisaNumber", "EasyPaisa number"],
+              ["payEasypaisaTitle", "EasyPaisa account name"],
+              ["payBankName", "Bank name"],
+              ["payBankAccountTitle", "Bank account title"],
+              ["payBankAccountNumber", "Bank account number / IBAN"],
+            ] as const
+          ).map(([key, label]) => (
+            <div key={key} className={key === "payBankAccountNumber" ? "sm:col-span-2" : ""}>
+              <label className="mb-1 block text-xs font-semibold text-text-muted">{label}</label>
+              <input
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                 className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
               />
             </div>

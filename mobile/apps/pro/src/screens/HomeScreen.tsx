@@ -10,6 +10,7 @@ import { HeaderActions } from "../components/HeaderActions";
 import { JobPinMarker } from "../components/MapPins";
 import { NativeAdStrip } from "../components/AdSlots";
 import { DraggableSheet } from "../components/DraggableSheet";
+import { AnnouncementCard } from "../components/AppNotices";
 import { VerificationNotice } from "../components/VerificationNotice";
 import { colors, mapStyle, mapProvider } from "../lib/theme";
 import { navigateRoot } from "../navigation/ref";
@@ -185,6 +186,8 @@ export default function HomeScreen() {
           </View>
         }
       >
+        <AnnouncementCard />
+
         {debtPKR > 0 && (
           <View style={styles.debt}>
             <Text style={{ fontSize: 12, color: "#E07A7A" }}>{t("home.youOwe")}</Text>

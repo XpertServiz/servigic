@@ -10,6 +10,7 @@ import { AnimatedTradeIcon, Chip, GlowBackground, haptic } from "../components/d
 import { HeaderActions } from "../components/HeaderActions";
 import { NativeAdStrip, RewardedDiscountCard, type AdDiscountState } from "../components/AdSlots";
 import { WaitlistCard } from "../components/MarketNotice";
+import { AnnouncementCard } from "../components/AppNotices";
 import { useMarketConfig } from "../lib/market";
 import { colors, accentGradientStops } from "../lib/theme";
 import { enumLabel } from "../lib/status";
@@ -106,6 +107,11 @@ export default function HomeScreen({ navigation }: Props) {
             </View>
           </Pressable>
         )}
+
+        {/* Admin announcement (Admin > Settings) */}
+        <View style={{ paddingHorizontal: 18, paddingTop: 12 }}>
+          <AnnouncementCard />
+        </View>
 
         {outsideArea && (
           <View style={{ paddingHorizontal: 18, paddingTop: 18 }}>

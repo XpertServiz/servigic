@@ -13,11 +13,16 @@ type TopUpWithWallet = TopUp & {
 export function TopUpRow({ topUp }: { topUp: TopUpWithWallet }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const [reason, setReason] = useState("");
 
   async function act(action: "verify" | "reject") {
     setPending(true);
     try {
-      const res = await fetch(`/api/admin/topups/${topUp.id}/${action}`, { method: "POST" });
+      const res = await fetch(`/api/admin/topups/${topUp.id}/${action}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(action === "reject" ? { reason } : {}),
+      });
       if (!res.ok) throw new Error();
       toast.success(action === "verify" ? "Top-up verified — wallet credited" : "Top-up rejected");
       router.refresh();
@@ -49,6 +54,12 @@ export function TopUpRow({ topUp }: { topUp: TopUpWithWallet }) {
       ) : (
         <p className="mb-3 rounded-[8px] border border-danger/30 bg-danger/10 p-2 text-xs font-semibold text-danger">No payment proof was attached. Do not verify unless you can see the payment in your account.</p>
       )}
+      <input
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        placeholder="If rejecting: why? (shown to the pro, e.g. payment not received)"
+        className="mb-3 w-full rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm outline-none focus:border-accent"
+      />
       <div className="flex gap-2">
         <button
           onClick={() => act("verify")}

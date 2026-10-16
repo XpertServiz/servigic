@@ -140,6 +140,14 @@ export type MarketConfig = {
   market: { id: string; name: string; status: "WAITLIST" | "PILOT" | "LIVE"; cities: string[]; currency: string; phoneCode: string; timezone: string } | null;
   acceptingJobs: boolean;
   trades: Record<string, boolean>;
+  // Admin-controlled (Admin > Settings): announcement, minimum app version, store links, support WhatsApp.
+  app?: {
+    announcement: { title: string; body: string; audience: "ALL" | "CUSTOMER" | "PROVIDER" } | null;
+    minVersionCode: number;
+    storeUrls: { pro: string | null; customer: string | null };
+    supportWhatsapp: string | null;
+    minTopUpPKR: number;
+  };
 };
 
 export type GeoPoint = { lat: number; lng: number };
@@ -297,6 +305,17 @@ export function getProviderEarnings() {
     commissionPct: number;
     profileValue?: { ratingAvg: number; verificationLevel: number; jobsCompleted: number };
   }>("/api/mobile/provider/earnings");
+}
+
+export type PayTo = {
+  JAZZCASH?: { title?: string; number: string };
+  EASYPAISA?: { title?: string; number: string };
+  BANK_TRANSFER?: { bankName?: string; title?: string; number: string };
+};
+
+// Where to send a wallet top-up (JazzCash / EasyPaisa / bank), set by the admin.
+export function getTopUpAccounts() {
+  return request<{ payTo: PayTo; minTopUpPKR: number }>("/api/mobile/wallet/topup");
 }
 
 export function submitTopUp(amountPKR: number, method: string, proofImageUrl: string, reference: string) {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
+import { getPaymentAccounts } from "@/lib/paymentAccounts";
 
 const topUpSchema = z.object({
   amountPKR: z.number().int().positive(),
@@ -32,6 +33,10 @@ export async function POST(req: Request) {
   if (!profile) return NextResponse.json({ error: "Provider profile not found" }, { status: 404 });
 
   const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
+  const minTopUp = settings?.minTopUpPKR ?? 500;
+  if (parsed.data.amountPKR < minTopUp) {
+    return NextResponse.json({ error: `The smallest top-up is PKR ${minTopUp.toLocaleString()}.`, code: "TOPUP_TOO_SMALL" }, { status: 400 });
+  }
   const wallet = await prisma.proWallet.upsert({
     where: { providerId: profile.id },
     update: {},
@@ -77,6 +82,9 @@ export async function GET() {
   });
 
   return NextResponse.json({
+    // Where to send the money, for the top-up sheet.
+    payTo: await getPaymentAccounts(),
+    minTopUpPKR: (await prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { minTopUpPKR: true } }))?.minTopUpPKR ?? 500,
     wallet: wallet
       ? {
           balancePKR: wallet.balancePKR,

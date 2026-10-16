@@ -7,6 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider } from "./src/lib/auth";
 import { I18nProvider } from "./src/lib/i18n";
 import { RootNavigator } from "./src/navigation/RootNavigator";
+import { UpdateGate } from "./src/components/AppNotices";
 import { configureApiClient } from "./src/lib/api";
 import { applyGlobalFont } from "./src/lib/globalFont";
 import { initAds } from "./src/lib/ads";
@@ -62,9 +63,12 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <I18nProvider>
-        <AuthProvider>
-          <RootNavigator />
-        </AuthProvider>
+        {/* Admin can require a newer app version (Admin > Settings) - old builds then show an update screen. */}
+        <UpdateGate>
+          <AuthProvider>
+            <RootNavigator />
+          </AuthProvider>
+        </UpdateGate>
       </I18nProvider>
       <StatusBar style="light" />
     </SafeAreaProvider>

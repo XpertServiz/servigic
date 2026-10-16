@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, View, Text, Pressable, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
@@ -15,6 +15,23 @@ export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean
   const { t, td } = useI18n();
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState<(typeof METHODS)[number]>("EASYPAISA");
+  const [payTo, setPayTo] = useState<api.PayTo | null>(null);
+  const [minTopUp, setMinTopUp] = useState(0);
+
+  // Where to send the money (set by the admin); only the methods that are configured are offered.
+  useEffect(() => {
+    if (!visible) return;
+    api
+      .getTopUpAccounts()
+      .then(({ payTo: accounts, minTopUpPKR }) => {
+        setPayTo(accounts);
+        setMinTopUp(minTopUpPKR ?? 0);
+        const first = METHODS.find((m) => accounts[m]);
+        if (first && !accounts[method]) setMethod(first);
+      })
+      .catch(() => setPayTo({}));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
   const [proofUrl, setProofUrl] = useState("");
   const [reference, setReference] = useState("");
   const [busy, setBusy] = useState(false);
@@ -39,7 +56,7 @@ export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean
 
   async function submit() {
     const amountPKR = Number(amount);
-    if (!amountPKR || amountPKR <= 0 || !proofUrl || reference.trim().length < 6) return;
+    if (!amountPKR || amountPKR < Math.max(1, minTopUp) || !proofUrl || reference.trim().length < 6) return;
     setBusy(true);
     setError(null);
     try {
@@ -68,10 +85,11 @@ export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean
           <Text style={{ color: colors.text, fontSize: 18, fontWeight: "800", marginBottom: 16 }}>{t("topup.title")}</Text>
 
           <Field label={t("topup.amount")} keyboardType="number-pad" value={amount} onChangeText={setAmount} placeholder="1000" />
+          {minTopUp > 0 && <Text style={{ color: colors.textMuted, fontSize: 11.5, marginTop: -10, marginBottom: 12 }}>{t("topup.minimum", { amount: `PKR ${minTopUp.toLocaleString()}` })}</Text>}
 
           <Text style={{ color: colors.textMuted, fontSize: 12, fontWeight: "600", marginBottom: 8 }}>{t("topup.method")}</Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-            {METHODS.map((m) => (
+            {METHODS.filter((m) => !payTo || payTo[m]).map((m) => (
               <Pressable
                 key={m}
                 onPress={() => setMethod(m)}
@@ -89,6 +107,33 @@ export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean
             ))}
           </View>
 
+          {payTo && !payTo[method] ? (
+            <Text style={{ color: colors.dangerSoft, fontSize: 13, marginBottom: 14 }}>{t("topup.noAccounts")}</Text>
+          ) : payTo ? (
+            <View style={{ backgroundColor: colors.accentTint, borderWidth: 1, borderColor: colors.accentBorder, borderRadius: 14, padding: 14, marginBottom: 16 }}>
+              <Text style={{ color: colors.text, fontWeight: "800", fontSize: 13, marginBottom: 8 }}>
+                {Number(amount) > 0 ? t("topup.sendTo", { amount: `PKR ${Number(amount).toLocaleString()}` }) : t("topup.step1")}
+              </Text>
+              {payTo[method] && "bankName" in payTo[method]! && !!(payTo[method] as { bankName?: string }).bankName && (
+                <Text style={{ color: colors.textMuted, fontSize: 12 }}>
+                  {t("topup.bank")}: <Text style={{ color: colors.text, fontWeight: "700" }}>{(payTo[method] as { bankName?: string }).bankName}</Text>
+                </Text>
+              )}
+              {!!payTo[method]?.title && (
+                <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 2 }}>
+                  {t("topup.accountName")}: <Text style={{ color: colors.text, fontWeight: "700" }}>{payTo[method]?.title}</Text>
+                </Text>
+              )}
+              <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 6 }}>{t("topup.number")}</Text>
+              <Text selectable style={{ color: colors.accent, fontSize: 22, fontWeight: "800", letterSpacing: 0.5 }}>
+                {payTo[method]?.number}
+              </Text>
+              <Text style={{ color: colors.textFaint, fontSize: 11, marginTop: 4 }}>{t("topup.pressToCopy")}</Text>
+              <Text style={{ color: colors.textMuted, fontSize: 11.5, lineHeight: 16, marginTop: 10 }}>{t("topup.step2")}</Text>
+              <Text style={{ color: colors.textMuted, fontSize: 11.5, lineHeight: 16 }}>{t("topup.step3")}</Text>
+            </View>
+          ) : null}
+
           <Field label={t("topup.reference")} value={reference} onChangeText={setReference} autoCapitalize="characters" placeholder={t("topup.referencePlaceholder")} />
 
           {proofUrl ? (
@@ -101,7 +146,7 @@ export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean
           <Text style={{ color: colors.textMuted, fontSize: 11.5, lineHeight: 16, marginBottom: 14 }}>{t("topup.proofRequiredHint")}</Text>
           {error && <Text style={{ color: colors.dangerSoft, fontSize: 13, marginBottom: 10 }}>{error}</Text>}
 
-          <Button title={t("topup.submit")} onPress={submit} loading={busy} disabled={!amount || !proofUrl || reference.trim().length < 6} />
+          <Button title={t("topup.submit")} onPress={submit} loading={busy} disabled={!amount || Number(amount) < Math.max(1, minTopUp) || !proofUrl || reference.trim().length < 6} />
           <View style={{ marginTop: 10 }}>
             <Button title={t("common.cancel")} variant="ghost" onPress={onClose} />
           </View>

@@ -972,6 +972,24 @@ model SiteSettings {
   proRadiusMaxKm            Int     @default(15)
   proRadiusDefaultKm        Int     @default(5)
   maxTradesPerPro           Int     @default(3)
+  // Where pros send money to top up their wallet (shown inside the Pro app's top-up sheet). Empty = fall back to the
+  // NEXT_PUBLIC_* payment numbers in the environment; placeholder values like 0000 are never shown.
+  payJazzcashNumber         String?
+  payJazzcashTitle          String?
+  payEasypaisaNumber        String?
+  payEasypaisaTitle         String?
+  payBankName               String?
+  payBankAccountTitle       String?
+  payBankAccountNumber      String?
+  // Remote app controls (admin Settings), so these never need an app release:
+  announcementActive        Boolean @default(false)
+  announcementTitle         String?
+  announcementBody          String?
+  announcementAudience      String  @default("ALL") // ALL | CUSTOMER | PROVIDER
+  minAndroidVersionCode     Int     @default(0)     // apps older than this show "please update" (0 = off)
+  storeUrlPro               String?
+  storeUrlCustomer          String?
+  minTopUpPKR               Int     @default(500)
   updatedAt             DateTime @updatedAt
 }
 
