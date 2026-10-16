@@ -18,7 +18,13 @@ export async function issueOtp(userId: string, phone: string, purpose = "PHONE_V
   const title = "Servigic verification code";
   const body = `Your Servigic verification code is ${code}. It expires in ${OTP_TTL_MINUTES} minutes.`;
   await Promise.allSettled([
-    sendWhatsappChannel({ to: phone, title, body }),
+    // Business-started WhatsApp messages must be an approved template (an "authentication" template with a copy-code button).
+    sendWhatsappChannel({
+      to: phone,
+      title,
+      body,
+      template: { nameEnv: "WHATSAPP_TEMPLATE_OTP", defaultName: "servigic_otp", bodyParams: [code], buttonParam: code, buttonKind: "otp" },
+    }),
     sendSmsChannel({ to: phone, body }),
     email ? sendEmailChannel({ to: email, subject: title, body }) : Promise.resolve(),
   ]);
