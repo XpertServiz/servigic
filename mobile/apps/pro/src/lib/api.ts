@@ -427,14 +427,14 @@ export type ProviderStatus = {
   market: { name: string; status: string; open: boolean } | null;
   jobsThisWeek: number;
   limits: { radiusMinKm: number; radiusMaxKm: number; radiusDefaultKm: number; maxTrades: number };
-  alerts: { paused: boolean; quietStartMin: number | null; quietEndMin: number | null; dailyCap: number };
+  alerts: { paused: boolean; quietStartMin: number | null; quietEndMin: number | null; dailyCap: number; emailAlerts: boolean };
 };
 
 export function getProviderStatus() {
   return request<ProviderStatus>("/api/mobile/provider/status");
 }
 
-export function updateAlertSettings(input: { paused?: boolean; quietStartMin?: number | null; quietEndMin?: number | null; dailyCap?: number }) {
+export function updateAlertSettings(input: { paused?: boolean; quietStartMin?: number | null; quietEndMin?: number | null; dailyCap?: number; emailAlerts?: boolean }) {
   return request<{ alerts: ProviderStatus["alerts"] }>("/api/mobile/provider/alerts", { method: "PUT", body: JSON.stringify(input) });
 }
 

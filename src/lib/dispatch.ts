@@ -3,6 +3,7 @@ import { notify } from "@/lib/notify";
 import { geohashNeighborhood, haversineKm } from "@/lib/geo";
 import { getMarkets, marketForCity, marketForPoint, acceptsJobs, tradeEnabled, type MarketSnapshot } from "@/lib/marketConfig";
 import type { Job } from "@prisma/client";
+import { alertEmailsLeft, recentEmailCounts, EMAIL_PER_PRO_PER_DAY } from "@/lib/emailBudget";
 
 // Rewarded-ad perk (ProviderProfile.visibilityBoostUntil): while active, a
 // pro's effective service radius is widened by this factor.
@@ -122,7 +123,7 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
       ...(useGeohash ? { geohash: { in: geohashNeighborhood(job.geohash) } } : {}),
       ...(options.onlyProviderId ? { id: options.onlyProviderId } : {}),
     },
-    include: { user: { select: { id: true, city: true } } },
+    include: { user: { select: { id: true, city: true, email: true } } },
   });
 
   const eligible = candidates
@@ -162,8 +163,22 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
     return { p, pushSent: !mute };
   });
 
+  // Offline pros also get an EMAIL (the push may never reach a phone that is off / has push blocked). Nearest first,
+  // only while today's and this month's free-plan budget lasts, at most a few per pro per day, and never when they
+  // paused alerts, are in quiet hours, or switched emails off (those are the same people `mute` already skips).
+  let emailBudget = await alertEmailsLeft();
+  const perProRecent = await recentEmailCounts(plan.map(({ p }) => p.id));
+  const emailTo = new Set<string>();
+  for (const { p, pushSent } of plan) {
+    if (emailBudget <= 0) break;
+    if (!pushSent || p.isOnline || !p.emailAlerts || !p.user.email) continue;
+    if ((perProRecent.get(p.id) ?? 0) >= EMAIL_PER_PRO_PER_DAY) continue;
+    emailTo.add(p.id);
+    emailBudget--;
+  }
+
   await prisma.dispatchAlert.createMany({
-    data: plan.map(({ p, pushSent }) => ({ jobId: job.id, providerId: p.id, channels: pushSent ? ["push"] : [], pushSent })),
+    data: plan.map(({ p, pushSent }) => ({ jobId: job.id, providerId: p.id, channels: [...(pushSent ? ["push"] : []), ...(emailTo.has(p.id) ? ["email"] : [])], pushSent })),
   });
 
   await Promise.allSettled(
@@ -175,6 +190,24 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
         body: `${job.areaLabel} · ${job.title}`,
         linkUrl: `/pro/jobs/${job.id}`,
         push: pushSent,
+        ...(emailTo.has(p.id)
+          ? {
+              channels: ["email" as const],
+              emailSubject: `New ${category.name} job near you - ${urgencyLabel}`,
+              emailBody: [
+                `A customer near you needs a ${category.name.toLowerCase()}:`,
+                ``,
+                `${job.title}`,
+                `Area: ${job.areaLabel}, ${job.city}`,
+                `When: ${urgencyLabel}`,
+                ``,
+                `You are offline right now. Open the Servigic Pro app, go online and place your bid before another pro does.`,
+                `Job link: ${process.env.NEXT_PUBLIC_APP_URL || "https://www.servigic.com"}/pro/jobs/${job.id}`,
+                ``,
+                `You get this email only while you are offline. To stop it: Servigic Pro app > Account > Job alerts > Email alerts.`,
+              ].join("\n"),
+            }
+          : {}),
         // `goOnline` lets the app offer a one-tap "Go online and bid" when it opens from this push.
         pushData: { jobId: job.id, goOnline: !p.isOnline },
       }),

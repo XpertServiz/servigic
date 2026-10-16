@@ -87,6 +87,7 @@ export default function ProfileScreen() {
         quietStartMin: patch.quietStartMin !== undefined ? patch.quietStartMin : status.alerts.quietStartMin,
         quietEndMin: patch.quietEndMin !== undefined ? patch.quietEndMin : status.alerts.quietEndMin,
         dailyCap: patch.dailyCap ?? status.alerts.dailyCap,
+        emailAlerts: patch.emailAlerts ?? status.alerts.emailAlerts,
       },
     });
     try {
@@ -304,6 +305,18 @@ export default function ProfileScreen() {
             <Switch
               value={status.alerts.paused}
               onValueChange={(v) => saveAlerts({ paused: v })}
+              trackColor={{ true: colors.accent, false: colors.border }}
+            />
+          </View>
+
+          <View style={[styles.switchRow, { marginTop: 14 }]}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.rowText}>{t("alerts.email")}</Text>
+              <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 2 }}>{t("alerts.emailHint")}</Text>
+            </View>
+            <Switch
+              value={status.alerts.emailAlerts}
+              onValueChange={(v) => saveAlerts({ emailAlerts: v })}
               trackColor={{ true: colors.accent, false: colors.border }}
             />
           </View>

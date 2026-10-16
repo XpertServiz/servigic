@@ -7,10 +7,12 @@ export async function sendEmailChannel(input: { to: string; subject: string; bod
     console.log(`[notify:email:noop] ${input.to} — ${input.subject}`);
     return;
   }
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL || "Servigic <no-reply@servigic.com>",
     to: input.to,
     subject: input.subject,
     text: input.body,
   });
+  // Resend reports problems in the result instead of throwing: make them visible in the logs.
+  if (error) console.error(`[notify:email:error] ${input.to} - ${error.name}: ${error.message}`);
 }

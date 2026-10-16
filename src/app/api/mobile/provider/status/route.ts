@@ -44,6 +44,7 @@ export async function GET() {
       quietStartMin: profile.alertQuietStartMin,
       quietEndMin: profile.alertQuietEndMin,
       dailyCap: profile.alertDailyCap,
+      emailAlerts: profile.emailAlerts,
     },
   });
 }

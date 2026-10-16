@@ -11,6 +11,7 @@ const schema = z.object({
   quietStartMin: minute.nullable().optional(),
   quietEndMin: minute.nullable().optional(),
   dailyCap: z.number().int().min(1).max(200).optional(),
+  emailAlerts: z.boolean().optional(),
 });
 
 export async function PUT(req: Request) {
@@ -28,10 +29,11 @@ export async function PUT(req: Request) {
       ...(d.quietStartMin !== undefined ? { alertQuietStartMin: d.quietStartMin } : {}),
       ...(d.quietEndMin !== undefined ? { alertQuietEndMin: d.quietEndMin } : {}),
       ...(d.dailyCap !== undefined ? { alertDailyCap: d.dailyCap } : {}),
+      ...(d.emailAlerts !== undefined ? { emailAlerts: d.emailAlerts } : {}),
     },
-    select: { alertsPaused: true, alertQuietStartMin: true, alertQuietEndMin: true, alertDailyCap: true },
+    select: { alertsPaused: true, alertQuietStartMin: true, alertQuietEndMin: true, alertDailyCap: true, emailAlerts: true },
   });
   return NextResponse.json({
-    alerts: { paused: profile.alertsPaused, quietStartMin: profile.alertQuietStartMin, quietEndMin: profile.alertQuietEndMin, dailyCap: profile.alertDailyCap },
+    alerts: { paused: profile.alertsPaused, quietStartMin: profile.alertQuietStartMin, quietEndMin: profile.alertQuietEndMin, dailyCap: profile.alertDailyCap, emailAlerts: profile.emailAlerts },
   });
 }

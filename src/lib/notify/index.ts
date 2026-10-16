@@ -22,6 +22,9 @@ export interface NotifyPayload {
   push?: boolean;
   /** Extra fields merged into the push `data` (e.g. jobId so a tap can deep-link). */
   pushData?: Record<string, unknown>;
+  /** Overrides for the email channel only (a richer text than the push body). */
+  emailSubject?: string;
+  emailBody?: string;
 }
 
 // Single entry point for every alert in the system (Master Brief §8: "All
@@ -50,7 +53,7 @@ export async function notify(payload: NotifyPayload) {
       ? sendExpoPushChannel({ tokens: user.fcmTokens, title, body, language: user.language, data: { linkUrl, type: pushChannelHint ?? type, ...pushData } })
       : Promise.resolve(),
     channels.includes("email") && user.email
-      ? sendEmailChannel({ to: user.email, subject: title, body })
+      ? sendEmailChannel({ to: user.email, subject: payload.emailSubject ?? title, body: payload.emailBody ?? body })
       : Promise.resolve(),
     channels.includes("whatsapp")
       ? sendWhatsappChannel({ to: user.phone, title, body })

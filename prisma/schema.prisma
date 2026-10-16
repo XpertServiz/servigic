@@ -389,6 +389,8 @@ model ProviderProfile {
   // Job-alert controls (handoff §11.5). Quiet hours are minutes after local
   // midnight in the market's timezone; a window may wrap midnight.
   alertsPaused            Boolean       @default(false)
+  // Job-alert EMAIL to this pro while offline (free Resend plan, budget-capped in src/lib/emailBudget.ts). Pros can opt out.
+  emailAlerts             Boolean       @default(true)
   alertQuietStartMin      Int?
   alertQuietEndMin        Int?
   alertDailyCap           Int           @default(30)

@@ -499,6 +499,8 @@ export const en = {
   "pro.tradesComingSoon": "Not available in your area yet",
   "alerts.title": "Job alerts",
   "alerts.pause": "Pause alerts",
+  "alerts.email": "Email me about jobs while I am offline",
+  "alerts.emailHint": "One short email per nearby job, only when you are offline. A few per day at most.",
   "alerts.pauseHint": "Stop push alerts. Jobs still appear in your list.",
   "alerts.quiet": "Quiet hours",
   "alerts.quietOff": "Off",
