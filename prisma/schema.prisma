@@ -758,6 +758,9 @@ model TopUp {
   amountPKR     Int
   method        PaymentMethod
   proofImageUrl String?
+  // The payment's transaction id (JazzCash / EasyPaisa TID or bank reference), kept upper-case. Required for every new
+  // top-up so the admin can match it to the statement; a reused id is refused (the same payment cannot be claimed twice).
+  reference     String?
   status        TopUpStatus @default(SUBMITTED)
   verifiedAt    DateTime?
   verifiedBy    String?
@@ -767,6 +770,7 @@ model TopUp {
 
   @@index([status])
   @@index([walletId])
+  @@index([reference])
 }
 
 // Anti-Disintermediation System — cancellation-rate engine (v7 §2.3).

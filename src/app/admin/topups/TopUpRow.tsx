@@ -36,13 +36,18 @@ export function TopUpRow({ topUp }: { topUp: TopUpWithWallet }) {
           <div className="text-sm text-text-muted">
             {topUp.wallet.provider.user.phone} · {topUp.method}
           </div>
+          <div className="mt-1 text-sm">
+            Transaction ID: <b className="select-all font-mono">{topUp.reference ?? "- (older top-up, none given)"}</b>
+          </div>
         </div>
         <div className="font-display text-xl font-bold text-accent">PKR {topUp.amountPKR.toLocaleString()}</div>
       </div>
-      {topUp.proofImageUrl && (
+      {topUp.proofImageUrl ? (
         <div className="mb-3">
-          <PhotoGallery urls={[topUp.proofImageUrl]} label="Top-up proof" thumbClassName="h-24 w-24" />
+          <PhotoGallery urls={[topUp.proofImageUrl]} label="Top-up proof" thumbClassName="h-28 w-28" />
         </div>
+      ) : (
+        <p className="mb-3 rounded-[8px] border border-danger/30 bg-danger/10 p-2 text-xs font-semibold text-danger">No payment proof was attached. Do not verify unless you can see the payment in your account.</p>
       )}
       <div className="flex gap-2">
         <button

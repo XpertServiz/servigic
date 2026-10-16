@@ -22,6 +22,7 @@ const SHARED = [
   "src/lib/market.ts",
   "src/lib/device.ts",
   "src/lib/voiceAlerts.ts",
+  "src/components/SplashLogo.tsx",
   "src/lib/notificationNav.ts",
   "src/lib/globalFont.ts",
   "src/lib/i18n",

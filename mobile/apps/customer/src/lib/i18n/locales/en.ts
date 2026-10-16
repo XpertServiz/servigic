@@ -271,8 +271,12 @@ export const en = {
   "topup.amount": "Amount (PKR)",
   "topup.method": "Method",
   "topup.proofUploaded": "Proof uploaded ✓",
-  "topup.uploadProof": "Upload payment proof (optional)",
+  "topup.uploadProof": "Upload payment screenshot (required)",
   "topup.submit": "Submit Top-up",
+  "topup.reference": "Transaction ID (from your payment message)",
+  "topup.referencePlaceholder": "e.g. 12345678901",
+  "topup.proofRequiredHint": "Attach the payment screenshot and enter its transaction ID, so we can match it to our account and credit your wallet quickly.",
+  "topup.duplicate": "This transaction ID was already submitted.",
 
   // ─── Pro: Account / verification ───
   "account.rating": "Rating",

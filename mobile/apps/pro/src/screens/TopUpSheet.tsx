@@ -16,26 +16,42 @@ export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState<(typeof METHODS)[number]>("EASYPAISA");
   const [proofUrl, setProofUrl] = useState("");
+  const [reference, setReference] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   async function pickProof() {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 });
     if (result.canceled || !result.assets[0]) return;
     const asset = result.assets[0];
-    const url = await api.uploadFile(asset.uri, asset.fileName ?? "topup-proof.jpg", asset.mimeType ?? "image/jpeg");
-    setProofUrl(url);
+    setUploading(true);
+    setError(null);
+    try {
+      const url = await api.uploadFile(asset.uri, asset.fileName ?? "topup-proof.jpg", asset.mimeType ?? "image/jpeg");
+      setProofUrl(url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t("common.tryAgain"));
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function submit() {
     const amountPKR = Number(amount);
-    if (!amountPKR || amountPKR <= 0) return;
+    if (!amountPKR || amountPKR <= 0 || !proofUrl || reference.trim().length < 6) return;
     setBusy(true);
+    setError(null);
     try {
-      await api.submitTopUp(amountPKR, method, proofUrl || undefined);
+      await api.submitTopUp(amountPKR, method, proofUrl, reference.trim());
       setAmount("");
       setProofUrl("");
+      setReference("");
       onSubmitted();
       onClose();
+    } catch (e) {
+      // e.g. the transaction id was already used, or the server rejected the proof
+      setError(e instanceof api.ApiError && e.code === "DUPLICATE_REFERENCE" ? t("topup.duplicate") : e instanceof Error ? e.message : t("common.tryAgain"));
     } finally {
       setBusy(false);
     }
@@ -73,15 +89,19 @@ export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean
             ))}
           </View>
 
+          <Field label={t("topup.reference")} value={reference} onChangeText={setReference} autoCapitalize="characters" placeholder={t("topup.referencePlaceholder")} />
+
           {proofUrl ? (
-            <Text style={{ color: colors.secondary, marginBottom: 16 }}>{t("topup.proofUploaded")}</Text>
+            <Text style={{ color: colors.secondary, marginBottom: 12 }}>{t("topup.proofUploaded")}</Text>
           ) : (
-            <Pressable onPress={pickProof} style={{ marginBottom: 16 }}>
-              <Text style={{ color: colors.accent, fontWeight: "700" }}>📷 {t("topup.uploadProof")}</Text>
+            <Pressable onPress={pickProof} disabled={uploading} style={{ marginBottom: 12 }}>
+              <Text style={{ color: colors.accent, fontWeight: "700" }}>{uploading ? "…" : `📷 ${t("topup.uploadProof")}`}</Text>
             </Pressable>
           )}
+          <Text style={{ color: colors.textMuted, fontSize: 11.5, lineHeight: 16, marginBottom: 14 }}>{t("topup.proofRequiredHint")}</Text>
+          {error && <Text style={{ color: colors.dangerSoft, fontSize: 13, marginBottom: 10 }}>{error}</Text>}
 
-          <Button title={t("topup.submit")} onPress={submit} loading={busy} disabled={!amount} />
+          <Button title={t("topup.submit")} onPress={submit} loading={busy} disabled={!amount || !proofUrl || reference.trim().length < 6} />
           <View style={{ marginTop: 10 }}>
             <Button title={t("common.cancel")} variant="ghost" onPress={onClose} />
           </View>

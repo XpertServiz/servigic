@@ -6,7 +6,15 @@ import { requireRole } from "@/lib/requireRole";
 const topUpSchema = z.object({
   amountPKR: z.number().int().positive(),
   method: z.enum(["JAZZCASH", "EASYPAISA", "BANK_TRANSFER", "CARD"]),
-  proofImageUrl: z.string().optional(),
+  // Both are required: the admin verifies the payment by looking at the screenshot and matching the transaction id.
+  proofImageUrl: z.string().url("Upload a screenshot of your payment"),
+  reference: z
+    .string()
+    .trim()
+    .min(6, "Enter the transaction ID from your payment (at least 6 characters)")
+    .max(40)
+    .regex(/^[A-Za-z0-9\-_/ ]+$/, "The transaction ID can only contain letters, numbers and dashes")
+    .transform((v) => v.replace(/\s+/g, "").toUpperCase()),
 });
 
 // v6 addendum — Pro Commission Wallet. Pros settle their commission debt by
@@ -30,12 +38,19 @@ export async function POST(req: Request) {
     create: { providerId: profile.id, ceilingPKR: settings?.defaultWalletCeilingPKR ?? 3000 },
   });
 
+  // The same payment cannot be claimed twice (by this pro or any other).
+  const duplicate = await prisma.topUp.findFirst({ where: { reference: parsed.data.reference, status: { not: "REJECTED" } }, select: { id: true } });
+  if (duplicate) {
+    return NextResponse.json({ error: "This transaction ID was already submitted. Check the ID in your payment message.", code: "DUPLICATE_REFERENCE" }, { status: 409 });
+  }
+
   const topUp = await prisma.topUp.create({
     data: {
       walletId: wallet.id,
       amountPKR: parsed.data.amountPKR,
       method: parsed.data.method,
       proofImageUrl: parsed.data.proofImageUrl,
+      reference: parsed.data.reference,
     },
   });
 

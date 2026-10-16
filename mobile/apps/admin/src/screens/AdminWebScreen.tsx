@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from "react";
-import { View, Text, Pressable, StyleSheet, ActivityIndicator, BackHandler } from "react-native";
+import { View, Text, Pressable, StyleSheet, ActivityIndicator, BackHandler, ScrollView, useWindowDimensions } from "react-native";
 import { WebView, type WebViewNavigation } from "react-native-webview";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
@@ -47,6 +47,9 @@ function buildAutoLoginScript(phone: string, password: string): string {
 
 export function AdminWebScreen({ initialPath = "/admin/payments" }: { initialPath?: string }) {
   const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
+  // Tilted to landscape: give the whole screen to the admin site (it has its own menu and log-out), no native bars.
+  const landscape = width > height;
   const { credentials, signOut } = useAuth();
   const webRef = useRef<WebView>(null);
   const [currentUrl, setCurrentUrl] = useState("");
@@ -98,13 +101,15 @@ export function AdminWebScreen({ initialPath = "/admin/payments" }: { initialPat
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: landscape ? 0 : insets.top, paddingLeft: landscape ? insets.left : 0, paddingRight: landscape ? insets.right : 0 }]}>
+      {!landscape && (
       <View style={styles.topBar}>
         <Text style={styles.title}>Servigic Admin</Text>
         <Pressable onPress={signOut} hitSlop={10}>
           <Text style={styles.signOut}>Sign out</Text>
         </Pressable>
       </View>
+      )}
 
       <WebView
         ref={webRef}
@@ -117,6 +122,10 @@ export function AdminWebScreen({ initialPath = "/admin/payments" }: { initialPat
         onNavigationStateChange={onNavStateChange}
         onLoadEnd={onLoadEnd}
         startInLoadingState
+        overScrollMode="never"
+        setBuiltInZoomControls={false}
+        allowsBackForwardNavigationGestures
+        nestedScrollEnabled
         renderLoading={() => (
           <View style={styles.loadingOverlay}>
             <ActivityIndicator color={colors.accent} size="large" />
@@ -131,17 +140,18 @@ export function AdminWebScreen({ initialPath = "/admin/payments" }: { initialPat
         </View>
       )}
 
-      <View style={[styles.quickNav, { paddingBottom: Math.max(insets.bottom, 10) }]}>
-        {QUICK_LINKS.map((q) => (
-          <Pressable key={q.path} onPress={() => goTo(q.path)} style={styles.quickNavItem}>
-            <Text
-              style={[styles.quickNavLabel, currentUrl.includes(q.path) && q.path !== "/admin" && styles.quickNavLabelActive]}
-            >
-              {q.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+      {!landscape && (
+        <View style={[styles.quickNav, { paddingBottom: Math.max(insets.bottom, 6) }]}>
+          {/* Seven shortcuts do not fit side by side on a narrow phone: they scroll sideways. */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickNavRow}>
+            {QUICK_LINKS.map((q) => (
+              <Pressable key={q.path} onPress={() => goTo(q.path)} style={styles.quickNavItem}>
+                <Text style={[styles.quickNavLabel, currentUrl.includes(q.path) && q.path !== "/admin" && styles.quickNavLabelActive]}>{q.label}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 }
@@ -153,7 +163,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 6,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -173,9 +183,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.bgElevated,
-    paddingTop: 10,
+    paddingTop: 4,
   },
-  quickNavItem: { flex: 1, alignItems: "center", paddingVertical: 4 },
+  quickNavRow: { paddingHorizontal: 6 },
+  quickNavItem: { alignItems: "center", paddingVertical: 6, paddingHorizontal: 12 },
   quickNavLabel: { color: colors.textMuted, fontSize: 12, fontWeight: "700" },
   quickNavLabelActive: { color: colors.accent },
 });

@@ -299,10 +299,10 @@ export function getProviderEarnings() {
   }>("/api/mobile/provider/earnings");
 }
 
-export function submitTopUp(amountPKR: number, method: string, proofImageUrl?: string) {
+export function submitTopUp(amountPKR: number, method: string, proofImageUrl: string, reference: string) {
   return request<{ topUp: Record<string, unknown> }>("/api/mobile/wallet/topup", {
     method: "POST",
-    body: JSON.stringify({ amountPKR, method, proofImageUrl }),
+    body: JSON.stringify({ amountPKR, method, proofImageUrl, reference }),
   });
 }
 
