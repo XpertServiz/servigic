@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { setStored, useStored } from "./useStored";
 import { useLocale, useTranslations } from "next-intl";
-import { FORM_COUNTRIES, KARACHI_AREAS, TRADE_LABELS, WAITLIST_TRADES } from "@/lib/prelaunchData";
+import { FORM_COUNTRIES, KARACHI_AREAS, WAITLIST_TRADES } from "@/lib/prelaunchData";
 import { useWaitlist, type WaitlistRole } from "./WaitlistProvider";
 import { InstallEarlyBlock } from "./InstallEarlyBlock";
 
@@ -59,7 +59,7 @@ export function WaitlistForm({ initialRole = "CUSTOMER" }: { initialRole?: Waitl
       return null;
     }
   }, [locale]);
-  const countryName = (code: string) => (code === "XX" ? "Other" : (names?.of(code) ?? FORM_COUNTRIES.find((c) => c.code === code)?.name ?? code));
+  const countryName = (code: string) => (code === "XX" ? t("country_other") : (names?.of(code) ?? FORM_COUNTRIES.find((c) => c.code === code)?.name ?? code));
 
   useEffect(() => {
     if (!done) return;
@@ -108,9 +108,11 @@ export function WaitlistForm({ initialRole = "CUSTOMER" }: { initialRole?: Waitl
           website: honeypot,
         }),
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string; referralCode?: string };
+      const data = (await res.json().catch(() => ({}))) as { error?: string; field?: string; referralCode?: string };
       if (!res.ok || !data.referralCode) {
-        setError(data.error === "whatsapp" ? t("error_whatsapp") : data.error === "gmail" ? t("error_gmail") : data.error === "consent" ? t("error_consent") : t("error_generic"));
+        // Pick the message by what was wrong: the number, the Gmail address, or the consent box.
+        const what = data.error === "invalid" || !data.error ? data.field : data.error;
+        setError(what === "whatsapp" ? t("error_whatsapp") : what === "gmail" ? t("error_gmail") : what === "consent" ? t("error_consent") : t("error_generic"));
         return;
       }
       const saved: Saved = { code: data.referralCode, role, country };
@@ -234,7 +236,7 @@ export function WaitlistForm({ initialRole = "CUSTOMER" }: { initialRole?: Waitl
               <label className={label} htmlFor="wl-trade">{t("field_trade")}</label>
               <select id="wl-trade" value={trade} onChange={(e) => setTrade(e.target.value)} className={input}>
                 {WAITLIST_TRADES.map((k) => (
-                  <option key={k} value={k}>{TRADE_LABELS[k]}</option>
+                  <option key={k} value={k}>{t(`trades.${k}`)}</option>
                 ))}
               </select>
             </div>

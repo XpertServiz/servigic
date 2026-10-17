@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notify } from "@/lib/notify";
+import { foundingText } from "@/lib/foundingTexts";
 
 // Founding Pro (business rule): the first N approved pros in the launch city (default 100, Karachi) pay a reduced
 // commission (default 10%) for M months (default 3) from their approval date; after that the standard rate (their
@@ -32,7 +33,7 @@ export function effectiveCommissionPct(profile: { commissionPct: number; foundin
 
 /** Called when a pro is approved. Gives the Founding Pro rate if the pro is in the launch city and places remain. */
 export async function grantFoundingProIfEligible(profileId: string, now = new Date()): Promise<boolean> {
-  const profile = await prisma.providerProfile.findUnique({ where: { id: profileId }, include: { user: { select: { id: true, city: true } } } });
+  const profile = await prisma.providerProfile.findUnique({ where: { id: profileId }, include: { user: { select: { id: true, city: true, language: true } } } });
   if (!profile || profile.foundingUntil) return false;
   const { left, rule } = await foundingSlotsLeft();
   if (left <= 0 || !profile.user.city || profile.user.city.trim().toLowerCase() !== rule.city.trim().toLowerCase()) return false;
@@ -50,8 +51,8 @@ export async function grantFoundingProIfEligible(profileId: string, now = new Da
   await notify({
     userId: profile.user.id,
     type: "SYSTEM",
-    title: "You are a Founding Pro",
-    body: `Your commission is ${rule.pct}% until ${until.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}, then it goes back to the standard rate.`,
+    title: foundingText(profile.user.language, "founding_title", { date: until }),
+    body: foundingText(profile.user.language, "founding_body", { pct: rule.pct, date: until }),
     linkUrl: "/pro/earnings",
   }).catch(() => {});
   return true;
@@ -60,19 +61,17 @@ export async function grantFoundingProIfEligible(profileId: string, now = new Da
 /** Run regularly: 14 days before the reduced rate ends, tell the pro the date it goes back to the standard rate. */
 export async function notifyFoundingEndingSoon(now = new Date()): Promise<number> {
   const soon = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
-  const rule = await getFoundingRule();
   const due = await prisma.providerProfile.findMany({
     where: { foundingUntil: { gt: now, lte: soon }, foundingEndNotifiedAt: null },
-    select: { id: true, userId: true, foundingUntil: true, commissionPct: true },
+    select: { id: true, userId: true, foundingUntil: true, commissionPct: true, user: { select: { language: true } } },
     take: 200,
   });
   for (const p of due) {
-    const date = p.foundingUntil!.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     await notify({
       userId: p.userId,
       type: "SYSTEM",
-      title: "Your Founding Pro rate ends soon",
-      body: `The ${rule.pct}% commission ends on ${date}. From then on the standard ${p.commissionPct}% applies.`,
+      title: foundingText(p.user.language, "ending_title", { date: p.foundingUntil! }),
+      body: foundingText(p.user.language, "ending_body", { date: p.foundingUntil!, standardPct: p.commissionPct }),
       linkUrl: "/pro/earnings",
     }).catch(() => {});
     await prisma.providerProfile.update({ where: { id: p.id }, data: { foundingEndNotifiedAt: new Date() } });
