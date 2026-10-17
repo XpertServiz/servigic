@@ -215,6 +215,8 @@ export const fr: Partial<Record<TKey, string>> = {
   "earnings.alertsPaused": "alertes de missions suspendues",
   "earnings.topUp": "Recharger",
   "earnings.noLeadFees": "Aucun frais de lead · vous gardez {pct} %",
+  "earnings.foundingPro": "Pro fondateur — {pct} % de commission jusqu'au {date}",
+  "earnings.foundingKeep": "Vous gardez {keep} % de chaque mission.",
   "earnings.cashExplainer": "Vous encaissez le paiement complet auprès du client. Seulement {pct} % de commission sur les missions terminées, réglée depuis votre portefeuille.",
   "earnings.ladderNew": "Nouveau",
   "earnings.ladderVerified": "Vérifié",

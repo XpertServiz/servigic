@@ -235,6 +235,8 @@ export const ar: Partial<Record<TKey, string>> = {
   "earnings.alertsPaused": "تنبيهات الطلبات متوقفة",
   "earnings.topUp": "شحن الرصيد",
   "earnings.noLeadFees": "بلا رسوم عملاء محتملين · تحتفظ بـ {pct}٪",
+  "earnings.foundingPro": "محترف مؤسس — عمولة {pct}% حتى {date}",
+  "earnings.foundingKeep": "تحتفظ بنسبة {keep}% من كل طلب.",
   "earnings.cashExplainer": "تحصّل المبلغ كاملاً من العميل. عمولة {pct}٪ فقط على الطلبات المكتملة، تُسوّى من محفظتك.",
   "earnings.ladderNew": "جديد",
   "earnings.ladderVerified": "موثّق",

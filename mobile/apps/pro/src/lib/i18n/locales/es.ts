@@ -158,6 +158,8 @@ export const es: Partial<Record<TKey, string>> = {
   "earnings.title": "Ganancias",
   "earnings.topUp": "Recargar",
   "earnings.ledger": "Movimientos",
+  "earnings.foundingPro": "Pro fundador — {pct} % de comisión hasta el {date}",
+  "earnings.foundingKeep": "Te quedas con el {keep} % de cada trabajo.",
   "account.rating": "Valoración",
   "account.jobsDone": "Trabajos hechos",
   "account.radius": "Radio",

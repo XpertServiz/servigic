@@ -766,6 +766,17 @@
     "error_generic": "Something went wrong. Please try again.",
     "error_consent": "Please tick the box to continue.",
     "founding_places_left": "{n} Founding Pro places left",
-    "select": "Select"
+    "select": "Select",
+    "country_other": "Other",
+    "trades": {
+      "ELECTRICIAN": "Electrician",
+      "PLUMBER": "Plumber",
+      "AC_TECHNICIAN": "AC technician",
+      "CARPENTER": "Carpenter",
+      "PAINTER": "Painter",
+      "MASON": "Mason",
+      "APPLIANCE_REPAIR": "Appliance repair",
+      "OTHER": "Other"
+    }
   }
 }

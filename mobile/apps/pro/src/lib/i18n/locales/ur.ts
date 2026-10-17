@@ -235,6 +235,8 @@ export const ur: Partial<Record<TKey, string>> = {
   "earnings.alertsPaused": "کام کے الرٹس رکے ہوئے ہیں",
   "earnings.topUp": "ٹاپ اپ",
   "earnings.noLeadFees": "لیڈ فیس نہیں · آپ {pct}٪ رکھتے ہیں",
+  "earnings.foundingPro": "فاؤنڈنگ پرو — {date} تک {pct}% کمیشن",
+  "earnings.foundingKeep": "ہر جاب کا {keep}% آپ کا۔",
   "earnings.cashExplainer": "آپ صارف سے پوری ادائیگی خود وصول کرتے ہیں۔ مکمل کاموں پر صرف {pct}٪ کمیشن، جو آپ کے والٹ سے ادا ہوتا ہے۔",
   "earnings.ladderNew": "نیا",
   "earnings.ladderVerified": "تصدیق شدہ",

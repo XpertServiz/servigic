@@ -574,6 +574,26 @@
     "customer_prereg_note": "Google Play vous avertira et pourra installer Servigic automatiquement le jour du lancement.",
     "lang_switch": "Langue",
     "suggest_language": "Afficher cette page en {language} ?",
-    "pro_commission_compare": "D'autres plateformes prennent jusqu'à 20–25 % de vos gains. Servigic ne prend que 12 % — vous gardez 88 %."
+    "pro_commission_compare": "D'autres plateformes prennent jusqu'à 20–25 % de vos gains. Servigic ne prend que 12 % — vous gardez 88 %.",
+    "banner_live_now": "🚀 Maintenant disponible à {city} — téléchargement gratuit",
+    "get_on_play": "Disponible sur Google Play",
+    "banner_dismiss": "Fermer",
+    "referral_count": "Vous avez parrainé {n} personnes",
+    "error_whatsapp": "Veuillez saisir un numéro WhatsApp valide.",
+    "error_gmail": "Veuillez saisir votre adresse Gmail.",
+    "error_generic": "Une erreur s'est produite. Veuillez réessayer.",
+    "error_consent": "Veuillez cocher la case pour continuer.",
+    "select": "Sélectionner",
+    "country_other": "Autre pays",
+    "trades": {
+      "ELECTRICIAN": "Électricien",
+      "PLUMBER": "Plombier",
+      "AC_TECHNICIAN": "Technicien climatisation",
+      "CARPENTER": "Menuisier",
+      "PAINTER": "Peintre",
+      "MASON": "Maçon",
+      "APPLIANCE_REPAIR": "Réparation d'électroménager",
+      "OTHER": "Autre"
+    }
   }
 }

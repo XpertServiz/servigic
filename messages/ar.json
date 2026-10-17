@@ -574,6 +574,26 @@
     "customer_prereg_note": "سيُعلمك Google Play ويمكنه تثبيت سيرفيجك تلقائيًا يوم الإطلاق.",
     "lang_switch": "اللغة",
     "suggest_language": "هل تريد عرض هذه الصفحة باللغة {language}؟",
-    "pro_commission_compare": "تأخذ منصات أخرى ما يصل إلى 20–25% من دخلك. سيرفيجك تأخذ 12% فقط — ويبقى لك 88%."
+    "pro_commission_compare": "تأخذ منصات أخرى ما يصل إلى 20–25% من دخلك. سيرفيجك تأخذ 12% فقط — ويبقى لك 88%.",
+    "banner_live_now": "🚀 سيرفيجك متاحة الآن في {city} — نزّلها مجانًا",
+    "get_on_play": "احصل عليه من Google Play",
+    "banner_dismiss": "إغلاق",
+    "referral_count": "لقد دعوت {n} أشخاص",
+    "error_whatsapp": "يرجى إدخال رقم واتساب صحيح.",
+    "error_gmail": "يرجى إدخال عنوان Gmail الخاص بك.",
+    "error_generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "error_consent": "يرجى وضع علامة في المربع للمتابعة.",
+    "select": "اختر",
+    "country_other": "أخرى",
+    "trades": {
+      "ELECTRICIAN": "كهربائي",
+      "PLUMBER": "سبّاك",
+      "AC_TECHNICIAN": "فني تكييف",
+      "CARPENTER": "نجّار",
+      "PAINTER": "دهّان",
+      "MASON": "بنّاء",
+      "APPLIANCE_REPAIR": "إصلاح الأجهزة المنزلية",
+      "OTHER": "أخرى"
+    }
   }
 }

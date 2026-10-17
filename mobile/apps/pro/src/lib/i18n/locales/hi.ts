@@ -157,6 +157,8 @@ export const hi: Partial<Record<TKey, string>> = {
   "earnings.title": "कमाई",
   "earnings.topUp": "टॉप अप",
   "earnings.ledger": "खाता बही",
+  "earnings.foundingPro": "फाउंडिंग प्रो — {date} तक {pct}% कमीशन",
+  "earnings.foundingKeep": "हर काम का {keep}% आपका।",
   "account.rating": "रेटिंग",
   "account.jobsDone": "पूरे काम",
   "account.radius": "दायरा",
