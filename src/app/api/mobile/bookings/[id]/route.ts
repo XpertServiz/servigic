@@ -1,3 +1,4 @@
+import { effectiveCommissionPct, getFoundingRule } from "@/lib/foundingPro";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
@@ -47,7 +48,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       // Customer ad-reward discount already taken off this booking (PKR, 0 if none).
       // The customer pays the pro totalPKR - rewardDiscountPKR.
       rewardDiscountPKR: booking.rewardDiscountPKR,
-      commissionPct: booking.providerProfile.commissionPct,
+      commissionPct: effectiveCommissionPct(booking.providerProfile, await getFoundingRule()),
       areaLabel: booking.job.areaLabel,
       // ISO timestamps keyed by status (CONFIRMED, ON_MY_WAY, ... ) — drives the
       // in-progress timer and ETA on the redesigned screens.

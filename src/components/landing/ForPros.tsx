@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { EarningsCalculator } from "@/components/landing/EarningsCalculator";
 import { getDemoMoney } from "@/lib/money";
+import { AppDownloadButton } from "@/components/prelaunch/AppDownloadButton";
 
 // Real count only — hidden below threshold rather than showing a fabricated
 // number (same rule ProofTicker follows: Master Brief §7A/§12, no fake stats).
@@ -54,6 +55,9 @@ export async function ForPros() {
               <Button href="/pro" className="w-full">
                 {t("cta")} <span aria-hidden className="rtl:rotate-180">→</span>
               </Button>
+              <div className="mt-3 flex justify-center">
+                <AppDownloadButton app="pro" variant="ghost" size="md" />
+              </div>
             </div>
           </div>
         </Reveal>

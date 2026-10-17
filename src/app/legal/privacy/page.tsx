@@ -12,6 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PrivacyPage() {
   const t = await getTranslations("legal");
   const sections = t.raw("privacy") as { title: string; desc: string }[];
+  const waitlist = t.raw("privacyWaitlist") as { title: string; desc: string };
   return (
     <InfoPageShell eyebrow={t("label")} title={t("privacyTitle")}>
       <p className="rounded-2xl border border-accent/30 bg-accent/10 p-4 text-sm text-accent">{t("draft")}</p>
@@ -20,6 +21,7 @@ export default async function PrivacyPage() {
           {s.desc}
         </InfoBlock>
       ))}
+      <InfoBlock title={waitlist.title}>{waitlist.desc}</InfoBlock>
     </InfoPageShell>
   );
 }

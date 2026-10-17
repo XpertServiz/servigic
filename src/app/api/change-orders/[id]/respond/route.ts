@@ -1,3 +1,4 @@
+import { effectiveCommissionPct, getFoundingRule } from "@/lib/foundingPro";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
@@ -65,7 +66,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   // to the pro after the job, exactly like the base booking amount; the
   // extra commission rides along into the same CommissionLedgerEntry written
   // at completion (bookings/[id]/confirm/route.ts), not a separate one here.
-  const commissionPct = changeOrder.booking.providerProfile.commissionPct;
+  const commissionPct = effectiveCommissionPct(changeOrder.booking.providerProfile, await getFoundingRule());
   // A commission-free (early-pro) booking stays commission-free when extra work is added.
   const commissionCut = changeOrder.booking.commissionPKR === 0 ? 0 : Math.round((changeOrder.extraAmountPKR * commissionPct) / 100);
   const payoutCut = changeOrder.extraAmountPKR - commissionCut;

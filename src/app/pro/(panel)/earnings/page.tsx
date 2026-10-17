@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { getPaymentMode } from "@/lib/featureFlags";
+import { effectiveCommissionPct, getFoundingRule } from "@/lib/foundingPro";
 
 const STATUS_COLORS: Record<string, string> = {
   QUEUED: "text-accent border-accent/30 bg-accent/10",
@@ -23,6 +24,9 @@ export default async function ProviderEarningsPage() {
   if (!profile) return null;
 
   const paymentMode = await getPaymentMode();
+  const foundingRule = await getFoundingRule();
+  const pct = effectiveCommissionPct(profile, foundingRule);
+  const foundingUntil = profile.foundingUntil && profile.foundingUntil > new Date() ? profile.foundingUntil : null;
 
   if (paymentMode === "CASH_WALLET") {
     const wallet = await prisma.proWallet.findUnique({
@@ -39,9 +43,17 @@ export default async function ProviderEarningsPage() {
       <div>
         <h1 className="mb-1 font-display text-3xl font-bold">Earnings</h1>
         <p className="mb-8 text-text-muted">
-          No lead fees — you collect full payment from the customer. Just {profile.commissionPct}% commission on
+          No lead fees — you collect full payment from the customer. Just {pct}% commission on
           completed jobs, settled from your wallet.
         </p>
+        {foundingUntil && (
+          <div className="mb-8 rounded-[12px] border border-accent/30 bg-accent/10 p-4 text-sm">
+            <p className="font-semibold text-accent">
+              Founding Pro — {pct}% commission until {foundingUntil.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+            </p>
+            <p className="text-text-muted">You keep {100 - pct}% of every job.</p>
+          </div>
+        )}
 
         <div className="mb-8 grid grid-cols-2 gap-5 md:grid-cols-3">
           <StatCard
@@ -112,7 +124,7 @@ export default async function ProviderEarningsPage() {
       <div className="mb-8 grid grid-cols-2 gap-5 md:grid-cols-3">
         <StatCard label="Total earned" value={`PKR ${totalSent.toLocaleString()}`} />
         <StatCard label="Queued for payout" value={`PKR ${totalQueued.toLocaleString()}`} />
-        <StatCard label="Commission" value={`${profile.commissionPct}%`} />
+        <StatCard label="Commission" value={`${pct}%`} />
       </div>
 
       <div className="flex flex-col gap-3">

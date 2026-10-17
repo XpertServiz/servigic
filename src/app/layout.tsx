@@ -12,6 +12,7 @@ import { RouteProgress } from "@/components/brand/RouteProgress";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { VisitorBeacon } from "@/components/analytics/VisitorBeacon";
 import { DemoMoneyProvider } from "@/components/i18n/DemoMoney";
+import { PrelaunchShell } from "@/components/prelaunch/PrelaunchShell";
 import { getDemoMoney } from "@/lib/money";
 import "./globals.css";
 
@@ -74,7 +75,7 @@ export default async function RootLayout({
             <RouteProgress />
           </Suspense>
           <VisitorBeacon />
-          {children}
+          <PrelaunchShell>{children}</PrelaunchShell>
           <Toaster theme="dark" position="top-center" richColors />
           </DemoMoneyProvider>
         </NextIntlClientProvider>

@@ -42,49 +42,21 @@ export function localeMeta(code: string): LocaleMeta {
   return LOCALES.find((l) => l.code === code) ?? LOCALES[0];
 }
 
-// Official / dominant language of a country, limited to the languages we ship.
-// Anything not listed falls back to English. Pakistan is deliberately English
-// (Urdu is one tap away in the switcher), per the product owner.
+// Language suggested to a visitor from their country (the "View this page in …?" bar). It is only ever a suggestion:
+// the page itself is never switched or redirected by IP. Everything not listed stays English.
 const COUNTRY_TO_LOCALE: Record<string, Locale> = {
-  // Arabic
-  SA: "ar", AE: "ar", QA: "ar", KW: "ar", BH: "ar", OM: "ar", JO: "ar", LB: "ar", SY: "ar", IQ: "ar",
-  EG: "ar", LY: "ar", TN: "ar", DZ: "ar", MA: "ar", SD: "ar", YE: "ar", PS: "ar", MR: "ar", DJ: "ar", SO: "ar", KM: "ar",
-  // German
-  DE: "de", AT: "de", CH: "de", LI: "de", LU: "de",
-  // French
-  FR: "fr", MC: "fr", SN: "fr", CI: "fr", CM: "fr", CD: "fr", MG: "fr", ML: "fr", BF: "fr", NE: "fr", TD: "fr", GN: "fr", RW: "fr", BJ: "fr", TG: "fr", HT: "fr", GA: "fr", CG: "fr", BI: "fr",
-  // Spanish
-  ES: "es", MX: "es", AR: "es", CO: "es", PE: "es", VE: "es", CL: "es", EC: "es", GT: "es", CU: "es", BO: "es", DO: "es",
-  HN: "es", PY: "es", SV: "es", NI: "es", CR: "es", PA: "es", UY: "es", PR: "es", GQ: "es",
-  // Portuguese
-  PT: "pt", BR: "pt", AO: "pt", MZ: "pt", GW: "pt", CV: "pt", ST: "pt", TL: "pt",
-  // Italian
-  IT: "it", SM: "it", VA: "it",
-  // Dutch
-  NL: "nl", BE: "nl", SR: "nl",
-  // Polish, Turkish, Hindi
-  PL: "pl", TR: "tr", IN: "hi",
-  // Pakistan: English by default; Urdu via the switcher or /ur.
-  PK: "en",
+  PK: "ur",
+  SA: "ar", AE: "ar", QA: "ar", KW: "ar", BH: "ar", OM: "ar", EG: "ar", JO: "ar",
+  DE: "de", AT: "de", CH: "de",
+  FR: "fr", BE: "fr",
+  ES: "es", MX: "es", AR: "es", CO: "es",
 };
 
-export function localeForCountry(country: string | null | undefined): Locale {
+export function localeForCountry(country: string | null | undefined, region?: string | null): Locale {
   if (!country) return DEFAULT_LOCALE;
-  return COUNTRY_TO_LOCALE[country.toUpperCase()] ?? DEFAULT_LOCALE;
-}
-
-/** Best supported language from an Accept-Language header (fallback when there is no geo header, e.g. local dev). */
-export function localeFromAcceptLanguage(header: string | null | undefined): Locale | null {
-  if (!header) return null;
-  const tags = header
-    .split(",")
-    .map((part) => {
-      const [tag, q] = part.trim().split(";q=");
-      return { lang: tag.toLowerCase().split("-")[0], q: q ? Number(q) : 1 };
-    })
-    .sort((a, b) => b.q - a.q);
-  for (const { lang } of tags) if (isLocale(lang)) return lang;
-  return null;
+  const code = country.toUpperCase();
+  if (code === "CA") return region?.toUpperCase() === "QC" ? "fr" : DEFAULT_LOCALE;
+  return COUNTRY_TO_LOCALE[code] ?? DEFAULT_LOCALE;
 }
 
 // ─── URL helpers ───

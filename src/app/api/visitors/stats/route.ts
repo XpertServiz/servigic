@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { getVisitorStats } from "@/lib/visitors";
+import { requireRole } from "@/lib/requireRole";
 
+// The visitor counter now lives in the admin dashboard only, so its numbers are no longer public.
 export async function GET() {
+  const auth = await requireRole("ADMIN");
+  if (!auth.ok) return auth.response;
   const stats = await getVisitorStats();
-  // Short shared cache so a traffic spike can't turn the live panel into a DB hammer.
-  return NextResponse.json(stats, { headers: { "Cache-Control": "public, s-maxage=10, stale-while-revalidate=20" } });
+  return NextResponse.json(stats, { headers: { "Cache-Control": "private, no-store" } });
 }

@@ -1,6 +1,6 @@
 import { getRequestConfig } from "next-intl/server";
 import { cookies, headers } from "next/headers";
-import { DEFAULT_LOCALE, isLocale, localeForCountry, localeFromAcceptLanguage, type Locale } from "./locales";
+import { DEFAULT_LOCALE, isLocale, type Locale } from "./locales";
 
 export { SUPPORTED_LOCALES, DEFAULT_LOCALE, RTL_LOCALES, type Locale } from "./locales";
 
@@ -22,12 +22,11 @@ function deepMerge(base: Messages, over: Messages): Messages {
 
 /**
  * Picks the language for this request. Order:
- *  1. `x-servigic-locale` — set by the proxy when the URL carries a language prefix (/de/pro)
- *  2. `servigic_locale` cookie — the visitor's explicit choice from the switcher
- *  3. The visitor's IP country (Vercel/Cloudflare geo header) → that country's official language
- *  4. Accept-Language (local dev, or hosts without a geo header)
- *  5. English
- * Pakistan maps to English (Urdu is one tap away), per the product owner.
+ *  1. `x-servigic-locale` - set by the proxy when the URL carries a language prefix (/de/pro)
+ *  2. `servigic_locale` cookie - the visitor's explicit choice (switcher or suggestion bar)
+ *  3. English
+ * The visitor's country never changes the page by itself (no IP redirects, crawlers always get the URL's own
+ * language); it only drives the "View this page in …?" suggestion bar.
  */
 export async function resolveLocale(): Promise<Locale> {
   const headerList = await headers();
@@ -38,10 +37,7 @@ export async function resolveLocale(): Promise<Locale> {
   const fromCookie = cookieStore.get("servigic_locale")?.value;
   if (isLocale(fromCookie)) return fromCookie;
 
-  const country = headerList.get("x-vercel-ip-country") || headerList.get("cf-ipcountry");
-  if (country && country !== "XX" && country !== "T1") return localeForCountry(country);
-
-  return localeFromAcceptLanguage(headerList.get("accept-language")) ?? DEFAULT_LOCALE;
+  return DEFAULT_LOCALE;
 }
 
 async function loadMessages(locale: Locale): Promise<Messages> {

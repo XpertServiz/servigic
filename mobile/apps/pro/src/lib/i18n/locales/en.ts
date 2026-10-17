@@ -253,6 +253,8 @@ export const en = {
   "earnings.alertsPaused": "job alerts paused",
   "earnings.topUp": "Top Up",
   "earnings.noLeadFees": "No lead fees · you keep {pct}%",
+  "earnings.foundingPro": "Founding Pro — {pct}% commission until {date}",
+  "earnings.foundingKeep": "You keep {keep}% of every job.",
   "earnings.cashExplainer": "You collect full payment from the customer. Just {pct}% commission on completed jobs, settled from your wallet.",
   "earnings.ladderNew": "New",
   "earnings.ladderVerified": "Verified",

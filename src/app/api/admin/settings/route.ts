@@ -40,6 +40,16 @@ const schema = z.object({
   storeUrlPro: z.string().trim().max(300).optional(),
   storeUrlCustomer: z.string().trim().max(300).optional(),
   minTopUpPKR: z.number().int().min(0).max(1000000).optional(),
+  proAppLive: z.boolean().optional(),
+  customerAppLive: z.boolean().optional(),
+  proTesterGroupUrl: z.string().trim().max(300).optional(),
+  proTestingOptInUrl: z.string().trim().max(300).optional(),
+  customerPreregUrl: z.string().trim().max(300).optional(),
+  signupNotifyEmail: z.string().trim().max(120).optional(),
+  foundingProSlots: z.number().int().min(0).max(100000).optional(),
+  foundingProPct: z.number().min(0).max(50).optional(),
+  foundingProMonths: z.number().int().min(1).max(36).optional(),
+  foundingProCity: z.string().trim().min(1).max(60).optional(),
   featureFlags: z
     .object({
       aiJobTriage: z.boolean(),

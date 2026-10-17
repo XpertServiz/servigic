@@ -1,9 +1,11 @@
+import { effectiveCommissionPct, getFoundingRule } from "@/lib/foundingPro";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { getPaymentMode } from "@/lib/featureFlags";
 
 export async function GET() {
+  const foundingRule = await getFoundingRule();
   const auth = await requireRole("PROVIDER");
   if (!auth.ok) return auth.response;
 
@@ -27,7 +29,9 @@ export async function GET() {
     });
 
     return NextResponse.json({
-      commissionPct: profile.commissionPct,
+      commissionPct: effectiveCommissionPct(profile, foundingRule),
+      standardCommissionPct: profile.commissionPct,
+      foundingUntil: profile.foundingUntil && profile.foundingUntil > new Date() ? profile.foundingUntil.toISOString() : null,
       dispatchStatus: profile.dispatchStatus,
       dispatchBlockedReason: profile.dispatchBlockedReason,
       profileValue,
@@ -67,7 +71,9 @@ export async function GET() {
     })),
     totalSent,
     totalQueued,
-    commissionPct: profile.commissionPct,
+    commissionPct: effectiveCommissionPct(profile, foundingRule),
+    standardCommissionPct: profile.commissionPct,
+    foundingUntil: profile.foundingUntil && profile.foundingUntil > new Date() ? profile.foundingUntil.toISOString() : null,
     profileValue,
   });
 }

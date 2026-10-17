@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notify } from "@/lib/notify";
 import { getPaymentMode } from "@/lib/featureFlags";
+import { effectiveCommissionPct, getFoundingRule } from "@/lib/foundingPro";
 
 const PAYMENT_WINDOW_HOURS = 72;
 
@@ -28,7 +29,8 @@ export async function acceptBid(bidId: string, customerId: string, opts: { admin
   }
 
   const paymentMode = await getPaymentMode();
-  const commissionPct = bid.provider.commissionPct;
+  // A Founding Pro pays the reduced rate until foundingUntil, then the standard rate again.
+  const commissionPct = effectiveCommissionPct(bid.provider, await getFoundingRule());
   // Early-pro incentive: the pro's first N jobs are commission-free (set at activation, see proActivation.ts).
   const commissionWaived = bid.provider.commissionFreeJobsLeft > 0;
   const commissionPKR = commissionWaived ? 0 : Math.round((bid.pricePKR * commissionPct) / 100);

@@ -322,6 +322,9 @@ model OtpCode {
 
 model ProviderProfile {
   tradeRequests ProviderTrade[]
+  // Founding Pro: reduced commission until this date, then the standard rate again (see src/lib/foundingPro.ts)
+  foundingUntil           DateTime?
+  foundingEndNotifiedAt   DateTime?
 
   id                  String        @id @default(cuid())
   userId              String        @unique
@@ -990,6 +993,18 @@ model SiteSettings {
   storeUrlPro               String?
   storeUrlCustomer          String?
   minTopUpPKR               Int     @default(500)
+  // Pre-launch (Admin > Settings; env PRO_APP_LIVE / CUSTOMER_APP_LIVE / PRO_TESTER_GROUP_URL ... are the fallback)
+  proAppLive                Boolean @default(false)
+  customerAppLive           Boolean @default(false)
+  proTesterGroupUrl         String?
+  proTestingOptInUrl        String?
+  customerPreregUrl         String?
+  signupNotifyEmail         String? // who gets an email on every waitlist signup
+  // Founding Pro: the first N approved pros in the city pay foundingProPct instead of the standard rate for N months
+  foundingProSlots          Int     @default(100)
+  foundingProPct            Float   @default(10)
+  foundingProMonths         Int     @default(3)
+  foundingProCity           String  @default("Karachi")
   updatedAt             DateTime @updatedAt
 }
 
@@ -1249,4 +1264,37 @@ model ProviderTrade {
 
   @@unique([providerId, trade])
   @@index([status])
+}
+
+
+// Pre-launch waitlist (website). One row per WhatsApp number; signing up again updates the row. No IP address is
+// stored: the visitor's country/region come from the hosting edge header and only that result is kept.
+model WaitlistSignup {
+  id               String    @id @default(cuid())
+  role             String // CUSTOMER | PROVIDER
+  name             String
+  whatsapp         String    @unique // E.164
+  countryCode      String // chosen by the visitor (pre-filled from the connection)
+  detectedCountry  String?
+  detectedRegion   String?
+  city             String?
+  area             String?
+  email            String?
+  trade            String?
+  experienceYears  Int?
+  gmail            String?
+  language         String
+  sourcePage       String?
+  utm              Json?
+  referredByCode   String?
+  referralCode     String    @unique
+  consentAt        DateTime
+  launchMessageSentAt DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([role])
+  @@index([countryCode])
+  @@index([createdAt])
+  @@index([referredByCode])
 }

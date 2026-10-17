@@ -303,6 +303,8 @@ export function getProviderEarnings() {
     topUps?: { id: string; amountPKR: number; status: string; createdAt: string }[];
     // Both modes
     commissionPct: number;
+    standardCommissionPct?: number;
+    foundingUntil?: string | null;
     profileValue?: { ratingAvg: number; verificationLevel: number; jobsCompleted: number };
   }>("/api/mobile/provider/earnings");
 }

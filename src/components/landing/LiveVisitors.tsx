@@ -45,7 +45,7 @@ function Metric({ label, value, accent, live }: { label: string; value: number; 
   );
 }
 
-export function LiveVisitors({ initial }: { initial: VisitorStats }) {
+export function LiveVisitors({ initial, embedded = false }: { initial: VisitorStats; embedded?: boolean }) {
   const t = useTranslations("live");
   const locale = useLocale();
   const [stats, setStats] = useState(initial);
@@ -74,7 +74,7 @@ export function LiveVisitors({ initial }: { initial: VisitorStats }) {
   const unknown = stats.countries.find((c) => c.country === "XX");
 
   return (
-    <section className="container-x py-16 md:py-24" aria-labelledby="live-title">
+    <section className={embedded ? "mt-10" : "container-x py-16 md:py-24"} aria-labelledby="live-title">
       <div className="sv-card relative overflow-hidden p-6 md:p-10">
         <div className="sv-glow pointer-events-none absolute -top-32 end-[-10%] h-[420px] w-[420px] opacity-50" aria-hidden />
         <div className="relative mb-8 flex flex-wrap items-end justify-between gap-4">

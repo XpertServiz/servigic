@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { LogoMark3D } from "@/components/brand/LogoMark3D";
+import { AppDownloadButton } from "@/components/prelaunch/AppDownloadButton";
 
 export async function FinalCta() {
   const t = await getTranslations("finalCta");
@@ -29,6 +30,7 @@ export async function FinalCta() {
             <Button href="/pro" variant="ghost" size="lg">
               {t("secondary")}
             </Button>
+            <AppDownloadButton app="customer" variant="ghost" />
           </div>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[13px] text-text-muted">
             {checks.map((c) => (

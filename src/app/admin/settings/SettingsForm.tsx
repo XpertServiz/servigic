@@ -53,6 +53,16 @@ export function SettingsForm({
     storeUrlPro: string;
     storeUrlCustomer: string;
     minTopUpPKR: number;
+    proAppLive: boolean;
+    customerAppLive: boolean;
+    proTesterGroupUrl: string;
+    proTestingOptInUrl: string;
+    customerPreregUrl: string;
+    signupNotifyEmail: string;
+    foundingProSlots: number;
+    foundingProPct: number;
+    foundingProMonths: number;
+    foundingProCity: string;
     featureFlags: FeatureFlags;
   };
 }) {
@@ -283,6 +293,80 @@ export function SettingsForm({
               />
             </div>
           ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Pre-launch &amp; launch switches</label>
+        <p className="mb-3 text-xs text-text-muted">
+          Until an app is switched live, the website shows &quot;Join the list&quot; instead of a Play Store button. Switch it on only when the app is public on Google Play and its update link above is filled in.
+          A link left empty keeps its button hidden on the website.
+        </p>
+        <div className="grid gap-3">
+          {(
+            [
+              ["proAppLive", "Servigic Pro app is live on Google Play"],
+              ["customerAppLive", "Servigic customer app is live on Google Play"],
+            ] as const
+          ).map(([key, label]) => (
+            <label key={key} className="flex items-center gap-3 text-sm">
+              <input type="checkbox" checked={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.checked })} className="h-4 w-4 accent-[var(--color-accent)]" />
+              {label}
+            </label>
+          ))}
+          {(
+            [
+              ["proTesterGroupUrl", "Pro tester group link (Google Group)"],
+              ["proTestingOptInUrl", "Pro testing opt-in link (Play testing)"],
+              ["customerPreregUrl", "Customer pre-registration link (Play)"],
+              ["signupNotifyEmail", "Email that receives a message on every waitlist signup"],
+            ] as const
+          ).map(([key, label]) => (
+            <div key={key}>
+              <label className="mb-1 block text-xs font-semibold text-text-muted">{label}</label>
+              <input
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Founding Pro offer</label>
+        <p className="mb-3 text-xs text-text-muted">
+          The first pros approved in this city pay the reduced commission for a few months, then the standard rate returns automatically. Places used so far are counted from approved pros.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              ["foundingProSlots", "Places available"],
+              ["foundingProPct", "Reduced commission (%)"],
+              ["foundingProMonths", "Months it lasts"],
+            ] as const
+          ).map(([key, label]) => (
+            <div key={key}>
+              <label className="mb-1 block text-xs font-semibold text-text-muted">{label}</label>
+              <input
+                type="number"
+                min={0}
+                step={key === "foundingProPct" ? 0.5 : 1}
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: Number(e.target.value) })}
+                className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+              />
+            </div>
+          ))}
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-text-muted">City</label>
+            <input
+              value={form.foundingProCity}
+              onChange={(e) => setForm({ ...form, foundingProCity: e.target.value })}
+              className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
+            />
+          </div>
         </div>
       </div>
 

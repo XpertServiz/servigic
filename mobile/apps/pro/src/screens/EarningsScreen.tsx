@@ -42,6 +42,9 @@ export default function EarningsScreen() {
   if (!data) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
 
   const keepPct = data.commissionPct ? 100 - data.commissionPct : 88;
+  const foundingDate = data.foundingUntil && new Date(data.foundingUntil) > new Date()
+    ? new Date(data.foundingUntil).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })
+    : null;
   const tier = Math.min(verificationLevel, LADDER_KEYS.length - 1);
   const isWallet = Boolean(data.wallet);
 
@@ -125,6 +128,13 @@ export default function EarningsScreen() {
               <View style={{ marginTop: 12 }}>
                 <Button title={t("earnings.topUp")} onPress={() => setTopUpOpen(true)} />
               </View>
+
+              {foundingDate && (
+                <View style={styles.zeroLead}>
+                  <Text style={{ color: colors.accent, fontWeight: "800", fontSize: 13 }}>{t("earnings.foundingPro", { pct: data.commissionPct, date: foundingDate })}</Text>
+                  <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 2 }}>{t("earnings.foundingKeep", { keep: keepPct })}</Text>
+                </View>
+              )}
 
               <View style={styles.zeroLead}>
                 <Text style={{ color: colors.secondary, fontWeight: "800", fontSize: 13 }}>{t("earnings.noLeadFees", { pct: keepPct })}</Text>

@@ -4,6 +4,8 @@ import { Eyebrow } from "@/components/landing/Eyebrow";
 import { HeroVisual } from "@/components/hero/HeroVisual";
 import { prisma } from "@/lib/prisma";
 import { getDemoMoney } from "@/lib/money";
+import { AppDownloadButton } from "@/components/prelaunch/AppDownloadButton";
+import { JoinListButton } from "@/components/prelaunch/JoinListButton";
 import { getLocale } from "next-intl/server";
 
 function initialsOf(name: string): string {
@@ -52,13 +54,12 @@ export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
                 {t("ctaPrimary")}
               </Button>
             ) : (
-              <Button href="#waitlist" size="lg">
-                {t("joinWaitlist")}
-              </Button>
+              <JoinListButton role="CUSTOMER" />
             )}
             <Button href="/how-it-works" variant="ghost" size="lg">
               <span aria-hidden>▶</span> {t("ctaSecondary")}
             </Button>
+            {isLive && <AppDownloadButton app="customer" variant="ghost" />}
           </div>
 
           <div className="flex items-center gap-3">

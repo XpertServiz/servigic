@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/requireRole";
 import { notify } from "@/lib/notify";
 import { evaluateProActivation } from "@/lib/proActivation";
 import { approveInitialTrades } from "@/lib/providerTrades";
+import { grantFoundingProIfEligible } from "@/lib/foundingPro";
 
 const schema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("approve") }),
@@ -44,6 +45,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     });
     // The trades a new pro signed up with are approved together with their documents.
     await approveInitialTrades(profile.id).catch((e) => console.error("[trades]", e));
+    // The first N approved pros in the launch city become Founding Pros (reduced commission for a few months).
+    await grantFoundingProIfEligible(profile.id).catch((e) => console.error("[founding]", e));
     // Supply/demand balance: approved pros start ACTIVE only if their area/trade is open and under its cap.
     const activation = await evaluateProActivation(profile.id).catch(() => "ACTIVE" as const);
     await notify({

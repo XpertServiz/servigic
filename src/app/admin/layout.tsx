@@ -19,6 +19,7 @@ const NAV = [
   { href: "/admin/durations", label: "Job Durations" },
   { href: "/admin/exchange-rates", label: "Exchange Rates" },
   { href: "/admin/markets", label: "Markets & Launch" },
+  { href: "/admin/waitlist", label: "Early list" },
   { href: "/admin/referrals", label: "Referrals" },
   { href: "/admin/trades", label: "Trade approvals" },
   { href: "/admin/locales", label: "Countries & Localization" },

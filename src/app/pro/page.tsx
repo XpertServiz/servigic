@@ -16,6 +16,7 @@ import { getDemoVideos } from "@/lib/siteVideos";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 import { getDemoMoney } from "@/lib/money";
 import type { Locale } from "@/i18n/locales";
+import { ProEarlyAccess } from "@/components/prelaunch/ProEarlyAccess";
 
 // Real count only — hidden below threshold rather than showing a fabricated
 // number (same rule ProofTicker follows: Master Brief §7A/§12, no fake stats).
@@ -62,6 +63,8 @@ export default async function ProLandingPage() {
             </Button>
           </div>
         </section>
+
+        <ProEarlyAccess />
 
         {/* Autoplay demo: set the YouTube link in Admin → Settings (pro demo video) */}
         <section className="container-x max-w-[960px] pb-8" aria-label={t("videoTitle")}>

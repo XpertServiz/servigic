@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { LIVE_CITIES } from "@/lib/markets";
 import { detectMarket } from "@/lib/geoDetect";
 import { getPaymentMode } from "@/lib/featureFlags";
-import { getVisitorStats } from "@/lib/visitors";
 import { getMoney } from "@/lib/money";
 import { pageMetadata, localBusinessJsonLd, faqJsonLd } from "@/lib/seo";
 import type { Locale } from "@/i18n/locales";
@@ -12,7 +11,6 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
 import { LiveRefresher } from "@/components/landing/LiveRefresher";
-import { LiveVisitors } from "@/components/landing/LiveVisitors";
 import { DispatchSimulation } from "@/components/landing/DispatchSimulation";
 import { CountryWaitlistSection } from "@/components/landing/CountryWaitlistSection";
 import { ProofTicker } from "@/components/landing/ProofTicker";
@@ -61,7 +59,7 @@ const PLAN_TEASER_TRADES = [
 ];
 
 export default async function LandingPage() {
-  const [whatsappNumber, categories, planCategories, market, paymentMode, visitors, tDesc, tFaq, tSim, money] = await Promise.all([
+  const [whatsappNumber, categories, planCategories, market, paymentMode, tDesc, tFaq, tSim, money] = await Promise.all([
     getWhatsappNumber(),
     prisma.serviceCategory.findMany({ select: { id: true, name: true, trade: true, icon: true }, orderBy: { name: "asc" } }),
     prisma.serviceCategory.findMany({
@@ -70,7 +68,6 @@ export default async function LandingPage() {
     }),
     detectMarket(),
     getPaymentMode(),
-    getVisitorStats(),
     getTranslations("meta.home"),
     getTranslations("faq"),
     getTranslations("sim"),
@@ -92,7 +89,6 @@ export default async function LandingPage() {
         <Hero isLive={market.isLive} />
         {!market.isLive && <CountryWaitlistSection countryCode={market.country} countryName={market.countryName} />}
         <ProofTicker />
-        <LiveVisitors initial={visitors} />
         <section className="container-x py-8 md:py-12">
           <SectionHead eyebrow={tSim("eyebrow")} title={tSim("title")} align="center" />
           <DispatchSimulation />
