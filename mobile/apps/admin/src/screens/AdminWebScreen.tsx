@@ -15,11 +15,13 @@ import { getApiBaseUrl } from "../lib/api";
 // have to open a laptop for that.
 const QUICK_LINKS: { label: string; path: string }[] = [
   { label: "Payments", path: "/admin/payments" },
+  { label: "Skills", path: "/admin/trades" },
   { label: "Disputes", path: "/admin/disputes" },
   { label: "Payouts", path: "/admin/payouts" },
   { label: "Wallets", path: "/admin/wallets" },
   { label: "Top-ups", path: "/admin/topups" },
   { label: "Flags", path: "/admin/flags" },
+  { label: "Early list", path: "/admin/waitlist" },
   { label: "Dashboard", path: "/admin" },
 ];
 

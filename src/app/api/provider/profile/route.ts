@@ -6,6 +6,7 @@ import { encodeGeohash } from "@/lib/geo";
 import { getMarkets, marketForCity } from "@/lib/marketConfig";
 import { evaluateProActivation } from "@/lib/proActivation";
 import { listTradeRequests, requestTradeSelection } from "@/lib/providerTrades";
+import { notify } from "@/lib/notify";
 
 export async function GET() {
   const auth = await requireRole("PROVIDER");
@@ -93,6 +94,23 @@ export async function PUT(req: Request) {
   if (requestedTrades) {
     const result = await requestTradeSelection(profile.id, requestedTrades, settings?.maxTradesPerPro ?? 3);
     if (!result.ok) return NextResponse.json({ error: result.error, code: result.code }, { status: 422 });
+    // An already-approved pro asking for another skill: tell the admins, so it does not sit unseen (Admin > Trade approvals).
+    if (result.pending.length > 0 && profile.trades.length > 0) {
+      const pretty = result.pending.map((t) => t.replace(/_/g, " ").toLowerCase()).join(", ");
+      const admins = await prisma.user.findMany({ where: { role: "ADMIN" }, select: { id: true } });
+      await Promise.allSettled(
+        admins.map((a) =>
+          notify({
+            userId: a.id,
+            type: "SYSTEM",
+            title: "New skill to approve",
+            body: `${profile.displayName ?? "A pro"} asked to add: ${pretty}.`,
+            linkUrl: "/admin/trades",
+            channels: ["email"],
+          })
+        )
+      );
+    }
     // Removing a trade can move a pro between ACTIVE and WAITING (market cap / trade switched off).
     await evaluateProActivation(profile.id).catch((e) => console.error("[activation]", e));
   }
