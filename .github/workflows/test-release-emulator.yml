@@ -1,0 +1,92 @@
+# Tests a built release APK: static checks (R8 really shrank/obfuscated it, sounds survived, AD_ID is present) and a
+# real run on an Android emulator (launch, sign in, walk every tab, random-input stress, crash scan).
+# Run it after "Build mobile APK" finishes: give it that run's id.
+name: Test release build (emulator)
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: "App to test"
+        required: true
+        type: choice
+        options: [pro, customer]
+      run_id:
+        description: "Id of the finished 'Build mobile APK' run (the number in its URL)"
+        required: true
+      qa_phone:
+        description: "Throwaway test account phone (optional, enables the signed-in walk)"
+        required: false
+      qa_password:
+        description: "Throwaway test account password (letters and digits only)"
+        required: false
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      PKG: ${{ inputs.app == 'pro' && 'com.servigic.pro' || 'com.servigic.customer' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download the built APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p apk out
+          gh run download "${{ inputs.run_id }}" -R "${{ github.repository }}" -n "servigic-${{ inputs.app }}-preview.apk" -D apk
+          ls -l apk
+          echo "APK=$(ls apk/*.apk | head -1)" >> "$GITHUB_ENV"
+
+      - name: Static checks (R8 shrinking, resources, permissions)
+        run: |
+          AA="$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer"
+          chmod +x "$AA" || true
+          {
+            echo "## Static checks: ${{ inputs.app }}"
+            echo '```'
+            echo "APK size: $(du -h "$APK" | cut -f1)"
+            "$AA" apk summary "$APK"
+          } | tee -a "$GITHUB_STEP_SUMMARY" out/static.txt
+          "$AA" manifest print "$APK" > out/manifest.xml
+          grep -q "com.google.android.gms.permission.AD_ID" out/manifest.xml && echo "PASS  AD_ID permission present" || { echo "FAIL  AD_ID permission missing"; exit 1; }
+          "$AA" dex packages --defined-only "$APK" > out/packages.txt || true
+          TOTAL=$(wc -l < out/packages.txt)
+          SHORT=$(awk '{print $NF}' out/packages.txt | grep -cE '^[a-z]{1,2}(\.[a-z]{1,2})*$' || true)
+          echo "dex packages: $TOTAL, obfuscated (1-2 letter) names: $SHORT"
+          [ "$SHORT" -gt 5 ] && echo "PASS  R8 obfuscation applied" || { echo "FAIL  no obfuscated package names: R8 did not run"; exit 1; }
+          grep -q "io.invertase.googlemobileads" out/packages.txt && echo "PASS  AdMob bridge classes kept" || { echo "FAIL  AdMob bridge classes missing"; exit 1; }
+          grep -q "com.google.firebase.messaging" out/packages.txt && echo "PASS  Firebase messaging classes kept" || { echo "FAIL  Firebase messaging classes missing"; exit 1; }
+          RAW=$("$AA" resources names --type raw "$APK" 2>/dev/null | wc -l)
+          echo "raw resources (notification / voice sounds): $RAW"
+          [ "$RAW" -ge 30 ] && echo "PASS  sound files survived resource shrinking" || { echo "FAIL  sounds were shrunk away"; exit 1; }
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run on an emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          ram-size: 3072M
+          disable-animations: true
+          emulator-boot-timeout: 900
+          script: python3 mobile/ci/emulator_walk.py ${{ env.PKG }} ${{ env.APK }} out ${{ inputs.qa_phone }} ${{ inputs.qa_password }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: emulator-test-${{ inputs.app }}
+          path: out
+          retention-days: 14

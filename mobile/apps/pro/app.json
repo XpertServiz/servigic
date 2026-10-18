@@ -21,7 +21,7 @@
     },
     "android": {
       "package": "com.servigic.pro",
-      "versionCode": 23,
+      "versionCode": 24,
       "adaptiveIcon": {
         "backgroundColor": "#FFB800",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -67,6 +67,17 @@
         }
       ],
       "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "extraProguardRules": "# --- Servigic release rules (R8). Kept deliberately small; the libraries ship their own consumer rules too. ---\n# Crash reports stay readable once the mapping file is uploaded.\n-keepattributes SourceFile,LineNumberTable,*Annotation*,Signature,InnerClasses,EnclosingMethod\n-renamesourcefileattribute SourceFile\n# Expo modules and Kotlin metadata are read by reflection.\n-keep class expo.modules.** { *; }\n-keep class kotlin.Metadata { *; }\n# Google Mobile Ads (AdMob) and its React Native bridge.\n-keep class io.invertase.googlemobileads.** { *; }\n-keep class com.google.android.gms.ads.** { *; }\n-dontwarn com.google.android.gms.ads.**\n# Firebase Cloud Messaging (push) and Google Play services.\n-keep class com.google.firebase.messaging.** { *; }\n-keep class com.google.firebase.iid.** { *; }\n-keep class com.google.firebase.installations.** { *; }\n-keep class com.google.android.gms.common.** { *; }\n-dontwarn com.google.firebase.**\n-dontwarn com.google.android.gms.**\n# Maps\n-keep class com.rnmaps.** { *; }\n-keep class com.google.android.gms.maps.** { *; }\n# Networking libraries that reference optional classes\n-dontwarn okhttp3.**\n-dontwarn okio.**\n"
+          }
+        }
+      ],
+      "./plugins/withKeepRawResources",
       "expo-localization",
       [
         "expo-splash-screen",
