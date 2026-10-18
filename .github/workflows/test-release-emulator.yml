@@ -53,8 +53,8 @@ jobs:
             echo "APK size: $(du -h "$APK" | cut -f1)"
             "$AA" apk summary "$APK"
           } | tee -a "$GITHUB_STEP_SUMMARY" out/static.txt
-          "$AA" manifest print "$APK" > out/manifest.xml
-          grep -q "com.google.android.gms.permission.AD_ID" out/manifest.xml && echo "PASS  AD_ID permission present" || { echo "FAIL  AD_ID permission missing"; exit 1; }
+          "$AA" manifest permissions "$APK" > out/permissions.txt
+          grep -q "com.google.android.gms.permission.AD_ID" out/permissions.txt && echo "PASS  AD_ID permission present" || { echo "FAIL  AD_ID permission missing"; exit 1; }
           "$AA" dex packages --defined-only "$APK" > out/packages.txt || true
           TOTAL=$(wc -l < out/packages.txt)
           SHORT=$(awk '{print $NF}' out/packages.txt | grep -cE '^[a-z]{1,2}(\.[a-z]{1,2})*$' || true)
@@ -62,9 +62,13 @@ jobs:
           [ "$SHORT" -gt 5 ] && echo "PASS  R8 obfuscation applied" || { echo "FAIL  no obfuscated package names: R8 did not run"; exit 1; }
           grep -q "io.invertase.googlemobileads" out/packages.txt && echo "PASS  AdMob bridge classes kept" || { echo "FAIL  AdMob bridge classes missing"; exit 1; }
           grep -q "com.google.firebase.messaging" out/packages.txt && echo "PASS  Firebase messaging classes kept" || { echo "FAIL  Firebase messaging classes missing"; exit 1; }
-          RAW=$("$AA" resources names --type raw "$APK" 2>/dev/null | wc -l)
-          echo "raw resources (notification / voice sounds): $RAW"
-          [ "$RAW" -ge 30 ] && echo "PASS  sound files survived resource shrinking" || { echo "FAIL  sounds were shrunk away"; exit 1; }
+          # Resource shrinking shortens file paths (res/xx.wav) but keeps the names in resources.arsc: count the files and
+          # check a few well-known sound names are still there.
+          SND=$(unzip -l "$APK" | grep -cE '\.(wav|ogg)$' || true)
+          echo "sound files in the APK: $SND"
+          unzip -p "$APK" resources.arsc | strings > out/arsc-strings.txt
+          for n in new_job_alert bid_accepted new_bid; do grep -q "$n" out/arsc-strings.txt && echo "PASS  sound resource $n present" || { echo "FAIL  sound resource $n missing"; exit 1; }; done
+          [ "$SND" -ge 30 ] && echo "PASS  sound files survived resource shrinking" || { echo "FAIL  sounds were shrunk away"; exit 1; }
 
       - name: Enable KVM
         run: |
