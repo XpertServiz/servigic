@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { sendWhatsappChannel } from "@/lib/notify/channels/whatsapp";
 import { sendSmsChannel } from "@/lib/notify/channels/sms";
 import { sendEmailChannel } from "@/lib/notify/channels/email";
+import { otpEmail } from "@/lib/notify/otpEmail";
 
 const OTP_TTL_MINUTES = 10;
 
@@ -20,6 +21,9 @@ export async function issueOtp(userId: string, phone: string, purpose = "PHONE_V
   const body = reset
     ? `Your Servigic password reset code is ${code}. It expires in ${OTP_TTL_MINUTES} minutes. If you did not ask for it, ignore this message.`
     : `Your Servigic verification code is ${code}. It expires in ${OTP_TTL_MINUTES} minutes.`;
+  // The email is a branded card with the code in boxes, in the user's language (English underneath).
+  const owner = await prisma.user.findUnique({ where: { id: userId }, select: { language: true } }).catch(() => null);
+  const mail = otpEmail({ code, minutes: OTP_TTL_MINUTES, reset, language: owner?.language });
   await Promise.allSettled([
     // Business-started WhatsApp messages must be an approved template (an "authentication" template with a copy-code button).
     sendWhatsappChannel({
@@ -29,7 +33,7 @@ export async function issueOtp(userId: string, phone: string, purpose = "PHONE_V
       template: { nameEnv: "WHATSAPP_TEMPLATE_OTP", defaultName: "servigic_otp", bodyParams: [code], buttonParam: code, buttonKind: "otp" },
     }),
     sendSmsChannel({ to: phone, body }),
-    email ? sendEmailChannel({ to: email, subject: title, body }) : Promise.resolve(),
+    email ? sendEmailChannel({ to: email, subject: mail.subject, body: mail.text, html: mail.html }) : Promise.resolve(),
   ]);
 
   // Dev/local fallback: no channel is configured yet, so surface the code in

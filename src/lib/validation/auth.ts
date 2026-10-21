@@ -27,12 +27,9 @@ export const registerSchema = z.object({
   country: z.string().trim().length(2).optional(),
   // Typed twice on every sign-up form to catch typos; checked here as well when a client sends it.
   confirmPassword: z.string().optional(),
-  // Optional: the redesigned customer sign-up only asks for name + phone +
-  // password. Providers still send one from their own sign-up form.
-  email: z
-    .union([z.string().trim().email("Enter a valid email address"), z.literal("")])
-    .optional()
-    .transform((v) => v || undefined),
+  // Mandatory for customers and pros: the verification code is sent to this email as well as to WhatsApp / SMS, so a person whose
+  // phone code does not arrive can still get in.
+  email: z.string().trim().email("Enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   city: z.string().trim().min(2).optional(),
   // Referral programme: the code the new user was given, and an id for the phone (Android ID) so repeat
