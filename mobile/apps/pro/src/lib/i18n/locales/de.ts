@@ -105,6 +105,8 @@ export const de: Partial<Record<TKey, string>> = {
   "jobs.offlineBody": "Geh auf der Startseite online, um Benachrichtigungen zu erhalten.",
   "jobs.emptyTitle": "Gerade keine passenden Aufträge",
   "jobs.emptySubtitle": "Wir benachrichtigen dich, sobald einer verfügbar ist.",
+  "jobs.launchingSoon": "Bald verfügbar in {area}",
+  "jobs.launchingSoonSub": "Vervollständige jetzt dein Profil und die Verifizierung. Die ersten Auftragsmeldungen kommen am Tag, an dem dein Gebiet startet.",
   "jobs.viewAndBid": "Ansehen & bieten",
   "jobs.bidSent": "Angebot gesendet · wird geprüft…",
   "jobs.noBooked": "Keine gebuchten Aufträge",

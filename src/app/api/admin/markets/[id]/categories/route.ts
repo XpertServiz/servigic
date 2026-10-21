@@ -15,6 +15,7 @@ const schema = z.object({
       trade: z.nativeEnum(Trade),
       enabled: z.boolean(),
       maxActivePros: z.number().int().min(0).max(100000).nullable(),
+      targetPros: z.number().int().min(0).max(100000).optional(),
     }),
   ),
 });
@@ -34,8 +35,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     parsed.data.categories.map((c) =>
       prisma.marketCategory.upsert({
         where: { marketId_trade: { marketId: id, trade: c.trade } },
-        update: { enabled: c.enabled, maxActivePros: c.maxActivePros },
-        create: { marketId: id, trade: c.trade, enabled: c.enabled, maxActivePros: c.maxActivePros },
+        update: { enabled: c.enabled, maxActivePros: c.maxActivePros, ...(c.targetPros != null ? { targetPros: c.targetPros } : {}) },
+        create: { marketId: id, trade: c.trade, enabled: c.enabled, maxActivePros: c.maxActivePros, ...(c.targetPros != null ? { targetPros: c.targetPros } : {}) },
       }),
     ),
   );

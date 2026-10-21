@@ -7,6 +7,7 @@ import { toE164 } from "@/lib/phone";
 import { getPrelaunchConfig, randomWaitlistCode, FORM_COUNTRIES, WAITLIST_TRADES, TRADE_LABELS } from "@/lib/prelaunch";
 import { isLocale } from "@/i18n/locales";
 import { sendEmailChannel } from "@/lib/notify/channels/email";
+import { logLeadActivity, upsertLead } from "@/lib/leads";
 
 // Public waitlist signup. Spam protection: a hidden honeypot field and a small in-memory rate limit keyed by a salted
 // hash of the connection (the IP itself is never stored anywhere). The visitor's country/region come from the hosting
@@ -84,7 +85,9 @@ export async function POST(req: Request) {
   // Referral: the code must be a real one, and never your own number's code.
   const refCode = d.ref ? d.ref.toUpperCase() : null;
   const referrer = refCode ? await prisma.waitlistSignup.findUnique({ where: { referralCode: refCode }, select: { whatsapp: true } }) : null;
-  const referredByCode = referrer && referrer.whatsapp !== whatsapp ? refCode : null;
+  // A "LD…" code is a Pro lead's own join link (Pro CRM), not another waitlist member's referral code.
+  const leadRef = refCode && refCode.startsWith("LD") ? await prisma.lead.findUnique({ where: { refCode }, select: { id: true, status: true } }) : null;
+  const referredByCode = (referrer && referrer.whatsapp !== whatsapp) || leadRef ? refCode : null;
 
   const fields = {
     role: d.role,
@@ -126,6 +129,22 @@ export async function POST(req: Request) {
       }
     }
     referralCode = created!.referralCode;
+  }
+
+  // Pro CRM: every Pro who joins the early list is a lead too (same phone = same lead; consent is given on the form).
+  if (isPro) {
+    const trades = d.trade && d.trade !== "OTHER" ? [d.trade as never] : [];
+    const r = await upsertLead({
+      name: d.name, phone: whatsapp, countryCode: d.countryCode, cityName: d.city ?? null, areaRaw: d.area ?? null, trades,
+      skills: d.trade === "OTHER" ? "Other (from the early-list form)" : null, experienceYears: d.experienceYears ?? null, language, source: "WAITLIST", sourceDetail: d.sourcePage ?? null, consent: "yes",
+    }).catch((e) => {
+      console.error("[leads]", e);
+      return null;
+    });
+    if (r && leadRef) {
+      await logLeadActivity(r.id, { kind: "SYSTEM", note: "Joined the early list through his join link" });
+      if (["NEW", "CONTACTED", "INVITED"].includes(leadRef.status)) await prisma.lead.update({ where: { id: leadRef.id }, data: { status: "INTERESTED" } }).catch(() => null);
+    }
   }
 
   // A message to the team on every signup (new or updated).

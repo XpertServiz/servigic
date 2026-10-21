@@ -105,6 +105,8 @@ export const fr: Partial<Record<TKey, string>> = {
   "jobs.offlineBody": "Passez en ligne depuis l'accueil pour recevoir des alertes.",
   "jobs.emptyTitle": "Aucune mission correspondante pour l'instant",
   "jobs.emptySubtitle": "Nous vous préviendrons dès qu'une mission apparaît.",
+  "jobs.launchingSoon": "Bientôt disponible à {area}",
+  "jobs.launchingSoonSub": "Complétez dès maintenant votre profil et votre vérification. Vous recevrez vos premières alertes le jour du lancement dans votre zone.",
   "jobs.viewAndBid": "Voir et proposer",
   "jobs.bidSent": "Offre envoyée · en cours d'examen…",
   "jobs.noBooked": "Aucune mission réservée",

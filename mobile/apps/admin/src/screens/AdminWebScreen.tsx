@@ -21,6 +21,8 @@ const QUICK_LINKS: { label: string; path: string }[] = [
   { label: "Wallets", path: "/admin/wallets" },
   { label: "Top-ups", path: "/admin/topups" },
   { label: "Flags", path: "/admin/flags" },
+  { label: "Pro Leads", path: "/admin/pro-leads" },
+  { label: "Zones", path: "/admin/zones" },
   { label: "Early list", path: "/admin/waitlist" },
   { label: "Dashboard", path: "/admin" },
 ];

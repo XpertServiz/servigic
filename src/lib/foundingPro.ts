@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notify } from "@/lib/notify";
 import { foundingText } from "@/lib/foundingTexts";
+import { getMarkets, marketForPoint } from "@/lib/marketConfig";
 
 // Founding Pro (business rule): the first N approved pros in the launch city (default 100, Karachi) pay a reduced
 // commission (default 10%) for M months (default 3) from their approval date; after that the standard rate (their
@@ -36,7 +37,15 @@ export async function grantFoundingProIfEligible(profileId: string, now = new Da
   const profile = await prisma.providerProfile.findUnique({ where: { id: profileId }, include: { user: { select: { id: true, city: true, language: true } } } });
   if (!profile || profile.foundingUntil) return false;
   const { left, rule } = await foundingSlotsLeft();
-  if (left <= 0 || !profile.user.city || profile.user.city.trim().toLowerCase() !== rule.city.trim().toLowerCase()) return false;
+  if (left <= 0) return false;
+  // The Pro's home/shop pin must sit inside a zone of the launch city; with no pin yet, his city name decides.
+  const want = rule.city.trim().toLowerCase();
+  if (profile.baseLat != null && profile.baseLng != null) {
+    const zone = marketForPoint(await getMarkets({ fresh: true }), { lat: profile.baseLat, lng: profile.baseLng }, profile.user.city);
+    if (!zone || !(zone.name.trim().toLowerCase() === want || zone.cities.some((c) => c.trim().toLowerCase() === want))) return false;
+  } else if (!profile.user.city || profile.user.city.trim().toLowerCase() !== want) {
+    return false;
+  }
 
   const until = new Date(now);
   until.setMonth(until.getMonth() + rule.months);

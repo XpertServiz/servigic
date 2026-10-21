@@ -126,6 +126,8 @@ export const en = {
   "jobs.offlineBody": "Go online from Home to receive alerts.",
   "jobs.emptyTitle": "No matching jobs right now",
   "jobs.emptySubtitle": "We'll alert you the moment one opens up.",
+  "jobs.launchingSoon": "Launching soon in {area}",
+  "jobs.launchingSoonSub": "Finish your profile and verification now. You will get your first job alerts the day your area goes live.",
   "jobs.viewAndBid": "View & bid",
   "jobs.bidSent": "Bid sent · reviewing…",
   "jobs.noBooked": "No booked jobs",

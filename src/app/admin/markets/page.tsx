@@ -50,6 +50,7 @@ export default async function AdminMarketsPage() {
       currency: m.currency,
       phoneCode: m.phoneCode,
       timezone: m.timezone,
+      launchDate: m.launchDate ? m.launchDate.toISOString().slice(0, 10) : "",
       polygons: parsePolygons(m.polygons),
       center: ((): [number, number] => {
         const c = m.cities.map((x) => cityCenter(x)).find(Boolean);
@@ -58,7 +59,7 @@ export default async function AdminMarketsPage() {
       waiting: waitlist.filter((w) => w.marketId === m.id && !w.notifiedAt).length,
       activePros: inMarket.filter((p) => p.activation === "ACTIVE").length,
       waitingPros: inMarket.filter((p) => p.activation === "WAITING").length,
-      categories: Object.fromEntries(m.categories.map((c) => [c.trade, { enabled: c.enabled, maxActivePros: c.maxActivePros }])),
+      categories: Object.fromEntries(m.categories.map((c) => [c.trade, { enabled: c.enabled, maxActivePros: c.maxActivePros, targetPros: c.targetPros }])),
       perTrade,
     };
   });

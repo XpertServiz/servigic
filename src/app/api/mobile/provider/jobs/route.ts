@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { findJobsForProvider } from "@/lib/dispatch";
+import { getMarkets, marketForPoint, acceptsJobs, tradeEnabled } from "@/lib/marketConfig";
+import { loadAreas, matchAreaByPoint, matchAreaByText } from "@/lib/areas";
 
 export async function GET() {
   const auth = await requireRole("PROVIDER");
@@ -11,6 +13,23 @@ export async function GET() {
   if (!profile) return NextResponse.json({ jobs: [] });
 
   const jobs = profile.trades.length > 0 ? await findJobsForProvider(profile.id) : [];
+
+  // "Launching soon in {area}": the Pro's home/shop pin is not (yet) inside a live zone that offers any of his trades.
+  // He can still register and verify; his feed just says so instead of looking empty.
+  let launchingSoon: { area: string } | null = null;
+  if (profile.trades.length > 0) {
+    const [markets, user] = await Promise.all([getMarkets(), prisma.user.findUnique({ where: { id: profile.userId }, select: { city: true } })]);
+    if (markets.length > 0) {
+      const pin = profile.baseLat != null && profile.baseLng != null ? { lat: profile.baseLat, lng: profile.baseLng } : null;
+      const zone = pin ? marketForPoint(markets, pin, user?.city) : null;
+      const live = Boolean(zone && acceptsJobs(zone) && profile.trades.some((t) => tradeEnabled(zone, t)));
+      if (!live && (pin || user?.city)) {
+        const areas = await loadAreas();
+        const area = (pin ? matchAreaByPoint(pin.lat, pin.lng, areas) : null) ?? matchAreaByText(user?.city, areas);
+        launchingSoon = { area: area?.name ?? user?.city ?? zone?.name ?? "your area" };
+      }
+    }
+  }
 
   return NextResponse.json({
     jobs: jobs.map((job) => ({
@@ -31,5 +50,6 @@ export async function GET() {
     })),
     isOnline: profile.isOnline,
     boostedUntil: profile.visibilityBoostUntil,
+    launchingSoon,
   });
 }

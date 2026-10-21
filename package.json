@@ -24,6 +24,7 @@
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
+    "exceljs": "^4.4.0",
     "jose": "^6.2.3",
     "leaflet": "^1.9.4",
     "libphonenumber-js": "^1.13.15",

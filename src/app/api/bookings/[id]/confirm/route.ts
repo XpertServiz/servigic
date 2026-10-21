@@ -1,3 +1,4 @@
+import { syncLeadForUser } from "@/lib/leads";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
@@ -39,6 +40,10 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
         ]
       : []),
   ]);
+
+  // Pro CRM: a Pro with a completed job is "active" (matched to his lead by phone).
+  const doer = await prisma.providerProfile.findUnique({ where: { id: booking.providerId }, select: { userId: true } });
+  if (doer) await syncLeadForUser(doer.userId, "ACTIVE").catch((e) => console.error("[leads]", e));
 
   if (paymentMode === "CASH_WALLET") {
     // Commission debt is recognized here, at completion — not at bid

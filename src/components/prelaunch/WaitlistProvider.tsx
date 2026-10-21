@@ -28,7 +28,7 @@ function CaptureAttribution() {
     try {
       const q = new URLSearchParams(window.location.search);
       const ref = q.get("ref");
-      if (ref && /^WL[A-Za-z0-9]{6}$/.test(ref)) localStorage.setItem("sv_wl_ref", ref.toUpperCase());
+      if (ref && /^(WL|LD)[A-Za-z0-9]{6}$/.test(ref)) localStorage.setItem("sv_wl_ref", ref.toUpperCase());
       const utm: Record<string, string> = {};
       q.forEach((v, k) => {
         if (k.startsWith("utm_")) utm[k] = v.slice(0, 200);

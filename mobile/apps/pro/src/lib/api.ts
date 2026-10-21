@@ -228,6 +228,8 @@ export function getProviderJobFeed() {
     }[];
     isOnline: boolean;
     boostedUntil?: string | null;
+    // Set while the Pro's area is not live yet (the job list then says "Launching soon in {area}").
+    launchingSoon?: { area: string } | null;
   }>("/api/mobile/provider/jobs");
 }
 

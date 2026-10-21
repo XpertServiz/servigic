@@ -117,6 +117,8 @@ export const ar: Partial<Record<TKey, string>> = {
   "jobs.offlineBody": "اتصل من الرئيسية لتلقي التنبيهات.",
   "jobs.emptyTitle": "لا توجد طلبات مطابقة الآن",
   "jobs.emptySubtitle": "سننبهك فور توفر طلب جديد.",
+  "jobs.launchingSoon": "قريبًا في {area}",
+  "jobs.launchingSoonSub": "أكمل ملفك والتحقق الآن. ستصلك أول تنبيهات الوظائف يوم إطلاق منطقتك.",
   "jobs.viewAndBid": "عرض وتقديم عرض",
   "jobs.bidSent": "تم إرسال العرض · قيد المراجعة…",
   "jobs.noBooked": "لا توجد طلبات محجوزة",

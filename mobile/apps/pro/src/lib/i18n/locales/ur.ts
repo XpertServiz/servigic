@@ -117,6 +117,8 @@ export const ur: Partial<Record<TKey, string>> = {
   "jobs.offlineBody": "الرٹس حاصل کرنے کے لیے ہوم سے آن لائن ہوں۔",
   "jobs.emptyTitle": "ابھی کوئی مناسب کام نہیں",
   "jobs.emptySubtitle": "کام آتے ہی ہم آپ کو اطلاع دیں گے۔",
+  "jobs.launchingSoon": "جلد {area} میں شروع ہو رہا ہے",
+  "jobs.launchingSoonSub": "ابھی اپنی پروفائل اور تصدیق مکمل کریں۔ آپ کے علاقے میں شروع ہوتے ہی پہلی جاب الرٹس ملیں گے۔",
   "jobs.viewAndBid": "دیکھیں اور بولی لگائیں",
   "jobs.bidSent": "بولی بھیج دی گئی · جائزہ جاری…",
   "jobs.noBooked": "کوئی بک شدہ کام نہیں",

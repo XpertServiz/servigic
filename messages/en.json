@@ -600,6 +600,7 @@
     ],
     "privacyTitle": "Privacy Policy",
     "privacyWaitlist": {"title": "Early-list signups", "desc": "When you join the early list we collect your name, WhatsApp number, email (optional), city and area, and for pros also your trade, years of experience and Gmail address. We use this only to send you launch updates and early access. To opt out, reply STOP to any WhatsApp message or use the link in our emails. We detect your country from your connection to show you the right page; we do not store your IP address."},
+    "privacyLeads": {"title": "Pro lead data (inviting service providers)", "desc": "To invite skilled tradespeople to join Servigic we keep a business contact record: name, phone number, trade, area, shop name and where we found the contact (for example a public listing, a market visit, a referral or the early list). We use it only to invite you to register as a Pro. We contact people one to one, never in bulk. Reply STOP or tell us and we stop at once and leave you out of every list; you can also ask us to delete your record completely."},
     "privacy": [
       {
         "title": "Data we collect",

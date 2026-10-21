@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { RoleControl } from "./RoleControl";
+import { LevelControl } from "./LevelControl";
+import { getAdminAccess } from "@/lib/adminAccess";
 
 const ROLE_COLORS: Record<string, string> = {
   CUSTOMER: "text-accent border-accent/30 bg-accent/10",
@@ -11,6 +13,7 @@ const ROLE_COLORS: Record<string, string> = {
 
 export default async function AdminUsersPage() {
   const [users, session] = await Promise.all([prisma.user.findMany({ orderBy: { createdAt: "desc" }, take: 200 }), auth()]);
+  const mine = await getAdminAccess(session?.user?.id);
 
   return (
     <div>
@@ -29,6 +32,7 @@ export default async function AdminUsersPage() {
               <th className="p-4">City</th>
               <th className="p-4">Role</th>
               <th className="p-4">Change role</th>
+              <th className="p-4">Admin level</th>
               <th className="p-4">Verified</th>
               <th className="p-4">Joined</th>
             </tr>
@@ -45,6 +49,7 @@ export default async function AdminUsersPage() {
                 <td className="p-4">
                   <RoleControl userId={u.id} role={u.role} isSelf={u.id === session?.user?.id} />
                 </td>
+                <td className="p-4">{u.role === "ADMIN" ? <LevelControl userId={u.id} level={u.adminLevel} editable={mine.level === "super_admin" && u.id !== session?.user?.id} /> : <span className="text-xs text-text-muted">—</span>}</td>
                 <td className="p-4 text-text-muted">{u.phoneVerified ? "✓" : "—"}</td>
                 <td className="p-4 text-text-muted">{u.createdAt.toLocaleDateString()}</td>
               </tr>

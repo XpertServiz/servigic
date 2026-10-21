@@ -16,10 +16,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
 
   try {
-    const { polygons, ...rest } = parsed.data;
+    const { polygons, launchDate, ...rest } = parsed.data;
     const market = await prisma.market.update({
       where: { id },
-      data: { ...rest, ...(polygons !== undefined ? { polygons: polygons.length ? polygons : Prisma.DbNull } : {}) },
+      data: { ...rest, ...(launchDate !== undefined ? { launchDate: launchDate ? new Date(launchDate) : null } : {}), ...(polygons !== undefined ? { polygons: polygons.length ? polygons : Prisma.DbNull } : {}) },
     });
     bustMarketCache();
     // Opening a market (or changing its cities/status) can free up waiting pros; the cache bust above

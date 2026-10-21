@@ -22,12 +22,13 @@ interface MarketView {
   currency: string;
   phoneCode: string;
   timezone: string;
+  launchDate: string;
   polygons: Ring[];
   center: [number, number];
   waiting: number;
   activePros: number;
   waitingPros: number;
-  categories: Record<string, { enabled: boolean; maxActivePros: number | null }>;
+  categories: Record<string, { enabled: boolean; maxActivePros: number | null; targetPros: number }>;
   perTrade: Record<string, { active: number; waiting: number }>;
 }
 interface WaitlistRow {
@@ -75,10 +76,11 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
     currency: market.currency,
     phoneCode: market.phoneCode,
     timezone: market.timezone,
+    launchDate: market.launchDate,
   });
   const [polygons, setPolygons] = useState<Ring[]>(market.polygons);
-  const [matrix, setMatrix] = useState<Record<string, { enabled: boolean; maxActivePros: string }>>(
-    Object.fromEntries(allTrades.map((t) => [t, { enabled: market.categories[t]?.enabled ?? false, maxActivePros: market.categories[t]?.maxActivePros?.toString() ?? "" }])),
+  const [matrix, setMatrix] = useState<Record<string, { enabled: boolean; maxActivePros: string; targetPros: string }>>(
+    Object.fromEntries(allTrades.map((t) => [t, { enabled: market.categories[t]?.enabled ?? false, maxActivePros: market.categories[t]?.maxActivePros?.toString() ?? "", targetPros: String(market.categories[t]?.targetPros ?? 10) }])),
   );
   const [open, setOpen] = useState(market.enabled);
   const [busy, setBusy] = useState(false);
@@ -86,7 +88,7 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
   async function saveMarket() {
     setBusy(true);
     try {
-      const data = await call(`/api/admin/markets/${market.id}`, "PUT", { ...form, polygons, cities: form.cities.split(",").map((s) => s.trim()).filter(Boolean) });
+      const data = await call(`/api/admin/markets/${market.id}`, "PUT", { ...form, launchDate: form.launchDate || null, polygons, cities: form.cities.split(",").map((s) => s.trim()).filter(Boolean) });
       const bits = [data.activated ? `${plural(data.activated, "waiting pro", "waiting pros")} activated` : "", data.notified ? `${plural(data.notified, "waiting customer", "waiting customers")} notified` : ""].filter(Boolean);
       toast.success(bits.length ? `Saved. ${bits.join(", ")}.` : "Market saved");
       router.refresh();
@@ -101,7 +103,7 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
     try {
       const categories = allTrades
         .filter((t) => matrix[t].enabled || market.categories[t])
-        .map((t) => ({ trade: t, enabled: matrix[t].enabled, maxActivePros: matrix[t].maxActivePros === "" ? null : Number(matrix[t].maxActivePros) }));
+        .map((t) => ({ trade: t, enabled: matrix[t].enabled, maxActivePros: matrix[t].maxActivePros === "" ? null : Number(matrix[t].maxActivePros), targetPros: matrix[t].targetPros === "" ? 10 : Number(matrix[t].targetPros) }));
       const data = await call(`/api/admin/markets/${market.id}/categories`, "PUT", { categories });
       const bits = [data.activated ? `${data.activated} waiting pro(s) activated` : "", data.notified ? `${data.notified} waiting customer(s) notified` : ""].filter(Boolean);
       toast.success(bits.length ? `Saved. ${bits.join(", ")}.` : "Categories saved");
@@ -157,6 +159,10 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
                 ))}
               </select>
             </label>
+            <label className="text-xs text-text-muted">
+              Launch date
+              <input type="date" className={input} value={form.launchDate} onChange={(e) => setForm({ ...form, launchDate: e.target.value })} />
+            </label>
             <label className="flex items-end gap-2 pb-2 text-sm font-semibold">
               <input type="checkbox" className="h-5 w-5 accent-secondary" checked={form.enabled} onChange={(e) => setForm({ ...form, enabled: e.target.checked })} />
               Enabled
@@ -209,6 +215,7 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
                   <th className="p-3">Active pros</th>
                   <th className="p-3">Waiting</th>
                   <th className="p-3">Cap on active pros (blank = no cap)</th>
+                  <th className="p-3">Target Pros</th>
                 </tr>
               </thead>
               <tbody>
@@ -222,6 +229,9 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
                     <td className="p-3 text-text-muted">{market.perTrade[t]?.waiting ?? 0}</td>
                     <td className="p-3">
                       <input type="number" min={0} className={`${input} max-w-[120px]`} value={matrix[t].maxActivePros} onChange={(e) => setMatrix({ ...matrix, [t]: { ...matrix[t], maxActivePros: e.target.value } })} />
+                    </td>
+                    <td className="p-3">
+                      <input type="number" min={0} className={`${input} max-w-[90px]`} value={matrix[t].targetPros} onChange={(e) => setMatrix({ ...matrix, [t]: { ...matrix[t], targetPros: e.target.value } })} />
                     </td>
                   </tr>
                 ))}

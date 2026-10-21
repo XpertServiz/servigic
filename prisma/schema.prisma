@@ -215,15 +215,25 @@ enum LeadSource {
   GOOGLE_PLACES
   MANUAL
   REFERRAL
+  WAITLIST
+  APP
+  IMPORT
+  PRO_REFERRAL
 }
 
 enum LeadStatus {
   NEW
   CONTACTED
   INTERESTED
-  ONBOARDED
+  ONBOARDED // legacy: treated as REGISTERED
   NOT_INTERESTED
   CALLBACK
+  INVITED
+  REGISTERED
+  VERIFIED
+  ACTIVE
+  WRONG_NUMBER
+  DO_NOT_CONTACT
 }
 
 enum DisputeResolution {
@@ -259,6 +269,8 @@ model User {
   phone         String   @unique
   phoneVerified Boolean  @default(false)
   passwordHash  String
+  // Staff level for ADMIN accounts: super_admin | growth_admin may export and see full phone numbers; admin sees masked numbers and cannot export.
+  adminLevel    String   @default("super_admin")
   avatarUrl     String?
   city          String?
   language      Language @default(en)
@@ -903,13 +915,121 @@ model Lead {
   source       LeadSource @default(MANUAL)
   status       LeadStatus @default(NEW)
   outreachLog  Json       @default("[]")
-  callbackDate DateTime?
+  callbackDate DateTime? // next follow-up
   notes        String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
+  // Zones & leads spec: where the lead is, what he does, how we got him, and whether we may contact him.
+  countryCode     String    @default("PK")
+  cityId          String?
+  areaId          String?
+  zoneId          String? // computed from the pin (Market id)
+  areaRaw         String? // the text as it arrived, before matching
+  addressText     String?
+  lat             Float?
+  lng             Float?
+  trades          Trade[]   @default([])
+  skills          String?
+  experienceYears Int?
+  altPhone        String?
+  whatsappSame    Boolean   @default(true)
+  sourceDetail    String?
+  sources         String[]  @default([]) // every source that ever supplied this phone
+  language        String?
+  consent         String    @default("unknown") // unknown | yes | no
+  consentAt       DateTime?
+  doNotContact    Boolean   @default(false)
+  ownerId         String?
+  proUserId       String? // set once he registers in the Pro app
+  refCode         String?   @unique // carried by his join link
+  lastContactedAt DateTime?
+
   @@index([status])
   @@index([trade, city])
+  @@index([areaId])
+  @@index([zoneId])
+  @@index([countryCode])
+  @@index([callbackDate])
+  @@index([doNotContact])
+}
+
+// One row per contact attempt / status change on a lead (who did what, when).
+model LeadActivity {
+  id        String   @id @default(cuid())
+  leadId    String
+  adminId   String?
+  adminName String?
+  kind      String // CALL | WHATSAPP | NOTE | STATUS | SYSTEM | IMPORT
+  outcome   String?
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([leadId, createdAt])
+}
+
+// Every export of personal data: who, when, which filter, how many rows.
+model ExportAudit {
+  id        String   @id @default(cuid())
+  adminId   String
+  adminName String
+  resource  String // leads | pros | waitlist
+  format    String // csv | xlsx
+  filter    Json
+  columns   String[]
+  rowCount  Int
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model SavedFilter {
+  id        String   @id @default(cuid())
+  adminId   String
+  resource  String
+  name      String
+  filter    Json
+  createdAt DateTime @default(now())
+
+  @@index([adminId, resource])
+}
+
+// Remembered column mapping for an import source (OLX file, market-visit sheet...).
+model ImportMapping {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  mapping   Json
+  updatedAt DateTime @updatedAt
+}
+
+// Location master data: country (LocaleConfig) -> city -> area. Area names and aliases are what free-text
+// addresses are matched against.
+model City {
+  id          String  @id @default(cuid())
+  countryCode String
+  name        String
+  lat         Float?
+  lng         Float?
+  status      String  @default("waitlist") // hidden | waitlist | live
+
+  areas Area[]
+
+  @@unique([countryCode, name])
+}
+
+model Area {
+  id      String   @id @default(cuid())
+  cityId  String
+  city    City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  name    String
+  aliases String[] @default([])
+  lat     Float?
+  lng     Float?
+  polygon Json?
+  status  String   @default("waitlist")
+
+  @@unique([cityId, name])
+  @@index([cityId])
 }
 
 // Waitlist capture only for now — Competitive Edge Addendum §2.7/§3.6:
@@ -1051,6 +1171,8 @@ model LocaleConfig {
   legalDisclaimer     String   @default("")
   isLive              Boolean  @default(false)
   citiesLive          String[] @default([])
+  // hidden (no sign-ups) | waitlist (sign-ups and leads only) | live (zones can go live)
+  marketStatus        String   @default("waitlist")
   updatedAt           DateTime @updatedAt
 }
 
@@ -1111,6 +1233,7 @@ model Market {
   // Geofence drawn on the admin map: an array of polygons, each an array of [lat, lng] points. When present, a
   // job/GPS point belongs to this zone only if it falls inside one of them (city names are then ignored).
   polygons    Json?
+  launchDate  DateTime?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
@@ -1127,6 +1250,8 @@ model MarketCategory {
   enabled       Boolean @default(true)
   // Admin cap on ACTIVE pros for this trade in this market (null = no cap).
   maxActivePros Int?
+  // Recruiting goal for this zone and trade (the zone dashboard shows active Pros against it).
+  targetPros    Int     @default(10)
 
   @@unique([marketId, trade])
 }

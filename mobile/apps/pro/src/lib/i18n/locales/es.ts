@@ -101,6 +101,8 @@ export const es: Partial<Record<TKey, string>> = {
   "jobs.done": "Hechos",
   "jobs.offlineTitle": "Estás desconectado",
   "jobs.emptyTitle": "No hay trabajos que coincidan ahora",
+  "jobs.launchingSoon": "Próximamente en {area}",
+  "jobs.launchingSoonSub": "Completa ahora tu perfil y verificación. Recibirás tus primeras alertas el día que se abra tu zona.",
   "jobs.viewAndBid": "Ver y ofertar",
   "jobs.bidSent": "Oferta enviada · en revisión…",
   "jobs.noBooked": "Sin trabajos reservados",

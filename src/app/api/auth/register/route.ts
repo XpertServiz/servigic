@@ -1,3 +1,4 @@
+import { syncLeadForUser } from "@/lib/leads";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
@@ -54,6 +55,13 @@ export async function POST(req: Request) {
 
   // Referral code + device check. A bad code or a blocked (abusive) referral never stops the sign-up itself.
   const referral = await attachReferral({ newUserId: user.id, role, phone: user.phone, code: referralCode, deviceId }).catch(() => ({ status: "invalid" as const }));
+
+  // Pro CRM: this phone may already be a lead; either way he is now a registered Pro. A Pro who came in through another
+  // Pro's referral code is recorded as a Pro referral.
+  if (role === "PROVIDER") {
+    const byPro = referral.status === "applied" ? await prisma.referral.findFirst({ where: { referredUserId: user.id, referrerRole: "PROVIDER" }, select: { id: true } }).catch(() => null) : null;
+    await syncLeadForUser(user.id, "REGISTERED", byPro ? "PRO_REFERRAL" : "APP").catch((e) => console.error("[leads]", e));
+  }
 
   await issueOtp(user.id, user.phone, "PHONE_VERIFY", user.email);
 

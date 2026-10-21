@@ -100,6 +100,8 @@ export const hi: Partial<Record<TKey, string>> = {
   "jobs.done": "पूरे",
   "jobs.offlineTitle": "आप ऑफ़लाइन हैं",
   "jobs.emptyTitle": "अभी कोई उपयुक्त काम नहीं",
+  "jobs.launchingSoon": "{area} में जल्द आ रहा है",
+  "jobs.launchingSoonSub": "अभी अपनी प्रोफ़ाइल और सत्यापन पूरा करें। आपके क्षेत्र के शुरू होते ही पहले जॉब अलर्ट मिलेंगे।",
   "jobs.viewAndBid": "देखें और बोली लगाएँ",
   "jobs.bidSent": "बोली भेजी गई · समीक्षा जारी…",
   "jobs.noBooked": "कोई बुक किया हुआ काम नहीं",

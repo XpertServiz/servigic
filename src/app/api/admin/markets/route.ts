@@ -14,8 +14,8 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
 
   try {
-    const { polygons, ...rest } = parsed.data;
-    const market = await prisma.market.create({ data: { ...rest, polygons: polygons?.length ? polygons : Prisma.DbNull } });
+    const { polygons, launchDate, ...rest } = parsed.data;
+    const market = await prisma.market.create({ data: { ...rest, launchDate: launchDate ? new Date(launchDate) : null, polygons: polygons?.length ? polygons : Prisma.DbNull } });
     bustMarketCache();
     const notified = await notifyWaitlistForMarket(market.id).catch(() => 0);
     return NextResponse.json({ market, notified });
