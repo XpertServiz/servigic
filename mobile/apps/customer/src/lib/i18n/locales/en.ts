@@ -639,6 +639,22 @@ export const en = {
   "assistant.typing": "Typing…",
   "auth.errEmailInvalid": "Enter a valid email address.",
   "auth.emailForCode": "We send your verification code to this email.",
+  "offer.title": "Your offer (the price you want to pay)",
+  "offer.hint": "Pros usually ask {range} for this. They can accept your offer or answer with their own price.",
+  "offer.tooLow": "This is below what pros accept. Choose a price between {low} and {high} to get a pro's bid in minutes.",
+  "offer.low": "A little low. Raise it to at least {low} so more pros answer.",
+  "offer.good": "Good offer: pros are likely to accept it quickly.",
+  "offer.high": "Higher than most jobs like this. You will get bids fast, but you may be paying more than needed.",
+  "offer.use": "Use {price}",
+  "offer.suggested": "Use the suggested price: {price}",
+  "offer.customerOffer": "Customer's offer",
+  "offer.accept": "Accept {price}",
+  "offer.lower": "Offer lower",
+  "offer.higher": "Ask for more",
+  "offer.acceptNote": "Accepting means the customer only has to pick you. Your own price lets him accept, decline or counter.",
+  "offer.same": "Same as the customer's offer: he can pick you straight away.",
+  "offer.below": "{pct}% below his offer: very likely to be picked.",
+  "offer.above": "{pct}% above his offer: he may decline or counter.",
 } as const;
 
 export type TKey = keyof typeof en;

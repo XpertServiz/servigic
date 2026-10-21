@@ -1,18 +1,13 @@
 "use client";
 
+import { OfferField } from "@/components/jobs/OfferField";
 import { useTxCurrency } from "@/components/i18n/TxCurrency";
 import { plural } from "@/lib/plural";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { ServiceCategory, SubService } from "@prisma/client";
 import { PhotoUploadField } from "@/components/ui/PhotoUploadField";
-
-interface PriceBenchmarkHint {
-  sampleSize: number;
-  minPKR: number;
-  maxPKR: number;
-}
 
 type CategoryWithSub = ServiceCategory & { subServices: SubService[] };
 const URGENCY_OPTIONS = [
@@ -42,22 +37,8 @@ export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: {
   });
   const [pending, setPending] = useState(false);
   const [aiPending, setAiPending] = useState(false);
-  const [priceBenchmark, setPriceBenchmark] = useState<PriceBenchmarkHint | null>(null);
 
   const selectedCategory = categories.find((c) => c.id === form.categoryId);
-
-  useEffect(() => {
-    if (!form.categoryId || !form.city) return;
-    let cancelled = false;
-    fetch(`/api/market/price-benchmark?categoryId=${form.categoryId}&city=${encodeURIComponent(form.city)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (!cancelled) setPriceBenchmark(data.benchmark);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [form.categoryId, form.city]);
 
   function useMyLocation() {
     if (!navigator.geolocation) return;
@@ -279,24 +260,7 @@ export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: {
         </button>
       </div>
 
-      <div>
-        <label className="mb-1.5 block text-sm font-semibold text-text-muted">Budget in {cur} (optional)</label>
-        <input
-          type="number"
-          value={form.budgetPKR}
-          onChange={(e) => setForm({ ...form, budgetPKR: e.target.value })}
-          className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
-        />
-        {priceBenchmark && (
-          <p className="mt-2 text-xs text-text-muted">
-            Most {selectedCategory?.name} jobs in {form.city} close between{" "}
-            <b className="text-accent">
-              {cur} {priceBenchmark.minPKR.toLocaleString()}–{priceBenchmark.maxPKR.toLocaleString()}
-            </b>{" "}
-            ({priceBenchmark.sampleSize} recent jobs) — you can still set your own budget.
-          </p>
-        )}
-      </div>
+      <OfferField categoryId={form.categoryId} city={form.city} value={form.budgetPKR} onChange={(v) => setForm({ ...form, budgetPKR: v })} currency={cur} />
 
       <button
         type="submit"

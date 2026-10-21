@@ -12,6 +12,7 @@ import { Field } from "../components/ui";
 import { GradientButton, SegmentedControl } from "../components/ds";
 import { Icon } from "../components/Icon";
 import { WaitlistCard } from "../components/MarketNotice";
+import { OfferField } from "../components/OfferField";
 import { loadMarketConfig } from "../lib/market";
 import { playVoiceAlert } from "../lib/voiceAlerts";
 import { colors } from "../lib/theme";
@@ -34,6 +35,8 @@ export default function PostJobScreen({ navigation, route }: Props) {
   const [coords, setCoords] = useState({ lat: 24.8607, lng: 67.0011 });
   const [locating, setLocating] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
+  // The price the customer wants to pay (in his own currency); pros accept it or answer with their own.
+  const [offer, setOffer] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Market config (handoff section 11.6): only categories switched on in the user's market are offered.
@@ -137,6 +140,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
         photos,
         urgency,
         city: userCity ?? "Karachi",
+        ...(Number(offer) > 0 ? { budgetPKR: Number(offer) } : {}),
         areaLabel,
         exactAddress,
         lat: coords.lat,
@@ -242,11 +246,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
           <Text style={{ color: colors.accent, fontWeight: "700" }}>{locating ? t("post.locating") : `📍 ${t("post.useLocation")}`}</Text>
         </Pressable>
 
-        <View style={styles.benchmark}>
-          <Text style={{ color: colors.textMuted, fontSize: 12 }}>
-            💡 {t("post.benchmark")} <Text style={{ color: colors.text, fontWeight: "700" }}>PKR 1,800–3,200</Text>
-          </Text>
-        </View>
+        <OfferField categoryId={categoryId} city={userCity} value={offer} onChange={setOffer} />
 
         {error && <Text style={{ color: colors.dangerSoft, marginBottom: 12 }}>{error}</Text>}
       </ScrollView>
@@ -271,5 +271,4 @@ const styles = StyleSheet.create({
   catChip: { backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: "rgba(255,255,255,0.08)", borderRadius: 11, paddingHorizontal: 13, paddingVertical: 9 },
   catChipActive: { backgroundColor: colors.accentTint, borderColor: "rgba(245,166,35,0.5)" },
   photoAdd: { width: 68, height: 68, borderRadius: 14, borderWidth: 1.5, borderStyle: "dashed", borderColor: "rgba(245,166,35,0.35)", alignItems: "center", justifyContent: "center" },
-  benchmark: { backgroundColor: colors.bgElevated, borderRadius: 12, borderWidth: 1, borderColor: colors.borderSoft, padding: 12, marginBottom: 18 },
 });

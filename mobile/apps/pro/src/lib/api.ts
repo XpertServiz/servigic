@@ -263,6 +263,12 @@ export function claimVisibilityBoost() {
   return request<{ boostedUntil: string; alreadyActive: boolean }>("/api/mobile/provider/boost", { method: "POST" });
 }
 
+// The realistic price range for a service in a city (in that city's currency): behind the customer's "Your offer" field.
+export type PriceGuide = { currency: string; floor: number; low: number; suggested: number; high: number };
+export function getPriceGuide(categoryId: string, city: string) {
+  return request<{ guide: PriceGuide | null }>(`/api/market/price-guide?categoryId=${encodeURIComponent(categoryId)}&city=${encodeURIComponent(city)}`);
+}
+
 export function getProviderJobDetail(jobId: string) {
   return request<{
     job: Record<string, unknown>;

@@ -15,7 +15,12 @@ import { useI18n } from "../lib/i18n";
 type Props = NativeStackScreenProps<JobsStackParamList, "JobDetail">;
 
 const ETA_MINUTES = [30, 60, 120];
-const PRICE_STEP = 100;
+
+// Step of the price buttons: about 5% of the customer's offer (or the suggested price), in a round number.
+function stepFor(base: number) {
+  const raw = base * 0.05;
+  return raw < 10 ? 5 : raw < 100 ? Math.round(raw / 5) * 5 : Math.round(raw / 50) * 50;
+}
 
 export default function JobDetailScreen({ route, navigation }: Props) {
   const insets = useSafeAreaInsets();
@@ -51,6 +56,12 @@ export default function JobDetailScreen({ route, navigation }: Props) {
       setJob(data.job);
       setMyBid(data.myBid);
       setVerificationLevel(data.verificationLevel);
+      if (!data.myBid) {
+        // Start from what the customer offers (inDrive style), else from the usual price for this service.
+        const offered = Number(data.job.budgetPKR) || 0;
+        const guided = (data.job.guide as { suggested?: number } | null)?.suggested ?? 0;
+        if (offered > 0 || guided > 0) setPrice(offered > 0 ? offered : guided);
+      }
       if (data.myBid) {
         setPrice((data.myBid as { pricePKR: number }).pricePKR);
         setEta(String((data.myBid as { etaMinutes: number }).etaMinutes));
@@ -133,6 +144,12 @@ export default function JobDetailScreen({ route, navigation }: Props) {
 
   const bidStatus = myBid ? (myBid as { status: string }).status : null;
 
+  // The customer names his price: the pro can accept it as it is, or answer with his own, lower or higher.
+  const offer = Number(job.budgetPKR) > 0 ? Number(job.budgetPKR) : 0;
+  const step = stepFor(offer || (job.guide as { suggested?: number } | null)?.suggested || 1500);
+  const cur = (job.currency as string | undefined) ?? "";
+  const diffPct = offer > 0 && price > 0 ? Math.round(((price - offer) / offer) * 100) : 0;
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 18, paddingBottom: 40 + insets.bottom }}>
       <Text style={{ color: colors.text, fontSize: 22, fontWeight: "800" }}>{job.title as string}</Text>
@@ -173,20 +190,40 @@ export default function JobDetailScreen({ route, navigation }: Props) {
         </Card>
       ) : (
         <Card style={{ marginTop: 20 }}>
+          {offer > 0 && (
+            <View style={styles.offerBox}>
+              <Text style={{ color: colors.accent, fontSize: 12, fontWeight: "800", textTransform: "uppercase" }}>{t("offer.customerOffer")}</Text>
+              <View style={{ marginVertical: 6 }}>
+                <PriceText pkr={offer} size="lg" color={colors.accent} />
+              </View>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                <Chip label={t("offer.accept", { price: `${cur} ${offer.toLocaleString()}` })} active={price === offer} onPress={() => setPrice(offer)} />
+                <Chip label={`${t("offer.lower")} (${Math.max(step, offer - step).toLocaleString()})`} onPress={() => setPrice(Math.max(step, offer - step))} />
+                <Chip label={`${t("offer.higher")} (${(offer + step).toLocaleString()})`} onPress={() => setPrice(offer + step)} />
+              </View>
+              <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 8 }}>{t("offer.acceptNote")}</Text>
+            </View>
+          )}
           <Text style={{ color: colors.text, fontWeight: "700", marginBottom: 14 }}>{myBid ? t("bid.edit") : t("bid.submit")}</Text>
 
           <Text style={styles.label}>{t("bid.price")}</Text>
           <View style={styles.stepperRow}>
-            <Pressable onPress={() => setPrice((p) => Math.max(PRICE_STEP, p - PRICE_STEP))} style={styles.stepperBtn}>
+            <Pressable onPress={() => setPrice((p) => Math.max(step, p - step))} style={styles.stepperBtn}>
               <Text style={styles.stepperBtnText}>−</Text>
             </Pressable>
             <View style={{ flex: 1, alignItems: "center" }}>
               <PriceText pkr={price} size="lg" />
             </View>
-            <Pressable onPress={() => setPrice((p) => p + PRICE_STEP)} style={styles.stepperBtn}>
+            <Pressable onPress={() => setPrice((p) => p + step)} style={styles.stepperBtn}>
               <Text style={styles.stepperBtnText}>+</Text>
             </Pressable>
           </View>
+
+          {offer > 0 && price > 0 && (
+            <Text style={{ marginTop: 8, fontSize: 12, fontWeight: "600", color: diffPct > 20 ? colors.dangerSoft : diffPct > 0 ? colors.accent : colors.success }}>
+              {diffPct === 0 ? t("offer.same") : diffPct < 0 ? t("offer.below", { pct: Math.abs(diffPct) }) : t("offer.above", { pct: diffPct })}
+            </Text>
+          )}
 
           <Text style={[styles.label, { marginTop: 18 }]}>{t("bid.eta")}</Text>
           <View style={{ flexDirection: "row", gap: 8, marginBottom: 4 }}>
@@ -220,6 +257,7 @@ export default function JobDetailScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   label: { color: colors.textMuted, fontSize: 13, fontWeight: "600", marginBottom: 8 },
+  offerBox: { backgroundColor: colors.accentTint, borderColor: colors.accentBorder, borderWidth: 1, borderRadius: 14, padding: 14, marginBottom: 18 },
   stepperRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   stepperBtn: {
     width: 44,

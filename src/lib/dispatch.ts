@@ -34,6 +34,49 @@ export function jobInActiveZone(markets: MarketSnapshot[], job: { lat: number; l
   return acceptsJobs(zone) && tradeEnabled(zone, trade);
 }
 
+export type ServeVerdict = { ok: true } | { ok: false; code: "TRADE" | "NO_ZONE" | "OTHER_COUNTRY" | "OUT_OF_AREA"; message: string };
+
+/**
+ * Can this pro take this job at all? The rule behind the feed, the alerts, the job page and the bid button, so they can never
+ * disagree: the pro offers the trade; the job is inside a live zone where that trade is on; the job is in the pro's own COUNTRY
+ * (a Saudi pro never bids on a Pakistani customer, whatever his city says); and, once he has set his work location, inside his
+ * service radius. Without a work location the country is judged from his registered city, then from where the request comes from.
+ */
+export function proServesJob(
+  input: {
+    provider: { trades: string[]; baseLat: number | null; baseLng: number | null; serviceRadiusKm: number; visibilityBoostUntil: Date | null };
+    userCity: string | null | undefined;
+    job: { lat: number; lng: number; city: string; extraRadiusKm: number };
+    trade: string;
+    markets: MarketSnapshot[];
+    limits: RadiusLimits;
+    /** ISO country of the request (edge header), only used when the pro has no work location yet. */
+    requestCountry?: string | null;
+  },
+): ServeVerdict {
+  const { provider, job, markets } = input;
+  if (!provider.trades.includes(input.trade)) return { ok: false, code: "TRADE", message: "This job is for a trade you do not offer." };
+  if (!jobInActiveZone(markets, job, input.trade)) return { ok: false, code: "NO_ZONE", message: "This job is outside an active service area." };
+
+  const jobCountry = marketForPoint(markets, { lat: job.lat, lng: job.lng }, job.city)?.countryCode ?? null;
+  const hasPin = provider.baseLat != null && provider.baseLng != null;
+  if (hasPin) {
+    const km = haversineKm(job.lat, job.lng, provider.baseLat!, provider.baseLng!);
+    const proCountry = marketForPoint(markets, { lat: provider.baseLat!, lng: provider.baseLng! }, input.userCity)?.countryCode ?? null;
+    if ((jobCountry && proCountry && jobCountry !== proCountry) || km > 400) {
+      return { ok: false, code: "OTHER_COUNTRY", message: "This job is in another country, outside the area where you work." };
+    }
+    if (km > effectiveRadiusKm(provider, input.limits) + job.extraRadiusKm) return { ok: false, code: "OUT_OF_AREA", message: "This job is outside your service area." };
+    return { ok: true };
+  }
+  const proCountry = (input.userCity ? marketForCity(markets, input.userCity)?.countryCode : null) ?? null;
+  const reqCountry = input.requestCountry ? input.requestCountry.toUpperCase() : null;
+  if (jobCountry && ((proCountry && proCountry !== jobCountry) || (reqCountry && reqCountry !== "XX" && reqCountry !== jobCountry))) {
+    return { ok: false, code: "OTHER_COUNTRY", message: "This job is in another country, outside the area where you work." };
+  }
+  return { ok: true };
+}
+
 /** A pro is never alerted more than this many times for the same job (handoff §11.5). */
 export const MAX_ALERTS_PER_PRO_PER_JOB = 2;
 
@@ -242,10 +285,8 @@ export async function findJobsForProvider(providerId: string) {
     prisma.siteSettings.findUnique({ where: { id: "singleton" } }),
   ]);
   const limits: RadiusLimits = { min: settings?.proRadiusMinKm ?? 2, max: settings?.proRadiusMaxKm ?? 15 };
-  // Never show (or alert) a job that sits outside an active zone.
-  const jobs = allJobs.filter((job) => jobInActiveZone(markets, job, job.category.trade));
+  const jobs = allJobs;
 
-  if (!provider.baseLat || !provider.baseLng) return jobs;
-
-  return jobs.filter((job) => haversineKm(job.lat, job.lng, provider.baseLat!, provider.baseLng!) <= effectiveRadiusKm(provider, limits) + job.extraRadiusKm);
+  // Same rule as the bid button: right trade, live zone, same country, inside the radius once a work location is set.
+  return jobs.filter((job) => proServesJob({ provider, userCity: provider.user.city, job, trade: job.category.trade, markets, limits }).ok);
 }

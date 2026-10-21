@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { firstNameOnly, distanceBand } from "@/lib/anon";
 import { haversineKm } from "@/lib/geo";
 import { getFeatureFlags } from "@/lib/featureFlags";
+import { getMarkets } from "@/lib/marketConfig";
+import { proServesJob } from "@/lib/dispatch";
+import { headers } from "next/headers";
 import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import { BidForm } from "./BidForm";
 
@@ -25,6 +28,26 @@ export default async function ProviderJobDetailPage({ params }: { params: Promis
   const myBid = await prisma.bid.findUnique({
     where: { jobId_providerId: { jobId: job.id, providerId: profile.id } },
   });
+
+  // A pro cannot open (or bid on) a job outside his country / service area, unless he already has a bid on it.
+  if (!myBid) {
+    const [markets, settings, proUser, reqHeaders] = await Promise.all([
+      getMarkets(),
+      prisma.siteSettings.findUnique({ where: { id: "singleton" } }),
+      prisma.user.findUnique({ where: { id: session!.user.id }, select: { city: true } }),
+      headers(),
+    ]);
+    const verdict = proServesJob({
+      provider: profile,
+      userCity: proUser?.city,
+      job,
+      trade: job.category.trade,
+      markets,
+      limits: { min: settings?.proRadiusMinKm ?? 2, max: settings?.proRadiusMaxKm ?? 15 },
+      requestCountry: reqHeaders.get("x-vercel-ip-country") || reqHeaders.get("cf-ipcountry"),
+    });
+    if (!verdict.ok) notFound();
+  }
 
   const distance =
     profile.baseLat && profile.baseLng ? distanceBand(haversineKm(job.lat, job.lng, profile.baseLat, profile.baseLng)) : "—";
@@ -53,6 +76,7 @@ export default async function ProviderJobDetailPage({ params }: { params: Promis
         existingBid={myBid}
         verificationLevel={profile.verificationLevel}
         bidWinHintEnabled={flags.aiBidWinHint}
+        customerOffer={job.budgetPKR}
       />
     </div>
   );

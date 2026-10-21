@@ -4,6 +4,9 @@ import { requireRole } from "@/lib/requireRole";
 import { upsertBidSchema } from "@/lib/validation/bid";
 import { scrubContactInfo } from "@/lib/scrub";
 import { notify } from "@/lib/notify";
+import { headers } from "next/headers";
+import { getMarkets } from "@/lib/marketConfig";
+import { proServesJob } from "@/lib/dispatch";
 
 export async function POST(req: Request) {
   const auth = await requireRole("PROVIDER");
@@ -37,6 +40,28 @@ export async function POST(req: Request) {
   const job = await prisma.job.findUnique({ where: { id: jobId } });
   if (!job || job.status !== "OPEN") {
     return NextResponse.json({ error: "This job is no longer accepting bids" }, { status: 400 });
+  }
+
+  // A pro can only bid on a job he could have been shown: right trade, live zone, SAME COUNTRY, inside his radius.
+  const [markets, category, settings, proUser, reqHeaders] = await Promise.all([
+    getMarkets(),
+    prisma.serviceCategory.findUnique({ where: { id: job.categoryId }, select: { trade: true } }),
+    prisma.siteSettings.findUnique({ where: { id: "singleton" } }),
+    prisma.user.findUnique({ where: { id: auth.session.user.id }, select: { city: true } }),
+    headers(),
+  ]);
+  const existingBid = await prisma.bid.findUnique({ where: { jobId_providerId: { jobId, providerId: profile.id } }, select: { id: true } });
+  if (!existingBid && category) {
+    const verdict = proServesJob({
+      provider: profile,
+      userCity: proUser?.city,
+      job,
+      trade: category.trade,
+      markets,
+      limits: { min: settings?.proRadiusMinKm ?? 2, max: settings?.proRadiusMaxKm ?? 15 },
+      requestCountry: reqHeaders.get("x-vercel-ip-country") || reqHeaders.get("cf-ipcountry"),
+    });
+    if (!verdict.ok) return NextResponse.json({ error: verdict.message, code: verdict.code === "OTHER_COUNTRY" ? "OTHER_COUNTRY" : "OUT_OF_AREA" }, { status: 403 });
   }
 
   const safeMessage = message ? scrubContactInfo(message) : undefined;

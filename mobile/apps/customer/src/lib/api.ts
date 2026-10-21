@@ -265,6 +265,12 @@ export function getProviderJobFeed() {
   }>("/api/mobile/provider/jobs");
 }
 
+// The realistic price range for a service in a city (in that city's currency): behind the customer's "Your offer" field.
+export type PriceGuide = { currency: string; floor: number; low: number; suggested: number; high: number };
+export function getPriceGuide(categoryId: string, city: string) {
+  return request<{ guide: PriceGuide | null }>(`/api/market/price-guide?categoryId=${encodeURIComponent(categoryId)}&city=${encodeURIComponent(city)}`);
+}
+
 export function getProviderJobDetail(jobId: string) {
   return request<{
     job: Record<string, unknown>;

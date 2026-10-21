@@ -12,12 +12,14 @@ export function BidForm({
   existingBid,
   verificationLevel,
   bidWinHintEnabled,
+  customerOffer,
 }: {
   jobId: string;
   jobStatus: string;
   existingBid: Bid | null;
   verificationLevel: number;
   bidWinHintEnabled: boolean;
+  customerOffer?: number | null;
 }) {
   const cur = useTxCurrency();
   const router = useRouter();
@@ -143,8 +145,32 @@ export function BidForm({
     );
   }
 
+  // The customer names his price (like inDrive): the pro can accept it as it is, or answer with his own, lower or higher.
+  const offer = customerOffer && customerOffer > 0 ? customerOffer : null;
+  const priceNum = Number(price) || 0;
+  const diffPct = offer && priceNum > 0 ? Math.round(((priceNum - offer) / offer) * 100) : 0;
+  const step = offer ? Math.max(5, Math.round((offer * 0.05) / 5) * 5) : 50;
+
   return (
     <form onSubmit={submitBid} className="flex flex-col gap-4 rounded-[14px] border border-border-subtle bg-bg-elevated p-5">
+      {offer && (
+        <div className="rounded-[12px] border border-secondary/40 bg-secondary/10 p-4">
+          <div className="text-xs font-semibold uppercase tracking-wide text-secondary">Customer&apos;s offer</div>
+          <div className="mb-3 font-display text-3xl font-bold text-secondary">{cur} {offer.toLocaleString()}</div>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => setPrice(String(offer))} className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground">
+              Accept {cur} {offer.toLocaleString()}
+            </button>
+            <button type="button" onClick={() => setPrice(String(Math.max(step, offer - step)))} className="rounded-full border border-border-subtle px-3 py-2 text-sm">
+              Offer lower ({cur} {Math.max(step, offer - step).toLocaleString()})
+            </button>
+            <button type="button" onClick={() => setPrice(String(offer + step))} className="rounded-full border border-border-subtle px-3 py-2 text-sm">
+              Ask for more ({cur} {(offer + step).toLocaleString()})
+            </button>
+          </div>
+          <p className="mt-2 text-xs text-text-muted">Accepting means the customer only has to pick you. Answering with your own price lets him accept it, decline it or send a counter-offer.</p>
+        </div>
+      )}
       <h3 className="font-bold">{existingBid ? "Edit your bid" : "Submit a bid"}</h3>
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -156,6 +182,11 @@ export function BidForm({
             onChange={(e) => setPrice(e.target.value)}
             className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated-2 px-4 py-3 outline-none focus:border-accent"
           />
+          {offer && priceNum > 0 && (
+            <p className={`mt-1.5 text-xs ${diffPct > 20 ? "text-danger" : diffPct > 0 ? "text-accent" : "text-secondary"}`}>
+              {diffPct === 0 ? "Same as the customer's offer: he can pick you straight away." : diffPct < 0 ? `${Math.abs(diffPct)}% below his offer: very likely to be picked.` : `${diffPct}% above his offer: he may decline or counter.`}
+            </p>
+          )}
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-semibold text-text-muted">ETA (minutes)</label>
