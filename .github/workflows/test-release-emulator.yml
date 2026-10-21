@@ -83,9 +83,12 @@ jobs:
           arch: x86_64
           target: google_apis
           profile: pixel_6
-          ram-size: 3072M
+          ram-size: 4096M
+          heap-size: 576M
+          disk-size: 6144M
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
           disable-animations: true
-          emulator-boot-timeout: 900
+          emulator-boot-timeout: 1200
           script: python3 mobile/ci/emulator_walk.py ${{ env.PKG }} ${{ env.APK }} out ${{ inputs.qa_phone }} ${{ inputs.qa_password }}
 
       - uses: actions/upload-artifact@v4

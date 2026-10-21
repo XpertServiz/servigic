@@ -55,6 +55,20 @@ def dump() -> list[dict]:
     return nodes
 
 
+def dismiss_dialogs() -> None:
+    """A slow emulator often shows "Pixel Launcher isn't responding": tap Wait so the real app can start."""
+    for _ in range(6):
+        nodes = dump()
+        txt = " ".join((n["text"] or n["desc"]) for n in nodes)
+        if "isn't responding" in txt or "not responding" in txt:
+            wait = next((n for n in nodes if (n["text"] or n["desc"]).lower() == "wait"), None)
+            if wait:
+                adb("shell", "input", "tap", str(wait["cx"]), str(wait["cy"]))
+                time.sleep(2)
+                continue
+        break
+
+
 def alive() -> bool:
     return bool(adb("shell", "pidof", PKG).strip())
 
@@ -102,12 +116,15 @@ adb("install", "-r", APK, check=True)
 for perm in ("ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "POST_NOTIFICATIONS", "RECORD_AUDIO"):
     adb("shell", "pm", "grant", PKG, f"android.permission.{perm}")
 adb("logcat", "-c")
-adb("shell", "monkey", "-p", PKG, "-c", "android.intent.category.LAUNCHER", "1")
 time.sleep(20)
+dismiss_dialogs()
+adb("shell", "monkey", "-p", PKG, "-c", "android.intent.category.LAUNCHER", "1")
+time.sleep(25)
+dismiss_dialogs()
 shot("01-launch")
 check("cold start")
 
-first = wait_for(lambda n: len(n) > 3, 40)
+first = wait_for(lambda n: len(n) > 3 and not any("responding" in (x["text"] or "") for x in n), 90)
 note(f"INFO  first screen texts: {[x['text'] or x['desc'] for x in (first or []) if x['text'] or x['desc']][:12]}")
 if not first:
     problems.append("no UI nodes after launch (blank screen)")
@@ -115,7 +132,7 @@ if not first:
 
 # ---------- sign in ----------
 if PHONE and PASSWORD:
-    nodes = wait_for(lambda n: sum(1 for x in n if "EditText" in x["cls"]) >= 2, 60)
+    nodes = wait_for(lambda n: sum(1 for x in n if "EditText" in x["cls"]) >= 2, 120)
     if not nodes:
         problems.append("sign-in screen with two inputs never appeared")
         note("FAIL  sign-in screen not found")
