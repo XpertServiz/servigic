@@ -4,6 +4,8 @@ import { MarketsClient } from "./MarketsClient";
 import { parsePolygons } from "@/lib/geofence";
 import { cityCenter } from "@/lib/cityCenters";
 import { stateOf } from "@/lib/marketSync";
+import { getMarkets } from "@/lib/marketConfig";
+import { walletLimitsForMarket } from "@/lib/walletLimits";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +37,13 @@ export default async function AdminMarketsPage() {
     return { code: l.countryCode, name: l.countryName, state: stateOf(ms), cities: ms.length ? Array.from(new Set(ms.flatMap((m) => m.cities))) : l.citiesLive, markets: ms.length };
   });
 
+  const snapshots = await getMarkets({ fresh: true });
+  const autoLimits = new Map<string, Awaited<ReturnType<typeof walletLimitsForMarket>>>();
+  for (const m of markets) {
+    const snap = snapshots.find((s) => s.id === m.id);
+    // The automatic numbers, ignoring any override, so the form can show what "blank" means.
+    autoLimits.set(m.id, await walletLimitsForMarket(snap ? { ...snap, walletCeiling: null, minTopUp: null } : null));
+  }
   const view = markets.map((m) => {
     const cities = new Set(m.cities.map((c) => c.toLowerCase()));
     const inMarket = pros.filter((p) => p.user.city && cities.has(p.user.city.toLowerCase()));
@@ -57,6 +66,10 @@ export default async function AdminMarketsPage() {
       phoneCode: m.phoneCode,
       timezone: m.timezone,
       launchDate: m.launchDate ? m.launchDate.toISOString().slice(0, 10) : "",
+      walletCeiling: m.walletCeiling,
+      minTopUp: m.minTopUp,
+      autoCeiling: autoLimits.get(m.id)?.ceiling ?? 0,
+      autoMinTopUp: autoLimits.get(m.id)?.minTopUp ?? 0,
       polygons: parsePolygons(m.polygons),
       center: ((): [number, number] => {
         const c = m.cities.map((x) => cityCenter(x)).find(Boolean);

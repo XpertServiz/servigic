@@ -637,6 +637,8 @@ export const en = {
   "assistant.tooltip": "Hi 👋 Ask me anything",
   "assistant.close": "Close",
   "assistant.typing": "Typing…",
+  "auth.errEmailInvalid": "Enter a valid email address.",
+  "auth.emailForCode": "We send your verification code to this email.",
 } as const;
 
 export type TKey = keyof typeof en;

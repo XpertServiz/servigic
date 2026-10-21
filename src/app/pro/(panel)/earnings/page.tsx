@@ -1,3 +1,4 @@
+import { walletLimitsForUser } from "@/lib/walletLimits";
 import { getTxCurrency } from "@/lib/txCurrency";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -38,7 +39,7 @@ export default async function ProviderEarningsPage() {
       },
     });
     const balancePKR = wallet?.balancePKR ?? 0;
-    const ceilingPKR = wallet?.ceilingPKR ?? 3000;
+    const ceilingPKR = wallet?.ceilingPKR ?? (await walletLimitsForUser(session!.user.id)).ceiling;
     const debtPKR = Math.max(0, -balancePKR);
 
     return (

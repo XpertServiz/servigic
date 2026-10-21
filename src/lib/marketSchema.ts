@@ -12,6 +12,9 @@ export const marketSchema = z.object({
   timezone: z.string().trim().min(3).max(60),
   // Planned launch day of the zone (shown on the zone dashboard); empty = not set.
   launchDate: z.string().trim().nullable().optional(),
+  // Wallet debt ceiling / smallest top-up in this market's currency; null = automatic.
+  walletCeiling: z.number().int().min(0).max(100000000).nullable().optional(),
+  minTopUp: z.number().int().min(0).max(100000000).nullable().optional(),
   // Drawn geofence: polygons of [lat, lng] points. Empty/absent = no geofence (city names decide).
   polygons: z
     .array(z.array(z.tuple([z.number().min(-90).max(90), z.number().min(-180).max(180)])).min(3).max(500))

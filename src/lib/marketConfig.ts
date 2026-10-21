@@ -17,6 +17,9 @@ export interface MarketSnapshot {
   timezone: string;
   /** Drawn geofence (see geofence.ts); empty = the zone is defined by its city names only. */
   polygons: Ring[];
+  /** Overrides in the market's own currency; null = automatic (see walletLimits.ts). */
+  walletCeiling: number | null;
+  minTopUp: number | null;
   /** trade → { enabled, maxActivePros } */
   trades: Record<string, { enabled: boolean; maxActivePros: number | null }>;
 }
@@ -34,6 +37,8 @@ async function readMarkets(): Promise<MarketSnapshot[]> {
       phoneCode: m.phoneCode,
       timezone: m.timezone,
       polygons: parsePolygons(m.polygons),
+      walletCeiling: m.walletCeiling,
+      minTopUp: m.minTopUp,
       trades: Object.fromEntries(m.categories.map((c) => [c.trade, { enabled: c.enabled, maxActivePros: c.maxActivePros }])),
     }));
 }

@@ -529,4 +529,6 @@ export const ur: Partial<Record<TKey, string>> = {
   "assistant.tooltip": "السلام علیکم 👋 کچھ بھی پوچھیں",
   "assistant.close": "بند کریں",
   "assistant.typing": "لکھ رہی ہوں…",
+  "auth.errEmailInvalid": "درست ای میل ایڈریس درج کریں۔",
+  "auth.emailForCode": "تصدیقی کوڈ اسی ای میل پر بھیجا جائے گا۔",
 };

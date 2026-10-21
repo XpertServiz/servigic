@@ -24,6 +24,10 @@ interface MarketView {
   phoneCode: string;
   timezone: string;
   launchDate: string;
+  walletCeiling: number | null;
+  minTopUp: number | null;
+  autoCeiling: number;
+  autoMinTopUp: number;
   polygons: Ring[];
   center: [number, number];
   waiting: number;
@@ -79,6 +83,8 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
     phoneCode: market.phoneCode,
     timezone: market.timezone,
     launchDate: market.launchDate,
+    walletCeiling: market.walletCeiling?.toString() ?? "",
+    minTopUp: market.minTopUp?.toString() ?? "",
   });
   const [polygons, setPolygons] = useState<Ring[]>(market.polygons);
   const [matrix, setMatrix] = useState<Record<string, { enabled: boolean; maxActivePros: string; targetPros: string }>>(
@@ -90,7 +96,7 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
   async function saveMarket() {
     setBusy(true);
     try {
-      const data = await call(`/api/admin/markets/${market.id}`, "PUT", { ...form, launchDate: form.launchDate || null, polygons, cities: form.cities.split(",").map((s) => s.trim()).filter(Boolean) });
+      const data = await call(`/api/admin/markets/${market.id}`, "PUT", { ...form, launchDate: form.launchDate || null, walletCeiling: form.walletCeiling === "" ? null : Number(form.walletCeiling), minTopUp: form.minTopUp === "" ? null : Number(form.minTopUp), polygons, cities: form.cities.split(",").map((s) => s.trim()).filter(Boolean) });
       const bits = [data.activated ? `${plural(data.activated, "waiting pro", "waiting pros")} activated` : "", data.notified ? `${plural(data.notified, "waiting customer", "waiting customers")} notified` : ""].filter(Boolean);
       toast.success(bits.length ? `Saved. ${bits.join(", ")}.` : "Market saved");
       router.refresh();
@@ -160,6 +166,14 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
                   </option>
                 ))}
               </select>
+            </label>
+            <label className="text-xs text-text-muted">
+              Wallet debt ceiling ({market.currency}). Blank = automatic ({market.autoCeiling.toLocaleString()})
+              <input type="number" min={0} className={input} placeholder={`auto: ${market.autoCeiling}`} value={form.walletCeiling} onChange={(e) => setForm({ ...form, walletCeiling: e.target.value })} />
+            </label>
+            <label className="text-xs text-text-muted">
+              Smallest top-up ({market.currency}). Blank = automatic ({market.autoMinTopUp.toLocaleString()})
+              <input type="number" min={0} className={input} placeholder={`auto: ${market.autoMinTopUp}`} value={form.minTopUp} onChange={(e) => setForm({ ...form, minTopUp: e.target.value })} />
             </label>
             <label className="text-xs text-text-muted">
               Launch date

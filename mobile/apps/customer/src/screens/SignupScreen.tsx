@@ -16,12 +16,15 @@ import { authErrorMessage } from "../lib/authErrors";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Signup">;
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 // Create account (D3C-CreateAccount): full name, phone, password.
 export default function SignupScreen({ navigation }: Props) {
   const t = useT();
   const insets = useSafeAreaInsets();
   const [name, setName] = useState("");
   const phone = usePhoneInput();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [referralCode, setReferralCode] = useState("");
@@ -35,6 +38,10 @@ export default function SignupScreen({ navigation }: Props) {
       setError(t("auth.passwordMismatch"));
       return;
     }
+    if (!EMAIL_RE.test(email.trim())) {
+      setError(t("auth.errEmailInvalid"));
+      return;
+    }
     if (!phone.e164) {
       setError(t("phone.error", { example: phone.example.international }));
       return;
@@ -45,7 +52,7 @@ export default function SignupScreen({ navigation }: Props) {
       // config (older backend / offline) keep the legacy default so nobody is locked out.
       const cfg = await loadMarketConfig(null);
       const city = cfg && !cfg.legacyOpen ? cfg.market?.cities?.[0] : "Karachi";
-      const { userId, verified } = await api.register({ role: "CUSTOMER", name, phone: phone.e164, password, confirmPassword: confirm, ...(city ? { city } : {}), ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}), deviceId: await getDeviceId() });
+      const { userId, verified } = await api.register({ role: "CUSTOMER", name, phone: phone.e164, email: email.trim(), password, confirmPassword: confirm, ...(city ? { city } : {}), ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}), deviceId: await getDeviceId() });
       // Second role on a number that is already verified: nothing to confirm, just sign in.
       if (verified) {
         Alert.alert(t("auth.linkedDone"));
@@ -81,6 +88,7 @@ export default function SignupScreen({ navigation }: Props) {
 
         <Field label={t("auth.fullName")} value={name} onChangeText={setName} />
         <PhoneField phone={phone} />
+        <Field label={t("auth.email")} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} placeholder="you@example.com" value={email} onChangeText={setEmail} helper={t("auth.emailForCode")} />
         <Field label={t("auth.password")} secureTextEntry value={password} onChangeText={setPassword} placeholder="••••••••" />
         <Field label={t("auth.confirmPassword")} secureTextEntry value={confirm} onChangeText={setConfirm} placeholder="••••••••" error={confirm && confirm !== password ? t("auth.passwordMismatch") : null} />
 
@@ -88,7 +96,7 @@ export default function SignupScreen({ navigation }: Props) {
 
         {error && <Text style={styles.error}>{error}</Text>}
 
-        <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || password.length < 8 || confirm !== password} />
+        <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || !EMAIL_RE.test(email.trim()) || password.length < 8 || confirm !== password} />
         <Text style={styles.legal}>{t("auth.legal")}</Text>
       </ScrollView>
       </KeyboardAvoidingView>

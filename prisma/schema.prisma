@@ -1238,6 +1238,10 @@ model Market {
   // job/GPS point belongs to this zone only if it falls inside one of them (city names are then ignored).
   polygons    Json?
   launchDate  DateTime?
+  // Wallet debt ceiling / smallest top-up in this market's own currency. Blank = worked out automatically from the Pakistani numbers
+  // in Settings (see src/lib/walletLimits.ts).
+  walletCeiling Int?
+  minTopUp      Int?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 

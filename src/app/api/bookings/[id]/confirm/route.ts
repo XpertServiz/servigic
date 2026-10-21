@@ -1,3 +1,4 @@
+import { walletLimitsForProvider } from "@/lib/walletLimits";
 import { syncLeadForUser } from "@/lib/leads";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -60,7 +61,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       update: {},
       create: {
         providerId: booking.providerId,
-        ceilingPKR: (await prisma.siteSettings.findUnique({ where: { id: "singleton" } }))?.defaultWalletCeilingPKR ?? 3000,
+        ceilingPKR: (await walletLimitsForProvider(booking.providerId)).ceiling,
       },
     });
     if (commissionDuePKR > 0) {

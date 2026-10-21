@@ -493,4 +493,6 @@ export const fr: Partial<Record<TKey, string>> = {
   "assistant.tooltip": "Bonjour 👋 Posez-moi une question",
   "assistant.close": "Fermer",
   "assistant.typing": "Écrit…",
+  "auth.errEmailInvalid": "Saisissez une adresse e-mail valide.",
+  "auth.emailForCode": "Nous envoyons le code de vérification à cet e-mail.",
 };

@@ -1,3 +1,4 @@
+import { walletLimitsForProvider } from "@/lib/walletLimits";
 import { randomInt } from "crypto";
 import type { Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -144,7 +145,7 @@ async function rewardReferrer(referral: ReferralRow, reason: string) {
       update: {},
       create: {
         providerId: referrerProfile.id,
-        ceilingPKR: (await prisma.siteSettings.findUnique({ where: { id: "singleton" } }))?.defaultWalletCeilingPKR ?? 3000,
+        ceilingPKR: (await walletLimitsForProvider(referrerProfile.id)).ceiling,
       },
     });
     await prisma.$transaction([

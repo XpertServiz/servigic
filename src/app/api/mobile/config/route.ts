@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { acceptsJobs, getMarkets, marketForCity, marketForCountry, marketForPoint } from "@/lib/marketConfig";
 import { prisma } from "@/lib/prisma";
+import { walletLimitsForMarket } from "@/lib/walletLimits";
 
 // Admin-controlled things every app reads at start-up: an announcement banner, the oldest app version still allowed,
 // where to update, and the support WhatsApp number (Admin > Settings). Changing them never needs an app release.
@@ -40,6 +41,8 @@ export async function GET(req: Request) {
   // only when the app does not know the city yet (first launch, before signup) do we guess from the IP country.
   const market = hasPoint ? marketForPoint(markets, { lat, lng }, city) : city ? marketForCity(markets, city) : marketForCountry(markets, geoCountry);
   const accepting = acceptsJobs(market);
+  // The smallest wallet top-up in the user's own market and currency.
+  app.minTopUpPKR = (await walletLimitsForMarket(market)).minTopUp;
   return NextResponse.json(
     {
       legacyOpen: false,

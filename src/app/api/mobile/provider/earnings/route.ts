@@ -1,3 +1,4 @@
+import { walletLimitsForProvider } from "@/lib/walletLimits";
 import { effectiveCommissionPct, getFoundingRule } from "@/lib/foundingPro";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -37,7 +38,7 @@ export async function GET() {
       profileValue,
       wallet: {
         balancePKR: wallet?.balancePKR ?? 0,
-        ceilingPKR: wallet?.ceilingPKR ?? 3000,
+        ceilingPKR: wallet?.ceilingPKR ?? (await walletLimitsForProvider(profile.id)).ceiling,
         unsettledJobCount: wallet?.unsettledJobCount ?? 0,
       },
       ledger: (wallet?.ledgerEntries ?? []).map((l) => ({

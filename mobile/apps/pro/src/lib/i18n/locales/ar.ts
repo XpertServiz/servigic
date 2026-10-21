@@ -529,4 +529,6 @@ export const ar: Partial<Record<TKey, string>> = {
   "assistant.tooltip": "مرحباً 👋 اسألني أي شيء",
   "assistant.close": "إغلاق",
   "assistant.typing": "تكتب…",
+  "auth.errEmailInvalid": "أدخل بريداً إلكترونياً صحيحاً.",
+  "auth.emailForCode": "نرسل رمز التحقق إلى هذا البريد.",
 };

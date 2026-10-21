@@ -186,9 +186,9 @@ export function SettingsForm({
       </div>
 
       <div>
-        <label className="mb-1.5 block text-sm font-semibold text-text-muted">Default wallet debt ceiling (PKR)</label>
+        <label className="mb-1.5 block text-sm font-semibold text-text-muted">Wallet debt ceiling: Pakistan reference (PKR)</label>
         <p className="mb-2 text-xs text-text-muted">
-          New pros&apos; Commission Wallet dispatch-block threshold (CASH_WALLET mode only) — editable per pro afterward.
+          How much commission a pro may owe Servigic before new job alerts and bidding pause. This is the number for Pakistan; every other country is scaled automatically to its own currency and price level (override per country in Markets &amp; Launch). Editable per pro afterward.
         </p>
         <input
           type="number"
@@ -262,7 +262,7 @@ export function SettingsForm({
           {(
             [
               ["minAndroidVersionCode", "Oldest Android app version still allowed (version code)", "Apps older than this show a \"please update\" screen. 0 = off. Use it when an old build is broken or unsafe."],
-              ["minTopUpPKR", "Smallest wallet top-up (PKR)", "A pro cannot submit a top-up below this amount."],
+              ["minTopUpPKR", "Smallest wallet top-up: Pakistan reference (PKR)", "A pro cannot submit a top-up below this amount. Other countries are scaled automatically (override in Markets & Launch)."],
             ] as const
           ).map(([key, label, desc]) => (
             <div key={key}>

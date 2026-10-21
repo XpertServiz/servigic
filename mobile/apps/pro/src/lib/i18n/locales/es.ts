@@ -316,4 +316,6 @@ export const es: Partial<Record<TKey, string>> = {
   "assistant.tooltip": "Hola 👋 Pregúntame lo que quieras",
   "assistant.close": "Cerrar",
   "assistant.typing": "Escribiendo…",
+  "auth.errEmailInvalid": "Introduce un correo válido.",
+  "auth.emailForCode": "Enviamos el código de verificación a este correo.",
 };

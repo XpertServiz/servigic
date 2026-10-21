@@ -315,4 +315,6 @@ export const hi: Partial<Record<TKey, string>> = {
   "assistant.tooltip": "नमस्ते 👋 कुछ भी पूछें",
   "assistant.close": "बंद करें",
   "assistant.typing": "लिख रही हूँ…",
+  "auth.errEmailInvalid": "सही ईमेल पता डालें।",
+  "auth.emailForCode": "सत्यापन कोड इसी ईमेल पर भेजा जाएगा।",
 };

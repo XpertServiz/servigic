@@ -1,3 +1,4 @@
+import { walletLimitsForProvider } from "@/lib/walletLimits";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -32,15 +33,16 @@ export async function POST(req: Request) {
   const profile = await prisma.providerProfile.findUnique({ where: { userId: auth.session.user.id } });
   if (!profile) return NextResponse.json({ error: "Provider profile not found" }, { status: 404 });
 
-  const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
-  const minTopUp = settings?.minTopUpPKR ?? 500;
+  // Limits follow the pro's own market and currency (SAR in Jeddah, PKR in Karachi): see src/lib/walletLimits.ts.
+  const limits = await walletLimitsForProvider(profile.id);
+  const minTopUp = limits.minTopUp;
   if (parsed.data.amountPKR < minTopUp) {
-    return NextResponse.json({ error: `The smallest top-up is PKR ${minTopUp.toLocaleString()}.`, code: "TOPUP_TOO_SMALL" }, { status: 400 });
+    return NextResponse.json({ error: `The smallest top-up is ${limits.currency} ${minTopUp.toLocaleString()}.`, code: "TOPUP_TOO_SMALL" }, { status: 400 });
   }
   const wallet = await prisma.proWallet.upsert({
     where: { providerId: profile.id },
     update: {},
-    create: { providerId: profile.id, ceilingPKR: settings?.defaultWalletCeilingPKR ?? 3000 },
+    create: { providerId: profile.id, ceilingPKR: limits.ceiling },
   });
 
   // The same payment cannot be claimed twice (by this pro or any other).
@@ -84,14 +86,14 @@ export async function GET() {
   return NextResponse.json({
     // Where to send the money, for the top-up sheet.
     payTo: await getPaymentAccounts(),
-    minTopUpPKR: (await prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { minTopUpPKR: true } }))?.minTopUpPKR ?? 500,
+    minTopUpPKR: (await walletLimitsForProvider(profile.id)).minTopUp,
     wallet: wallet
       ? {
           balancePKR: wallet.balancePKR,
           ceilingPKR: wallet.ceilingPKR,
           unsettledJobCount: wallet.unsettledJobCount,
         }
-      : { balancePKR: 0, ceilingPKR: 3000, unsettledJobCount: 0 },
+      : { balancePKR: 0, ceilingPKR: (await walletLimitsForProvider(profile.id)).ceiling, unsettledJobCount: 0 },
     dispatchStatus: profile.dispatchStatus,
     dispatchBlockedReason: profile.dispatchBlockedReason,
     ledger: (wallet?.ledgerEntries ?? []).map((l) => ({
