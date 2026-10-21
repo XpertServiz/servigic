@@ -1,6 +1,7 @@
 import type { Filter } from "@/lib/leadFilters";
 import { TRADE_LABELS } from "@/lib/trades";
 import { LEAD_STATUS_LABEL, LEAD_STATUSES } from "@/lib/leads";
+import { filterToParams } from "@/lib/leadFilters";
 
 // The shared filter form of the Pro Leads, Pros and Early-list pages. A plain GET form, so a filtered page is a link
 // that can be shared, saved as a preset, and turned into an export of exactly the same rows.
@@ -34,8 +35,13 @@ export function FilterBar({ action, f, options, fields, extraHidden }: { action:
   const has = (x: FilterField) => fields.includes(x);
   const tradeOptions = Object.entries(TRADE_LABELS).map(([k, v]) => [k, v.name] as [string, string]);
   const nearKind = f.near.split(":")[0] ?? "";
+  const active = Object.keys(filterToParams(f)).filter((k) => k !== "view" && k !== "page").length;
   return (
-    <form method="get" action={action} className="mb-5 flex flex-wrap items-end gap-3 rounded-[14px] border border-border-subtle bg-bg-elevated/40 p-4">
+    <details open={active > 0} className="mb-5 rounded-[14px] border border-border-subtle bg-bg-elevated/40">
+      <summary className="cursor-pointer select-none px-4 py-3 text-sm font-semibold">
+        Filters{active > 0 ? ` (${active} active)` : ""} <span className="font-normal text-text-muted">: country, city, area, zone, distance, trade, status ...</span>
+      </summary>
+    <form method="get" action={action} className="flex flex-wrap items-end gap-3 p-4 pt-1">
       {Object.entries(extraHidden ?? {}).map(([k, v]) => (
         <input key={k} type="hidden" name={k} value={v} />
       ))}
@@ -209,5 +215,6 @@ export function FilterBar({ action, f, options, fields, extraHidden }: { action:
       <button type="submit" className="rounded-full bg-accent px-5 py-2 text-sm font-semibold text-accent-foreground">Filter</button>
       <a href={action} className="px-2 py-2 text-sm text-text-muted hover:text-text">Clear</a>
     </form>
+    </details>
   );
 }

@@ -13,7 +13,7 @@ export interface CountryView {
 }
 
 const STATES: { key: CountryView["state"]; label: string; tone: string }[] = [
-  { key: "off", label: "Off", tone: "border-border-subtle text-text-muted" },
+  { key: "off", label: "Off", tone: "border-danger/60 bg-danger/10 text-danger" },
   { key: "waitlist", label: "Waitlist", tone: "border-accent/60 bg-accent/10 text-accent" },
   { key: "pilot", label: "Pilot", tone: "border-secondary/60 bg-secondary/10 text-secondary" },
   { key: "live", label: "Live", tone: "border-secondary bg-secondary text-secondary-foreground" },

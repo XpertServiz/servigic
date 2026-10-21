@@ -60,10 +60,12 @@ export async function POST(req: Request) {
   if (!availability.ok) return NextResponse.json({ error: availability.message, code: availability.code }, { status: 422 });
 
   // Find the customer by phone, or create the placeholder account.
-  let customer = await prisma.user.findFirst({ where: { phone: { in: phoneVariants(phone) } } });
+  // A number can now hold a customer and a pro account: only the customer account counts here.
+  const holders = await prisma.user.findMany({ where: { phone: { in: phoneVariants(phone) } } });
+  let customer = holders.find((u) => u.role === "CUSTOMER") ?? null;
   let createdPlaceholder = false;
-  if (customer && customer.role !== "CUSTOMER") {
-    return NextResponse.json({ error: `That phone number belongs to a ${customer.role.toLowerCase()} account, not a customer.` }, { status: 409 });
+  if (!customer && holders.some((u) => u.role === "ADMIN" || u.role === "SUPPORT")) {
+    return NextResponse.json({ error: "That phone number belongs to a staff account, not a customer." }, { status: 409 });
   }
   if (!customer) {
     customer = await prisma.user.create({
