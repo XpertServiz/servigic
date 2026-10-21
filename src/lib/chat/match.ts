@@ -37,7 +37,7 @@ export function normalize(text: string): string {
 const AR = /[؀-ۿ]/;
 function arStrip(w: string): string {
   if (!AR.test(w)) return w;
-  let x = w;
+  const x = w;
   for (const p of ["وال", "بال", "لل", "ال"]) if (x.startsWith(p) && x.length - p.length >= 2) return x.slice(p.length);
   return x;
 }
