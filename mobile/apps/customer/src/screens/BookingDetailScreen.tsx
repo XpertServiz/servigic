@@ -1,3 +1,4 @@
+import { currencyCode } from "../lib/currency";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, Pressable, Alert, Linking } from "react-native";
 import MapView, { Polyline } from "react-native-maps";
@@ -205,7 +206,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
     <>
         <Text style={styles.title}>{booking.jobTitle as string}</Text>
         <View style={styles.priceRow}>
-          <Text style={[styles.price, done && { color: colors.secondary }]}>PKR {(booking.totalPKR as number).toLocaleString()}</Text>
+          <Text style={[styles.price, done && { color: colors.secondary }]}>{currencyCode()} {(booking.totalPKR as number).toLocaleString()}</Text>
           <View style={[styles.pill, done ? { backgroundColor: "rgba(30,194,139,0.14)" } : { backgroundColor: colors.accentTint }]}>
             <Text style={[styles.pillText, { color: done ? colors.secondary : colors.accent }]}>{enumLabel(td, "booking", status).toUpperCase()}</Text>
           </View>

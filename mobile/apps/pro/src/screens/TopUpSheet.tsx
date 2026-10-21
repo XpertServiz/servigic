@@ -1,3 +1,4 @@
+import { currencyCode } from "../lib/currency";
 import React, { useEffect, useState } from "react";
 import { Modal, View, Text, Pressable, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -112,7 +113,7 @@ export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean
           ) : payTo ? (
             <View style={{ backgroundColor: colors.accentTint, borderWidth: 1, borderColor: colors.accentBorder, borderRadius: 14, padding: 14, marginBottom: 16 }}>
               <Text style={{ color: colors.text, fontWeight: "800", fontSize: 13, marginBottom: 8 }}>
-                {Number(amount) > 0 ? t("topup.sendTo", { amount: `PKR ${Number(amount).toLocaleString()}` }) : t("topup.step1")}
+                {Number(amount) > 0 ? t("topup.sendTo", { amount: `${currencyCode()} ${Number(amount).toLocaleString()}` }) : t("topup.step1")}
               </Text>
               {payTo[method] && "bankName" in payTo[method]! && !!(payTo[method] as { bankName?: string }).bankName && (
                 <Text style={{ color: colors.textMuted, fontSize: 12 }}>

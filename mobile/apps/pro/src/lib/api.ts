@@ -66,7 +66,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 // ─── Language ───
 // Public (works before login): which language to *suggest* for this country.
 export function getMarket() {
-  return request<{ country: string; countryName: string; suggestedLocale: string }>("/api/mobile/market");
+  return request<{ country: string; countryName: string; suggestedLocale: string; chatLanguage?: string }>("/api/mobile/market");
 }
 
 // Persists the chosen language on the user's account.
@@ -81,7 +81,8 @@ export function login(phone: string, password: string) {
     user: { id: string; name: string; role: "CUSTOMER" | "PROVIDER"; phone: string; language?: string };
   }>(
     "/api/mobile/auth/login",
-    { method: "POST", body: JSON.stringify({ phone, password }) }
+    // `role` makes a number that holds both a customer and a pro account open the one this app is for.
+    { method: "POST", body: JSON.stringify({ phone, password, role: "PROVIDER" }) }
   );
 }
 
@@ -94,11 +95,35 @@ export function register(input: {
   city?: string;
   referralCode?: string;
   deviceId?: string;
+  confirmPassword?: string;
 }) {
-  return request<{ userId: string; phone: string; referral?: "applied" | "invalid" | "none" }>("/api/auth/register", {
+  return request<{ userId: string; phone: string; verified?: boolean; linked?: boolean; referral?: "applied" | "invalid" | "none" }>("/api/auth/register", {
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+// ─── Forgot password (works before login) ───
+export function forgotPassword(phone: string) {
+  return request<{ sent: true }>("/api/auth/forgot-password", { method: "POST", body: JSON.stringify({ phone }) });
+}
+
+export function resetPassword(input: { phone: string; code: string; password: string; confirmPassword: string }) {
+  return request<{ ok: true }>("/api/auth/reset-password", { method: "POST", body: JSON.stringify(input) });
+}
+
+// ─── Assistant (chatbot): answers come from the app's own FAQ texts; only unknown questions reach the server ───
+export interface ChatKb {
+  lang: string;
+  ui: Record<string, string>;
+  entries: { id: string; q: string; a: string }[];
+  suggested: string[];
+}
+export function getChatKb(lang: string, country: string) {
+  return request<ChatKb>(`/api/chat/kb?lang=${encodeURIComponent(lang)}&country=${encodeURIComponent(country)}`);
+}
+export function askChat(lang: string, country: string, question: string) {
+  return request<{ answer: string | null; source: string }>("/api/chat/ask", { method: "POST", body: JSON.stringify({ lang, country, question }) });
 }
 
 export function verifyOtp(userId: string, code: string) {

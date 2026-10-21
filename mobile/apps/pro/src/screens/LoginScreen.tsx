@@ -6,6 +6,9 @@ import type { AuthStackParamList } from "../navigation/RootNavigator";
 import { useAuth } from "../lib/auth";
 import { Button, Field, PhoneField, usePhoneInput } from "../components/ui";
 import { GlowBackground } from "../components/ds";
+import { AuthBackdrop } from "../components/AuthBackdrop";
+import { authErrorMessage } from "../lib/authErrors";
+import { APP_ROLE } from "../lib/appRole";
 import { SplashLogo } from "../components/SplashLogo";
 import { HeaderActions } from "../components/HeaderActions";
 import { colors } from "../lib/theme";
@@ -33,7 +36,7 @@ export default function LoginScreen({ navigation }: Props) {
     try {
       await signIn(phone.e164, password);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("auth.loginFailed"));
+      setError(authErrorMessage(e, t, APP_ROLE, "auth.loginFailed"));
     } finally {
       setLoading(false);
     }
@@ -42,6 +45,7 @@ export default function LoginScreen({ navigation }: Props) {
   return (
     <View style={styles.root}>
       <GlowBackground cx="30%" cy="15%" r="70%" opacity={0.14} />
+      <AuthBackdrop />
       <View style={[styles.topBar, { top: insets.top + 12 }]}>
         <HeaderActions showBell={false} />
       </View>
@@ -63,6 +67,9 @@ export default function LoginScreen({ navigation }: Props) {
 
           <PhoneField phone={phone} />
           <Field label={t("auth.password")} secureTextEntry value={password} onChangeText={setPassword} placeholder="••••••••" />
+          <Text style={{ color: colors.accent, fontWeight: "700", fontSize: 13, textAlign: "right", marginTop: -8, marginBottom: 16 }} onPress={() => navigation.navigate("ForgotPassword")}>
+            {t("auth.forgotPassword")}
+          </Text>
 
           {error && <Text style={styles.error}>{error}</Text>}
 

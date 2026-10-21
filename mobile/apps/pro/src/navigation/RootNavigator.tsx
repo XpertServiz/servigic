@@ -18,6 +18,8 @@ import IncomingJobRing, { type IncomingJob } from "../screens/IncomingJobRing";
 import LoginScreen from "../screens/LoginScreen";
 import SignupScreen from "../screens/SignupScreen";
 import VerifyOtpScreen from "../screens/VerifyOtpScreen";
+import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
+import { ChatAssistant } from "../components/ChatAssistant";
 import HomeScreen from "../screens/HomeScreen";
 import JobsScreen from "../screens/JobsScreen";
 import JobDetailScreen from "../screens/JobDetailScreen";
@@ -35,6 +37,7 @@ export type AuthStackParamList = {
   Login: undefined;
   Signup: undefined;
   VerifyOtp: { userId: string };
+  ForgotPassword: undefined;
   Language: undefined;
 };
 
@@ -271,6 +274,7 @@ export function RootNavigator() {
           <AuthStack.Navigator screenOptions={screenOptions}>
             <AuthStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
             <AuthStack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }} />
+            <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen as never} options={{ headerShown: false }} />
             <AuthStack.Screen name="VerifyOtp" component={VerifyOtpScreen} options={{ title: t("nav.verifyPhone") }} />
             <AuthStack.Screen name="Language" component={LanguageScreen} options={{ presentation: "modal", headerShown: false }} />
           </AuthStack.Navigator>
@@ -286,6 +290,7 @@ export function RootNavigator() {
         )}
       </NavigationContainer>
       <LanguageSuggestion />
+      <ChatAssistant />
     </>
   );
 }

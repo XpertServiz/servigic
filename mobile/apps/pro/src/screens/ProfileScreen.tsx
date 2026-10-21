@@ -1,3 +1,4 @@
+import { VerificationNotice } from "../components/VerificationNotice";
 import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, Pressable, Linking, StyleSheet, Switch, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -284,6 +285,11 @@ export default function ProfileScreen() {
           </View>
         ))}
 
+      {verificationLevel < 1 && (
+        <View style={{ marginBottom: 12 }}>
+          <VerificationNotice />
+        </View>
+      )}
       <View style={styles.verifyHeader}>
         <Text style={styles.sectionLabelInline}>{t("account.verifiedLevel", { n: verificationLevel })}</Text>
         <Text style={{ fontSize: 11, color: colors.textMuted }}>{t("account.docsProgress", { done: docsDone, total: 3 })}</Text>

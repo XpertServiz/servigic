@@ -14,6 +14,7 @@ import * as SecureStore from "expo-secure-store";
 import * as Updates from "expo-updates";
 import { getLocales } from "expo-localization";
 import * as api from "../api";
+import { localiseMoney } from "../currency";
 import { setAlertLanguage } from "../notifications";
 import { DEFAULT_LANG, isLangCode, isRtlLang, type LangCode } from "./languages";
 import { en, type TKey } from "./locales/en";
@@ -42,8 +43,9 @@ const KEY_PROMPTED = "servigic_lang_prompted";
 const KEY_RTL_RELOAD = "servigic_rtl_reload_at";
 
 function interpolate(template: string, vars?: Vars): string {
-  if (!vars) return template;
-  return template.replace(/\{(\w+)\}/g, (_, name: string) => (name in vars ? String(vars[name]) : `{${name}}`));
+  const text = vars ? template.replace(/\{(\w+)\}/g, (_, name: string) => (name in vars ? String(vars[name]) : `{${name}}`)) : template;
+  // Amounts are written "PKR ..." in the texts: show the user's own currency (Saudi riyal in Jeddah, ...).
+  return localiseMoney(text);
 }
 
 function lookup(lang: LangCode, key: string): string | null {

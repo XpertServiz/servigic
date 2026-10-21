@@ -1,6 +1,7 @@
 // "Invite friends, earn rewards" card (referral programme). Shared by apps/customer and apps/pro.
 // Shows the user's code, what a successful invite is worth, how their invites are doing, and the referral
 // earnings so far (customer credit that comes off a future job / pro wallet bonus).
+import { currencyCode } from "../lib/currency";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Share } from "react-native";
 import * as api from "../lib/api";
@@ -83,12 +84,12 @@ export function ReferralCard() {
 
       <View style={styles.statsRow}>
         <View style={styles.stat}>
-          <Text style={styles.statValue}>PKR {data.earnedPKR.toLocaleString()}</Text>
+          <Text style={styles.statValue}>{currencyCode()} {data.earnedPKR.toLocaleString()}</Text>
           <Text style={styles.statLabel}>{t("referral.earned")}</Text>
         </View>
         {!isPro && (
           <View style={styles.stat}>
-            <Text style={[styles.statValue, { color: colors.secondary }]}>PKR {data.availablePKR.toLocaleString()}</Text>
+            <Text style={[styles.statValue, { color: colors.secondary }]}>{currencyCode()} {data.availablePKR.toLocaleString()}</Text>
             <Text style={styles.statLabel}>{t("referral.available")}</Text>
           </View>
         )}

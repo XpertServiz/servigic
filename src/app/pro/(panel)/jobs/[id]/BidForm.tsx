@@ -1,5 +1,6 @@
 "use client";
 
+import { useTxCurrency } from "@/components/i18n/TxCurrency";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ export function BidForm({
   verificationLevel: number;
   bidWinHintEnabled: boolean;
 }) {
+  const cur = useTxCurrency();
   const router = useRouter();
   const [price, setPrice] = useState(existingBid?.pricePKR?.toString() ?? "");
   const [eta, setEta] = useState(existingBid?.etaMinutes?.toString() ?? "");
@@ -109,8 +111,8 @@ export function BidForm({
     return (
       <div className="rounded-[14px] border border-accent/30 bg-accent/10 p-5">
         <p className="mb-4 font-semibold">
-          Customer countered with <span className="text-accent">PKR {existingBid.counterPricePKR?.toLocaleString()}</span>{" "}
-          (your bid was PKR {existingBid.pricePKR.toLocaleString()})
+          Customer countered with <span className="text-accent">{cur} {existingBid.counterPricePKR?.toLocaleString()}</span>{" "}
+          (your bid was {cur} {existingBid.pricePKR.toLocaleString()})
         </p>
         <div className="flex gap-2">
           <button
@@ -146,7 +148,7 @@ export function BidForm({
       <h3 className="font-bold">{existingBid ? "Edit your bid" : "Submit a bid"}</h3>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="mb-1.5 block text-sm font-semibold text-text-muted">Price (PKR)</label>
+          <label className="mb-1.5 block text-sm font-semibold text-text-muted">Price ({cur})</label>
           <input
             required
             type="number"
@@ -178,7 +180,7 @@ export function BidForm({
           type="text"
           value={partsNote}
           onChange={(e) => setPartsNote(e.target.value)}
-          placeholder="e.g. ~PKR 1,500 for pipe fittings"
+          placeholder={`e.g. ~${cur} 1,500 for pipe fittings`}
           className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated-2 px-4 py-3 outline-none focus:border-accent"
         />
         <p className="mt-1.5 text-xs text-text-dim">

@@ -1,9 +1,11 @@
+import { getTxCurrency } from "@/lib/txCurrency";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { runExpirySweep } from "@/lib/expiry";
 
 export default async function CustomerBookingsPage() {
+  const cur = await getTxCurrency();
   await runExpirySweep();
   const session = await auth();
 
@@ -29,7 +31,7 @@ export default async function CustomerBookingsPage() {
               <span className="text-2xl">{b.job.category.icon}</span>
               <div>
                 <div className="font-bold">{b.job.title}</div>
-                <div className="text-sm text-text-muted">PKR {b.totalPKR.toLocaleString()}</div>
+                <div className="text-sm text-text-muted">{cur} {b.totalPKR.toLocaleString()}</div>
               </div>
             </div>
             <span className="rounded-full border border-border-subtle px-3 py-1 text-xs font-bold text-text-muted">

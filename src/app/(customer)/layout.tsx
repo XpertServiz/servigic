@@ -1,5 +1,7 @@
 import { auth } from "@/lib/auth";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
+import { TxCurrencyProvider } from "@/components/i18n/TxCurrency";
+import { getTxCurrency } from "@/lib/txCurrency";
 
 const NAV = [
   { href: "/dashboard", label: "My Jobs" },
@@ -9,10 +11,10 @@ const NAV = [
 ];
 
 export default async function CustomerLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
+  const [session, currency] = await Promise.all([auth(), getTxCurrency()]);
   return (
     <DashboardShell brand="Servigic" navItems={NAV} userLabel={session?.user?.name ?? ""}>
-      {children}
+      <TxCurrencyProvider code={currency}>{children}</TxCurrencyProvider>
     </DashboardShell>
   );
 }

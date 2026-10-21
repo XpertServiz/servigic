@@ -1,3 +1,4 @@
+import { currencyCode } from "../lib/currency";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Animated, Easing } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
@@ -191,7 +192,7 @@ export default function HomeScreen() {
         {debtPKR > 0 && (
           <View style={styles.debt}>
             <Text style={{ fontSize: 12, color: "#E07A7A" }}>{t("home.youOwe")}</Text>
-            <Text style={{ fontSize: 13, fontWeight: "700", color: colors.dangerSoft }}>PKR {debtPKR.toLocaleString()}</Text>
+            <Text style={{ fontSize: 13, fontWeight: "700", color: colors.dangerSoft }}>{currencyCode()} {debtPKR.toLocaleString()}</Text>
           </View>
         )}
 

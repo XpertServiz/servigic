@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { detectMarket } from "@/lib/geoDetect";
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from "@/i18n/request";
+import { localeForCountry } from "@/i18n/locales";
 
 // Public (called before login, on first launch): tells the mobile app which
 // language to *suggest*. Same geo-header detection the web landing page uses
@@ -14,5 +15,7 @@ export async function GET() {
     country: market.country,
     countryName: market.countryName,
     suggestedLocale,
+    // The assistant (chatbot) opens in the language of the user's country: Arabic in Saudi Arabia, Urdu in Pakistan, ...
+    chatLanguage: localeForCountry(market.country),
   });
 }

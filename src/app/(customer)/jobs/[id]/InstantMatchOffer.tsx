@@ -1,5 +1,6 @@
 "use client";
 
+import { useTxCurrency } from "@/components/i18n/TxCurrency";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -19,6 +20,7 @@ interface Offer {
 }
 
 export function InstantMatchOffer({ jobId }: { jobId: string }) {
+  const cur = useTxCurrency();
   const router = useRouter();
   const [offer, setOffer] = useState<Offer | null>(null);
   const [loading, setLoading] = useState(false);
@@ -103,7 +105,7 @@ export function InstantMatchOffer({ jobId }: { jobId: string }) {
       <div className="mb-3 text-xs text-text-muted">
         {offer.bid.ratingCount > 0 ? `${offer.bid.ratingAvg.toFixed(1)}★` : "New"} · ETA {offer.bid.etaMinutes} min
       </div>
-      <div className="mb-4 font-display text-2xl font-bold text-accent">PKR {offer.bid.pricePKR.toLocaleString()}</div>
+      <div className="mb-4 font-display text-2xl font-bold text-accent">{cur} {offer.bid.pricePKR.toLocaleString()}</div>
       <button
         onClick={accept}
         disabled={accepting}

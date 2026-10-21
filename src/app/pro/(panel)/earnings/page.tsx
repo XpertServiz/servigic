@@ -1,3 +1,4 @@
+import { getTxCurrency } from "@/lib/txCurrency";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -19,6 +20,7 @@ const LEDGER_TYPE_TONE: Record<string, string> = {
 };
 
 export default async function ProviderEarningsPage() {
+  const cur = await getTxCurrency();
   const session = await auth();
   const profile = await prisma.providerProfile.findUnique({ where: { userId: session!.user.id } });
   if (!profile) return null;
@@ -58,9 +60,9 @@ export default async function ProviderEarningsPage() {
         <div className="mb-8 grid grid-cols-2 gap-5 md:grid-cols-3">
           <StatCard
             label={balancePKR < 0 ? "You owe Servigic" : "Wallet settled"}
-            value={`PKR ${Math.abs(balancePKR).toLocaleString()}`}
+            value={`${cur} ${Math.abs(balancePKR).toLocaleString()}`}
           />
-          <StatCard label="Debt ceiling" value={`PKR ${ceilingPKR.toLocaleString()}`} />
+          <StatCard label="Debt ceiling" value={`${cur} ${ceilingPKR.toLocaleString()}`} />
           <StatCard label="Dispatch status" value={profile.dispatchStatus} />
         </div>
 
@@ -93,7 +95,7 @@ export default async function ProviderEarningsPage() {
                 {l.booking && <div className="text-xs text-text-muted">{l.booking.job.title}</div>}
               </div>
               <span className={`font-bold ${LEDGER_TYPE_TONE[l.type] ?? ""}`}>
-                {l.type === "COMMISSION_DEBIT" ? "-" : "+"}PKR {l.amountPKR.toLocaleString()}
+                {l.type === "COMMISSION_DEBIT" ? "-" : "+"}{cur} {l.amountPKR.toLocaleString()}
               </span>
             </div>
           ))}
@@ -122,8 +124,8 @@ export default async function ProviderEarningsPage() {
       <p className="mb-8 text-text-muted">Payout account: {profile.payoutMethod ?? "Not set"} — {profile.payoutAccount ?? "—"}</p>
 
       <div className="mb-8 grid grid-cols-2 gap-5 md:grid-cols-3">
-        <StatCard label="Total earned" value={`PKR ${totalSent.toLocaleString()}`} />
-        <StatCard label="Queued for payout" value={`PKR ${totalQueued.toLocaleString()}`} />
+        <StatCard label="Total earned" value={`${cur} ${totalSent.toLocaleString()}`} />
+        <StatCard label="Queued for payout" value={`${cur} ${totalQueued.toLocaleString()}`} />
         <StatCard label="Commission" value={`${pct}%`} />
       </div>
 
@@ -134,7 +136,7 @@ export default async function ProviderEarningsPage() {
               <span className="text-xl">{p.booking.job.category.icon}</span>
               <div>
                 <div className="font-semibold">{p.booking.job.title}</div>
-                <div className="text-xs text-text-muted">PKR {p.amountPKR.toLocaleString()}</div>
+                <div className="text-xs text-text-muted">{cur} {p.amountPKR.toLocaleString()}</div>
               </div>
             </div>
             <span className={`rounded-full border px-3 py-1 text-xs font-bold ${STATUS_COLORS[p.status]}`}>{p.status}</span>

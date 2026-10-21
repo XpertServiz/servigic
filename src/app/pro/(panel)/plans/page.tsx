@@ -1,8 +1,10 @@
+import { getTxCurrency } from "@/lib/txCurrency";
 import { plural } from "@/lib/plural";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export default async function ProPlansPage() {
+  const cur = await getTxCurrency();
   const session = await auth();
   const profile = await prisma.providerProfile.findUnique({ where: { userId: session!.user.id } });
   if (!profile) return null;
@@ -26,7 +28,7 @@ export default async function ProPlansPage() {
       </p>
 
       <div className="mb-6 rounded-[12px] border border-secondary/30 bg-secondary/10 px-5 py-4">
-        <div className="font-display text-2xl font-bold text-secondary">~PKR {Math.round(monthlyRecurringPKR).toLocaleString()}</div>
+        <div className="font-display text-2xl font-bold text-secondary">~{cur} {Math.round(monthlyRecurringPKR).toLocaleString()}</div>
         <div className="text-xs text-text-muted">Estimated recurring revenue per month across {plural(plans.length, "plan")}</div>
       </div>
 
@@ -37,7 +39,7 @@ export default async function ProPlansPage() {
               {p.category.icon} {p.category.name} · {p.customer.name}
             </div>
             <div className="text-sm text-text-muted">
-              {p.areaLabel} · {p.frequency.toLowerCase()} · ~PKR {p.pricePerVisitPKR.toLocaleString()}/visit
+              {p.areaLabel} · {p.frequency.toLowerCase()} · ~{cur} {p.pricePerVisitPKR.toLocaleString()}/visit
             </div>
             <div className="mt-1 text-xs text-text-muted">Next visit: {p.nextDueDate.toLocaleDateString()}</div>
           </div>

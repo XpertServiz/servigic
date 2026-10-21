@@ -1,9 +1,11 @@
+import { getTxCurrency } from "@/lib/txCurrency";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { OnlineToggle } from "@/components/dashboard/OnlineToggle";
 import { StatCard } from "@/components/dashboard/StatCard";
 
 export default async function ProviderDashboardPage() {
+  const cur = await getTxCurrency();
   const session = await auth();
   const profile = await prisma.providerProfile.findUnique({ where: { userId: session!.user.id } });
   if (!profile) return null;
@@ -39,7 +41,7 @@ export default async function ProviderDashboardPage() {
 
       <div className="mb-6 flex items-center justify-between rounded-[12px] border border-secondary/30 bg-secondary/10 px-5 py-4">
         <div>
-          <div className="font-display text-2xl font-bold text-secondary">PKR 0</div>
+          <div className="font-display text-2xl font-bold text-secondary">{cur} 0</div>
           <div className="text-xs text-text-muted">Spent on leads this month — ever, actually</div>
         </div>
         <div className="text-right text-xs text-text-muted">
@@ -50,7 +52,7 @@ export default async function ProviderDashboardPage() {
       <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
         <StatCard label="Today's dispatches" value={todaysDispatches} />
         <StatCard label="Win rate" value={`${winRate}%`} />
-        <StatCard label="Total earnings" value={`PKR ${(earnings._sum.amountPKR ?? 0).toLocaleString()}`} />
+        <StatCard label="Total earnings" value={`${cur} ${(earnings._sum.amountPKR ?? 0).toLocaleString()}`} />
         <StatCard label="Rating" value={profile.ratingCount > 0 ? profile.ratingAvg.toFixed(1) : "—"} />
       </div>
     </div>

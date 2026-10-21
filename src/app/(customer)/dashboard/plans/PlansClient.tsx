@@ -1,5 +1,6 @@
 "use client";
 
+import { useTxCurrency } from "@/components/i18n/TxCurrency";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -28,6 +29,7 @@ const FREQUENCY_OPTIONS = [
 ] as const;
 
 export function PlansClient({ plans, categories, cities }: { plans: PlanView[]; categories: CategoryOption[]; cities: string[] }) {
+  const cur = useTxCurrency();
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [pending, setPending] = useState(false);
@@ -158,7 +160,7 @@ export function PlansClient({ plans, categories, cities }: { plans: PlanView[]; 
           </div>
           <div className="mb-4 grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-text-muted">Est. price per visit (PKR)</label>
+              <label className="mb-1.5 block text-xs font-semibold text-text-muted">Est. price per visit ({cur})</label>
               <input
                 type="number"
                 value={form.pricePerVisitPKR}
@@ -207,7 +209,7 @@ export function PlansClient({ plans, categories, cities }: { plans: PlanView[]; 
               </span>
             </div>
             <div className="mb-3 text-sm text-text-muted">
-              Next visit: {new Date(p.nextDueDate).toLocaleDateString()} · ~PKR {p.pricePerVisitPKR.toLocaleString()}/visit
+              Next visit: {new Date(p.nextDueDate).toLocaleDateString()} · ~{cur} {p.pricePerVisitPKR.toLocaleString()}/visit
             </div>
             <div className="flex gap-2">
               {p.status === "ACTIVE" && (

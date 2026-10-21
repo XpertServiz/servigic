@@ -4,6 +4,7 @@
 // "added to the wallet"). In the legacy PROTECTED mode it shows the payout.
 // The one full-screen interstitial in the whole app is shown from "Back to
 // jobs" below — a natural transition point, once per session, never on a timer.
+import { currencyCode } from "../../lib/currency";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -53,12 +54,12 @@ export function JobDoneView({ booking, onBackToJobs }: { booking: BookingData; o
           <View style={styles.statsRow}>
             <View>
               <Text style={styles.statLabel}>{t("done.commission", { pct })}</Text>
-              <Text style={styles.statValue}>PKR {commission.toLocaleString()}</Text>
+              <Text style={styles.statValue}>{currencyCode()} {commission.toLocaleString()}</Text>
             </View>
             {cash && reward > 0 && (
               <View style={{ alignItems: "center" }}>
                 <Text style={styles.statLabel}>{t("done.discountCredit")}</Text>
-                <Text style={[styles.statValue, { color: colors.success }]}>+PKR {reward.toLocaleString()}</Text>
+                <Text style={[styles.statValue, { color: colors.success }]}>+{currencyCode()} {reward.toLocaleString()}</Text>
               </View>
             )}
             <View style={{ alignItems: "flex-end" }}>

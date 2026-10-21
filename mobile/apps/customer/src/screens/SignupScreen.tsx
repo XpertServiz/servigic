@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import { Alert, KeyboardAvoidingView, ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../navigation/RootNavigator";
@@ -10,6 +10,9 @@ import { colors } from "../lib/theme";
 import { useT } from "../lib/i18n";
 import { loadMarketConfig } from "../lib/market";
 import { getDeviceId } from "../lib/device";
+import { GlowBackground } from "../components/ds";
+import { AuthBackdrop } from "../components/AuthBackdrop";
+import { authErrorMessage } from "../lib/authErrors";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Signup">;
 
@@ -20,6 +23,7 @@ export default function SignupScreen({ navigation }: Props) {
   const [name, setName] = useState("");
   const phone = usePhoneInput();
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -27,6 +31,10 @@ export default function SignupScreen({ navigation }: Props) {
   async function handleSignup() {
     setError(null);
     phone.setTouched(true);
+    if (password !== confirm) {
+      setError(t("auth.passwordMismatch"));
+      return;
+    }
     if (!phone.e164) {
       setError(t("phone.error", { example: phone.example.international }));
       return;
@@ -37,10 +45,16 @@ export default function SignupScreen({ navigation }: Props) {
       // config (older backend / offline) keep the legacy default so nobody is locked out.
       const cfg = await loadMarketConfig(null);
       const city = cfg && !cfg.legacyOpen ? cfg.market?.cities?.[0] : "Karachi";
-      const { userId } = await api.register({ role: "CUSTOMER", name, phone: phone.e164, password, ...(city ? { city } : {}), ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}), deviceId: await getDeviceId() });
+      const { userId, verified } = await api.register({ role: "CUSTOMER", name, phone: phone.e164, password, confirmPassword: confirm, ...(city ? { city } : {}), ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}), deviceId: await getDeviceId() });
+      // Second role on a number that is already verified: nothing to confirm, just sign in.
+      if (verified) {
+        Alert.alert(t("auth.linkedDone"));
+        navigation.replace("Login");
+        return;
+      }
       navigation.replace("VerifyOtp", { userId });
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("auth.signupFailed"));
+      setError(authErrorMessage(e, t, "CUSTOMER"));
     } finally {
       setLoading(false);
     }
@@ -48,6 +62,8 @@ export default function SignupScreen({ navigation }: Props) {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <GlowBackground cx="30%" cy="15%" r="70%" opacity={0.12} />
+      <AuthBackdrop />
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Pressable onPress={() => navigation.goBack()} style={styles.back} accessibilityLabel={t("common.back")}>
           <Icon name="back" size={16} />
@@ -66,12 +82,13 @@ export default function SignupScreen({ navigation }: Props) {
         <Field label={t("auth.fullName")} value={name} onChangeText={setName} />
         <PhoneField phone={phone} />
         <Field label={t("auth.password")} secureTextEntry value={password} onChangeText={setPassword} placeholder="••••••••" />
+        <Field label={t("auth.confirmPassword")} secureTextEntry value={confirm} onChangeText={setConfirm} placeholder="••••••••" error={confirm && confirm !== password ? t("auth.passwordMismatch") : null} />
 
         <Field label={t("referral.signupLabel")} value={referralCode} onChangeText={(v) => setReferralCode(v.toUpperCase())} autoCapitalize="characters" />
 
         {error && <Text style={styles.error}>{error}</Text>}
 
-        <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || password.length < 8} />
+        <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || password.length < 8 || confirm !== password} />
         <Text style={styles.legal}>{t("auth.legal")}</Text>
       </ScrollView>
       </KeyboardAvoidingView>

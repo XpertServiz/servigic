@@ -1,3 +1,4 @@
+import { getTxCurrency } from "@/lib/txCurrency";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -12,6 +13,7 @@ const URGENCY_STYLE: Record<string, string> = {
 };
 
 export default async function ProviderJobFeedPage() {
+  const cur = await getTxCurrency();
   await runExpirySweep();
   const session = await auth();
   const profile = await prisma.providerProfile.findUnique({ where: { userId: session!.user.id } });
@@ -50,7 +52,7 @@ export default async function ProviderJobFeedPage() {
                   <div className="font-bold">{job.title}</div>
                   <div className="text-sm text-text-muted">
                     {job.areaLabel} · {job.category.name}
-                    {job.budgetPKR ? ` · Budget PKR ${job.budgetPKR.toLocaleString()}` : ""}
+                    {job.budgetPKR ? ` · Budget ${cur} ${job.budgetPKR.toLocaleString()}` : ""}
                   </div>
                 </div>
               </div>

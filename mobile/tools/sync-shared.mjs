@@ -45,6 +45,15 @@ const SHARED = [
   "src/screens/MessageThreadScreen.tsx",
   "src/screens/VerifyOtpScreen.tsx",
   "src/navigation/ref.ts",
+  // Sign-in / sign-up polish, password reset and the assistant (chatbot)
+  "src/components/AuthBackdrop.tsx",
+  "src/components/ChatAssistant.tsx",
+  "src/lib/authScenes.ts",
+  "src/lib/authErrors.ts",
+  "src/lib/chatAvatar.ts",
+  "src/lib/chatMatch.ts",
+  "src/lib/currency.ts",
+  "src/screens/ForgotPasswordScreen.tsx",
 ];
 
 for (const rel of SHARED) {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTxCurrency } from "@/components/i18n/TxCurrency";
 import { plural } from "@/lib/plural";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -21,6 +22,7 @@ const URGENCY_OPTIONS = [
 ] as const;
 
 export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: { categories: CategoryWithSub[]; aiTriageEnabled: boolean; cities: { name: string; lat: number; lng: number }[] }) {
+  const cur = useTxCurrency();
   const CITIES = cityList.map((c) => c.name);
   const router = useRouter();
   const [form, setForm] = useState({
@@ -278,7 +280,7 @@ export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: {
       </div>
 
       <div>
-        <label className="mb-1.5 block text-sm font-semibold text-text-muted">Budget in PKR (optional)</label>
+        <label className="mb-1.5 block text-sm font-semibold text-text-muted">Budget in {cur} (optional)</label>
         <input
           type="number"
           value={form.budgetPKR}
@@ -289,7 +291,7 @@ export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: {
           <p className="mt-2 text-xs text-text-muted">
             Most {selectedCategory?.name} jobs in {form.city} close between{" "}
             <b className="text-accent">
-              PKR {priceBenchmark.minPKR.toLocaleString()}–{priceBenchmark.maxPKR.toLocaleString()}
+              {cur} {priceBenchmark.minPKR.toLocaleString()}–{priceBenchmark.maxPKR.toLocaleString()}
             </b>{" "}
             ({priceBenchmark.sampleSize} recent jobs) — you can still set your own budget.
           </p>

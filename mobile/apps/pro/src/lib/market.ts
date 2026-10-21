@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import * as Location from "expo-location";
 import * as api from "./api";
+import { setCurrencyCode } from "./currency";
 
 const KEY = "servigic_market_config";
 const TTL_MS = 60_000;
@@ -22,6 +23,7 @@ export async function loadMarketConfig(city?: string | null, point?: api.GeoPoin
   if (memo && memo.key === key && Date.now() - memo.at < TTL_MS) return memo.cfg;
   try {
     const cfg = await api.getMarketConfig(wanted, point);
+    setCurrencyCode(cfg.market?.currency);
     memo = { cfg, at: Date.now(), key };
     SecureStore.setItemAsync(KEY, JSON.stringify(cfg)).catch(() => {});
     return cfg;

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTxCurrency } from "@/components/i18n/TxCurrency";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -83,6 +84,7 @@ export function BookingDetailClient({
   legalDisclaimer: string;
   paymentMode: "CASH_WALLET" | "PROTECTED";
 }) {
+  const cur = useTxCurrency();
   const router = useRouter();
   const [proLocation, setProLocation] = useState<{ lat: number; lng: number } | null>(null);
 
@@ -114,7 +116,7 @@ export function BookingDetailClient({
         <span className="text-2xl">{booking.categoryIcon}</span>
         <div>
           <h1 className="font-display text-2xl font-bold">{booking.jobTitle}</h1>
-          <p className="text-sm text-text-muted">PKR {booking.totalPKR.toLocaleString()} · {booking.providerName}</p>
+          <p className="text-sm text-text-muted">{cur} {booking.totalPKR.toLocaleString()} · {booking.providerName}</p>
         </div>
       </div>
 
@@ -246,7 +248,7 @@ export function BookingDetailClient({
       <div className="mb-6 rounded-[14px] border border-border-subtle bg-bg-elevated p-5">
         <h3 className="mb-1 font-bold">Secure Payment</h3>
         <p className="mb-3 text-sm text-text-muted">
-          PKR {booking.totalPKR.toLocaleString()}
+          {cur} {booking.totalPKR.toLocaleString()}
           {booking.paymentDeadline && <> · Deadline: {new Date(booking.paymentDeadline).toLocaleString()}</>}
         </p>
         <div className="mb-3 flex items-start gap-2.5 rounded-[10px] border border-secondary/30 bg-secondary/10 px-4 py-3">
@@ -307,6 +309,7 @@ export function BookingDetailClient({
 }
 
 function ChangeOrderCard({ changeOrder }: { changeOrder: ChangeOrderView }) {
+  const cur = useTxCurrency();
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [method, setMethod] = useState<(typeof PAYMENT_METHODS)[number]["value"]>("EASYPAISA");
@@ -362,7 +365,7 @@ function ChangeOrderCard({ changeOrder }: { changeOrder: ChangeOrderView }) {
         </div>
       )}
       <div className="mb-4 font-display text-xl font-bold text-accent">
-        + PKR {changeOrder.extraAmountPKR.toLocaleString()}
+        + {cur} {changeOrder.extraAmountPKR.toLocaleString()}
       </div>
 
       {changeOrder.status === "PENDING" && (
@@ -466,10 +469,11 @@ function BookAgainButton({ bookingId, providerName }: { bookingId: string; provi
 }
 
 function DirectPaySection({ totalPKR, providerName }: { totalPKR: number; providerName: string }) {
+  const cur = useTxCurrency();
   return (
     <div className="mb-6 rounded-[14px] border border-accent/30 bg-accent/10 p-5">
       <h3 className="mb-1 font-bold">Pay {providerName} directly</h3>
-      <p className="mb-1 font-display text-2xl font-bold text-accent">PKR {totalPKR.toLocaleString()}</p>
+      <p className="mb-1 font-display text-2xl font-bold text-accent">{cur} {totalPKR.toLocaleString()}</p>
       <p className="text-sm text-text-muted">
         Cash, bank transfer or a mobile wallet — however works for you both. Servigic does not collect this
         payment.

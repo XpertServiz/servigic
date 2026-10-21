@@ -2,6 +2,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getTranslations } from "next-intl/server";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
+import { TxCurrencyProvider } from "@/components/i18n/TxCurrency";
+import { getTxCurrency } from "@/lib/txCurrency";
 
 const NAV = [
   { href: "/pro/dashboard", label: "Dashboard" },
@@ -13,7 +15,7 @@ const NAV = [
 ];
 
 export default async function ProLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
+  const [session, currency] = await Promise.all([auth(), getTxCurrency()]);
   // A pro can sign in right after sign-up, before the admin has approved the documents. Every page of the panel then
   // carries the same reassurance, in the visitor's language, so nobody wonders why nothing is happening.
   const profile = session?.user?.id ? await prisma.providerProfile.findUnique({ where: { userId: session.user.id }, select: { isVerified: true, verificationLevel: true } }).catch(() => null) : null;
@@ -29,7 +31,7 @@ export default async function ProLayout({ children }: { children: React.ReactNod
           <p className="text-[13px] leading-relaxed text-text-muted">{t("proPendingBody")}</p>
         </div>
       )}
-      {children}
+      <TxCurrencyProvider code={currency}>{children}</TxCurrencyProvider>
     </DashboardShell>
   );
 }

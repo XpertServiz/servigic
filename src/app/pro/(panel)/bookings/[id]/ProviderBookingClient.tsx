@@ -1,5 +1,6 @@
 "use client";
 
+import { useTxCurrency } from "@/components/i18n/TxCurrency";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -47,6 +48,7 @@ const NEXT_ACTION: Record<string, { next: string; label: string } | undefined> =
 const PING_INTERVAL_MS = 45000;
 
 export function ProviderBookingClient({ booking, currentUserId }: { booking: BookingView; currentUserId: string }) {
+  const cur = useTxCurrency();
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -103,7 +105,7 @@ export function ProviderBookingClient({ booking, currentUserId }: { booking: Boo
         <div>
           <h1 className="font-display text-2xl font-bold">{booking.jobTitle}</h1>
           <p className="text-sm text-text-muted">
-            Payout PKR {booking.payoutPKR.toLocaleString()} · {booking.customerName}
+            Payout {cur} {booking.payoutPKR.toLocaleString()} · {booking.customerName}
           </p>
         </div>
       </div>
@@ -171,7 +173,7 @@ export function ProviderBookingClient({ booking, currentUserId }: { booking: Boo
                 <div key={co.id} className="rounded-[10px] border border-border-subtle bg-bg-elevated p-4 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold">{co.description}</span>
-                    <span className="font-display font-bold text-accent">+PKR {co.extraAmountPKR.toLocaleString()}</span>
+                    <span className="font-display font-bold text-accent">+{cur} {co.extraAmountPKR.toLocaleString()}</span>
                   </div>
                   <div className="mt-1 text-xs text-text-muted">{CHANGE_ORDER_STATUS_LABEL[co.status]}</div>
                 </div>
@@ -200,6 +202,7 @@ export function ProviderBookingClient({ booking, currentUserId }: { booking: Boo
 }
 
 function ProposeChangeOrderForm({ bookingId }: { bookingId: string }) {
+  const cur = useTxCurrency();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState("");
@@ -257,7 +260,7 @@ function ProposeChangeOrderForm({ bookingId }: { bookingId: string }) {
         type="number"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
-        placeholder="Extra amount in PKR"
+        placeholder={`Extra amount in ${cur}`}
         className="mb-3 w-full rounded-[8px] border border-border-subtle bg-bg-elevated px-3 py-2 text-sm outline-none focus:border-accent"
       />
       <div className="mb-3">

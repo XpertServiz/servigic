@@ -1,5 +1,6 @@
 "use client";
 
+import { useTxCurrency } from "@/components/i18n/TxCurrency";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -27,6 +28,7 @@ type BidView = {
 type SortKey = "price" | "rating" | "eta" | "distance";
 
 export function BidList({ bids, jobStatus }: { bids: BidView[]; jobStatus: string }) {
+  const cur = useTxCurrency();
   const router = useRouter();
   const [sortKey, setSortKey] = useState<SortKey>("price");
   const [pendingId, setPendingId] = useState<string | null>(null);
@@ -145,7 +147,7 @@ export function BidList({ bids, jobStatus }: { bids: BidView[]; jobStatus: strin
               </div>
               <div className="text-right">
                 <div className="text-[10px] font-bold uppercase tracking-wide text-text-dim">Labor · protected</div>
-                <div className="font-display text-xl font-bold text-accent">PKR {bid.pricePKR.toLocaleString()}</div>
+                <div className="font-display text-xl font-bold text-accent">{cur} {bid.pricePKR.toLocaleString()}</div>
                 <div className="text-xs text-text-muted">ETA {bid.etaMinutes} min</div>
               </div>
             </div>
@@ -158,7 +160,7 @@ export function BidList({ bids, jobStatus }: { bids: BidView[]; jobStatus: strin
             {bid.message && <p className="mb-3 text-sm text-text-muted">{bid.message}</p>}
             {bid.status === "COUNTERED" && (
               <p className="mb-3 text-sm font-semibold text-accent">
-                Your counter-offer of PKR {bid.counterPricePKR?.toLocaleString()} is pending the pro&apos;s response.
+                Your counter-offer of {cur} {bid.counterPricePKR?.toLocaleString()} is pending the pro&apos;s response.
               </p>
             )}
             {bid.status === "PENDING" && (
@@ -214,12 +216,12 @@ export function BidList({ bids, jobStatus }: { bids: BidView[]; jobStatus: strin
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
           <div className="w-full max-w-sm rounded-[14px] border border-border-subtle bg-bg-elevated p-6">
             <h3 className="mb-1 font-bold">Send a counter-offer</h3>
-            <p className="mb-4 text-xs text-text-muted">Current bid: PKR {counterTarget.pricePKR.toLocaleString()}. One counter-offer per bid.</p>
+            <p className="mb-4 text-xs text-text-muted">Current bid: {cur} {counterTarget.pricePKR.toLocaleString()}. One counter-offer per bid.</p>
             <input
               type="number"
               value={counterPrice}
               onChange={(e) => setCounterPrice(e.target.value)}
-              placeholder="Your price in PKR"
+              placeholder={`Your price in ${cur}`}
               className="mb-4 w-full rounded-[10px] border border-border-subtle bg-bg-elevated-2 px-4 py-3 outline-none focus:border-accent"
             />
             <div className="flex gap-2">
