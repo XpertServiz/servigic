@@ -2,10 +2,19 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { SectionHead } from "@/components/ui/SectionHead";
 import { Reveal } from "@/components/ui/Reveal";
-import { detectMarket } from "@/lib/geoDetect";
-import { formatApproxFromPKR } from "@/lib/currency";
+import { detectMarket, detectVisitorMarket } from "@/lib/geoDetect";
+import { getCountryCities } from "@/lib/liveCities";
 import { publicAreaLabel } from "@/lib/anon";
 import { fmtCompactPKR, fmtNumber } from "@/lib/format";
+
+// Compact amount in the visitor's own currency (stored amounts are already whole units of it): SAR 1.2K, CA$ 3.4K ...
+function compactMoney(n: number, locale: string, currency: string): string {
+  try {
+    return new Intl.NumberFormat(locale, { style: "currency", currency, notation: "compact", maximumFractionDigits: 1 }).format(n);
+  } catch {
+    return `${currency} ${n}`;
+  }
+}
 import { ReviewsCarousel } from "@/components/landing/ReviewsCarousel";
 
 // Lowered from 20 — at launch, waiting for 20 real completed jobs before
@@ -14,11 +23,11 @@ import { ReviewsCarousel } from "@/components/landing/ReviewsCarousel";
 // count visibly climb in near-real-time as more jobs finish.
 const MIN_COMPLETED_JOBS = 3;
 
-async function getAvgTimeToFirstBidMinutes(): Promise<number | null> {
+async function getAvgTimeToFirstBidMinutes(cities: string[]): Promise<number | null> {
   // First bid per job, for jobs that got at least one — real elapsed time
   // from posting to first bid landing, not a hardcoded "< 10 min" claim.
   const jobs = await prisma.job.findMany({
-    where: { bids: { some: {} } },
+    where: { bids: { some: {} }, city: { in: cities } },
     select: { createdAt: true, bids: { orderBy: { createdAt: "asc" }, take: 1, select: { createdAt: true } } },
     take: 200,
     orderBy: { createdAt: "desc" },
@@ -30,17 +39,21 @@ async function getAvgTimeToFirstBidMinutes(): Promise<number | null> {
   return Math.round(deltas.reduce((s, ms) => s + ms, 0) / deltas.length / 60000);
 }
 
-async function getStats() {
+// Only the visitor's own country counts: no Pakistani jobs on a Saudi page and the other way round.
+async function getStats(cities: string[]) {
+  if (cities.length === 0) return { completedJobs: 0, payoutTotal: 0, reviews: [], avgTimeToFirstBidMin: null };
+  const jobScope = { job: { city: { in: cities } } };
   try {
     const [completedJobs, payoutSum, reviews, avgTimeToFirstBidMin] = await Promise.all([
-      prisma.booking.count({ where: { status: "COMPLETED" } }),
-      prisma.payout.aggregate({ where: { status: { in: ["SENT", "CONFIRMED"] } }, _sum: { amountPKR: true } }),
+      prisma.booking.count({ where: { status: "COMPLETED", ...jobScope } }),
+      prisma.payout.aggregate({ where: { status: { in: ["SENT", "CONFIRMED"] }, booking: jobScope }, _sum: { amountPKR: true } }),
       prisma.review.findMany({
+        where: { booking: jobScope },
         orderBy: { createdAt: "desc" },
         take: 30,
         include: { booking: { include: { job: { include: { category: true } } } } },
       }),
-      getAvgTimeToFirstBidMinutes(),
+      getAvgTimeToFirstBidMinutes(cities),
     ]);
     return { completedJobs, payoutTotal: payoutSum._sum.amountPKR ?? 0, reviews, avgTimeToFirstBidMin };
   } catch {
@@ -49,15 +62,17 @@ async function getStats() {
 }
 
 export async function Results() {
-  const [t, ts, locale, { completedJobs, payoutTotal, reviews, avgTimeToFirstBidMin }, market] = await Promise.all([
+  const locale = await getLocale();
+  const vm = await detectVisitorMarket(locale);
+  const cities = await getCountryCities(vm.country);
+  const [t, ts, { completedJobs, payoutTotal, reviews, avgTimeToFirstBidMin }, market] = await Promise.all([
     getTranslations("results"),
     getTranslations("services.trades"),
-    getLocale(),
-    getStats(),
+    getStats(cities),
     detectMarket(),
   ]);
   const belowThreshold = completedJobs < MIN_COMPLETED_JOBS;
-  const payoutLabel = belowThreshold ? "—" : market.currency === "PKR" ? fmtCompactPKR(payoutTotal, locale) : await formatApproxFromPKR(payoutTotal, market.currency);
+  const payoutLabel = belowThreshold ? "—" : market.currency === "PKR" ? fmtCompactPKR(payoutTotal, locale) : compactMoney(payoutTotal, locale, market.currency);
   const firstBidLabel =
     belowThreshold || avgTimeToFirstBidMin === null
       ? "—"

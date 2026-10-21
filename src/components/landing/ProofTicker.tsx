@@ -1,7 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
-import { publicAreaLabel } from "@/lib/anon";
-import { fmtMoney } from "@/lib/format";
+import { fmtCurrency, fmtPKR } from "@/lib/format";
 import { getMoney } from "@/lib/money";
 import { detectVisitorMarket } from "@/lib/geoDetect";
 import { getCountryCities } from "@/lib/liveCities";
@@ -13,12 +12,15 @@ const weekAgoDate = () => new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
 export async function ProofTicker() {
   const [t, locale, ts, money] = await Promise.all([getTranslations("ticker"), getLocale(), getTranslations("services.trades"), getMoney()]);
-  const m = (n: number) => fmtMoney(n, locale, money.currency, money.rate);
+  // Stored amounts are whole units of the market's own currency, so they are shown as they are, never converted.
+  const m = (n: number) => (money.currency === "PKR" ? fmtPKR(n, locale) : fmtCurrency(n, locale, money.currency));
   const weekAgo = weekAgoDate();
   // Real events only, and only from the visitor's own country (no Pakistani jobs on a Saudi page).
   const vm = await detectVisitorMarket(locale);
   const ownCities = await getCountryCities(vm.country);
-  const cityFilter = ownCities.length ? { job: { city: { in: ownCities } } } : {};
+  // A country with no live city has no events to show: the strip stays hidden rather than showing another country's.
+  if (ownCities.length === 0) return null;
+  const cityFilter = { job: { city: { in: ownCities } } };
 
   const [recentBids, completedJobs, payoutSum] = await Promise.all([
     prisma.bid.findMany({
@@ -27,14 +29,14 @@ export async function ProofTicker() {
       take: 6,
       include: { job: { include: { category: true } } },
     }),
-    prisma.booking.count({ where: { status: "COMPLETED", updatedAt: { gte: weekAgo }, ...(ownCities.length ? { job: { city: { in: ownCities } } } : {}) } }),
-    prisma.payout.aggregate({ where: { status: { in: ["SENT", "CONFIRMED"] }, sentAt: { gte: weekAgo } }, _sum: { amountPKR: true } }),
+    prisma.booking.count({ where: { status: "COMPLETED", updatedAt: { gte: weekAgo }, ...cityFilter } }),
+    prisma.payout.aggregate({ where: { status: { in: ["SENT", "CONFIRMED"] }, sentAt: { gte: weekAgo }, booking: cityFilter }, _sum: { amountPKR: true } }),
   ]);
 
   const items: string[] = [];
   for (const bid of recentBids) {
     const category = ts.has(bid.job.category.trade) ? ts(bid.job.category.trade) : bid.job.category.name;
-    items.push(t("bid", { category, price: m(bid.pricePKR), area: publicAreaLabel(bid.job.areaLabel) }));
+    items.push(t("bid", { category, price: m(bid.pricePKR), area: bid.job.city }));
   }
   if (completedJobs > 0) items.push(t("jobsWeek", { count: completedJobs }));
   if (payoutSum._sum.amountPKR) items.push(t("paidWeek", { amount: m(payoutSum._sum.amountPKR) }));

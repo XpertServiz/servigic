@@ -5,17 +5,19 @@ import { Reveal } from "@/components/ui/Reveal";
 import { EarningsCalculator } from "@/components/landing/EarningsCalculator";
 import { getDemoMoney } from "@/lib/money";
 import { AppDownloadButton } from "@/components/prelaunch/AppDownloadButton";
+import { detectVisitorMarket } from "@/lib/geoDetect";
+import { getCountryCities } from "@/lib/liveCities";
 
 // Real count only — hidden below threshold rather than showing a fabricated
 // number (same rule ProofTicker follows: Master Brief §7A/§12, no fake stats).
 const MIN_PROVIDERS_TO_SHOW = 5;
 
 export async function ForPros() {
-  const [t, locale, activeProviders] = await Promise.all([
-    getTranslations("forPros"),
-    getLocale(),
-    prisma.providerProfile.count({ where: { verificationLevel: { gte: 1 } } }),
-  ]);
+  const [t, locale] = await Promise.all([getTranslations("forPros"), getLocale()]);
+  // The count is of the visitor's own country's pros only.
+  const vm = await detectVisitorMarket(locale);
+  const cities = await getCountryCities(vm.country);
+  const activeProviders = await prisma.providerProfile.count({ where: { verificationLevel: { gte: 1 }, user: { city: { in: cities } } } });
   const showCount = activeProviders >= MIN_PROVIDERS_TO_SHOW;
   const demo = await getDemoMoney(locale);
   const perks = t.raw("perks") as string[];

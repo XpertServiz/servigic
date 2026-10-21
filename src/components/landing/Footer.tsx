@@ -6,7 +6,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { CurrencySwitcher } from "./CurrencySwitcher";
 import { detectMarket } from "@/lib/geoDetect";
 import { LegalDisclaimer } from "@/components/ui/LegalDisclaimer";
-import { getCitySlugs, getCountryCities } from "@/lib/liveCities";
+import { getCountryCities } from "@/lib/liveCities";
 
 const FEATURED_TRADES = [
   { trade: "PLUMBER", slug: "plumber" },
@@ -29,8 +29,9 @@ export async function Footer() {
 
   // The visitor's own cities first (Jeddah and Madinah for Saudi Arabia), spread over the four popular trades.
   const own = await getCountryCities(market.country);
-  const citySlugs = own.length ? own.map((c) => ({ name: c, slug: c.toLowerCase().replace(/\s+/g, "-") })) : await getCitySlugs(market.country);
-  const FEATURED_LINKS = FEATURED_TRADES.map((f, i) => ({ ...f, city: citySlugs.length ? citySlugs[i % citySlugs.length].name : "Karachi", citySlug: citySlugs.length ? citySlugs[i % citySlugs.length].slug : "karachi" }));
+  // A country with no live city yet links to the trades without naming a city (never another country's).
+  const citySlugs = own.map((c) => ({ name: c, slug: c.toLowerCase().replace(/\s+/g, "-") }));
+  const FEATURED_LINKS = FEATURED_TRADES.map((f, i) => ({ ...f, city: citySlugs.length ? citySlugs[i % citySlugs.length].name : null, citySlug: citySlugs.length ? citySlugs[i % citySlugs.length].slug : null }));
 
   return (
     <footer className="relative mt-16 border-t border-white/[0.07] bg-gradient-to-b from-transparent to-black/30 py-14 md:py-16">
@@ -48,7 +49,11 @@ export async function Footer() {
             <ul className={list}>
               {FEATURED_LINKS.map((l) => (
                 <li key={l.slug}>
-                  <LLink href={`/services/${l.slug}/${l.citySlug}`}>{t("serviceLink", { service: ts(l.trade), city: tc(l.city) })}</LLink>
+                  {l.city && l.citySlug ? (
+                    <LLink href={`/services/${l.slug}/${l.citySlug}`}>{t("serviceLink", { service: ts(l.trade), city: tc(l.city) })}</LLink>
+                  ) : (
+                    <LLink href="/services">{ts(l.trade)}</LLink>
+                  )}
                 </li>
               ))}
               <li>

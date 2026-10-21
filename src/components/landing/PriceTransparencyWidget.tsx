@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { SectionHead } from "@/components/ui/SectionHead";
 import { Reveal } from "@/components/ui/Reveal";
-import { fmtMoney } from "@/lib/format";
+import { fmtCurrency, fmtPKR } from "@/lib/format";
 
 interface CategoryOption {
   id: string;
@@ -24,7 +24,8 @@ interface Benchmark {
 const selectCls =
   "rounded-full border border-white/10 bg-bg-elevated px-4 py-2.5 text-sm outline-none transition-colors focus:border-accent";
 
-export function PriceTransparencyWidget({ categories, cities, currency = "PKR", rate = 1 }: { categories: CategoryOption[]; cities: string[]; currency?: string; rate?: number }) {
+// Cities are the visitor's own country's; the range comes from the price guide, already in that city's own currency.
+export function PriceTransparencyWidget({ categories, cities }: { categories: CategoryOption[]; cities: string[] }) {
   const t = useTranslations("price");
   const ts = useTranslations("services.trades");
   const tc = useTranslations("cities");
@@ -32,14 +33,20 @@ export function PriceTransparencyWidget({ categories, cities, currency = "PKR", 
   const [categoryId, setCategoryId] = useState(categories[0]?.id ?? "");
   const [city, setCity] = useState(cities[0] ?? "");
   const [benchmark, setBenchmark] = useState<Benchmark | null | undefined>(undefined);
+  const [currency, setCurrency] = useState("PKR");
+  const fmt = (n: number) => (currency === "PKR" ? fmtPKR(n, locale) : fmtCurrency(n, locale, currency));
 
   useEffect(() => {
     if (!categoryId || !city) return;
     let cancelled = false;
-    fetch(`/api/market/price-benchmark?categoryId=${categoryId}&city=${encodeURIComponent(city)}`)
+    fetch(`/api/market/price-guide?categoryId=${categoryId}&city=${encodeURIComponent(city)}`)
       .then((r) => r.json())
       .then((data) => {
-        if (!cancelled) setBenchmark(data.benchmark);
+        if (cancelled) return;
+        const g = data.guide as { currency: string; low: number; suggested: number; high: number; source: string } | null;
+        if (!g) return setBenchmark(null);
+        setCurrency(g.currency);
+        setBenchmark({ sampleSize: 5, avgWinningPKR: g.suggested, minPKR: g.low, maxPKR: g.high, isEstimate: g.source !== "real-jobs" });
       })
       .catch(() => {
         if (!cancelled) setBenchmark(null);
@@ -86,12 +93,12 @@ export function PriceTransparencyWidget({ categories, cities, currency = "PKR", 
           ) : (
             <>
               <div className="text-3xl font-extrabold tracking-[-0.018em] text-accent" dir="ltr">
-                {fmtMoney(benchmark.minPKR, locale, currency, rate)}–{fmtMoney(benchmark.maxPKR, locale, currency, rate).replace(/^(~|PKR )/, "")}
+                {fmt(benchmark.minPKR)}–{fmt(benchmark.maxPKR).replace(/^[^\d]+/, "")}
               </div>
               <p className="mt-2 text-sm text-text-muted">
                 {benchmark.isEstimate
                   ? t("estimate", { service, city: cityName })
-                  : t("typical", { service, city: cityName, count: benchmark.sampleSize, avg: fmtMoney(benchmark.avgWinningPKR, locale, currency, rate) })}
+                  : t("typical", { service, city: cityName, count: benchmark.sampleSize, avg: fmt(benchmark.avgWinningPKR) })}
               </p>
             </>
           )}

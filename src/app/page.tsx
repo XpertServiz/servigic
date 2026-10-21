@@ -2,10 +2,9 @@ import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
-import { getLiveCities } from "@/lib/liveCities";
+import { getLiveCities, getCountryCities } from "@/lib/liveCities";
 import { detectMarket } from "@/lib/geoDetect";
 import { getPaymentMode } from "@/lib/featureFlags";
-import { getMoney } from "@/lib/money";
 import { pageMetadata, localBusinessJsonLd, faqJsonLd } from "@/lib/seo";
 import type { Locale } from "@/i18n/locales";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -62,7 +61,7 @@ const PLAN_TEASER_TRADES = [
 ];
 
 export default async function LandingPage() {
-  const [whatsappNumber, categories, planCategories, market, paymentMode, tDesc, tFaq, tSim, money] = await Promise.all([
+  const [whatsappNumber, categories, planCategories, market, paymentMode, tDesc, tFaq, tSim] = await Promise.all([
     getWhatsappNumber(),
     prisma.serviceCategory.findMany({ select: { id: true, name: true, trade: true, icon: true }, orderBy: { name: "asc" } }),
     prisma.serviceCategory.findMany({
@@ -74,9 +73,10 @@ export default async function LandingPage() {
     getTranslations("meta.home"),
     getTranslations("faq"),
     getTranslations("sim"),
-    getMoney(),
   ]);
   const liveCities = await getLiveCities(market.country);
+  // The price widget lists only the visitor's own country's cities.
+  const ownCities = await getCountryCities(market.country);
 
   const planTeaserCards = PLAN_TEASER_TRADES.map((t) => {
     const category = planCategories.find((c) => c.trade === t.trade);
@@ -97,7 +97,7 @@ export default async function LandingPage() {
           <SectionHead eyebrow={tSim("eyebrow")} title={tSim("title")} align="center" />
           <DispatchSimulation />
         </section>
-        <PriceTransparencyWidget categories={categories} cities={liveCities} currency={money.currency} rate={money.rate} />
+        <PriceTransparencyWidget categories={categories} cities={ownCities} />
         <Problem />
         <HowItWorks />
         <Features paymentMode={paymentMode} />

@@ -5,6 +5,9 @@ import { Reveal } from "@/components/ui/Reveal";
 import { ProviderAvatar } from "@/components/ui/ProviderAvatar";
 import { VerificationBadge } from "@/components/ui/VerificationBadge";
 import { TRADE_LABELS } from "@/lib/trades";
+import { getLocale } from "next-intl/server";
+import { detectVisitorMarket } from "@/lib/geoDetect";
+import { getCountryCities } from "@/lib/liveCities";
 
 // Provider Photo Standardization Addendum v3 §2.3, extended for photo consent —
 // a pro's selfie only ever renders publicly if they explicitly opted in
@@ -21,8 +24,11 @@ const ACHIEVER_MIN_JOBS = 10;
 
 export async function FeaturedPros() {
   const [t, ts] = await Promise.all([getTranslations("featuredPros"), getTranslations("services.trades")]);
+  // Only pros of the visitor's own country (no Pakistani pros on a Saudi page).
+  const vm = await detectVisitorMarket(await getLocale());
+  const cities = await getCountryCities(vm.country);
   const featuredProviders = await prisma.providerProfile.findMany({
-    where: { verificationLevel: { gte: 1 } },
+    where: { verificationLevel: { gte: 1 }, user: { city: { in: cities } } },
     orderBy: [{ ratingAvg: "desc" }, { jobsCompleted: "desc" }],
     take: GALLERY_SIZE,
   });
