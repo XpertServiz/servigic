@@ -9,6 +9,7 @@ import { JoinListButton } from "@/components/prelaunch/JoinListButton";
 import { getLocale } from "next-intl/server";
 import { CountryBackdrop } from "@/components/hero/CountryBackdrop";
 import { detectVisitorMarket } from "@/lib/geoDetect";
+import { HERO_COUNTRIES } from "@/components/hero/heroCountries";
 
 function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -29,11 +30,24 @@ export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
   const [t, initials, locale] = await Promise.all([getTranslations("hero"), getTrustInitials(), getLocale()]);
   const demo = await getDemoMoney(locale);
   const vm = await detectVisitorMarket(locale);
+  const heroCountry = HERO_COUNTRIES[(vm.country ?? "").toUpperCase()];
+  // Example bids in the visitor's own cities and currency (Jeddah · SAR 180 ...); a country without data keeps the generic chips.
+  const chips = heroCountry
+    ? [
+        { label: `${heroCountry.cities[0]} · ${demo.price(3600)}`, tone: "accent" as const },
+        { label: `${heroCountry.cities[1]} · ${demo.price(3000)}`, tone: "green" as const },
+        { label: `${heroCountry.cities[2]} · ${demo.price(4000)}`, tone: "red" as const },
+      ]
+    : [
+        { label: t("chipPro"), tone: "accent" as const },
+        { label: t("chipBid", { price: demo.price(3500) }), tone: "green" as const },
+        { label: t("chipVerified"), tone: "red" as const },
+      ];
   const trustInitials = initials.length > 0 ? initials : ["AK", "SR", "MF", "HZ"];
 
   return (
-    <section className="relative isolate overflow-hidden pb-16 pt-12 md:pb-24 md:pt-20">
-      {/* the visitor's country skyline at golden hour (Kingdom Centre, Minar-e-Pakistan, CN Tower ...) */}
+    <section className="relative isolate overflow-hidden pb-16 pt-44 md:pb-24 md:pt-20">
+      {/* the visitor's country: night photo of its main / capital city, "Trusted Local Pros in {country}", flag or emblem on the orb */}
       <CountryBackdrop country={vm.country} />
       {/* atmosphere */}
       <div className="sv-grid-bg absolute inset-0 -z-10" aria-hidden />
@@ -83,13 +97,7 @@ export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
           </div>
         </div>
 
-        <HeroVisual
-          chips={[
-            { label: t("chipPro"), tone: "accent" },
-            { label: t("chipBid", { price: demo.price(3500) }), tone: "green" },
-            { label: t("chipVerified"), tone: "red" },
-          ]}
-        />
+        <HeroVisual chips={chips} country={vm.country} shape={heroCountry?.shape} />
       </div>
     </section>
   );

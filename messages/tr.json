@@ -67,6 +67,7 @@
     "close": "Menüyü kapat"
   },
   "hero": {
+    "trustedIn": "{country} içinde güvenilir yerel ustalar",
     "eyebrow": "Ustalar dakikalar içinde teklif verir — fiyatı siz seçersiniz",
     "line1": "Bozuldu mu?",
     "line2": "Çözülür",

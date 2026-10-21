@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { LogoMark3D } from "@/components/brand/LogoMark3D";
+import { OrbEmblem, CountryWatermark } from "./CountryEmblem";
 
 const HeroScene = dynamic(() => import("./HeroScene"), { ssr: false });
 
@@ -28,7 +29,7 @@ function canUseWebGL(): boolean {
  * available, no reduced-motion, no data-saver, not a very low-end phone).
  * The scene pauses when scrolled out of view so it never burns battery.
  */
-export function HeroVisual({ chips }: { chips: Chip[] }) {
+export function HeroVisual({ chips, country, shape }: { chips: Chip[]; country?: string | null; shape?: { w: number; h: number; d: string } | null }) {
   const stage = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<"off" | "full" | "light">("off");
   const [ready, setReady] = useState(false);
@@ -71,6 +72,13 @@ export function HeroVisual({ chips }: { chips: Chip[] }) {
       {mode !== "off" && (
         <div className="sv-hero-canvas absolute inset-0" data-ready={ready} aria-hidden>
           <HeroScene active={visible} light={mode === "light"} onReady={() => setReady(true)} />
+        </div>
+      )}
+      {country && <CountryWatermark country={country} shape={shape} />}
+      {/* The country's mark on the orb (palm and swords for Saudi Arabia, the flag elsewhere) */}
+      {country && (
+        <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center">
+          <OrbEmblem country={country} />
         </div>
       )}
       {chips.slice(0, 3).map((c, i) => (

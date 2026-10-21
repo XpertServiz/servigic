@@ -82,6 +82,7 @@
     "close": "Close menu"
   },
   "hero": {
+    "trustedIn": "Trusted Local Pros in {country}",
     "eyebrow": "Pros bid in minutes — you pick the price",
     "line1": "Broken?",
     "line2": "Fixed",

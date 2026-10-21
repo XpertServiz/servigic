@@ -67,6 +67,7 @@
     "close": "Menu sluiten"
   },
   "hero": {
+    "trustedIn": "Betrouwbare lokale vakmensen in {country}",
     "eyebrow": "Vakmensen bieden binnen enkele minuten — jij kiest de prijs",
     "line1": "Kapot?",
     "line2": "Vandaag",

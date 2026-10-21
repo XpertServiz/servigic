@@ -1,29 +1,66 @@
-import { SKY, skylineFor } from "./skylines";
+import { getLocale, getTranslations } from "next-intl/server";
+import { HERO_COUNTRIES } from "./heroCountries";
+
+/** Country name in the visitor's language ("Saudi Arabia", "Pakistan", "المملكة العربية السعودية" ...). */
+export function countryName(code: string, locale: string): string {
+  try {
+    return new Intl.DisplayNames([locale], { type: "region" }).of(code.toUpperCase()) ?? code;
+  } catch {
+    return code;
+  }
+}
 
 /**
- * The hero background: the visitor's country skyline at golden hour (Kingdom Centre in Saudi Arabia, Minar-e-Pakistan and
- * Badshahi Mosque in Pakistan, CN Tower in Canada ...). Pure SVG, no image download, and it fades out under the text.
+ * The hero background, chosen by the visitor's IP country: a real night photo of the country's main / capital city on the top
+ * right, fading into the page, with the handwritten "Trusted Local Pros in {country}" on it (Riyadh for Saudi Arabia,
+ * Islamabad for Pakistan, Toronto for Canada ...). A country without a photo keeps the plain dark atmosphere.
  */
-export function CountryBackdrop({ country }: { country: string | null | undefined }) {
-  const code = (country ?? "XX").toUpperCase();
-  const [top, mid, glow] = SKY[code] ?? SKY.XX;
+export async function CountryBackdrop({ country }: { country: string | null | undefined }) {
+  const code = (country ?? "").toUpperCase();
+  const entry = HERO_COUNTRIES[code];
+  const [t, locale] = await Promise.all([getTranslations("hero"), getLocale()]);
+  const name = code ? countryName(code, locale) : "";
+
   return (
-    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>
-      <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${top} 0%, ${mid} 62%, ${glow}33 100%)`, opacity: 0.55 }} />
-      <div className="absolute bottom-0 end-[-4%] h-[62%] w-[88%] sm:w-[70%] lg:h-[78%] lg:w-[58%]" style={{ WebkitMaskImage: "linear-gradient(to left, #000 55%, transparent 100%)", maskImage: "linear-gradient(to left, #000 55%, transparent 100%)" }}>
-        <svg viewBox="0 0 800 300" preserveAspectRatio="xMaxYMax meet" className="h-full w-full text-[#0a0b0f]" fill="currentColor">
-          <defs>
-            <radialGradient id={`sun-${code}`} cx="72%" cy="62%" r="42%">
-              <stop offset="0%" stopColor={glow} stopOpacity="0.85" />
-              <stop offset="100%" stopColor={glow} stopOpacity="0" />
-            </radialGradient>
-          </defs>
-          <rect width="800" height="300" fill={`url(#sun-${code})`} />
-          <style>{`.w{fill:${glow};opacity:.75}`}</style>
-          <g dangerouslySetInnerHTML={{ __html: skylineFor(code) }} />
-          <rect y="298" width="800" height="2" fill={glow} opacity=".5" />
-        </svg>
+    <>
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>
+        {entry && (
+          <div
+            className="absolute end-0 top-0 h-[400px] w-full opacity-60 sm:h-[460px] lg:h-[500px] lg:w-[76%] lg:opacity-100"
+            style={{
+              WebkitMaskImage: "linear-gradient(to bottom, #000 40%, transparent 100%), linear-gradient(to left, #000 70%, transparent 100%)",
+              maskImage: "linear-gradient(to bottom, #000 40%, transparent 100%), linear-gradient(to left, #000 70%, transparent 100%)",
+              WebkitMaskComposite: "source-in",
+              maskComposite: "intersect",
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={entry.photo} alt="" className="h-full w-full object-cover" style={{ objectPosition: entry.position }} fetchPriority="high" decoding="async" />
+            <div className="absolute inset-0 bg-gradient-to-t from-bg/45 via-transparent to-bg/30" />
+          </div>
+        )}
       </div>
-    </div>
+
+      {code && (
+        <div className="pointer-events-none absolute end-4 top-6 z-0 max-w-[200px] -rotate-6 text-end md:end-10 md:top-10 md:max-w-[280px] rtl:rotate-6">
+          <p className="font-hand text-[26px] font-bold leading-[1.05] text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)] md:text-[38px]">{t("trustedIn", { country: name })}</p>
+          <svg viewBox="0 0 220 14" className="ms-auto mt-1 h-3 w-[78%] text-accent" fill="none" aria-hidden>
+            <path d="M4 10 C50 2 120 2 216 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+        </div>
+      )}
+
+      {entry && (
+        <a
+          href={entry.credit.page}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute bottom-2 start-4 z-0 hidden max-w-[340px] truncate text-[10px] text-text-muted/60 hover:text-text-muted lg:block"
+          title={`${entry.credit.place}: ${entry.credit.author}, ${entry.credit.license} (Wikimedia Commons)`}
+        >
+          {entry.credit.place} · {entry.credit.author} · {entry.credit.license}
+        </a>
+      )}
+    </>
   );
 }

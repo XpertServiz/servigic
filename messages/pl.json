@@ -67,6 +67,7 @@
     "close": "Zamknij menu"
   },
   "hero": {
+    "trustedIn": "Zaufani lokalni fachowcy w kraju: {country}",
     "eyebrow": "Fachowcy składają oferty w kilka minut — Ty wybierasz cenę",
     "line1": "Zepsute?",
     "line2": "Naprawione",

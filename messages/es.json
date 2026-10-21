@@ -67,6 +67,7 @@
     "close": "Cerrar menú"
   },
   "hero": {
+    "trustedIn": "Profesionales locales de confianza en {country}",
     "eyebrow": "Los profesionales ofertan en minutos — tú eliges el precio",
     "line1": "¿Roto?",
     "line2": "Arreglado",

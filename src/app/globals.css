@@ -53,6 +53,7 @@
   /* Poppins + Geist Mono — same pairing as the OAQS Consultants site. */
   --font-display: var(--font-poppins), var(--font-arabic), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-poppins), var(--font-arabic), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+  --font-hand: var(--font-caveat), var(--font-arabic), var(--font-urdu), var(--font-devanagari), cursive;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 

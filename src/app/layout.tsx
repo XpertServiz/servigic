@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import { Geist_Mono, Noto_Nastaliq_Urdu, Noto_Sans_Arabic, Noto_Sans_Devanagari, Poppins } from "next/font/google";
+import { Caveat, Geist_Mono, Noto_Nastaliq_Urdu, Noto_Sans_Arabic, Noto_Sans_Devanagari, Poppins } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale, getTranslations } from "next-intl/server";
 import { Toaster } from "sonner";
@@ -23,6 +23,7 @@ import "./globals.css";
 // Same pairing as the OAQS Consultants site: Poppins for everything, Geist Mono for labels/figures.
 // Self-hosted by next/font: no layout shift, no third-party font request.
 const poppins = Poppins({ variable: "--font-poppins", subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700", "800"], display: "swap" });
+const caveat = Caveat({ variable: "--font-caveat", subsets: ["latin", "latin-ext"], weight: ["700"], display: "swap" });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], display: "swap" });
 // Script fallbacks (Poppins has no Arabic/Devanagari glyphs). Only downloaded when a page actually uses those scripts.
 const notoArabic = Noto_Sans_Arabic({ variable: "--font-arabic", subsets: ["arabic"], display: "swap", preload: false });
@@ -72,7 +73,7 @@ export default async function RootLayout({
       dir={dir}
       data-theme={theme}
       suppressHydrationWarning
-      className={`${poppins.variable} ${geistMono.variable} ${notoArabic.variable} ${notoUrdu.variable} ${notoDevanagari.variable} h-full antialiased`}
+      className={`${poppins.variable} ${geistMono.variable} ${caveat.variable} ${notoArabic.variable} ${notoUrdu.variable} ${notoDevanagari.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text">
         <Splash tagline={tc("splashTagline")} label={tc("loading")} />
