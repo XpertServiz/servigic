@@ -7,6 +7,8 @@ import { getDemoMoney } from "@/lib/money";
 import { AppDownloadButton } from "@/components/prelaunch/AppDownloadButton";
 import { JoinListButton } from "@/components/prelaunch/JoinListButton";
 import { getLocale } from "next-intl/server";
+import { CountryBackdrop } from "@/components/hero/CountryBackdrop";
+import { detectVisitorMarket } from "@/lib/geoDetect";
 
 function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -26,10 +28,13 @@ async function getTrustInitials(): Promise<string[]> {
 export async function Hero({ isLive = true }: { isLive?: boolean } = {}) {
   const [t, initials, locale] = await Promise.all([getTranslations("hero"), getTrustInitials(), getLocale()]);
   const demo = await getDemoMoney(locale);
+  const vm = await detectVisitorMarket(locale);
   const trustInitials = initials.length > 0 ? initials : ["AK", "SR", "MF", "HZ"];
 
   return (
     <section className="relative isolate overflow-hidden pb-16 pt-12 md:pb-24 md:pt-20">
+      {/* the visitor's country skyline at golden hour (Kingdom Centre, Minar-e-Pakistan, CN Tower ...) */}
+      <CountryBackdrop country={vm.country} />
       {/* atmosphere */}
       <div className="sv-grid-bg absolute inset-0 -z-10" aria-hidden />
       <div className="absolute -top-40 start-[-10%] -z-10 h-[620px] w-[620px] rounded-full bg-[radial-gradient(closest-side,rgba(255,176,32,0.20),transparent)]" aria-hidden />

@@ -278,7 +278,28 @@
     "Karachi": "Karachi",
     "Lahore": "Lahore",
     "Islamabad": "Islamabad",
-    "Rawalpindi": "Rawalpindi"
+    "Rawalpindi": "Rawalpindi",
+    "Jeddah": "Jeddah",
+    "Madinah": "Madinah",
+    "Riyadh": "Riyadh",
+    "Dubai": "Dubai",
+    "Abu Dhabi": "Abu Dhabi",
+    "Sharjah": "Sharjah",
+    "Doha": "Doha",
+    "Toronto": "Toronto",
+    "Vancouver": "Vancouver",
+    "Montreal": "Montreal",
+    "Calgary": "Calgary",
+    "Ottawa": "Ottawa",
+    "New York": "New York",
+    "Los Angeles": "Los Angeles",
+    "Chicago": "Chicago",
+    "Houston": "Houston",
+    "Berlin": "Berlin",
+    "Munich": "Munich",
+    "Hamburg": "Hamburg",
+    "Warsaw": "Warsaw",
+    "Krakow": "Krakow"
   },
   "results": {
     "eyebrow": "Results",
@@ -809,5 +830,18 @@
       "APPLIANCE_REPAIR": "Appliance repair",
       "OTHER": "Other"
     }
+  },
+  "chat": {
+    "title": "Servigic Assistant",
+    "hello": "Hi! I'm Servigic's assistant. Ask me anything about posting jobs, pros, payments or safety.",
+    "placeholder": "Type your question…",
+    "send": "Send",
+    "popular": "Popular questions",
+    "notFound": "I could not find an exact answer. Try different words, or ask our team on WhatsApp.",
+    "whatsapp": "Chat with our team on WhatsApp",
+    "tooltip": "Hi 👋 Ask me anything",
+    "close": "Close",
+    "typing": "Typing…",
+    "askAnother": "Ask something else"
   }
 }

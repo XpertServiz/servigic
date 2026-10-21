@@ -237,7 +237,28 @@
     "Karachi": "Karatschi",
     "Lahore": "Lahore",
     "Islamabad": "Islamabad",
-    "Rawalpindi": "Rawalpindi"
+    "Rawalpindi": "Rawalpindi",
+    "Jeddah": "Jeddah",
+    "Madinah": "Madinah",
+    "Riyadh": "Riyadh",
+    "Dubai": "Dubai",
+    "Abu Dhabi": "Abu Dhabi",
+    "Sharjah": "Sharjah",
+    "Doha": "Doha",
+    "Toronto": "Toronto",
+    "Vancouver": "Vancouver",
+    "Montreal": "Montreal",
+    "Calgary": "Calgary",
+    "Ottawa": "Ottawa",
+    "New York": "New York",
+    "Los Angeles": "Los Angeles",
+    "Chicago": "Chicago",
+    "Houston": "Houston",
+    "Berlin": "Berlin",
+    "Munich": "München",
+    "Hamburg": "Hamburg",
+    "Warsaw": "Warschau",
+    "Krakow": "Krakau"
   },
   "results": {
     "eyebrow": "Ergebnisse",
@@ -626,5 +647,18 @@
       "APPLIANCE_REPAIR": "Gerätereparatur",
       "OTHER": "Sonstiges"
     }
+  },
+  "chat": {
+    "title": "Servigic-Assistentin",
+    "hello": "Hallo! Ich bin die Assistentin von Servigic. Fragen Sie mich zu Aufträgen, Profis, Zahlung oder Sicherheit.",
+    "placeholder": "Frage eingeben…",
+    "send": "Senden",
+    "popular": "Häufige Fragen",
+    "notFound": "Ich habe keine genaue Antwort gefunden. Formulieren Sie es anders oder fragen Sie unser Team auf WhatsApp.",
+    "whatsapp": "Mit unserem Team auf WhatsApp chatten",
+    "tooltip": "Hallo 👋 Fragen Sie mich",
+    "close": "Schließen",
+    "typing": "Schreibt…",
+    "askAnother": "Etwas anderes fragen"
   }
 }

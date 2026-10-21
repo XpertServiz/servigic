@@ -237,7 +237,28 @@
     "Karachi": "Karachi",
     "Lahore": "Lahore",
     "Islamabad": "Islamabad",
-    "Rawalpindi": "Rawalpindi"
+    "Rawalpindi": "Rawalpindi",
+    "Jeddah": "Jeddah",
+    "Madinah": "Madinah",
+    "Riyadh": "Riyadh",
+    "Dubai": "Dubai",
+    "Abu Dhabi": "Abu Dhabi",
+    "Sharjah": "Sharjah",
+    "Doha": "Doha",
+    "Toronto": "Toronto",
+    "Vancouver": "Vancouver",
+    "Montreal": "Montréal",
+    "Calgary": "Calgary",
+    "Ottawa": "Ottawa",
+    "New York": "New York",
+    "Los Angeles": "Los Angeles",
+    "Chicago": "Chicago",
+    "Houston": "Houston",
+    "Berlin": "Berlin",
+    "Munich": "Munich",
+    "Hamburg": "Hamburg",
+    "Warsaw": "Varsovie",
+    "Krakow": "Cracovie"
   },
   "results": {
     "eyebrow": "Résultats",
@@ -626,5 +647,18 @@
       "APPLIANCE_REPAIR": "Réparation d'électroménager",
       "OTHER": "Autre"
     }
+  },
+  "chat": {
+    "title": "Assistante Servigic",
+    "hello": "Bonjour ! Je suis l’assistante de Servigic. Posez-moi vos questions sur les demandes, les pros, le paiement ou la sécurité.",
+    "placeholder": "Écrivez votre question…",
+    "send": "Envoyer",
+    "popular": "Questions fréquentes",
+    "notFound": "Je n’ai pas trouvé de réponse précise. Reformulez ou demandez à notre équipe sur WhatsApp.",
+    "whatsapp": "Discuter avec notre équipe sur WhatsApp",
+    "tooltip": "Bonjour 👋 Posez-moi une question",
+    "close": "Fermer",
+    "typing": "Écrit…",
+    "askAnother": "Poser une autre question"
   }
 }

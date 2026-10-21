@@ -10,7 +10,7 @@ export interface VisitorStats {
   today: number;
   total: number;
   pageViews: number;
-  countries: { country: string; visitors: number; online: number }[];
+  countries: { country: string; visitors: number; online: number; pageViews: number }[];
   updatedAt: string;
 }
 
@@ -64,7 +64,7 @@ export async function getVisitorStats(): Promise<VisitorStats> {
       prisma.siteVisitor.count({ where: { day: utcDay() } }),
       prisma.siteVisitor.count(),
       prisma.siteVisitor.aggregate({ _sum: { pageViews: true } }),
-      prisma.siteVisitor.groupBy({ by: ["country"], _count: { _all: true }, orderBy: { _count: { country: "desc" } }, take: 24 }),
+      prisma.siteVisitor.groupBy({ by: ["country"], _count: { _all: true }, _sum: { pageViews: true }, orderBy: { _count: { country: "desc" } }, take: 40 }),
       prisma.siteVisitor.groupBy({ by: ["country"], where: { lastSeenAt: { gte: since } }, _count: { _all: true } }),
     ]);
     const onlineMap = new Map(onlineByCountry.map((r) => [r.country, r._count._all]));
@@ -73,7 +73,7 @@ export async function getVisitorStats(): Promise<VisitorStats> {
       today,
       total,
       pageViews: views._sum.pageViews ?? 0,
-      countries: byCountry.map((r) => ({ country: r.country, visitors: r._count._all, online: onlineMap.get(r.country) ?? 0 })),
+      countries: byCountry.map((r) => ({ country: r.country, visitors: r._count._all, online: onlineMap.get(r.country) ?? 0, pageViews: r._sum.pageViews ?? 0 })),
       updatedAt: new Date().toISOString(),
     };
   } catch {

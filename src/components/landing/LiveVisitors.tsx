@@ -92,9 +92,47 @@ export function LiveVisitors({ initial, embedded = false }: { initial: VisitorSt
         <div className="relative grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           <Metric label={t("online")} value={stats.online} accent live />
           <Metric label={t("today")} value={stats.today} />
-          <Metric label={t("total")} value={stats.total} />
+          <Metric label={embedded ? "Total visits (1 per visitor per day)" : t("total")} value={stats.total} />
           <Metric label={t("views")} value={stats.pageViews} />
         </div>
+
+        {embedded && (
+          <div className="relative mt-6 rounded-2xl border border-border-subtle bg-bg-elevated/60 p-4 text-sm text-text-muted">
+            <b className="text-text">How to read these numbers.</b> A visitor is one browser on one day (the counter is cookie-free and never stores IP addresses, so the same person on another day counts again).
+            <b className="text-text"> Page views</b> count every page that visitor opened, so they are always higher: {fmtNumber(stats.pageViews, locale)} page views from {fmtNumber(stats.total, locale)} visits is{" "}
+            <b className="text-text">{stats.total > 0 ? (stats.pageViews / stats.total).toFixed(1) : "0"} pages per visit</b>.
+          </div>
+        )}
+
+        {embedded && stats.countries.length > 0 && (
+          <div className="relative mt-6 overflow-x-auto rounded-2xl border border-border-subtle">
+            <table className="w-full min-w-[460px] text-sm">
+              <thead className="bg-bg-elevated text-left text-xs uppercase tracking-wide text-text-muted">
+                <tr>
+                  <th className="p-3">Country</th>
+                  <th className="p-3">Visits</th>
+                  <th className="p-3">Page views</th>
+                  <th className="p-3">Share of views</th>
+                  <th className="p-3">Online now</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...stats.countries].sort((a, b) => b.pageViews - a.pageViews).map((c) => (
+                  <tr key={c.country} className="border-t border-border-subtle">
+                    <td className="p-3 font-medium">
+                      <span aria-hidden className="me-2">{flagEmoji(c.country)}</span>
+                      {c.country === "XX" ? t("unknown") : (regionName(c.country, locale) ?? c.country)}
+                    </td>
+                    <td className="p-3">{fmtNumber(c.visitors, locale)}</td>
+                    <td className="p-3">{fmtNumber(c.pageViews, locale)}</td>
+                    <td className="p-3 text-text-muted">{stats.pageViews > 0 ? `${Math.round((c.pageViews / stats.pageViews) * 100)}%` : "0%"}</td>
+                    <td className="p-3">{c.online > 0 ? <span className="font-semibold text-secondary">{fmtNumber(c.online, locale)}</span> : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         <div className="relative mt-8">
           <h3 className="mb-4 font-mono text-[12px] uppercase tracking-[0.16em] text-text-muted">{t("countries")}</h3>

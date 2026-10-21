@@ -28,7 +28,9 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
   try {
     const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
     const stored = (settings?.featureFlags as Partial<FeatureFlags>) ?? {};
-    return { ...DEFAULT_FEATURE_FLAGS, ...stored };
+    // Business rule: in every country the customer pays the pro directly (cash model) and Servigic never holds money.
+    // The PROTECTED (escrow) code path stays in the codebase but can no longer be switched on from stored settings.
+    return { ...DEFAULT_FEATURE_FLAGS, ...stored, paymentMode: "CASH_WALLET" };
   } catch {
     return DEFAULT_FEATURE_FLAGS;
   }

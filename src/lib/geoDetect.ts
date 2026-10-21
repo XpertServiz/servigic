@@ -72,12 +72,14 @@ export async function detectMarket(): Promise<MarketInfo> {
   const byCode = new Map(configs.map((c) => [c.countryCode, c]));
 
   const cookieStore = await cookies();
+  const headerList = await headers();
+  const urlCountry = (headerList.get("x-servigic-country") ?? "").toUpperCase();
+  if (urlCountry && byCode.has(urlCountry)) return toMarketInfo(byCode.get(urlCountry)!);
   const overrideCountry = cookieStore.get("servigic_country")?.value;
   if (overrideCountry && byCode.has(overrideCountry)) {
     return toMarketInfo(byCode.get(overrideCountry)!);
   }
 
-  const headerList = await headers();
   const geoCountry =
     headerList.get("x-vercel-ip-country") || // Vercel (production)
     headerList.get("cf-ipcountry") || // Cloudflare, if ever fronted by it
@@ -114,10 +116,12 @@ export interface VisitorMarket {
  * edge's IP-country header > for crawlers the language's home country > Pakistan. Pure reading of headers: no IP is stored.
  */
 export async function detectVisitorMarket(locale: string): Promise<VisitorMarket> {
-  const [configs, geo, cookieStore] = await Promise.all([getLocaleConfigs(), getVisitorGeo(), cookies()]);
+  const [configs, geo, cookieStore, headerList] = await Promise.all([getLocaleConfigs(), getVisitorGeo(), cookies(), headers()]);
   const byCode = new Map(configs.map((c) => [c.countryCode, c]));
+  // A country landing page (/sa ...) names its country itself; that beats the IP and any cookie.
+  const urlCountry = (headerList.get("x-servigic-country") ?? "").toUpperCase();
   const override = (cookieStore.get("servigic_country")?.value ?? "").toUpperCase();
-  let country: string | null = /^[A-Z]{2}$/.test(override) ? override : null;
+  let country: string | null = /^[A-Z]{2}$/.test(urlCountry) ? urlCountry : /^[A-Z]{2}$/.test(override) ? override : null;
   if (!country && !geo.isBot) country = geo.country;
   const known = Boolean(country);
   if (!country) country = LOCALE_HOME_COUNTRY[locale] ?? "PK";

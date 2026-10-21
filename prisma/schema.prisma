@@ -1436,3 +1436,20 @@ model RateLimitHit {
 
   @@index([key, createdAt])
 }
+
+// Chatbot answers that were not in the FAQ/site content. A question asked more than once is answered from here, never by a
+// new AI call; unanswered questions (source "none") show up in the admin list so the FAQ can grow.
+model ChatAnswer {
+  id          String   @id @default(cuid())
+  lang        String
+  qHash       String
+  question    String
+  answer      String?
+  source      String // "ai" | "none"
+  hits        Int      @default(1)
+  createdAt   DateTime @default(now())
+  lastAskedAt DateTime @default(now())
+
+  @@unique([lang, qHash])
+  @@index([source, hits])
+}

@@ -237,7 +237,28 @@
     "Karachi": "कराची",
     "Lahore": "लाहौर",
     "Islamabad": "इस्लामाबाद",
-    "Rawalpindi": "रावलपिंडी"
+    "Rawalpindi": "रावलपिंडी",
+    "Jeddah": "Jeddah",
+    "Madinah": "Madinah",
+    "Riyadh": "Riyadh",
+    "Dubai": "Dubai",
+    "Abu Dhabi": "Abu Dhabi",
+    "Sharjah": "Sharjah",
+    "Doha": "Doha",
+    "Toronto": "Toronto",
+    "Vancouver": "Vancouver",
+    "Montreal": "Montreal",
+    "Calgary": "Calgary",
+    "Ottawa": "Ottawa",
+    "New York": "New York",
+    "Los Angeles": "Los Angeles",
+    "Chicago": "Chicago",
+    "Houston": "Houston",
+    "Berlin": "Berlin",
+    "Munich": "Munich",
+    "Hamburg": "Hamburg",
+    "Warsaw": "Warsaw",
+    "Krakow": "Krakow"
   },
   "results": {
     "eyebrow": "नतीजे",
@@ -564,5 +585,18 @@
     "desc": "यह पेज मौजूद नहीं है — शायद हटा दिया गया है। चलिए आपको सही रास्ते पर लौटाते हैं।",
     "home": "होम पर लौटें",
     "services": "सेवाएँ देखें"
+  },
+  "chat": {
+    "title": "Servigic असिस्टेंट",
+    "hello": "नमस्ते! मैं Servigic की असिस्टेंट हूँ। काम पोस्ट करने, पेशेवरों, भुगतान या सुरक्षा के बारे में कुछ भी पूछें।",
+    "placeholder": "अपना सवाल लिखें…",
+    "send": "भेजें",
+    "popular": "आम सवाल",
+    "notFound": "मुझे सटीक जवाब नहीं मिला। दूसरे शब्दों में पूछें या हमारी टीम से WhatsApp पर पूछें।",
+    "whatsapp": "WhatsApp पर हमारी टीम से बात करें",
+    "tooltip": "नमस्ते 👋 कुछ भी पूछें",
+    "close": "बंद करें",
+    "typing": "लिख रही हूँ…",
+    "askAnother": "कुछ और पूछें"
   }
 }

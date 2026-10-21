@@ -14,6 +14,10 @@ import { VisitorBeacon } from "@/components/analytics/VisitorBeacon";
 import { DemoMoneyProvider } from "@/components/i18n/DemoMoney";
 import { PrelaunchShell } from "@/components/prelaunch/PrelaunchShell";
 import { getDemoMoney } from "@/lib/money";
+import { ChatWidget } from "@/components/chat/ChatWidget";
+import { detectVisitorMarket } from "@/lib/geoDetect";
+import { localeForCountry } from "@/i18n/locales";
+import { prisma } from "@/lib/prisma";
 import "./globals.css";
 
 // Same pairing as the OAQS Consultants site: Poppins for everything, Geist Mono for labels/figures.
@@ -56,6 +60,10 @@ export default async function RootLayout({
 }>) {
   const [messages, locale, theme, tc] = await Promise.all([getMessages(), getLocale(), getActiveTheme(), getTranslations("common")]);
   const demo = await getDemoMoney(locale);
+  // The assistant opens in the language of the visitor's country (Arabic in Saudi Arabia, Urdu in Pakistan), English one tap away.
+  const vm = await detectVisitorMarket(locale);
+  const chatLang = vm.known ? localeForCountry(vm.country) : (locale as string);
+  const supportNumber = await prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { whatsappSupportNumber: true } }).then((s) => s?.whatsappSupportNumber ?? null).catch(() => null);
   const dir = RTL_LOCALES.includes(locale as Locale) ? "rtl" : "ltr";
 
   return (
@@ -76,6 +84,7 @@ export default async function RootLayout({
           </Suspense>
           <VisitorBeacon />
           <PrelaunchShell>{children}</PrelaunchShell>
+          <ChatWidget defaultLang={chatLang} country={vm.country} supportNumber={supportNumber} />
           <Toaster theme="dark" position="top-center" richColors />
           </DemoMoneyProvider>
         </NextIntlClientProvider>

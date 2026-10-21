@@ -237,7 +237,28 @@
     "Karachi": "Carachi",
     "Lahore": "Lahore",
     "Islamabad": "Islamabad",
-    "Rawalpindi": "Rawalpindi"
+    "Rawalpindi": "Rawalpindi",
+    "Jeddah": "Jeddah",
+    "Madinah": "Madinah",
+    "Riyadh": "Riyadh",
+    "Dubai": "Dubai",
+    "Abu Dhabi": "Abu Dhabi",
+    "Sharjah": "Sharjah",
+    "Doha": "Doha",
+    "Toronto": "Toronto",
+    "Vancouver": "Vancouver",
+    "Montreal": "Montreal",
+    "Calgary": "Calgary",
+    "Ottawa": "Ottawa",
+    "New York": "Nova Iorque",
+    "Los Angeles": "Los Angeles",
+    "Chicago": "Chicago",
+    "Houston": "Houston",
+    "Berlin": "Berlin",
+    "Munich": "Munique",
+    "Hamburg": "Hamburg",
+    "Warsaw": "Varsóvia",
+    "Krakow": "Cracóvia"
   },
   "results": {
     "eyebrow": "Resultados",
@@ -534,5 +555,18 @@
     "desc": "Essa página não existe — pode ter sido movida. Vamos colocar você de volta no caminho.",
     "home": "Voltar ao início",
     "services": "Ver serviços"
+  },
+  "chat": {
+    "title": "Assistente Servigic",
+    "hello": "Olá! Sou a assistente do Servigic. Pergunte sobre publicar serviços, profissionais, pagamentos ou segurança.",
+    "placeholder": "Escreva sua pergunta…",
+    "send": "Enviar",
+    "popular": "Perguntas frequentes",
+    "notFound": "Não encontrei uma resposta exata. Tente outras palavras ou fale com nossa equipe no WhatsApp.",
+    "whatsapp": "Fale com nossa equipe no WhatsApp",
+    "tooltip": "Olá 👋 Pergunte o que quiser",
+    "close": "Fechar",
+    "typing": "Digitando…",
+    "askAnother": "Perguntar outra coisa"
   }
 }

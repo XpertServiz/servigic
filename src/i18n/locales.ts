@@ -65,8 +65,15 @@ export function localeForCountry(country: string | null | undefined, region?: st
 // prefixed — they follow the cookie / IP-detected language.
 const MARKETING_PREFIXES = ["/how-it-works", "/pro", "/services", "/trust-and-safety", "/business", "/legal"];
 
+// Country landing pages: /sa, /pk, /ae, /qa, /ca, /us show the site as a visitor from that country sees it (cities, ID
+// document, payment methods), at a URL of their own, so Google can index and rank each country's page separately.
+// (Germany is /de: the German language prefix already serves German visitors with Germany's content.)
+export const COUNTRY_LANDINGS = ["sa", "pk", "ae", "qa", "ca", "us"] as const;
+export const COUNTRY_LANDING_RE = new RegExp(`^/(${COUNTRY_LANDINGS.join("|")})(?=/|$)`);
+
 export function isMarketingPath(pathname: string): boolean {
   if (pathname === "/") return true;
+  if (COUNTRY_LANDING_RE.test(pathname)) return true;
   return MARKETING_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 

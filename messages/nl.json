@@ -237,7 +237,28 @@
     "Karachi": "Karachi",
     "Lahore": "Lahore",
     "Islamabad": "Islamabad",
-    "Rawalpindi": "Rawalpindi"
+    "Rawalpindi": "Rawalpindi",
+    "Jeddah": "Jeddah",
+    "Madinah": "Madinah",
+    "Riyadh": "Riyadh",
+    "Dubai": "Dubai",
+    "Abu Dhabi": "Abu Dhabi",
+    "Sharjah": "Sharjah",
+    "Doha": "Doha",
+    "Toronto": "Toronto",
+    "Vancouver": "Vancouver",
+    "Montreal": "Montreal",
+    "Calgary": "Calgary",
+    "Ottawa": "Ottawa",
+    "New York": "New York",
+    "Los Angeles": "Los Angeles",
+    "Chicago": "Chicago",
+    "Houston": "Houston",
+    "Berlin": "Berlin",
+    "Munich": "München",
+    "Hamburg": "Hamburg",
+    "Warsaw": "Warschau",
+    "Krakow": "Krakau"
   },
   "results": {
     "eyebrow": "Resultaten",
@@ -534,5 +555,18 @@
     "desc": "Die pagina bestaat niet — mogelijk is hij verplaatst. We helpen je terug op weg.",
     "home": "Terug naar home",
     "services": "Bekijk diensten"
+  },
+  "chat": {
+    "title": "Servigic-assistent",
+    "hello": "Hoi! Ik ben de assistent van Servigic. Vraag me alles over klussen plaatsen, vakmensen, betalen of veiligheid.",
+    "placeholder": "Typ je vraag…",
+    "send": "Verstuur",
+    "popular": "Veelgestelde vragen",
+    "notFound": "Ik vond geen exact antwoord. Probeer andere woorden of vraag ons team via WhatsApp.",
+    "whatsapp": "Chat met ons team via WhatsApp",
+    "tooltip": "Hoi 👋 Vraag me iets",
+    "close": "Sluiten",
+    "typing": "Typt…",
+    "askAnother": "Iets anders vragen"
   }
 }

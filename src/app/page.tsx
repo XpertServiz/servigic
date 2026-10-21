@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
@@ -33,9 +34,11 @@ import { SectionHead } from "@/components/ui/SectionHead";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [t, locale] = await Promise.all([getTranslations("meta.home"), getLocale()]);
+  const [t, locale, h] = await Promise.all([getTranslations("meta.home"), getLocale(), headers()]);
+  // On /sa the canonical URL is /sa (and /ar/sa in Arabic), not "/".
+  const landing = (h.get("x-servigic-country") ?? "").toLowerCase();
   return pageMetadata({
-    path: "/",
+    path: /^[a-z]{2}$/.test(landing) ? `/${landing}` : "/",
     locale: locale as Locale,
     title: { absolute: t("title") },
     description: t("description"),

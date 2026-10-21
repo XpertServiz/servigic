@@ -237,7 +237,28 @@
     "Karachi": "Karachi",
     "Lahore": "Lahore",
     "Islamabad": "Islamabad",
-    "Rawalpindi": "Rawalpindi"
+    "Rawalpindi": "Rawalpindi",
+    "Jeddah": "Jeddah",
+    "Madinah": "Madinah",
+    "Riyadh": "Riyadh",
+    "Dubai": "Dubai",
+    "Abu Dhabi": "Abu Dhabi",
+    "Sharjah": "Sharjah",
+    "Doha": "Doha",
+    "Toronto": "Toronto",
+    "Vancouver": "Vancouver",
+    "Montreal": "Montreal",
+    "Calgary": "Calgary",
+    "Ottawa": "Ottawa",
+    "New York": "New York",
+    "Los Angeles": "Los Angeles",
+    "Chicago": "Chicago",
+    "Houston": "Houston",
+    "Berlin": "Berlin",
+    "Munich": "Monaco di Baviera",
+    "Hamburg": "Hamburg",
+    "Warsaw": "Varsavia",
+    "Krakow": "Cracovia"
   },
   "results": {
     "eyebrow": "Risultati",
@@ -534,5 +555,18 @@
     "desc": "Questa pagina non esiste — forse è stata spostata. Rimettiamoci sulla strada giusta.",
     "home": "Torna alla home",
     "services": "Sfoglia i servizi"
+  },
+  "chat": {
+    "title": "Assistente Servigic",
+    "hello": "Ciao! Sono l’assistente di Servigic. Chiedimi di richieste, professionisti, pagamenti o sicurezza.",
+    "placeholder": "Scrivi la tua domanda…",
+    "send": "Invia",
+    "popular": "Domande frequenti",
+    "notFound": "Non ho trovato una risposta precisa. Prova con altre parole o scrivi al nostro team su WhatsApp.",
+    "whatsapp": "Scrivi al nostro team su WhatsApp",
+    "tooltip": "Ciao 👋 Chiedimi qualsiasi cosa",
+    "close": "Chiudi",
+    "typing": "Sta scrivendo…",
+    "askAnother": "Chiedi altro"
   }
 }

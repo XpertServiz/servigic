@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { SERVICE_CATALOG } from "@/lib/catalog";
 import { getCitySlugs } from "@/lib/liveCities";
-import { LOCALES, localizePath } from "@/i18n/locales";
+import { COUNTRY_LANDINGS, LOCALES, localizePath } from "@/i18n/locales";
 import { absoluteUrl, languageAlternates } from "@/lib/seo";
 
 // Rebuilt daily; the service list comes from the DB so new categories are indexed automatically.
@@ -10,6 +10,7 @@ export const revalidate = 86400;
 
 const STATIC_PAGES: { path: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly" }[] = [
   { path: "/", priority: 1, changeFrequency: "daily" },
+  ...COUNTRY_LANDINGS.map((c) => ({ path: `/${c}`, priority: 0.95, changeFrequency: "daily" as const })),
   { path: "/services", priority: 0.9, changeFrequency: "weekly" },
   { path: "/pro", priority: 0.9, changeFrequency: "weekly" },
   { path: "/how-it-works", priority: 0.8, changeFrequency: "monthly" },

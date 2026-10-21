@@ -237,7 +237,28 @@
     "Karachi": "Karaçi",
     "Lahore": "Lahor",
     "Islamabad": "İslamabad",
-    "Rawalpindi": "Rawalpindi"
+    "Rawalpindi": "Rawalpindi",
+    "Jeddah": "Jeddah",
+    "Madinah": "Madinah",
+    "Riyadh": "Riyadh",
+    "Dubai": "Dubai",
+    "Abu Dhabi": "Abu Dhabi",
+    "Sharjah": "Sharjah",
+    "Doha": "Doha",
+    "Toronto": "Toronto",
+    "Vancouver": "Vancouver",
+    "Montreal": "Montreal",
+    "Calgary": "Calgary",
+    "Ottawa": "Ottawa",
+    "New York": "New York",
+    "Los Angeles": "Los Angeles",
+    "Chicago": "Chicago",
+    "Houston": "Houston",
+    "Berlin": "Berlin",
+    "Munich": "Münih",
+    "Hamburg": "Hamburg",
+    "Warsaw": "Varşova",
+    "Krakow": "Krakov"
   },
   "results": {
     "eyebrow": "Sonuçlar",
@@ -534,5 +555,18 @@
     "desc": "Bu sayfa mevcut değil — taşınmış olabilir. Sizi tekrar yola sokalım.",
     "home": "Ana sayfaya dön",
     "services": "Hizmetlere göz at"
+  },
+  "chat": {
+    "title": "Servigic Asistanı",
+    "hello": "Merhaba! Ben Servigic asistanıyım. İş yayınlama, ustalar, ödeme ve güvenlik hakkında sorabilirsiniz.",
+    "placeholder": "Sorunuzu yazın…",
+    "send": "Gönder",
+    "popular": "Sık sorulanlar",
+    "notFound": "Kesin bir yanıt bulamadım. Başka kelimelerle deneyin ya da ekibimize WhatsApp’tan sorun.",
+    "whatsapp": "Ekibimizle WhatsApp’ta yazışın",
+    "tooltip": "Merhaba 👋 Bana sorun",
+    "close": "Kapat",
+    "typing": "Yazıyor…",
+    "askAnother": "Başka bir şey sor"
   }
 }

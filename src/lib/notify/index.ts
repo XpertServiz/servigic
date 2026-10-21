@@ -4,6 +4,9 @@ import { sendEmailChannel } from "./channels/email";
 import { sendWhatsappChannel } from "./channels/whatsapp";
 import { sendSmsChannel } from "./channels/sms";
 import { sendExpoPushChannel } from "./channels/expoPush";
+import { bilingual, localiseCurrency } from "./translate";
+import { getMarkets, marketForCity } from "@/lib/marketConfig";
+import { localeForCountry } from "@/i18n/locales";
 
 export interface NotifyPayload {
   userId: string;
@@ -32,13 +35,30 @@ export interface NotifyPayload {
 // written; external channels are config, not code — each adapter no-ops
 // safely when its credentials aren't set yet.
 export async function notify(payload: NotifyPayload) {
-  const { userId, type, title, body, linkUrl, channels = [], pushChannelHint, push = true, pushData } = payload;
+  const { userId, type, linkUrl, channels = [], pushChannelHint, push = true, pushData } = payload;
+  let { title, body } = payload;
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, phone: true, name: true, language: true, fcmTokens: true, managedByAdmin: true },
+    select: { id: true, email: true, phone: true, name: true, language: true, fcmTokens: true, managedByAdmin: true, city: true, role: true },
   });
   if (!user) return;
+
+  // Local language first, English underneath (a pro in Jeddah reads Arabic then English, a customer in Karachi Urdu then
+  // English), and amounts in the recipient's own currency. Staff and unknown messages stay as written.
+  try {
+    const market = user.city ? marketForCity(await getMarkets(), user.city) : null;
+    if (user.role === "CUSTOMER" || user.role === "PROVIDER") {
+      const language = user.language !== "en" ? user.language : localeForCountry(market?.countryCode ?? "PK");
+      ({ title, body } = bilingual(title, body, language));
+    }
+    const currency = market?.currency ?? "PKR";
+    title = localiseCurrency(title, currency);
+    body = localiseCurrency(body, currency);
+    if (payload.emailBody) payload.emailBody = localiseCurrency(payload.emailBody, currency);
+  } catch {
+    // a failure here must never stop the alert itself
+  }
 
   await prisma.notification.create({
     data: { userId, type, title, body, linkUrl },

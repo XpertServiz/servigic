@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import { NextResponse, type NextFetchEvent, type NextMiddleware, type NextRequest } from "next/server";
 import { authConfig } from "@/lib/auth.config";
-import { splitLocalePath } from "@/i18n/locales";
+import { COUNTRY_LANDING_RE, splitLocalePath } from "@/i18n/locales";
 
 // RBAC route protection (Master Brief §4: "NextAuth v5 JWT roles + route
 // protection via proxy.ts pattern"). Uses the edge-safe authConfig only —
@@ -59,7 +59,22 @@ export default function proxy(req: NextRequest, event: NextFetchEvent) {
   // /de/pro → serve /pro in German. The language travels to the server
   // components as a request header, and is remembered in the cookie so the
   // visitor stays in that language across app/auth pages too.
-  const { locale, path } = splitLocalePath(req.nextUrl.pathname);
+  const { locale, path: localePath } = splitLocalePath(req.nextUrl.pathname);
+  // /sa, /ar/sa ...: a country landing page. The page is the normal one, rendered for that country (header below).
+  const countryMatch = localePath.match(COUNTRY_LANDING_RE);
+  const path = countryMatch ? localePath.slice(countryMatch[0].length) || "/" : localePath;
+  if (countryMatch) {
+    const url = req.nextUrl.clone();
+    url.pathname = path;
+    const requestHeaders = new Headers(req.headers);
+    if (locale) requestHeaders.set("x-servigic-locale", locale);
+    requestHeaders.set("x-servigic-country", countryMatch[1].toUpperCase());
+    const res = NextResponse.rewrite(url, { request: { headers: requestHeaders } });
+    if (locale && req.cookies.get(LOCALE_COOKIE)?.value !== locale) {
+      res.cookies.set(LOCALE_COOKIE, locale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+    }
+    return res;
+  }
   if (locale) {
     const url = req.nextUrl.clone();
     url.pathname = path;
@@ -89,6 +104,9 @@ export const config = {
     "/admin/:path*",
     "/login",
     "/signup",
+    // Country landing pages (/sa, /pk, /ae, /qa, /ca, /us)
+    "/(sa|pk|ae|qa|ca|us)",
+    "/(sa|pk|ae|qa|ca|us)/:path*",
     // Language-prefixed marketing URLs (/ur, /de/pro, /ar/services/...). English is unprefixed.
     "/(ur|ar|de|fr|es|hi|pl|tr|it|pt|nl)",
     "/(ur|ar|de|fr|es|hi|pl|tr|it|pt|nl)/:path*",

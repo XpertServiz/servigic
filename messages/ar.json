@@ -237,7 +237,28 @@
     "Karachi": "كراتشي",
     "Lahore": "لاهور",
     "Islamabad": "إسلام آباد",
-    "Rawalpindi": "راولبندي"
+    "Rawalpindi": "راولبندي",
+    "Jeddah": "جدة",
+    "Madinah": "المدينة المنورة",
+    "Riyadh": "الرياض",
+    "Dubai": "دبي",
+    "Abu Dhabi": "أبوظبي",
+    "Sharjah": "الشارقة",
+    "Doha": "الدوحة",
+    "Toronto": "تورونتو",
+    "Vancouver": "فانكوفر",
+    "Montreal": "مونتريال",
+    "Calgary": "كالغاري",
+    "Ottawa": "أوتاوا",
+    "New York": "نيويورك",
+    "Los Angeles": "لوس أنجلوس",
+    "Chicago": "شيكاغو",
+    "Houston": "هيوستن",
+    "Berlin": "برلين",
+    "Munich": "ميونخ",
+    "Hamburg": "هامبورغ",
+    "Warsaw": "وارسو",
+    "Krakow": "كراكوف"
   },
   "results": {
     "eyebrow": "النتائج",
@@ -626,5 +647,18 @@
       "APPLIANCE_REPAIR": "إصلاح الأجهزة المنزلية",
       "OTHER": "أخرى"
     }
+  },
+  "chat": {
+    "title": "مساعد Servigic",
+    "hello": "مرحباً! أنا مساعدة Servigic. اسألني عن نشر الطلبات والمحترفين والدفع والأمان.",
+    "placeholder": "اكتب سؤالك…",
+    "send": "إرسال",
+    "popular": "أسئلة شائعة",
+    "notFound": "لم أجد إجابة دقيقة. جرّب كلمات أخرى أو اسأل فريقنا عبر واتساب.",
+    "whatsapp": "تحدث مع فريقنا عبر واتساب",
+    "tooltip": "مرحباً 👋 اسألني أي شيء",
+    "close": "إغلاق",
+    "typing": "تكتب…",
+    "askAnother": "اسأل شيئاً آخر"
   }
 }
