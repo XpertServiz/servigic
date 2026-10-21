@@ -3,6 +3,7 @@ import { Trade } from "@prisma/client";
 import { MarketsClient } from "./MarketsClient";
 import { parsePolygons } from "@/lib/geofence";
 import { cityCenter } from "@/lib/cityCenters";
+import { stateOf } from "@/lib/marketSync";
 
 export const dynamic = "force-dynamic";
 
@@ -23,11 +24,16 @@ function aggregateWaitlist(
 }
 
 export default async function AdminMarketsPage() {
-  const [markets, waitlist, pros] = await Promise.all([
+  const [markets, waitlist, pros, locales] = await Promise.all([
     prisma.market.findMany({ include: { categories: true }, orderBy: [{ countryCode: "asc" }, { name: "asc" }] }),
     prisma.countryWaitlistEntry.findMany({ select: { countryCode: true, zone: true, area: true, city: true, trade: true, role: true, notifiedAt: true, marketId: true }, take: 20000 }),
     prisma.providerProfile.findMany({ where: { OR: [{ isVerified: true }, { verificationLevel: { gte: 1 } }] }, select: { activation: true, trades: true, user: { select: { city: true } } } }),
+    prisma.localeConfig.findMany({ orderBy: { countryName: "asc" } }),
   ]);
+  const countries = locales.map((l) => {
+    const ms = markets.filter((m) => m.countryCode === l.countryCode);
+    return { code: l.countryCode, name: l.countryName, state: stateOf(ms), cities: ms.length ? Array.from(new Set(ms.flatMap((m) => m.cities))) : l.citiesLive, markets: ms.length };
+  });
 
   const view = markets.map((m) => {
     const cities = new Set(m.cities.map((c) => c.toLowerCase()));
@@ -77,6 +83,7 @@ export default async function AdminMarketsPage() {
         markets={view}
         allTrades={Object.values(Trade)}
         waitlist={aggregateWaitlist(waitlist)}
+        countries={countries}
       />
     </div>
   );

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { publicAreaLabel } from "@/lib/anon";
 import { fmtMoney } from "@/lib/format";
 import { getMoney } from "@/lib/money";
+import { detectVisitorMarket } from "@/lib/geoDetect";
+import { getCountryCities } from "@/lib/liveCities";
 
 // Real DB events only — hidden entirely below thresholds (Master Brief §7A, §12: no fake stats).
 const MIN_EVENTS_TO_SHOW = 5;
@@ -13,15 +15,19 @@ export async function ProofTicker() {
   const [t, locale, ts, money] = await Promise.all([getTranslations("ticker"), getLocale(), getTranslations("services.trades"), getMoney()]);
   const m = (n: number) => fmtMoney(n, locale, money.currency, money.rate);
   const weekAgo = weekAgoDate();
+  // Real events only, and only from the visitor's own country (no Pakistani jobs on a Saudi page).
+  const vm = await detectVisitorMarket(locale);
+  const ownCities = await getCountryCities(vm.country);
+  const cityFilter = ownCities.length ? { job: { city: { in: ownCities } } } : {};
 
   const [recentBids, completedJobs, payoutSum] = await Promise.all([
     prisma.bid.findMany({
-      where: { status: "ACCEPTED", createdAt: { gte: weekAgo } },
+      where: { status: "ACCEPTED", createdAt: { gte: weekAgo }, ...cityFilter },
       orderBy: { createdAt: "desc" },
       take: 6,
       include: { job: { include: { category: true } } },
     }),
-    prisma.booking.count({ where: { status: "COMPLETED", updatedAt: { gte: weekAgo } } }),
+    prisma.booking.count({ where: { status: "COMPLETED", updatedAt: { gte: weekAgo }, ...(ownCities.length ? { job: { city: { in: ownCities } } } : {}) } }),
     prisma.payout.aggregate({ where: { status: { in: ["SENT", "CONFIRMED"] }, sentAt: { gte: weekAgo } }, _sum: { amountPKR: true } }),
   ]);
 

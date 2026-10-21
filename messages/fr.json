@@ -1,9 +1,9 @@
 {
   "meta": {
     "home": {
-      "title": "Servigic — Services à domicile au Pakistan | Publiez, recevez des offres",
-      "description": "Publiez votre demande gratuitement : plombiers, électriciens, techniciens climatisation et plus, tous vérifiés, vous font une offre en quelques minutes. Comparez les vrais prix, choisissez votre pro, payez-le directement après le travail. Karachi, Lahore, Islamabad.",
-      "keywords": "services à domicile Pakistan, plombier Karachi, électricien Lahore, technicien climatisation Islamabad, prestataires vérifiés, devis en ligne, artisan près de chez moi, Servigic"
+      "title": "Servigic — Services à domicile (%%country%%) | Publiez, recevez des offres",
+      "description": "Publiez votre demande gratuitement : plombiers, électriciens, techniciens climatisation et plus, tous vérifiés, vous font une offre en quelques minutes. Comparez les vrais prix, choisissez votre pro, payez-le directement après le travail. %%cities%%.",
+      "keywords": "services à domicile %%country%%, plombier %%city1%%, électricien %%city2%%, technicien climatisation %%city3%%, prestataires vérifiés, devis en ligne, artisan près de chez moi, Servigic"
     },
     "how": {
       "title": "Comment fonctionne Servigic — Publier, recevoir des offres, réparer",
@@ -12,13 +12,13 @@
     },
     "pro": {
       "title": "Devenir pro Servigic — Zéro frais de lead",
-      "description": "Rejoignez Servigic en tant que pro vérifié. Aucun frais de lead, vous ne payez que si vous remportez le travail, alertes instantanées et paiement direct via EasyPaisa, JazzCash ou virement.",
-      "keywords": "devenir partenaire plombier, emplois électricien Pakistan, application prestataire de services, plateforme sans frais de lead, Servigic pro"
+      "description": "Rejoignez Servigic en tant que pro vérifié. Aucun frais de lead, vous ne payez que si vous remportez le travail, alertes instantanées et paiement direct via %%payoutList%%.",
+      "keywords": "devenir partenaire plombier, emplois électricien %%country%%, application prestataire de services, plateforme sans frais de lead, Servigic pro"
     },
     "services": {
-      "title": "Services à domicile au Pakistan — Plomberie, électricité, clim et plus",
-      "description": "12 métiers à Karachi, Lahore, Islamabad et Rawalpindi. Publiez gratuitement et comparez les offres de pros vérifiés.",
-      "keywords": "plombier, électricien, technicien climatisation, installateur solaire, menuisier, peintre, réparation électroménager, mécanicien auto, déménageurs, ménage, maçon, bricoleur, Pakistan"
+      "title": "Services à domicile (%%country%%) — Plomberie, électricité, clim et plus",
+      "description": "12 métiers à %%cities%%. Publiez gratuitement et comparez les offres de pros vérifiés.",
+      "keywords": "plombier, électricien, technicien climatisation, installateur solaire, menuisier, peintre, réparation électroménager, mécanicien auto, déménageurs, ménage, maçon, bricoleur, %%country%%"
     },
     "city": {
       "title": "{service} à {city} — Offres en quelques minutes",
@@ -32,7 +32,7 @@
     "business": {
       "title": "Servigic Business — Maintenance multi-sites",
       "description": "Un seul tableau de bord pour chaque unité et chaque métier. Publication groupée et facturation consolidée pour gestionnaires immobiliers, sociétés de gestion de villas et associations de résidents.",
-      "keywords": "maintenance immobilière Pakistan, gestion de villas maintenance, facility management plombiers électriciens"
+      "keywords": "maintenance immobilière %%country%%, gestion de villas maintenance, facility management plombiers électriciens"
     },
     "terms": { "title": "Conditions d’utilisation", "description": "Les conditions applicables à l’utilisation de la place de marché Servigic." },
     "privacy": { "title": "Politique de confidentialité", "description": "Les données que Servigic collecte, pourquoi, et comment elles sont protégées." },
@@ -43,7 +43,7 @@
   "common": {
     "appName": "Servigic",
     "loading": "Chargement",
-    "splashTagline": "Services à domicile · Pakistan · Réglé aujourd’hui",
+    "splashTagline": "Services à domicile · %%country%% · Réglé aujourd’hui",
     "language": "Langue",
     "currency": "Devise",
     "free": "Gratuit",
@@ -75,7 +75,7 @@
     "ctaPrimary": "Publier une demande — Offres en quelques minutes",
     "ctaSecondary": "Voir comment ça marche",
     "joinWaitlist": "Rejoindre la liste d’attente",
-    "trusted": "La confiance des propriétaires à Karachi, Lahore et Islamabad",
+    "trusted": "%%trustedLine%%",
     "chipPro": "Ahmed · ★4,9 · à 12 min",
     "chipBid": "Nouvelle offre · {price}",
     "chipVerified": "Pro vérifié ✓"
@@ -101,7 +101,7 @@
     "eyebrow": "Voyez-le en action",
     "title": "Regardez un problème se régler — en 12 secondes",
     "job": "La clim ne refroidit plus",
-    "area": "Gulshan-e-Iqbal",
+    "area": "%%sampleArea%%",
     "emergency": "Urgence",
     "eta": "Arrivée dans {min} min",
     "accepted": "Accepté ✓",
@@ -182,17 +182,17 @@
       "p1": "Comparez les offres, choisissez votre pro et payez-le en espèces — ou comme vous en convenez — une fois le travail terminé. Simple, familier, équitable.",
       "p2": "Du travail supplémentaire sur place ? Un avenant exige toujours votre accord au préalable — vous savez toujours ce que vous allez payer avant que cela n’arrive.",
       "steps": ["Comparer les offres", "Travail terminé", "Payer directement"],
-      "badge": "🛠 Garantie de travaux — 7 jours",
+      "badge": "🛠 Médiation en cas de litige",
       "change": "Avenant : « Tuyau corrodé constaté — {price} en plus »",
       "approve": "Approuver"
     },
     "protected": {
       "eyebrow": "Protection du paiement",
       "title": "Votre argent ne bouge pas tant que le travail n’est pas terminé.",
-      "p1": "Payé → Retenu → Travail terminé → Libéré. Chaque travail bénéficie d’une garantie de 7 jours.",
+      "p1": "Payé → Retenu → Travail terminé → Libéré.",
       "p2": "Du travail supplémentaire sur place ? Un avenant exige d’abord votre accord — sinon il n’a pas lieu.",
       "steps": ["Payé", "Retenu", "Travail terminé", "Libéré"],
-      "badge": "🛡 Garantie de 7 jours"
+      "badge": "🛠 Médiation en cas de litige"
     },
     "tracking": {
       "eyebrow": "Suivi en direct",
@@ -274,7 +274,7 @@
       "Jamais de frais de lead",
       "Vous ne payez que si vous remportez le travail",
       "Alertes de travaux façon Uber dans votre poche",
-      "Payé directement sur EasyPaisa / JazzCash / banque",
+      "Payé directement sur %%payoutList%%",
       "Niveaux de badge = commission réduite"
     ],
     "cta": "Devenir pro Servigic"
@@ -320,11 +320,11 @@
       { "q": "Publier une demande est-il gratuit ?", "a": "Oui — publier est toujours gratuit. Vous ne payez qu’après avoir accepté une offre, et vous payez votre pro directement une fois le travail terminé — Servigic ne perçoit ni ne retient jamais votre paiement." },
       { "q": "Comment Servigic me protège-t-il si je ne paie pas d’avance ?", "a": "Au lieu de retenir votre argent, Servigic vous protège grâce à des pros vérifiés (pièce d’identité + selfie, contrôle de police aux niveaux supérieurs), des notes réciproques après chaque travail, une messagerie masquée dans l’appli qui ne révèle les coordonnées de votre pro qu’une fois en route, et une équipe de litiges/médiation en cas de problème." },
       { "q": "Et si le pro découvre du travail supplémentaire sur place ?", "a": "Il soumet un avenant avec photo et prix — vous l’approuvez avant tout travail supplémentaire, et le surplus s’ajoute simplement à ce que vous payez directement à votre pro." },
-      { "q": "Et si je ne suis pas satisfait ?", "a": "Chaque travail bénéficie de 7 jours de garantie de travaux. Ouvrez un litige : notre équipe examine les photos des deux côtés et aide à trouver une solution avec votre pro." },
+      { "q": "Et si je ne suis pas satisfait ?", "a": "Si vous n’êtes pas satisfait, ouvrez un litige une fois le travail terminé. Notre équipe examine les photos des deux côtés et aide à trouver une solution équitable avec votre pro." },
       { "q": "Pourquoi ne vois-je pas tout de suite le numéro du pro ?", "a": "Les coordonnées restent masquées dans la messagerie jusqu’à ce que votre pro indique qu’il est en route — cela évite les accords hors plateforme et vous protège tous les deux. Pour les urgences, les coordonnées sont débloquées immédiatement." },
       { "q": "En combien de temps arrivent les offres ?", "a": "Pour les urgences, la plupart des clients voient leur première offre en moins de 10 minutes, car tous les pros proches concernés sont alertés instantanément." },
-      { "q": "Comment les pros sont-ils payés ?", "a": "Directement par vous — espèces, JazzCash, EasyPaisa ou virement, comme vous en convenez. Servigic ne touche jamais ce paiement ; les pros règlent leur commission de 12 % séparément via leur portefeuille de commissions dans l’appli." },
-      { "q": "Quelles villes ?", "a": "Lancement à Karachi, puis Lahore et Islamabad/Rawalpindi, suivis du Golfe et de l’Amérique du Nord." },
+      { "q": "Comment les pros sont-ils payés ?", "a": "Directement par vous — %%payList%%, comme vous en convenez. Servigic ne touche jamais ce paiement ; les pros règlent leur commission de 12 % séparément via leur portefeuille de commissions dans l’appli." },
+      { "q": "Quelles villes ?", "a": "Nous démarrons à %%citiesSoon%%, puis nous étendrons à d’autres pays." },
       { "q": "Pourquoi réserver via Servigic plutôt que d’appeler directement le pro ?", "a": "Via Servigic, vous avez des pros vérifiés et notés, des avis réciproques, un soutien en cas de litige et une vraie concurrence par les offres — rien de tout cela si vous contournez la plateforme. Les réservations répétées se font aussi d’un geste avec « Réserver à nouveau »." },
       { "q": "Que se passe-t-il si j’annule ou si mon pro annule une réservation ?", "a": "Les annulations après confirmation sont suivies — quelques annulations ne posent pas de problème, mais un taux d’annulation élevé peut suspendre pendant un temps votre possibilité de publier (ou les alertes d’un pro). Si un pro vous demande d’annuler pour travailler directement avec vous, dites-le-nous — choisissez ce motif et nous examinerons votre pro au lieu de vous le reprocher." }
     ]
@@ -335,7 +335,7 @@
     "sub": "Publiez gratuitement votre première demande. Offres en quelques minutes. Pros vérifiés.",
     "primary": "Publier une demande",
     "secondary": "Devenir pro",
-    "checks": ["Publication gratuite", "Paiement direct après", "Pros vérifiés", "7 jours d’assistance"]
+    "checks": ["Publication gratuite", "Paiement direct après", "Pros vérifiés", "Médiation en cas de litige"]
   },
   "waitlist": {
     "eyebrow": "Bientôt en {country}",
@@ -370,7 +370,7 @@
     "eyebrow": "Pour les pros",
     "title1": "Aucun frais de lead.",
     "title2": "Jamais.",
-    "sub": "Ne payez que si vous remportez le travail. Alertes façon Uber dans votre poche. Payé directement sur EasyPaisa, JazzCash ou en banque.",
+    "sub": "Ne payez que si vous remportez le travail. Alertes façon Uber dans votre poche. Payé directement sur %%payoutList%%.",
     "cta": "Devenir pro Servigic",
     "videoTitle": "Voyez comment un pro gagne sa vie sur Servigic",
     "zeroActive": "Dépensés en leads par nos {count} prestataires actifs le mois dernier",
@@ -399,15 +399,15 @@
       { "title": "01 — Publiez votre demande", "desc": "Choisissez une catégorie, décrivez le problème, ajoutez jusqu’à 6 photos et indiquez l’urgence — Urgence, Aujourd’hui ou Planifié. Votre adresse exacte est enregistrée mais reste masquée jusqu’au choix d’un pro." },
       { "title": "02 — Les pros se disputent l’offre", "desc": "Chaque prestataire vérifié à proximité exerçant ce métier reçoit une alerte instantanée — notification push, WhatsApp et flux de dispatch dans l’appli. Il envoie un prix, un délai et un message. Vous comparez côte à côte, triés par prix, note ou délai, et pouvez refuser en indiquant un motif ou envoyer une contre-offre par offre." },
       { "title": "03 — Choisissez, discutez, suivez en direct", "desc": "Acceptez une offre et la messagerie s’ouvre. Les coordonnées et votre adresse exacte sont débloquées quand votre pro est en route. Suivez le statut en temps réel : En route → Arrivé → Au travail → Terminé, avec une carte en direct pendant le trajet." },
-      { "title": "04 — Payez directement", "desc": "Le travail terminé, payez votre pro directement — espèces, JazzCash, EasyPaisa ou virement. Servigic ne perçoit ni ne retient jamais votre paiement. Tout travail supplémentaire requiert votre accord sous forme d’avenant avant d’être réalisé." },
-      { "title": "05 — Confirmez et notez", "desc": "Confirmez que le travail est terminé (ou il se confirme automatiquement 24 h après « Terminé » s’il n’y a pas de litige). Les deux parties se notent mutuellement, et chaque travail bénéficie de 7 jours de garantie." }
+      { "title": "04 — Payez directement", "desc": "Le travail terminé, payez votre pro directement — %%payList%%. Servigic ne perçoit ni ne retient jamais votre paiement. Tout travail supplémentaire requiert votre accord sous forme d’avenant avant d’être réalisé." },
+      { "title": "05 — Confirmez et notez", "desc": "Confirmez que le travail est terminé (ou il se confirme automatiquement 24 h après « Terminé » s’il n’y a pas de litige). Les deux parties se notent mutuellement, et vous pouvez ouvrir un litige en cas de problème." }
     ]
   },
   "trustPage": {
     "eyebrow": "Confiance et sécurité",
     "title": "Bâti sur la vérification, le masquage et la médiation.",
     "sections": [
-      { "title": "Payez directement, gardez le contrôle", "desc": "Vous ne payez jamais Servigic d’avance. Vous payez votre pro directement après le travail, et chaque travail bénéficie de 7 jours de garantie." },
+      { "title": "Payez directement, gardez le contrôle", "desc": "Vous ne payez jamais Servigic d’avance. Vous payez votre pro directement après le travail." },
       { "title": "Masquage des coordonnées", "desc": "Les numéros de téléphone et adresses exactes restent masqués des deux côtés jusqu’à ce que le pro soit en route. D’ici là, les prestataires apparaissent sous un numéro anonyme (« Pro n° 42 ») et les clients par leur prénom et leur quartier seulement. Pour les urgences, les coordonnées sont débloquées dès la confirmation de la réservation." },
       { "title": "Échelle de vérification des prestataires", "desc": "Niveau 1 : pièce d’identité + selfie, approuvés par l’admin — peut répondre. Niveau 2 « Pro vérifié » : certificat de police, dispatch prioritaire. Niveau 3 « Gold Ustad » : 10 travaux terminés avec 4,5★ ou plus, commission la plus basse." },
       { "title": "Avenants", "desc": "Si un prestataire découvre du travail supplémentaire sur place, il soumet un avenant avec photo et prix — vous approuvez avant tout travail supplémentaire." },
@@ -452,12 +452,12 @@
       { "title": "Utilisation", "desc": "Pour faire fonctionner la place de marché : mettre en relation travaux et prestataires, vérifier l’identité et envoyer des notifications liées aux travaux." },
       { "title": "Données de localisation", "desc": "La position du prestataire n’est partagée qu’avec le client concerné, uniquement pendant l’état « en route », et les points de localisation sont conservés 7 jours." },
       { "title": "Statistiques du site", "desc": "Nous comptons les visites anonymement : un hachage renouvelé chaque jour et votre pays, sans cookie ni adresse IP stockée." },
-      { "title": "Données de prospection (prestataires)", "desc": "Les coordonnées professionnelles issues de listes publiques (p. ex. Google Places) ne servent qu’au recrutement B2B au Pakistan, avec désinscription respectée sur demande." }
+      { "title": "Données de prospection (prestataires)", "desc": "Les coordonnées professionnelles issues de listes publiques (p. ex. Google Places) ne servent qu’au recrutement B2B (%%country%%), avec désinscription respectée sur demande." }
     ]
   },
   "servicesPage": {
     "eyebrow": "Services",
-    "title": "Services à domicile au Pakistan — publiez une fois, les pros font une offre.",
+    "title": "Services à domicile (%%country%%) — publiez une fois, les pros font une offre.",
     "sub": "Choisissez un métier et une ville. Des pros vérifiés se disputent votre demande, vous comparez de vraies offres et payez directement après le travail.",
     "videoTitle": "Voyez comment publier une demande",
     "cities": "Villes",
@@ -468,7 +468,7 @@
       "Pros vérifiés par pièce d’identité + selfie",
       "Vraie concurrence sur les prix — comparez les offres",
       "Aucune avance — payez après le travail",
-      "7 jours de garantie de travaux"
+      "Médiation en cas de litige"
     ]
   },
   "cityPage": {
@@ -529,7 +529,37 @@
     "resend": "Renvoyer le code",
     "resent": "Code renvoyé ✓",
     "badCredentials": "Numéro de téléphone ou mot de passe incorrect",
-    "phoneHint": "Indiquez l’indicatif du pays, p. ex. +33 6 12 34 56 78 ou +92 300 1234567."
+    "phoneHint": "Indiquez l’indicatif du pays, p. ex. +33 6 12 34 56 78 ou +92 300 1234567.",
+    "confirmPassword": "Confirmer le mot de passe",
+    "passwordMismatch": "Les deux mots de passe ne correspondent pas.",
+    "forgotPassword": "Mot de passe oublié ?",
+    "forgotTitle": "Réinitialiser le mot de passe",
+    "forgotSub": "Saisissez le numéro utilisé à l’inscription, nous vous enverrons un code.",
+    "sendCode": "Envoyer le code",
+    "codeSent": "Si ce numéro est enregistré, un code est en route.",
+    "codeLabel": "Code à 6 chiffres",
+    "newPassword": "Nouveau mot de passe",
+    "resetPassword": "Définir le nouveau mot de passe",
+    "resetDone": "Mot de passe modifié. Vous pouvez vous connecter.",
+    "backToLogin": "Retour à la connexion",
+    "country": "Pays",
+    "otherCountry": "Autre pays",
+    "loginAsCustomer": "Je suis client",
+    "loginAsPro": "Je suis pro",
+    "proPendingTitle": "Votre demande est entre les mains de notre équipe",
+    "proPendingBody": "L’admin approuvera votre demande sous 3 jours ouvrés après vérification de votre identité. Merci de patienter : vous êtes tout près de vos nouveaux revenus.",
+    "proPendingShort": "Approbation en cours : nous vérifions votre identité sous 3 jours ouvrés.",
+    "errPhoneExistsSame": "Ce numéro est déjà enregistré comme {role}. Connectez-vous ou utilisez « Mot de passe oublié ».",
+    "errPhoneExistsOther": "Ce numéro a déjà un compte {role}. Pour l’utiliser aussi comme {want}, saisissez le même mot de passe que votre compte {role}.",
+    "errEmailExists": "Cet e-mail est déjà utilisé par un autre compte {role}. Utilisez un autre e-mail ou connectez-vous.",
+    "errInvalidPhone": "Saisissez un numéro valide pour le pays choisi.",
+    "errRateLimited": "Trop de tentatives. Réessayez dans un moment.",
+    "errServer": "Un problème est survenu de notre côté. Réessayez dans un instant.",
+    "linkedDone": "Terminé ! Ce numéro a maintenant les deux comptes. Connectez-vous avec votre mot de passe.",
+    "resetBadCode": "Ce code est invalide ou expiré.",
+    "phonePlaceholder": "{example}",
+    "roleCustomer": "client",
+    "rolePro": "pro"
   },
   "notFound": {
     "title": "Page introuvable",
@@ -539,7 +569,7 @@
   },
   "prelaunch": {
     "banner_live_country": "🚀 Bientôt à {city}. Inscrivez-vous à la liste prioritaire et soyez les premiers informés.",
-    "banner_other_country": "🌍 Servigic se lance d'abord au Pakistan. Vous le voulez au {country} ? Inscrivez-vous, nous vous préviendrons en premier.",
+    "banner_other_country": "🌍 Servigic se lance d'abord : %%launchCountries%%. Vous le voulez dans ce pays ({country}) ? Inscrivez-vous, nous vous préviendrons en premier.",
     "banner_cta": "S'inscrire",
     "form_title": "Rejoignez la liste prioritaire Servigic",
     "tab_customer": "J'ai besoin d'un service",

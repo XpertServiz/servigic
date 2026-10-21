@@ -21,7 +21,7 @@ export const VERIFICATION_TIERS: Record<number, VerificationTier> = {
   1: {
     label: "Verified",
     icon: "✓",
-    requirement: "CNIC + selfie verified by Servigic",
+    requirement: "Government ID + selfie verified by Servigic",
     color: "#3b82f6",
     textClasses: "text-[#3b82f6]",
     borderClasses: "border-[#3b82f6]/40",

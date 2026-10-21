@@ -1,9 +1,9 @@
 {
   "meta": {
     "home": {
-      "title": "Servigic — Klusdiensten in Pakistan | Plaats een klus, ontvang offertes",
-      "description": "Plaats je klus gratis en geverifieerde loodgieters, elektriciens, airco-monteurs en meer bieden binnen enkele minuten. Vergelijk echte prijzen, kies je vakman en betaal rechtstreeks na het werk. Karachi, Lahore, Islamabad.",
-      "keywords": "klusdiensten Pakistan, loodgieter Karachi, elektricien Lahore, airco-monteur Islamabad, geverifieerde vakmensen, online offertes, klusjesman in de buurt, Servigic"
+      "title": "Servigic — Klusdiensten in %%country%% | Plaats een klus, ontvang offertes",
+      "description": "Plaats je klus gratis en geverifieerde loodgieters, elektriciens, airco-monteurs en meer bieden binnen enkele minuten. Vergelijk echte prijzen, kies je vakman en betaal rechtstreeks na het werk. %%cities%%.",
+      "keywords": "klusdiensten %%country%%, loodgieter %%city1%%, elektricien %%city2%%, airco-monteur %%city3%%, geverifieerde vakmensen, online offertes, klusjesman in de buurt, Servigic"
     },
     "how": {
       "title": "Hoe Servigic werkt — Plaatsen, bieden, oplossen",
@@ -12,13 +12,13 @@
     },
     "pro": {
       "title": "Word Servigic-vakman — Nul leadkosten",
-      "description": "Sluit je aan bij Servigic als geverifieerde vakman. Geen leadkosten, je betaalt alleen als je de klus wint, directe klusmeldingen en uitbetaling via EasyPaisa, JazzCash of bank.",
-      "keywords": "partner loodgieter worden, elektricien klussen Pakistan, app voor dienstverleners, platform zonder leadkosten, Servigic vakman"
+      "description": "Sluit je aan bij Servigic als geverifieerde vakman. Geen leadkosten, je betaalt alleen als je de klus wint, directe klusmeldingen en uitbetaling via %%payoutList%%.",
+      "keywords": "partner loodgieter worden, elektricien klussen %%country%%, app voor dienstverleners, platform zonder leadkosten, Servigic vakman"
     },
     "services": {
-      "title": "Klusdiensten in Pakistan — Loodgieter, elektricien, airco en meer",
-      "description": "12 vakgebieden in Karachi, Lahore, Islamabad en Rawalpindi. Plaats gratis een klus en vergelijk de biedingen van geverifieerde vakmensen.",
-      "keywords": "loodgieter, elektricien, airco-monteur, zonnepaneleninstallateur, timmerman, schilder, apparatenreparatie, automonteur, verhuizers, schoonmaak, metselaar, klusjesman, Pakistan"
+      "title": "Klusdiensten in %%country%% — Loodgieter, elektricien, airco en meer",
+      "description": "12 vakgebieden in %%cities%%. Plaats gratis een klus en vergelijk de biedingen van geverifieerde vakmensen.",
+      "keywords": "loodgieter, elektricien, airco-monteur, zonnepaneleninstallateur, timmerman, schilder, apparatenreparatie, automonteur, verhuizers, schoonmaak, metselaar, klusjesman, %%country%%"
     },
     "city": {
       "title": "{service} in {city} — Biedingen binnen enkele minuten",
@@ -32,7 +32,7 @@
     "business": {
       "title": "Servigic voor bedrijven — Onderhoud van meerdere panden",
       "description": "Eén dashboard voor elke eenheid en elk vak. Bulk-klussen plaatsen en gebundelde facturatie voor vastgoedbeheerders, villabeheerders en VvE’s.",
-      "keywords": "vastgoedonderhoud Pakistan, villabeheer onderhoud, facility management loodgieters elektriciens"
+      "keywords": "vastgoedonderhoud %%country%%, villabeheer onderhoud, facility management loodgieters elektriciens"
     },
     "terms": { "title": "Gebruiksvoorwaarden", "description": "De voorwaarden die gelden bij gebruik van de Servigic-marktplaats." },
     "privacy": { "title": "Privacybeleid", "description": "Welke gegevens Servigic verzamelt, waarom en hoe ze worden beschermd." },
@@ -43,7 +43,7 @@
   "common": {
     "appName": "Servigic",
     "loading": "Laden",
-    "splashTagline": "Klusdiensten · Pakistan · Vandaag opgelost",
+    "splashTagline": "Klusdiensten · %%country%% · Vandaag opgelost",
     "language": "Taal",
     "currency": "Valuta",
     "free": "Gratis",
@@ -75,7 +75,7 @@
     "ctaPrimary": "Klus plaatsen — biedingen binnen minuten",
     "ctaSecondary": "Bekijk hoe het werkt",
     "joinWaitlist": "Op de wachtlijst",
-    "trusted": "Vertrouwd door huiseigenaren in Karachi, Lahore en Islamabad",
+    "trusted": "%%trustedLine%%",
     "chipPro": "Ahmed · ★4,9 · 12 min verderop",
     "chipBid": "Nieuwe bieding · {price}",
     "chipVerified": "Geverifieerde vakman ✓"
@@ -101,7 +101,7 @@
     "eyebrow": "Zie het in actie",
     "title": "Zie hoe een klus wordt opgelost — in 12 seconden",
     "job": "Airco koelt niet",
-    "area": "Gulshan-e-Iqbal",
+    "area": "%%sampleArea%%",
     "emergency": "Spoed",
     "eta": "Aankomst over {min} min",
     "accepted": "Geaccepteerd ✓",
@@ -182,17 +182,17 @@
       "p1": "Vergelijk biedingen, kies je vakman en betaal hem contant — of hoe jullie afspreken — zodra het werk klaar is. Eenvoudig, vertrouwd, eerlijk.",
       "p2": "Meerwerk ontdekt ter plekke? Een wijzigingsopdracht heeft nog steeds eerst jouw goedkeuring nodig — je weet altijd wat je betaalt voordat het gebeurt.",
       "steps": ["Biedingen vergelijken", "Klus klaar", "Rechtstreeks betalen"],
-      "badge": "🛠 Garantie op het werk — 7 dagen",
+      "badge": "🛠 Geschillenbemiddeling",
       "change": "Wijzigingsopdracht: “Gecorrodeerde leiding gevonden — {price} extra”",
       "approve": "Goedkeuren"
     },
     "protected": {
       "eyebrow": "Betalingsbescherming",
       "title": "Je geld beweegt pas als de klus klaar is.",
-      "p1": "Betaald → Vastgehouden → Klus klaar → Vrijgegeven. Elke klus heeft 7 dagen garantie op het werk.",
+      "p1": "Betaald → Vastgehouden → Klus klaar → Vrijgegeven.",
       "p2": "Meerwerk ontdekt ter plekke? Een wijzigingsopdracht heeft eerst jouw goedkeuring nodig — anders gebeurt het niet.",
       "steps": ["Betaald", "Vastgehouden", "Klus klaar", "Vrijgegeven"],
-      "badge": "🛡 7 dagen garantie op het werk"
+      "badge": "🛠 Geschillenbemiddeling"
     },
     "tracking": {
       "eyebrow": "Live tracking",
@@ -274,7 +274,7 @@
       "Nooit leadkosten",
       "Je betaalt alleen als je de klus wint",
       "Klusmeldingen in Uber-stijl in je zak",
-      "Rechtstreeks uitbetaald via EasyPaisa / JazzCash / bank",
+      "Rechtstreeks uitbetaald via %%payoutList%%",
       "Badge-niveaus = lagere commissie"
     ],
     "cta": "Word Servigic-vakman"
@@ -320,11 +320,11 @@
       { "q": "Is een klus plaatsen gratis?", "a": "Ja — een klus plaatsen is altijd gratis. Je betaalt pas als je een bieding accepteert, en je betaalt je vakman rechtstreeks zodra de klus klaar is — Servigic int of houdt je betaling nooit vast." },
       { "q": "Hoe beschermt Servigic mij als ik niet vooruitbetaal?", "a": "In plaats van je geld vast te houden, beschermt Servigic je met geverifieerde vakmensen (identiteitsbewijs + selfie, politiecontrole op hogere niveaus), wederzijdse beoordelingen na elke klus, een verborgen in-app chat die de contactgegevens van je vakman pas toont als hij onderweg is, en een team voor geschillen en bemiddeling als er iets misgaat." },
       { "q": "Wat als de vakman ter plekke meerwerk vindt?", "a": "Hij dient een wijzigingsopdracht in met foto en prijs — jij keurt die goed voordat er meerwerk gebeurt, en het extra bedrag wordt gewoon opgeteld bij wat je je vakman rechtstreeks betaalt." },
-      { "q": "Wat als ik niet tevreden ben?", "a": "Elke klus heeft 7 dagen garantieondersteuning. Open een geschil en ons team bekijkt foto’s van beide kanten en helpt een oplossing met je vakman te bereiken." },
+      { "q": "Wat als ik niet tevreden ben?", "a": "Ben je niet tevreden, open dan na afloop van de klus een geschil. Ons team bekijkt de foto’s van beide kanten en helpt een eerlijke oplossing met je vakman te vinden." },
       { "q": "Waarom zie ik het telefoonnummer van de vakman niet meteen?", "a": "Contactgegevens blijven verborgen in een in-app chat tot je vakman aangeeft dat hij onderweg is — zo sluiten we de mogelijkheid af om buiten het platform om afspraken te maken, wat jullie beiden beschermt. Bij spoedklussen worden de gegevens direct ontgrendeld." },
       { "q": "Hoe snel komen biedingen binnen?", "a": "Bij spoedklussen zien de meeste klanten hun eerste bieding binnen 10 minuten, omdat elke passende vakman in de buurt meteen een melding krijgt." },
-      { "q": "Hoe worden vakmensen betaald?", "a": "Rechtstreeks door jou — contant, JazzCash, EasyPaisa of bankoverschrijving, zoals jullie afspreken. Servigic raakt die betaling nooit aan; vakmensen voldoen hun commissie van 12% apart via hun commissietegoed in de app." },
-      { "q": "Welke steden?", "a": "We starten in Karachi, daarna Lahore en Islamabad/Rawalpindi, gevolgd door de Golfstaten en Noord-Amerika." },
+      { "q": "Hoe worden vakmensen betaald?", "a": "Rechtstreeks door jou — %%payList%%, zoals jullie afspreken. Servigic raakt die betaling nooit aan; vakmensen voldoen hun commissie van 12% apart via hun commissietegoed in de app." },
+      { "q": "Welke steden?", "a": "We starten in %%citiesSoon%% en breiden daarna uit naar meer landen." },
       { "q": "Waarom boeken via Servigic in plaats van de vakman gewoon rechtstreeks te bellen?", "a": "Via Servigic krijg je geverifieerde en beoordeelde vakmensen, wederzijdse reviews, hulp bij geschillen en prijsconcurrentie door echte biedingen — niets daarvan bestaat als je om het platform heen gaat. Herhaalboekingen zijn bovendien één tik met “Opnieuw boeken”." },
       { "q": "Wat gebeurt er als ik of mijn vakman een boeking annuleert?", "a": "Annuleren na een bevestigde boeking wordt bijgehouden — af en toe annuleren is prima, maar een hoog annuleringspercentage kan je mogelijkheid om klussen te plaatsen (of de klusmeldingen van een vakman) een tijd pauzeren. Als een vakman je vraagt te annuleren zodat je rechtstreeks met hem werkt, laat het ons weten — kies die reden en we beoordelen je vakman in plaats van het tegen jou te tellen." }
     ]
@@ -335,7 +335,7 @@
     "sub": "Plaats je eerste klus gratis. Biedingen binnen minuten. Geverifieerde vakmensen.",
     "primary": "Klus plaatsen",
     "secondary": "Word vakman",
-    "checks": ["Gratis plaatsen", "Achteraf rechtstreeks betalen", "Geverifieerde vakmensen", "7 dagen ondersteuning"]
+    "checks": ["Gratis plaatsen", "Achteraf rechtstreeks betalen", "Geverifieerde vakmensen", "Geschillenbemiddeling"]
   },
   "waitlist": {
     "eyebrow": "Binnenkort in {country}",
@@ -370,7 +370,7 @@
     "eyebrow": "Voor vakmensen",
     "title1": "Geen leadkosten.",
     "title2": "Nooit.",
-    "sub": "Betaal alleen als je de klus wint. Meldingen in Uber-stijl in je zak. Rechtstreeks uitbetaald via EasyPaisa, JazzCash of bank.",
+    "sub": "Betaal alleen als je de klus wint. Meldingen in Uber-stijl in je zak. Rechtstreeks uitbetaald via %%payoutList%%.",
     "cta": "Word Servigic-vakman",
     "videoTitle": "Zie hoe een vakman verdient op Servigic",
     "zeroActive": "Vorige maand uitgegeven aan leads door onze {count} actieve aanbieders",
@@ -399,15 +399,15 @@
       { "title": "01 — Plaats je klus", "desc": "Kies een categorie, beschrijf het probleem, voeg tot 6 foto’s toe en bepaal de urgentie — Spoed, Vandaag of Gepland. Je exacte adres wordt vastgelegd, maar blijft verborgen tot je een vakman kiest." },
       { "title": "02 — Vakmensen strijden om de bieding", "desc": "Elke geverifieerde aanbieder in de buurt die dat vak uitoefent krijgt direct een melding — pushmelding, WhatsApp en een in-app dispatchfeed. Zij sturen prijs, aankomsttijd en een bericht. Jij vergelijkt naast elkaar, gesorteerd op prijs, beoordeling of aankomsttijd, en kunt afwijzen met een reden of per bieding één tegenbod sturen." },
       { "title": "03 — Kies, chat, volg live", "desc": "Accepteer een bieding en de in-app chat gaat open. Contactgegevens en je exacte adres worden ontgrendeld zodra je vakman onderweg is. Zie de status in realtime: Onderweg → Aangekomen → Aan het werk → Klaar, met een live kaart tijdens de rit." },
-      { "title": "04 — Betaal rechtstreeks", "desc": "Als het werk klaar is, betaal je je vakman rechtstreeks — contant, JazzCash, EasyPaisa of bankoverschrijving. Servigic int of houdt je betaling nooit vast. Meerwerk heeft jouw goedkeuring nodig als wijzigingsopdracht voordat het gebeurt." },
-      { "title": "05 — Bevestig en beoordeel", "desc": "Bevestig dat de klus klaar is (of het wordt 24 uur na “Klaar” automatisch bevestigd als er geen geschil is). Beide kanten beoordelen elkaar, en elke klus heeft 7 dagen garantieondersteuning." }
+      { "title": "04 — Betaal rechtstreeks", "desc": "Als het werk klaar is, betaal je je vakman rechtstreeks — %%payList%%. Servigic int of houdt je betaling nooit vast. Meerwerk heeft jouw goedkeuring nodig als wijzigingsopdracht voordat het gebeurt." },
+      { "title": "05 — Bevestig en beoordeel", "desc": "Bevestig dat de klus klaar is (of hij wordt 24 uur na ‘Klaar’ automatisch bevestigd als er geen geschil is). Beide kanten beoordelen elkaar, en als er iets mis is kun je een geschil openen." }
     ]
   },
   "trustPage": {
     "eyebrow": "Vertrouwen en veiligheid",
     "title": "Gebouwd op verificatie, afscherming en bemiddeling.",
     "sections": [
-      { "title": "Betaal rechtstreeks, houd de controle", "desc": "Je betaalt Servigic nooit vooraf. Je betaalt je vakman rechtstreeks na het werk, en elke klus heeft 7 dagen garantieondersteuning." },
+      { "title": "Betaal rechtstreeks, houd de controle", "desc": "Je betaalt Servigic nooit vooraf. Je betaalt je vakman rechtstreeks nadat het werk klaar is." },
       { "title": "Afscherming van contactgegevens", "desc": "Telefoonnummers en exacte adressen blijven aan beide kanten verborgen tot de vakman onderweg is. Tot die tijd verschijnen aanbieders als een anoniem serienummer (“Vakman nr. 42”) en klanten alleen met voornaam en buurt. Bij spoedklussen worden contactgegevens ontgrendeld zodra de boeking is bevestigd." },
       { "title": "Verificatieladder voor aanbieders", "desc": "Niveau 1: identiteitsbewijs + selfie, door de beheerder goedgekeurd — mag bieden. Niveau 2 “Geverifieerde vakman”: verklaring omtrent gedrag, voorrang bij verdeling. Niveau 3 “Gold Ustad”: 10 afgeronde klussen met 4,5★ of hoger, laagste commissie." },
       { "title": "Wijzigingsopdrachten", "desc": "Als een aanbieder ter plekke meerwerk vindt, dient hij een wijzigingsopdracht in met foto en prijs — jij keurt die goed voordat er meerwerk gebeurt." },
@@ -450,12 +450,12 @@
       { "title": "Hoe we ze gebruiken", "desc": "Om de marktplaats te laten werken: klussen aan aanbieders koppelen, identiteit verifiëren en klusgerelateerde meldingen sturen." },
       { "title": "Locatiegegevens", "desc": "De locatie van de aanbieder wordt alleen gedeeld met de gekoppelde klant, alleen zolang de status “onderweg” is, en locatiepings worden 7 dagen bewaard." },
       { "title": "Websiteanalyse", "desc": "We tellen bezoeken anoniem: een dagelijks wisselende hash en je land, zonder cookies en zonder opgeslagen IP-adressen." },
-      { "title": "Leadgegevens (aanbieders)", "desc": "Zakelijke contactgegevens uit openbare vermeldingen (bijv. Google Places) worden alleen gebruikt voor B2B-werving in Pakistan, waarbij afmelden op verzoek wordt gerespecteerd." }
+      { "title": "Leadgegevens (aanbieders)", "desc": "Zakelijke contactgegevens uit openbare vermeldingen (bijv. Google Places) worden alleen gebruikt voor B2B-werving in %%country%%, waarbij afmelden op verzoek wordt gerespecteerd." }
     ]
   },
   "servicesPage": {
     "eyebrow": "Diensten",
-    "title": "Klusdiensten in Pakistan — plaats één keer, vakmensen bieden.",
+    "title": "Klusdiensten in %%country%% — plaats één keer, vakmensen bieden.",
     "sub": "Kies een vak en een stad. Geverifieerde vakmensen strijden om jouw klus, jij vergelijkt echte biedingen en betaalt rechtstreeks na het werk.",
     "videoTitle": "Zie hoe een klus plaatsen werkt",
     "cities": "Steden",
@@ -466,7 +466,7 @@
       "Geverifieerde vakmensen met identiteits- en selfiecontrole",
       "Echte prijsconcurrentie — vergelijk biedingen",
       "Geen vooruitbetaling — betaal na het werk",
-      "7 dagen garantieondersteuning"
+      "Geschillenbemiddeling"
     ]
   },
   "cityPage": {

@@ -4,12 +4,14 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { AuthShell, authButton } from "@/components/landing/AuthShell";
+import { ProPendingNotice } from "@/components/auth/ProPendingNotice";
 
 function VerifyForm() {
   const t = useTranslations("auth");
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId") || "";
+  const isPro = searchParams.get("role") === "provider";
 
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +33,7 @@ function VerifyForm() {
         setError(data.error || t("verifyFailed"));
         return;
       }
-      router.push("/login");
+      router.push(`/login?role=${isPro ? "provider" : "customer"}`);
     } catch {
       setError(t("networkError"));
     } finally {
@@ -52,7 +54,8 @@ function VerifyForm() {
   return (
     <>
       <h1 className="mb-2 text-3xl font-bold tracking-[-0.018em]">{t("verifyTitle")}</h1>
-      <p className="mb-8 text-text-muted">{t("verifySub")}</p>
+      <p className="mb-6 text-text-muted">{t("verifySub")}</p>
+      {isPro && <ProPendingNotice className="mb-6" />}
 
       <form onSubmit={handleVerify} className="flex flex-col items-center gap-4">
         <input

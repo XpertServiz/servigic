@@ -6,12 +6,13 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { CurrencySwitcher } from "./CurrencySwitcher";
 import { detectMarket } from "@/lib/geoDetect";
 import { LegalDisclaimer } from "@/components/ui/LegalDisclaimer";
+import { getCitySlugs, getCountryCities } from "@/lib/liveCities";
 
-const FEATURED_LINKS = [
-  { trade: "PLUMBER", slug: "plumber", city: "Karachi" },
-  { trade: "ELECTRICIAN", slug: "electrician", city: "Karachi" },
-  { trade: "AC_TECHNICIAN", slug: "ac-technician", city: "Lahore" },
-  { trade: "CARPENTER", slug: "carpenter", city: "Islamabad" },
+const FEATURED_TRADES = [
+  { trade: "PLUMBER", slug: "plumber" },
+  { trade: "ELECTRICIAN", slug: "electrician" },
+  { trade: "AC_TECHNICIAN", slug: "ac-technician" },
+  { trade: "CARPENTER", slug: "carpenter" },
 ];
 
 const colTitle = "mb-4 font-mono text-[11.5px] uppercase tracking-[0.16em] text-text-muted";
@@ -25,6 +26,11 @@ export async function Footer() {
     getTranslations("services.trades"),
     getTranslations("cities"),
   ]);
+
+  // The visitor's own cities first (Jeddah and Madinah for Saudi Arabia), spread over the four popular trades.
+  const own = await getCountryCities(market.country);
+  const citySlugs = own.length ? own.map((c) => ({ name: c, slug: c.toLowerCase().replace(/\s+/g, "-") })) : await getCitySlugs(market.country);
+  const FEATURED_LINKS = FEATURED_TRADES.map((f, i) => ({ ...f, city: citySlugs.length ? citySlugs[i % citySlugs.length].name : "Karachi", citySlug: citySlugs.length ? citySlugs[i % citySlugs.length].slug : "karachi" }));
 
   return (
     <footer className="relative mt-16 border-t border-white/[0.07] bg-gradient-to-b from-transparent to-black/30 py-14 md:py-16">
@@ -42,7 +48,7 @@ export async function Footer() {
             <ul className={list}>
               {FEATURED_LINKS.map((l) => (
                 <li key={l.slug}>
-                  <LLink href={`/services/${l.slug}/${l.city.toLowerCase()}`}>{t("serviceLink", { service: ts(l.trade), city: tc(l.city) })}</LLink>
+                  <LLink href={`/services/${l.slug}/${l.citySlug}`}>{t("serviceLink", { service: ts(l.trade), city: tc(l.city) })}</LLink>
                 </li>
               ))}
               <li>

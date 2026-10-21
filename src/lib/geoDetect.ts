@@ -4,6 +4,7 @@ import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import type { Currency } from "@prisma/client";
 import type { Locale } from "@/i18n/request";
+import { getVisitorGeo } from "@/lib/visitorGeo";
 
 export interface MarketInfo {
   country: string; // ISO 3166-1 alpha-2
@@ -93,4 +94,33 @@ export async function detectMarket(): Promise<MarketInfo> {
 export async function listMarkets(): Promise<MarketInfo[]> {
   const configs = await getLocaleConfigs();
   return configs.map(toMarketInfo);
+}
+
+// ---------- the visitor's real country, for texts that name cities, ID documents and payment methods ----------
+
+// A crawler has no useful IP: it reads the page in the language of the URL, so it gets that language's home country.
+const LOCALE_HOME_COUNTRY: Record<string, string> = { ur: "PK", ar: "SA", de: "DE", pl: "PL", fr: "CA", es: "US", hi: "PK" };
+
+export interface VisitorMarket {
+  country: string; // ISO 3166-1 alpha-2 (the visitor's, or the language's home country for crawlers / unknown)
+  isLive: boolean;
+  citiesLive: string[];
+  known: boolean; // false when we could not tell (local dev, privacy tools): defaults to Pakistan
+  liveCountries: string[]; // every country that is live right now
+}
+
+/**
+ * The visitor's country and whether Servigic is live there. Order: manual override cookie (country switcher) > the hosting
+ * edge's IP-country header > for crawlers the language's home country > Pakistan. Pure reading of headers: no IP is stored.
+ */
+export async function detectVisitorMarket(locale: string): Promise<VisitorMarket> {
+  const [configs, geo, cookieStore] = await Promise.all([getLocaleConfigs(), getVisitorGeo(), cookies()]);
+  const byCode = new Map(configs.map((c) => [c.countryCode, c]));
+  const override = (cookieStore.get("servigic_country")?.value ?? "").toUpperCase();
+  let country: string | null = /^[A-Z]{2}$/.test(override) ? override : null;
+  if (!country && !geo.isBot) country = geo.country;
+  const known = Boolean(country);
+  if (!country) country = LOCALE_HOME_COUNTRY[locale] ?? "PK";
+  const cfg = byCode.get(country);
+  return { country, isLive: Boolean(cfg?.isLive), citiesLive: cfg?.citiesLive ?? [], known, liveCountries: configs.filter((c) => c.isLive).map((c) => c.countryCode) };
 }

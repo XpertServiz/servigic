@@ -1,51 +1,105 @@
-import { syncLeadForUser } from "@/lib/leads";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validation/auth";
 import { issueOtp } from "@/lib/otp";
-import { phoneVariants } from "@/lib/phone";
+import { toE164 } from "@/lib/phone";
 import { attachReferral } from "@/lib/referrals";
+import { syncLeadForUser } from "@/lib/leads";
+import { findAccountsByPhone, passwordMatchesAny, roleLabel } from "@/lib/accounts";
+import { checkRateLimit } from "@/lib/rateLimit";
+
+// Every failure answers with JSON { error, code }: the web form and the apps show `error` (or translate `code`), never a
+// generic "network error" for something we can explain (a number or email that is already registered, a bad number).
+const fail = (error: string, code: string, status: number, extra: Record<string, unknown> = {}) => NextResponse.json({ error, code, ...extra }, { status });
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
   const parsed = registerSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
+    return fail(parsed.error.issues[0]?.message ?? "Invalid input", "INVALID_INPUT", 400);
   }
-  const { role, name, phone, email, password, city, referralCode, deviceId } = parsed.data;
+  const { role, name, email, password, city, referralCode, deviceId, country, confirmPassword } = parsed.data;
 
-  const existing = await prisma.user.findFirst({ where: { phone: { in: phoneVariants(phone) } } });
-  if (existing) {
+  if (confirmPassword !== undefined && confirmPassword !== password) return fail("The two passwords do not match.", "PASSWORD_MISMATCH", 400);
+  // A number typed without +country is read in the visitor's country (IP / form), then in Pakistan.
+  const phone = toE164(parsed.data.phone, ((country ?? "PK").toUpperCase() as never) ?? "PK");
+  if (!phone) return fail("Enter a valid phone number, including the country code (e.g. +966 50 123 4567).", "INVALID_PHONE", 400);
+
+  const limited = await checkRateLimit(`register:${phone}`, 8, 60 * 60);
+  if (!limited.ok) return fail("Too many attempts. Please try again in a while.", "RATE_LIMITED", 429);
+
+  const accounts = await findAccountsByPhone(phone);
+  const same = accounts.find((u) => u.role === role);
+  const other = accounts.find((u) => u.role !== role && (u.role === "CUSTOMER" || u.role === "PROVIDER"));
+
+  if (same) {
     // An admin posted jobs for this number before the customer had the app: this registration claims that
     // account (so the job history carries over) once the phone code is verified — see verifyOtp().
-    if (existing.managedByAdmin && existing.role === "CUSTOMER" && role === "CUSTOMER") {
+    if (same.managedByAdmin && same.role === "CUSTOMER" && role === "CUSTOMER") {
       if (email) {
-        const emailTaken = await prisma.user.findFirst({ where: { email, id: { not: existing.id } }, select: { id: true } });
-        if (emailTaken) return NextResponse.json({ error: "An account with this email already exists" }, { status: 409 });
+        const emailTaken = await prisma.user.findFirst({ where: { email, role, id: { not: same.id } }, select: { id: true } });
+        if (emailTaken) return fail("An account with this email already exists", "EMAIL_EXISTS", 409);
       }
       await prisma.user.update({
-        where: { id: existing.id },
-        data: { pendingPasswordHash: await bcrypt.hash(password, 12), pendingName: name, pendingEmail: email ?? null, city: existing.city ?? city },
+        where: { id: same.id },
+        data: { pendingPasswordHash: await bcrypt.hash(password, 12), pendingName: name, pendingEmail: email ?? null, city: same.city ?? city },
       });
-      await issueOtp(existing.id, existing.phone, "PHONE_VERIFY", email);
-      return NextResponse.json({ userId: existing.id, phone: existing.phone });
+      await issueOtp(same.id, same.phone, "PHONE_VERIFY", email);
+      return NextResponse.json({ userId: same.id, phone: same.phone });
     }
-    return NextResponse.json({ error: "An account with this phone number already exists" }, { status: 409 });
+    return fail(`This phone number is already registered as a ${roleLabel(role)}. Please log in instead, or use "Forgot password" if you do not remember it.`, "PHONE_EXISTS_SAME_ROLE", 409, { existingRole: same.role });
   }
 
-  const passwordHash = await bcrypt.hash(password, 12);
+  // The same person adding the other role (a pro who also wants to hire, a customer who also wants to work): allowed when the
+  // password typed is the existing account's password, which proves it is the same person. Otherwise tell them exactly what to do.
+  let linkedFrom: (typeof accounts)[number] | null = null;
+  if (other) {
+    linkedFrom = await passwordMatchesAny(accounts, password);
+    if (!linkedFrom) {
+      return fail(
+        `This number already has a ${roleLabel(other.role)} account. To also use it as a ${roleLabel(role)}, enter the SAME password as your ${roleLabel(other.role)} account, or log in to your ${roleLabel(other.role)} account.`,
+        "PHONE_EXISTS_OTHER_ROLE",
+        409,
+        { existingRole: other.role },
+      );
+    }
+  }
 
-  const user = await prisma.user.create({
-    data: {
-      role,
-      name,
-      phone,
-      email,
-      passwordHash,
-      city,
-    },
-  });
+  if (email) {
+    const emailTaken = await prisma.user.findFirst({ where: { email, role }, select: { id: true } });
+    if (emailTaken) {
+      return fail(`This email is already used by another ${roleLabel(role)} account. Use a different email, or log in.`, "EMAIL_EXISTS", 409, { existingRole: role });
+    }
+  }
+
+  const passwordHash = linkedFrom ? linkedFrom.passwordHash : await bcrypt.hash(password, 12);
+
+  let user;
+  try {
+    user = await prisma.user.create({
+      data: {
+        role,
+        name,
+        phone: linkedFrom ? linkedFrom.phone : phone,
+        email,
+        passwordHash,
+        city,
+        // Linking a second role to a number that was already verified needs no second code.
+        phoneVerified: linkedFrom ? linkedFrom.phoneVerified : false,
+        ...(linkedFrom ? { language: linkedFrom.language } : {}),
+      },
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      const target = JSON.stringify(e.meta?.target ?? "");
+      if (target.includes("email")) return fail(`This email is already used by another ${roleLabel(role)} account. Use a different email, or log in.`, "EMAIL_EXISTS", 409);
+      return fail(`This phone number is already registered as a ${roleLabel(role)}. Please log in instead.`, "PHONE_EXISTS_SAME_ROLE", 409);
+    }
+    console.error("[register]", e);
+    return fail("Something went wrong on our side. Please try again in a moment.", "SERVER_ERROR", 500);
+  }
 
   if (role === "PROVIDER") {
     await prisma.providerProfile.create({
@@ -63,8 +117,17 @@ export async function POST(req: Request) {
     await syncLeadForUser(user.id, "REGISTERED", byPro ? "PRO_REFERRAL" : "APP").catch((e) => console.error("[leads]", e));
   }
 
-  await issueOtp(user.id, user.phone, "PHONE_VERIFY", user.email);
+  // A number that is already verified (second role) goes straight to sign-in; everyone else gets a code. A code that cannot be
+  // delivered never turns the whole sign-up into an error: the person can ask for it again on the next screen.
+  const verified = Boolean(linkedFrom?.phoneVerified);
+  if (!verified) await issueOtp(user.id, user.phone, "PHONE_VERIFY", user.email).catch((e) => console.error("[otp]", e));
 
   // Only "applied" / "invalid" are told to the app; a rejection looks like "no referral" so abusers learn nothing.
-  return NextResponse.json({ userId: user.id, phone: user.phone, referral: referral.status === "applied" ? "applied" : referralCode ? "invalid" : "none" });
+  return NextResponse.json({
+    userId: user.id,
+    phone: user.phone,
+    verified,
+    linked: Boolean(linkedFrom),
+    referral: referral.status === "applied" ? "applied" : referralCode ? "invalid" : "none",
+  });
 }

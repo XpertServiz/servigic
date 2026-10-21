@@ -1,6 +1,8 @@
 import { getRequestConfig } from "next-intl/server";
 import { cookies, headers } from "next/headers";
 import { DEFAULT_LOCALE, isLocale, type Locale } from "./locales";
+import { applyTokens, tokensFor } from "@/lib/countryProfile";
+import { detectVisitorMarket } from "@/lib/geoDetect";
 
 export { SUPPORTED_LOCALES, DEFAULT_LOCALE, RTL_LOCALES, type Locale } from "./locales";
 
@@ -51,7 +53,25 @@ async function loadMessages(locale: Locale): Promise<Messages> {
   }
 }
 
+function regionName(code: string, locale: string): string {
+  try {
+    return new Intl.DisplayNames([locale], { type: "region" }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 export default getRequestConfig(async () => {
   const locale = await resolveLocale();
-  return { locale, messages: await loadMessages(locale) };
+  const messages = await loadMessages(locale);
+  // Texts that name cities, ID documents or payment methods carry %%tokens%%: fill them in for the visitor's country, so
+  // nobody in Saudi Arabia reads about the CNIC or Karachi. A failure here must never break a page: fall back to Pakistan's words.
+  let tokens: Record<string, string>;
+  try {
+    const vm = await detectVisitorMarket(locale);
+    tokens = tokensFor({ countryCode: vm.country, locale, countryName: regionName(vm.country, locale), liveCities: vm.citiesLive, isLive: vm.isLive, liveCountryNames: vm.liveCountries.map((c) => regionName(c, locale)) });
+  } catch {
+    tokens = tokensFor({ countryCode: "PK", locale, countryName: regionName("PK", locale), isLive: true });
+  }
+  return { locale, messages: applyTokens(messages, tokens) };
 });

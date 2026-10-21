@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { LIVE_CITIES } from "@/lib/markets";
+import { getLiveCities } from "@/lib/liveCities";
 import { PlansClient } from "./PlansClient";
 
 export default async function CustomerPlansPage() {
@@ -33,7 +33,7 @@ export default async function CustomerPlansPage() {
           status: p.status,
         }))}
         categories={categories}
-        cities={LIVE_CITIES}
+        cities={await getLiveCities()}
       />
     </div>
   );

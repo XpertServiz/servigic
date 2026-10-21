@@ -21,7 +21,12 @@ export const loginPhoneSchema = z
 export const registerSchema = z.object({
   role: z.enum(["CUSTOMER", "PROVIDER"]),
   name: z.string().trim().min(2, "Name is too short").max(80),
-  phone: phoneSchema,
+  // Typed as the person sees it. A number without a country code is read in `country` (the visitor's country from the
+  // IP, or the one picked in the form); the apps always send +country format.
+  phone: z.string().trim().min(5, "Enter a valid phone number").max(30),
+  country: z.string().trim().length(2).optional(),
+  // Typed twice on every sign-up form to catch typos; checked here as well when a client sends it.
+  confirmPassword: z.string().optional(),
   // Optional: the redesigned customer sign-up only asks for name + phone +
   // password. Providers still send one from their own sign-up form.
   email: z
@@ -39,6 +44,8 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   phone: loginPhoneSchema,
   password: z.string().min(1, "Password is required"),
+  // Which app / sign-in the person is using, so a number with both a customer and a pro account opens the right one.
+  role: z.enum(["CUSTOMER", "PROVIDER"]).optional(),
 });
 
 export const verifyOtpSchema = z.object({

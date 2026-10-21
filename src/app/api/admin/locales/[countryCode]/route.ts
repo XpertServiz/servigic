@@ -3,6 +3,7 @@ import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
+import { setCountryState } from "@/lib/marketSync";
 
 const schema = z.object({
   language: z.enum(["en", "ur", "ar", "de", "fr", "pl"]),
@@ -25,6 +26,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ countryC
 
   const config = await prisma.localeConfig.update({ where: { countryCode }, data: parsed.data });
   revalidateTag("locale-configs", "max");
+  // Keep Markets & Launch in step: Live here means the country's markets are live; not live means waitlist (when it has markets).
+  const hasMarkets = (await prisma.market.count({ where: { countryCode } })) > 0;
+  if (parsed.data.isLive || hasMarkets) await setCountryState(countryCode, parsed.data.isLive ? "live" : "waitlist", { cities: parsed.data.citiesLive });
 
   return NextResponse.json({ config });
 }

@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/Button";
 import { AutoVideo } from "@/components/media/AutoVideo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getDemoVideos } from "@/lib/siteVideos";
-import { CITY_SLUGS, SERVICE_CATALOG, TRADE_ICONS } from "@/lib/catalog";
+import { SERVICE_CATALOG, TRADE_ICONS } from "@/lib/catalog";
+import { getCitySlugs } from "@/lib/liveCities";
 import { breadcrumbJsonLd, pageMetadata, absoluteUrl, SITE_NAME } from "@/lib/seo";
 import { localizePath, type Locale } from "@/i18n/locales";
 import { minPriceLabel } from "@/lib/marketPrices";
@@ -34,7 +35,7 @@ async function getCategories() {
 }
 
 export default async function ServicesIndexPage() {
-  const [t, ts, tc, tn, locale, videos, categories, money] = await Promise.all([
+  const [t, ts, tc, tn, locale, videos, categories, money, CITY_SLUGS] = await Promise.all([
     getTranslations("servicesPage"),
     getTranslations("services.trades"),
     getTranslations("cities"),
@@ -43,6 +44,7 @@ export default async function ServicesIndexPage() {
     getDemoVideos(),
     getCategories(),
     getMoney(),
+    getCitySlugs(),
   ]);
   const why = t.raw("whyItems") as string[];
   const name = (c: { trade: string; name: string }) => (ts.has(c.trade) ? ts(c.trade) : c.name);
@@ -50,7 +52,7 @@ export default async function ServicesIndexPage() {
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: categories.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: name(c), url: absoluteUrl(localizePath(`/services/${c.slug}/karachi`, locale)) })),
+    itemListElement: categories.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: name(c), url: absoluteUrl(localizePath(`/services/${c.slug}/${CITY_SLUGS[0]?.slug ?? "karachi"}`, locale)) })),
   };
 
   return (

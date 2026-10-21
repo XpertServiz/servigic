@@ -1,9 +1,9 @@
 {
   "meta": {
     "home": {
-      "title": "Servigic — Haushaltsdienste in Pakistan | Auftrag posten, Angebote erhalten",
-      "description": "Stellen Sie Ihren Auftrag kostenlos ein – geprüfte Klempner, Elektriker, Klimatechniker und mehr bieten innerhalb von Minuten. Echte Preise vergleichen, Profi wählen, direkt nach der Arbeit bezahlen. Karatschi, Lahore, Islamabad.",
-      "keywords": "Haushaltsdienste Pakistan, Klempner Karatschi, Elektriker Lahore, Klimatechniker Islamabad, geprüfte Handwerker, Angebote online einholen, Handwerker in der Nähe, Servigic"
+      "title": "Servigic — Haushaltsdienste in %%country%% | Auftrag posten, Angebote erhalten",
+      "description": "Stellen Sie Ihren Auftrag kostenlos ein – geprüfte Klempner, Elektriker, Klimatechniker und mehr bieten innerhalb von Minuten. Echte Preise vergleichen, Profi wählen, direkt nach der Arbeit bezahlen. %%cities%%.",
+      "keywords": "Haushaltsdienste %%country%%, Klempner Karatschi, Elektriker %%city2%%, Klimatechniker %%city3%%, geprüfte Handwerker, Angebote online einholen, Handwerker in der Nähe, Servigic"
     },
     "how": {
       "title": "So funktioniert Servigic — Posten, Bieten, Beheben",
@@ -12,13 +12,13 @@
     },
     "pro": {
       "title": "Servigic-Profi werden — Keine Lead-Gebühren",
-      "description": "Werden Sie geprüfter Servigic-Profi. Keine Lead-Gebühren, Sie zahlen nur bei gewonnenem Auftrag, sofortige Auftragsbenachrichtigungen und Auszahlung per EasyPaisa, JazzCash oder Bank.",
-      "keywords": "Klempner Partner werden, Elektriker Aufträge Pakistan, Handwerker App, plattform ohne Lead-Gebühren, Servigic Profi"
+      "description": "Werden Sie geprüfter Servigic-Profi. Keine Lead-Gebühren, Sie zahlen nur bei gewonnenem Auftrag, sofortige Auftragsbenachrichtigungen und Auszahlung per %%payoutList%%.",
+      "keywords": "Klempner Partner werden, Elektriker Aufträge %%country%%, Handwerker App, plattform ohne Lead-Gebühren, Servigic Profi"
     },
     "services": {
-      "title": "Haushaltsdienste in Pakistan — Klempner, Elektriker, Klima & mehr",
-      "description": "12 Gewerke in Karatschi, Lahore, Islamabad und Rawalpindi. Auftrag kostenlos einstellen und Angebote geprüfter Profis vergleichen.",
-      "keywords": "Klempner, Elektriker, Klimatechniker, Solarinstallateur, Tischler, Maler, Haushaltsgeräte-Reparatur, Kfz-Mechaniker, Umzug, Reinigung, Maurer, Handwerker, Pakistan"
+      "title": "Haushaltsdienste in %%country%% — Klempner, Elektriker, Klima & mehr",
+      "description": "12 Gewerke in %%cities%%. Auftrag kostenlos einstellen und Angebote geprüfter Profis vergleichen.",
+      "keywords": "Klempner, Elektriker, Klimatechniker, Solarinstallateur, Tischler, Maler, Haushaltsgeräte-Reparatur, Kfz-Mechaniker, Umzug, Reinigung, Maurer, Handwerker, %%country%%"
     },
     "city": {
       "title": "{service} in {city} — Angebote in Minuten",
@@ -32,7 +32,7 @@
     "business": {
       "title": "Servigic für Unternehmen — Instandhaltung mehrerer Objekte",
       "description": "Ein Dashboard für jede Einheit und jedes Gewerk. Sammelaufträge und gebündelte Abrechnung für Hausverwaltungen, Villenverwalter und Eigentümergemeinschaften.",
-      "keywords": "Gebäudeinstandhaltung Pakistan, Hausverwaltung Wartung, Facility Management Klempner Elektriker"
+      "keywords": "Gebäudeinstandhaltung %%country%%, Hausverwaltung Wartung, Facility Management Klempner Elektriker"
     },
     "terms": { "title": "Nutzungsbedingungen", "description": "Die Bedingungen für die Nutzung des Servigic-Marktplatzes." },
     "privacy": { "title": "Datenschutzerklärung", "description": "Welche Daten Servigic erhebt, warum und wie sie geschützt werden." },
@@ -43,7 +43,7 @@
   "common": {
     "appName": "Servigic",
     "loading": "Lädt",
-    "splashTagline": "Haushaltsdienste · Pakistan · Heute erledigt",
+    "splashTagline": "Haushaltsdienste · %%country%% · Heute erledigt",
     "language": "Sprache",
     "currency": "Währung",
     "free": "Kostenlos",
@@ -75,7 +75,7 @@
     "ctaPrimary": "Auftrag posten — Angebote in Minuten",
     "ctaSecondary": "So funktioniert’s",
     "joinWaitlist": "Auf die Warteliste",
-    "trusted": "Vertraut von Hausbesitzern in Karatschi, Lahore & Islamabad",
+    "trusted": "%%trustedLine%%",
     "chipPro": "Ahmed · ★4,9 · 12 Min. entfernt",
     "chipBid": "Neues Gebot · {price}",
     "chipVerified": "Geprüfter Profi ✓"
@@ -101,7 +101,7 @@
     "eyebrow": "Live erleben",
     "title": "Sehen Sie, wie ein Job erledigt wird — in 12 Sekunden",
     "job": "Klimaanlage kühlt nicht",
-    "area": "Gulshan-e-Iqbal",
+    "area": "%%sampleArea%%",
     "emergency": "Notfall",
     "eta": "Ankunft in {min} Min.",
     "accepted": "Angenommen ✓",
@@ -182,17 +182,17 @@
       "p1": "Gebote vergleichen, Profi wählen und nach getaner Arbeit bar bezahlen — oder wie vereinbart. Einfach, vertraut, fair.",
       "p2": "Vor Ort zusätzliche Arbeit nötig? Ein Änderungsauftrag braucht trotzdem zuerst Ihre Freigabe — Sie wissen immer, was Sie zahlen, bevor es passiert.",
       "steps": ["Gebote vergleichen", "Job erledigt", "Direkt bezahlen"],
-      "badge": "🛠 Gewährleistung — 7 Tage",
+      "badge": "🛠 Streitschlichtung bei Bedarf",
       "change": "Änderungsauftrag: „Korrodiertes Rohr gefunden — zusätzlich {price}“",
       "approve": "Freigeben"
     },
     "protected": {
       "eyebrow": "Zahlungsschutz",
       "title": "Ihr Geld bewegt sich erst, wenn der Job erledigt ist.",
-      "p1": "Bezahlt → Gehalten → Job erledigt → Freigegeben. Jeder Auftrag hat 7 Tage Gewährleistung.",
+      "p1": "Bezahlt → Gehalten → Job erledigt → Freigegeben.",
       "p2": "Zusätzliche Arbeit vor Ort? Ein Änderungsauftrag braucht zuerst Ihre Freigabe — sonst passiert nichts.",
       "steps": ["Bezahlt", "Gehalten", "Job erledigt", "Freigegeben"],
-      "badge": "🛡 7 Tage Gewährleistung"
+      "badge": "🛠 Streitschlichtung bei Bedarf"
     },
     "tracking": {
       "eyebrow": "Live-Tracking",
@@ -274,7 +274,7 @@
       "Nie Lead-Gebühren",
       "Zahlen nur, wenn Sie den Auftrag gewinnen",
       "Auftragsbenachrichtigungen wie bei Uber",
-      "Auszahlung direkt per EasyPaisa / JazzCash / Bank",
+      "Auszahlung direkt per %%payoutList%%",
       "Abzeichen-Stufen = weniger Provision"
     ],
     "cta": "Servigic-Profi werden"
@@ -320,11 +320,11 @@
       { "q": "Ist das Einstellen eines Auftrags kostenlos?", "a": "Ja — das Einstellen ist immer kostenlos. Sie zahlen erst, wenn Sie ein Gebot annehmen, und zwar direkt an Ihren Profi, wenn der Job erledigt ist — Servigic zieht Ihre Zahlung nie ein und hält sie auch nicht zurück." },
       { "q": "Wie schützt mich Servigic, wenn ich nicht im Voraus zahle?", "a": "Statt Ihr Geld zu halten, schützt Servigic Sie durch geprüfte Profis (Ausweis + Selfie, auf höheren Stufen polizeilich geprüft), beidseitige Bewertungen nach jedem Auftrag, einen maskierten In-App-Chat, der die Kontaktdaten Ihres Profis erst preisgibt, wenn er unterwegs ist, sowie ein Streitschlichtungsteam, falls etwas schiefgeht." },
       { "q": "Was, wenn der Profi vor Ort zusätzliche Arbeit findet?", "a": "Er reicht einen Änderungsauftrag mit Foto und Preis ein — Sie genehmigen ihn, bevor zusätzliche Arbeit beginnt, und der Mehrbetrag wird einfach zu dem addiert, was Sie Ihrem Profi direkt zahlen." },
-      { "q": "Was, wenn ich nicht zufrieden bin?", "a": "Jeder Auftrag hat 7 Tage Gewährleistung. Eröffnen Sie einen Streitfall: Unser Team prüft die Fotos beider Seiten und vermittelt eine Lösung mit Ihrem Profi." },
+      { "q": "Was, wenn ich nicht zufrieden bin?", "a": "Wenn Sie nicht zufrieden sind, eröffnen Sie nach Abschluss des Auftrags einen Streitfall. Unser Team prüft die Fotos beider Seiten und vermittelt eine faire Lösung mit Ihrem Profi." },
       { "q": "Warum sehe ich die Telefonnummer des Profis nicht sofort?", "a": "Kontaktdaten bleiben in einem In-App-Chat maskiert, bis Ihr Profi „unterwegs“ meldet — das verhindert Absprachen an der Plattform vorbei und schützt Sie beide. Bei Notfällen werden Kontaktdaten sofort freigeschaltet." },
       { "q": "Wie schnell kommen Gebote?", "a": "Bei Notfällen sehen die meisten Kunden das erste Gebot in unter 10 Minuten, da alle passenden Profis in der Nähe sofort benachrichtigt werden." },
-      { "q": "Wie werden Profis bezahlt?", "a": "Direkt von Ihnen — bar, JazzCash, EasyPaisa oder Banküberweisung, ganz wie Sie es vereinbaren. Servigic berührt diese Zahlung nie; Profis begleichen ihre 12 % Provision getrennt über ihr In-App-Provisionsguthaben." },
-      { "q": "Welche Städte?", "a": "Start in Karatschi, dann Lahore und Islamabad/Rawalpindi, danach die Golfstaaten und Nordamerika." },
+      { "q": "Wie werden Profis bezahlt?", "a": "Direkt von Ihnen — %%payList%%, ganz wie Sie es vereinbaren. Servigic berührt diese Zahlung nie; Profis begleichen ihre 12 % Provision getrennt über ihr In-App-Provisionsguthaben." },
+      { "q": "Welche Städte?", "a": "Wir starten in %%citiesSoon%% und erweitern dann auf weitere Länder." },
       { "q": "Warum über Servigic buchen, statt den Profi direkt anzurufen?", "a": "Über Servigic erhalten Sie geprüfte und bewertete Profis, beidseitige Bewertungen, Streitfall-Unterstützung und Preiswettbewerb durch echte Gebote — nichts davon gibt es, wenn Sie an der Plattform vorbei buchen. Wiederholte Buchungen gehen zudem mit „Erneut buchen“ mit einem Tipp." },
       { "q": "Was passiert, wenn ich oder mein Profi eine Buchung storniert?", "a": "Stornierungen nach bestätigter Buchung werden erfasst — gelegentliche Stornierungen sind in Ordnung, doch eine hohe Stornoquote kann dazu führen, dass Sie eine Zeit lang keine Aufträge mehr einstellen können (oder ein Profi keine Auftragsbenachrichtigungen erhält). Bittet ein Profi Sie zu stornieren, damit Sie direkt mit ihm arbeiten, sagen Sie uns das — wählen Sie diesen Grund, und wir prüfen Ihren Profi, statt es Ihnen anzulasten." }
     ]
@@ -335,7 +335,7 @@
     "sub": "Ersten Auftrag kostenlos einstellen. Gebote in Minuten. Geprüfte Profis.",
     "primary": "Auftrag posten",
     "secondary": "Profi werden",
-    "checks": ["Kostenlos einstellen", "Danach direkt zahlen", "Geprüfte Profis", "7 Tage Support"]
+    "checks": ["Kostenlos einstellen", "Danach direkt zahlen", "Geprüfte Profis", "Streitschlichtung"]
   },
   "waitlist": {
     "eyebrow": "Bald in {country}",
@@ -370,7 +370,7 @@
     "eyebrow": "Für Profis",
     "title1": "Keine Lead-Gebühren.",
     "title2": "Niemals.",
-    "sub": "Zahlen Sie nur, wenn Sie den Auftrag gewinnen. Auftragsbenachrichtigungen wie bei Uber. Auszahlung direkt per EasyPaisa, JazzCash oder Bank.",
+    "sub": "Zahlen Sie nur, wenn Sie den Auftrag gewinnen. Auftragsbenachrichtigungen wie bei Uber. Auszahlung direkt per %%payoutList%%.",
     "cta": "Servigic-Profi werden",
     "videoTitle": "So verdient ein Profi auf Servigic",
     "zeroActive": "Für Leads ausgegeben von unseren {count} aktiven Anbietern im letzten Monat",
@@ -399,15 +399,15 @@
       { "title": "01 — Auftrag einstellen", "desc": "Kategorie wählen, Problem beschreiben, bis zu 6 Fotos hinzufügen und die Dringlichkeit festlegen — Notfall, Heute oder Geplant. Ihre genaue Adresse wird erfasst, bleibt aber verborgen, bis Sie einen Profi wählen." },
       { "title": "02 — Profis überbieten sich", "desc": "Jeder geprüfte Anbieter in der Nähe, der dieses Gewerk ausübt, erhält sofort eine Benachrichtigung — per Push, WhatsApp und In-App-Auftragsfeed. Er reicht Preis, Ankunftszeit und eine Nachricht ein. Sie vergleichen nebeneinander, sortiert nach Preis, Bewertung oder Ankunftszeit, und können mit Begründung ablehnen oder pro Gebot ein Gegenangebot senden." },
       { "title": "03 — Wählen, chatten, live verfolgen", "desc": "Nehmen Sie ein Gebot an, und der In-App-Chat öffnet sich. Kontaktdaten und Ihre genaue Adresse werden freigeschaltet, sobald Ihr Profi unterwegs ist. Verfolgen Sie den Status in Echtzeit: Unterwegs → Angekommen → Bei der Arbeit → Erledigt, mit Live-Karte während der Anfahrt." },
-      { "title": "04 — Direkt bezahlen", "desc": "Ist die Arbeit erledigt, bezahlen Sie Ihren Profi direkt — bar, JazzCash, EasyPaisa oder Banküberweisung. Servigic zieht Ihre Zahlung nie ein und hält sie nicht zurück. Zusätzliche Arbeit braucht vorab Ihre Freigabe als Änderungsauftrag." },
-      { "title": "05 — Bestätigen & bewerten", "desc": "Bestätigen Sie den Abschluss (oder er wird 24 Stunden nach „Erledigt“ automatisch bestätigt, wenn kein Streitfall vorliegt). Beide Seiten bewerten einander, und jeder Auftrag hat 7 Tage Gewährleistung." }
+      { "title": "04 — Direkt bezahlen", "desc": "Ist die Arbeit erledigt, bezahlen Sie Ihren Profi direkt — %%payList%%. Servigic zieht Ihre Zahlung nie ein und hält sie nicht zurück. Zusätzliche Arbeit braucht vorab Ihre Freigabe als Änderungsauftrag." },
+      { "title": "05 — Bestätigen & bewerten", "desc": "Bestätigen Sie den Abschluss (oder er wird 24 Stunden nach „Erledigt“ automatisch bestätigt, wenn kein Streitfall vorliegt). Beide Seiten bewerten einander, und bei Problemen können Sie einen Streitfall eröffnen." }
     ]
   },
   "trustPage": {
     "eyebrow": "Vertrauen & Sicherheit",
     "title": "Gebaut auf Prüfung, Maskierung und Vermittlung.",
     "sections": [
-      { "title": "Direkt zahlen, Kontrolle behalten", "desc": "Sie zahlen Servigic nie im Voraus. Sie bezahlen Ihren Profi direkt nach getaner Arbeit, und jeder Auftrag hat 7 Tage Gewährleistung." },
+      { "title": "Direkt zahlen, Kontrolle behalten", "desc": "Sie zahlen Servigic nie im Voraus. Sie bezahlen Ihren Profi direkt nach getaner Arbeit." },
       { "title": "Kontaktmaskierung", "desc": "Telefonnummern und genaue Adressen bleiben auf beiden Seiten verborgen, bis der Profi unterwegs ist. Bis dahin erscheinen Anbieter als anonyme Nummer („Profi Nr. 42“) und Kunden nur mit Vornamen und Gegend. Bei Notfällen werden die Kontaktdaten sofort nach der Bestätigung der Buchung freigeschaltet." },
       { "title": "Prüfstufen für Anbieter", "desc": "Stufe 1: Ausweis + Selfie, vom Admin freigegeben — darf bieten. Stufe 2 „Geprüfter Profi“: polizeiliches Führungszeugnis, bevorzugte Vermittlung. Stufe 3 „Gold Ustad“: 10 abgeschlossene Aufträge mit 4,5★ oder besser, niedrigste Provision." },
       { "title": "Änderungsaufträge", "desc": "Findet ein Anbieter vor Ort zusätzliche Arbeit, reicht er einen Änderungsauftrag mit Foto und Preis ein — Sie genehmigen, bevor zusätzliche Arbeit beginnt." },
@@ -452,12 +452,12 @@
       { "title": "Wie wir sie verwenden", "desc": "Um den Marktplatz zu betreiben: Aufträge Anbietern zuordnen, Identität prüfen und auftragsbezogene Benachrichtigungen senden." },
       { "title": "Standortdaten", "desc": "Der Standort des Anbieters wird nur mit dem zugeordneten Kunden geteilt, nur im Status „Unterwegs“, und die Ortungen werden 7 Tage gespeichert." },
       { "title": "Website-Statistik", "desc": "Wir zählen Besuche anonym: ein täglich wechselnder Hash und Ihr Land — ohne Cookies und ohne gespeicherte IP-Adressen." },
-      { "title": "Lead-Daten (Anbieter)", "desc": "Geschäftskontaktdaten aus öffentlichen Einträgen (z. B. Google Places) werden nur zur B2B-Anwerbung in Pakistan verwendet; ein Widerspruch wird auf Anfrage berücksichtigt." }
+      { "title": "Lead-Daten (Anbieter)", "desc": "Geschäftskontaktdaten aus öffentlichen Einträgen (z. B. Google Places) werden nur zur B2B-Anwerbung in %%country%% verwendet; ein Widerspruch wird auf Anfrage berücksichtigt." }
     ]
   },
   "servicesPage": {
     "eyebrow": "Dienste",
-    "title": "Haushaltsdienste in Pakistan — einmal posten, Profis bieten.",
+    "title": "Haushaltsdienste in %%country%% — einmal posten, Profis bieten.",
     "sub": "Gewerk und Stadt wählen. Geprüfte Profis konkurrieren um Ihren Auftrag, Sie vergleichen echte Gebote und zahlen direkt nach der Arbeit.",
     "videoTitle": "So funktioniert das Einstellen eines Auftrags",
     "cities": "Städte",
@@ -468,7 +468,7 @@
       "Geprüfte Profis mit Ausweis- und Selfie-Kontrolle",
       "Echter Preiswettbewerb — Gebote vergleichen",
       "Keine Vorauszahlung — zahlen nach der Arbeit",
-      "7 Tage Gewährleistung"
+      "Streitschlichtung"
     ]
   },
   "cityPage": {
@@ -529,7 +529,37 @@
     "resend": "Code erneut senden",
     "resent": "Code erneut gesendet ✓",
     "badCredentials": "Telefonnummer oder Passwort ist falsch",
-    "phoneHint": "Mit Ländervorwahl, z. B. +92 300 1234567 oder +49 151 2345678."
+    "phoneHint": "Mit Ländervorwahl, z. B. +92 300 1234567 oder +49 151 2345678.",
+    "confirmPassword": "Passwort bestätigen",
+    "passwordMismatch": "Die beiden Passwörter stimmen nicht überein.",
+    "forgotPassword": "Passwort vergessen?",
+    "forgotTitle": "Passwort zurücksetzen",
+    "forgotSub": "Geben Sie die Telefonnummer Ihrer Anmeldung ein, wir senden Ihnen einen Code.",
+    "sendCode": "Code senden",
+    "codeSent": "Wenn die Nummer registriert ist, ist ein Code unterwegs.",
+    "codeLabel": "6-stelliger Code",
+    "newPassword": "Neues Passwort",
+    "resetPassword": "Neues Passwort festlegen",
+    "resetDone": "Passwort geändert. Sie können sich jetzt anmelden.",
+    "backToLogin": "Zurück zur Anmeldung",
+    "country": "Land",
+    "otherCountry": "Anderes Land",
+    "loginAsCustomer": "Ich bin Kunde",
+    "loginAsPro": "Ich bin Profi",
+    "proPendingTitle": "Ihre Anfrage liegt bei unserem Team",
+    "proPendingBody": "Der Admin genehmigt Ihre Anfrage innerhalb von 3 Werktagen nach Prüfung Ihrer Identität. Bitte haben Sie etwas Geduld: Sie sind Ihrem neuen Verdienst jetzt ganz nah.",
+    "proPendingShort": "Freigabe läuft: Wir prüfen Ihre Identität innerhalb von 3 Werktagen.",
+    "errPhoneExistsSame": "Diese Nummer ist bereits als {role} registriert. Melden Sie sich an oder nutzen Sie „Passwort vergessen“.",
+    "errPhoneExistsOther": "Diese Nummer hat bereits ein {role}-Konto. Um sie auch als {want} zu nutzen, geben Sie dasselbe Passwort wie bei Ihrem {role}-Konto ein.",
+    "errEmailExists": "Diese E-Mail wird bereits von einem anderen {role}-Konto verwendet. Nutzen Sie eine andere E-Mail oder melden Sie sich an.",
+    "errInvalidPhone": "Geben Sie eine gültige Telefonnummer für das gewählte Land ein.",
+    "errRateLimited": "Zu viele Versuche. Bitte versuchen Sie es später erneut.",
+    "errServer": "Bei uns ist etwas schiefgelaufen. Bitte versuchen Sie es gleich noch einmal.",
+    "linkedDone": "Fertig! Diese Nummer hat jetzt beide Konten. Melden Sie sich mit Ihrem Passwort an.",
+    "resetBadCode": "Der Code ist ungültig oder abgelaufen.",
+    "phonePlaceholder": "{example}",
+    "roleCustomer": "Kunde",
+    "rolePro": "Profi"
   },
   "notFound": {
     "title": "Seite nicht gefunden",
@@ -539,7 +569,7 @@
   },
   "prelaunch": {
     "banner_live_country": "🚀 Bald in {city}. Trag dich in die Frühliste ein und erfahre es als Erste:r.",
-    "banner_other_country": "🌍 Servigic startet zuerst in Pakistan. Du möchtest Servigic in {country}? Trag dich ein – wir melden uns zuerst bei dir.",
+    "banner_other_country": "🌍 Servigic startet zuerst in %%launchCountries%%. Du möchtest Servigic in {country}? Trag dich ein – wir melden uns zuerst bei dir.",
     "banner_cta": "Jetzt eintragen",
     "form_title": "Trag dich in die Servigic-Frühliste ein",
     "tab_customer": "Ich brauche einen Service",

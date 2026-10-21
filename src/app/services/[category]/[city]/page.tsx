@@ -16,14 +16,15 @@ import { getMoney } from "@/lib/money";
 import { minPriceLabel } from "@/lib/marketPrices";
 import { getPriceBenchmark } from "@/lib/priceBenchmark";
 import { getDemoVideos } from "@/lib/siteVideos";
-import { CITY_SLUGS, TRADE_ICONS, slugToCity } from "@/lib/catalog";
+import { TRADE_ICONS } from "@/lib/catalog";
+import { getCitySlugs, slugToLiveCity } from "@/lib/liveCities";
 import { breadcrumbJsonLd, faqJsonLd, pageMetadata, serviceJsonLd, SITE_NAME } from "@/lib/seo";
 import type { Locale } from "@/i18n/locales";
 
 export const dynamic = "force-dynamic";
 
 async function getData(categorySlug: string, citySlug: string) {
-  const cityLabel = slugToCity(citySlug);
+  const cityLabel = await slugToLiveCity(citySlug);
   if (!cityLabel) return null;
   const category = await prisma.serviceCategory.findUnique({
     where: { slug: categorySlug },
@@ -58,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 
 export default async function ServiceCityPage({ params }: { params: Promise<{ category: string; city: string }> }) {
   const { category, city } = await params;
-  const [data, market, t, ts, tc, tn, locale, videos] = await Promise.all([
+  const [data, market, t, ts, tc, tn, locale, videos, citySlugs] = await Promise.all([
     getData(category, city),
     detectMarket(),
     getTranslations("cityPage"),
@@ -67,6 +68,7 @@ export default async function ServiceCityPage({ params }: { params: Promise<{ ca
     getTranslations("nav"),
     getLocale(),
     getDemoVideos(),
+    getCitySlugs(),
   ]);
   if (!data) notFound();
 
@@ -165,7 +167,7 @@ export default async function ServiceCityPage({ params }: { params: Promise<{ ca
           <div>
             <h2 className="mb-4 text-xl font-bold">{t("otherCities", { service })}</h2>
             <div className="flex flex-wrap gap-2">
-              {CITY_SLUGS.filter((c) => c.slug !== city.toLowerCase()).map((c) => (
+              {citySlugs.filter((c) => c.slug !== city.toLowerCase()).map((c) => (
                 <LLink key={c.slug} href={`/services/${category}/${c.slug}`} className="rounded-full border border-border-subtle px-4 py-2 text-sm text-text-muted transition-colors hover:border-accent hover:text-accent">
                   {service} — {tc(c.name)}
                 </LLink>

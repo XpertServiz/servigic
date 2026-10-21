@@ -471,7 +471,7 @@ function DirectPaySection({ totalPKR, providerName }: { totalPKR: number; provid
       <h3 className="mb-1 font-bold">Pay {providerName} directly</h3>
       <p className="mb-1 font-display text-2xl font-bold text-accent">PKR {totalPKR.toLocaleString()}</p>
       <p className="text-sm text-text-muted">
-        Cash, JazzCash, EasyPaisa, or bank transfer — however works for you both. Servigic does not collect this
+        Cash, bank transfer or a mobile wallet — however works for you both. Servigic does not collect this
         payment.
       </p>
     </div>

@@ -265,8 +265,8 @@ model User {
   id            String   @id @default(cuid())
   role          Role     @default(CUSTOMER)
   name          String
-  email         String?  @unique
-  phone         String   @unique
+  email         String?
+  phone         String
   phoneVerified Boolean  @default(false)
   passwordHash  String
   // Staff level for ADMIN accounts: super_admin | growth_admin may export and see full phone numbers; admin sees masked numbers and cannot export.
@@ -317,6 +317,10 @@ model User {
   @@index([role])
   @@index([city])
   @@index([signupDeviceId])
+
+  // The same phone number may hold one customer and one pro account (same person, two roles).
+  @@unique([phone, role])
+  @@unique([email, role])
 }
 
 model OtpCode {
@@ -1422,4 +1426,13 @@ model WaitlistSignup {
   @@index([countryCode])
   @@index([createdAt])
   @@index([referredByCode])
+}
+
+// Small DB-backed rate limiter (sign-up, password reset, chat): one row per hit, counted over a time window.
+model RateLimitHit {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
 }

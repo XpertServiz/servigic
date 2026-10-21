@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { ServiceCategory, SubService } from "@prisma/client";
 import { PhotoUploadField } from "@/components/ui/PhotoUploadField";
-import { LIVE_CITIES as CITIES } from "@/lib/markets";
 
 interface PriceBenchmarkHint {
   sampleSize: number;
@@ -21,7 +20,8 @@ const URGENCY_OPTIONS = [
   { value: "SCHEDULED", label: "Schedule" },
 ] as const;
 
-export function PostJobForm({ categories, aiTriageEnabled }: { categories: CategoryWithSub[]; aiTriageEnabled: boolean }) {
+export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: { categories: CategoryWithSub[]; aiTriageEnabled: boolean; cities: { name: string; lat: number; lng: number }[] }) {
+  const CITIES = cityList.map((c) => c.name);
   const router = useRouter();
   const [form, setForm] = useState({
     categoryId: categories[0]?.id ?? "",
@@ -31,11 +31,11 @@ export function PostJobForm({ categories, aiTriageEnabled }: { categories: Categ
     photos: [] as string[],
     urgency: "TODAY" as (typeof URGENCY_OPTIONS)[number]["value"],
     scheduledAt: "",
-    city: CITIES[0],
+    city: CITIES[0] ?? "",
     areaLabel: "",
     exactAddress: "",
-    lat: 24.8607,
-    lng: 67.0011,
+    lat: cityList[0]?.lat ?? 24.8607,
+    lng: cityList[0]?.lng ?? 67.0011,
     budgetPKR: "",
   });
   const [pending, setPending] = useState(false);
@@ -233,7 +233,10 @@ export function PostJobForm({ categories, aiTriageEnabled }: { categories: Categ
           <label className="mb-1.5 block text-sm font-semibold text-text-muted">City</label>
           <select
             value={form.city}
-            onChange={(e) => setForm({ ...form, city: e.target.value })}
+            onChange={(e) => {
+              const c = cityList.find((x) => x.name === e.target.value);
+              setForm({ ...form, city: e.target.value, ...(c ? { lat: c.lat, lng: c.lng } : {}) });
+            }}
             className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
           >
             {CITIES.map((c) => (

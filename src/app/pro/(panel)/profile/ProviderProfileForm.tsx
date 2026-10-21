@@ -18,7 +18,7 @@ const VERIFICATION_LABELS: Record<number, string> = {
   3: "10+ completed jobs at 4.5★+ — lowest commission tier",
 };
 
-export function ProviderProfileForm({ initial }: { initial: ProviderProfile | null }) {
+export function ProviderProfileForm({ initial, idLabel = "ID document", country = "PK" }: { initial: ProviderProfile | null; idLabel?: string; country?: string }) {
   const router = useRouter();
   const [form, setForm] = useState({
     displayName: initial?.displayName ?? "",
@@ -172,7 +172,7 @@ export function ProviderProfileForm({ initial }: { initial: ProviderProfile | nu
 
       <div className="grid grid-cols-2 gap-4">
         <DocUploadField
-          label="CNIC"
+          label={`ID document: ${idLabel}`}
           url={form.cnicUrl}
           endpoint="providerDocs"
           onUploaded={(url) => setForm({ ...form, cnicUrl: url })}
@@ -193,9 +193,9 @@ export function ProviderProfileForm({ initial }: { initial: ProviderProfile | nu
             onChange={(e) => setForm({ ...form, payoutMethod: e.target.value as typeof form.payoutMethod })}
             className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
           >
-            <option value="EASYPAISA">EasyPaisa</option>
-            <option value="JAZZCASH">JazzCash</option>
-            <option value="BANK">Bank Transfer</option>
+            {(country === "PK" || form.payoutMethod === "EASYPAISA") && <option value="EASYPAISA">EasyPaisa</option>}
+            {(country === "PK" || form.payoutMethod === "JAZZCASH") && <option value="JAZZCASH">JazzCash</option>}
+            <option value="BANK">Bank transfer (IBAN / account)</option>
           </select>
         </div>
         <div>

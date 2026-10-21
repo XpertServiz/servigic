@@ -21,7 +21,7 @@ export async function GET() {
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", maxWidth: 640 }}>
-          <div style={{ display: "flex", fontSize: 30, letterSpacing: 6, color: "#ffb020", textTransform: "uppercase" }}>Home services · Pakistan</div>
+          <div style={{ display: "flex", fontSize: 30, letterSpacing: 6, color: "#ffb020", textTransform: "uppercase" }}>Home services marketplace</div>
           <div style={{ display: "flex", fontSize: 112, fontWeight: 800, letterSpacing: -4, marginTop: 18 }}>Servigic</div>
           <div style={{ display: "flex", fontSize: 44, color: "#c7cad4", marginTop: 14, lineHeight: 1.25 }}>Post a job. Verified pros race to bid. Fixed today.</div>
         </div>

@@ -85,7 +85,7 @@ export function websiteJsonLd(locale: Locale) {
   };
 }
 
-export function localBusinessJsonLd(description: string) {
+export function localBusinessJsonLd(description: string, cities: string[] = ["Karachi", "Lahore", "Islamabad", "Rawalpindi"]) {
   return {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -94,7 +94,7 @@ export function localBusinessJsonLd(description: string) {
     url: SITE_URL,
     image: `${SITE_URL}/icons/icon-512.png`,
     description,
-    areaServed: ["Karachi", "Lahore", "Islamabad", "Rawalpindi"].map((c) => ({ "@type": "City", name: c })),
+    areaServed: cities.map((c) => ({ "@type": "City", name: c })),
     priceRange: "$$",
   };
 }

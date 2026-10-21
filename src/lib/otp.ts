@@ -15,8 +15,11 @@ export async function issueOtp(userId: string, phone: string, purpose = "PHONE_V
 
   await prisma.otpCode.create({ data: { userId, code, purpose, expiresAt } });
 
-  const title = "Servigic verification code";
-  const body = `Your Servigic verification code is ${code}. It expires in ${OTP_TTL_MINUTES} minutes.`;
+  const reset = purpose === "PASSWORD_RESET";
+  const title = reset ? "Servigic password reset code" : "Servigic verification code";
+  const body = reset
+    ? `Your Servigic password reset code is ${code}. It expires in ${OTP_TTL_MINUTES} minutes. If you did not ask for it, ignore this message.`
+    : `Your Servigic verification code is ${code}. It expires in ${OTP_TTL_MINUTES} minutes.`;
   await Promise.allSettled([
     // Business-started WhatsApp messages must be an approved template (an "authentication" template with a copy-code button).
     sendWhatsappChannel({

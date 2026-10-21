@@ -1,9 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/lib/auth.config";
-import { phoneVariants } from "@/lib/phone";
+import { findAccountsByPhone, pickAccount } from "@/lib/accounts";
 
 // Full config: adds the Credentials provider + Prisma lookup on top of the
 // edge-safe authConfig. Used by server components, API routes, and server actions.
@@ -15,17 +13,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         phone: { label: "Phone", type: "text" },
         password: { label: "Password", type: "password" },
+        role: { label: "Role", type: "text" },
       },
       async authorize(credentials) {
         const phone = credentials?.phone as string | undefined;
         const password = credentials?.password as string | undefined;
         if (!phone || !password) return null;
 
-        const user = await prisma.user.findFirst({ where: { phone: { in: phoneVariants(phone) } } });
+        // A number can hold a customer and a pro account; `role` says which sign-in this is (default: customer first).
+        const rawRole = String(credentials?.role ?? "").toUpperCase();
+        const wanted = rawRole === "PROVIDER" ? "PROVIDER" : rawRole === "CUSTOMER" ? "CUSTOMER" : null;
+        const user = await pickAccount(await findAccountsByPhone(phone), password, wanted);
         if (!user) return null;
-
-        const valid = await bcrypt.compare(password, user.passwordHash);
-        if (!valid) return null;
 
         return {
           id: user.id,

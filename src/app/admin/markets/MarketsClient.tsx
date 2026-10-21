@@ -1,5 +1,6 @@
 "use client";
 
+import { CountrySwitches, type CountryView } from "./CountrySwitches";
 import { plural } from "@/lib/plural";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -53,9 +54,10 @@ async function call(url: string, method: string, body?: unknown) {
   return data;
 }
 
-export function MarketsClient({ markets, allTrades, waitlist }: { markets: MarketView[]; allTrades: string[]; waitlist: WaitlistRow[] }) {
+export function MarketsClient({ markets, allTrades, waitlist, countries }: { markets: MarketView[]; allTrades: string[]; waitlist: WaitlistRow[]; countries: CountryView[] }) {
   return (
     <div className="flex flex-col gap-6">
+      <CountrySwitches countries={countries} />
       {markets.map((m) => (
         <MarketCard key={m.id} market={m} allTrades={allTrades} />
       ))}

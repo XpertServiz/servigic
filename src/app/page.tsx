@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
-import { LIVE_CITIES } from "@/lib/markets";
+import { getLiveCities } from "@/lib/liveCities";
 import { detectMarket } from "@/lib/geoDetect";
 import { getPaymentMode } from "@/lib/featureFlags";
 import { getMoney } from "@/lib/money";
@@ -73,6 +73,7 @@ export default async function LandingPage() {
     getTranslations("sim"),
     getMoney(),
   ]);
+  const liveCities = await getLiveCities(market.country);
 
   const planTeaserCards = PLAN_TEASER_TRADES.map((t) => {
     const category = planCategories.find((c) => c.trade === t.trade);
@@ -82,7 +83,7 @@ export default async function LandingPage() {
 
   return (
     <>
-      <JsonLd data={[localBusinessJsonLd(tDesc("description")), faqJsonLd(tFaq.raw("items") as { q: string; a: string }[])]} />
+      <JsonLd data={[localBusinessJsonLd(tDesc("description"), liveCities), faqJsonLd(tFaq.raw("items") as { q: string; a: string }[])]} />
       <Navbar />
       <LiveRefresher intervalMs={60000} />
       <main id="main" className="flex-1">
@@ -93,7 +94,7 @@ export default async function LandingPage() {
           <SectionHead eyebrow={tSim("eyebrow")} title={tSim("title")} align="center" />
           <DispatchSimulation />
         </section>
-        <PriceTransparencyWidget categories={categories} cities={LIVE_CITIES} currency={money.currency} rate={money.rate} />
+        <PriceTransparencyWidget categories={categories} cities={liveCities} currency={money.currency} rate={money.rate} />
         <Problem />
         <HowItWorks />
         <Features paymentMode={paymentMode} />

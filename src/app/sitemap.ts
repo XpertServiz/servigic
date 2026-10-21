@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
-import { CITY_SLUGS, SERVICE_CATALOG } from "@/lib/catalog";
+import { SERVICE_CATALOG } from "@/lib/catalog";
+import { getCitySlugs } from "@/lib/liveCities";
 import { LOCALES, localizePath } from "@/i18n/locales";
 import { absoluteUrl, languageAlternates } from "@/lib/seo";
 
@@ -30,6 +31,7 @@ async function categorySlugs(): Promise<string[]> {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const slugs = await categorySlugs();
+  const CITY_SLUGS = await getCitySlugs();
   const lastModified = new Date();
   lastModified.setUTCHours(0, 0, 0, 0);
 

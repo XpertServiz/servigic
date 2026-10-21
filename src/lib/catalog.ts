@@ -1,4 +1,3 @@
-import { LIVE_CITIES } from "@/lib/markets";
 
 // Static service catalog: used for the /services index, the sitemap and as a
 // fallback when the DB has no categories yet. Slugs match ServiceCategory.slug.
@@ -19,8 +18,4 @@ export const SERVICE_CATALOG = [
 
 export const TRADE_ICONS: Record<string, string> = Object.fromEntries(SERVICE_CATALOG.map((s) => [s.trade, s.icon]));
 
-export const CITY_SLUGS = LIVE_CITIES.map((c) => ({ name: c, slug: c.toLowerCase() }));
 
-export function slugToCity(slug: string): string | null {
-  return CITY_SLUGS.find((c) => c.slug === slug.toLowerCase())?.name ?? null;
-}
