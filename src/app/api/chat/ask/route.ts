@@ -29,7 +29,7 @@ const systemPrompt = (lang: string, context: string) =>
   `Answer ONLY from the facts below, in the language with code "${lang}", in at most 4 short sentences. If the facts do not answer the question, say you are not sure and suggest asking the Servigic team on WhatsApp. ` +
   `Never invent prices, phone numbers, policies or legal promises.\n\nFACTS:\n${context}`;
 
-/** OpenAI (gpt-4o-mini by default). Used first when OPENAI_API_KEY is set. */
+/** OpenAI (gpt-4o-mini by default). Used only when OPENAI_API_KEY is set. */
 async function askOpenAI(question: string, lang: string, context: string): Promise<string | null> {
   const key = process.env.OPENAI_API_KEY;
   if (!key) return null;
@@ -56,30 +56,6 @@ async function askOpenAI(question: string, lang: string, context: string): Promi
   }
 }
 
-/** Anthropic Claude: the alternative when only ANTHROPIC_API_KEY is set. */
-async function askClaude(question: string, lang: string, context: string): Promise<string | null> {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return null;
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_CHATBOT_MODEL || "claude-haiku-5-5",
-        max_tokens: 350,
-        system: systemPrompt(lang, context),
-        messages: [{ role: "user", content: question }],
-      }),
-      signal: AbortSignal.timeout(12000),
-    });
-    if (!res.ok) return null;
-    const json = (await res.json()) as { content?: { type: string; text?: string }[] };
-    return json.content?.find((c) => c.type === "text")?.text?.trim() || null;
-  } catch {
-    return null;
-  }
-}
-
 export async function POST(req: Request) {
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid question" }, { status: 400 });
@@ -100,12 +76,12 @@ export async function POST(req: Request) {
   }
 
   let answer: string | null = null;
-  if (process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY) {
+  if (process.env.OPENAI_API_KEY) {
     const since = new Date(Date.now() - 24 * 3600 * 1000);
     const usedToday = await prisma.chatAnswer.count({ where: { source: "ai", createdAt: { gte: since } } }).catch(() => DAILY_AI_LIMIT);
     if (usedToday < DAILY_AI_LIMIT) {
       const context = rank(question, kb.entries, 6).map((m) => `Q: ${m.entry.q}\nA: ${m.entry.a}`).join("\n\n") || kb.entries.slice(0, 6).map((e) => `Q: ${e.q}\nA: ${e.a}`).join("\n\n");
-      answer = (await askOpenAI(question, lang, context)) ?? (await askClaude(question, lang, context));
+      answer = await askOpenAI(question, lang, context);
     }
   }
 
