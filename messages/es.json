@@ -335,6 +335,60 @@
       "WATER_TANK_CLEANING": "Cada 6 meses"
     }
   },
+  "chatHelp": {
+    "items": [
+      {
+        "q": "¿Cómo me registro?",
+        "a": "Toca Registrarse y elige Cliente o Profesional. Escribe tu nombre, teléfono y correo, crea una contraseña y escribe el código de verificación que te enviamos por correo. Los profesionales también suben su identificación para que nuestro equipo los apruebe en 3 días hábiles.",
+        "k": "register registration create account join new account start signup enroll registrar cuenta crear inscribirse"
+      },
+      {
+        "q": "Olvidé mi contraseña",
+        "a": "En la pantalla de inicio de sesión toca Olvidé mi contraseña, escribe tu teléfono o correo, introduce el código que te enviamos y elige una nueva contraseña.",
+        "k": "reset password cannot login can't sign in locked out passcode forgot restablecer contraseña no puedo entrar"
+      },
+      {
+        "q": "¿Cómo publico un trabajo y pongo mi precio?",
+        "a": "Elige el servicio, describe el problema, añade fotos e indica Tu oferta: el precio que quieres pagar, en tu moneda. Los profesionales pueden aceptar tu precio o responder con el suyo, y tú eliges la oferta.",
+        "k": "book request service budget how much precio oferta presupuesto cuánto"
+      },
+      {
+        "q": "¿Y si mi oferta es demasiado baja?",
+        "a": "Los profesionales pueden ignorar ofertas muy bajas. La app muestra el rango habitual y sugiere un precio dentro de él, que normalmente trae una oferta en minutos.",
+        "k": "cheap low nobody replies no response too low minimum barato bajo sin ofertas"
+      },
+      {
+        "q": "¿Cómo pago al profesional?",
+        "a": "Pagas al profesional directamente, en efectivo, cuando termina el trabajo. Servigic nunca retiene tu dinero.",
+        "k": "payment pay cash money card method pago pagar efectivo dinero"
+      },
+      {
+        "q": "¿Cómo ofertan los profesionales?",
+        "a": "Abren un trabajo de su zona y ven la oferta del cliente. La aceptan o envían un precio menor o mayor con su hora de llegada. El cliente elige una oferta.",
+        "k": "bid quote offer accept counter price customer job pro respond oferta cotización aceptar precio"
+      },
+      {
+        "q": "¿Dónde está disponible Servigic?",
+        "a": "Servigic se abre ciudad por ciudad, empezando por Pakistán y Arabia Saudita. Solo ves trabajos de tu país y zona. Si tu ciudad aún no está activa, únete a la lista de espera.",
+        "k": "countries cities location coverage available area service area country países ciudades disponible zona"
+      },
+      {
+        "q": "¿Qué documentos necesitan los profesionales?",
+        "a": "Suben una identificación oficial (%%idDoc%%) y una selfie. Nuestro equipo las revisa, normalmente en 3 días hábiles.",
+        "k": "id kyc verification identity police check approve verify documents papers identificación verificación documentos"
+      },
+      {
+        "q": "¿Cómo elimino mi cuenta?",
+        "a": "Abre Perfil en la app y elige Eliminar cuenta, o usa la página Eliminar cuenta del sitio web.",
+        "k": "remove deactivate close account erase data borrar eliminar cuenta cerrar"
+      },
+      {
+        "q": "¿Cómo contacto con soporte?",
+        "a": "Pregunta aquí en el chat o usa el enlace Contacto al final del sitio. Si hay un problema con una reserva, ábrela en la app y repórtala.",
+        "k": "help complaint problem issue contact support helpline ayuda queja problema contacto"
+      }
+    ]
+  },
   "faq": {
     "eyebrow": "Preguntas frecuentes",
     "title": "¿Dudas? Respondidas.",

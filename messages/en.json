@@ -385,6 +385,60 @@
       "WATER_TANK_CLEANING": "Every 6 months"
     }
   },
+  "chatHelp": {
+    "items": [
+      {
+        "q": "How do I sign up?",
+        "a": "Tap Sign up and choose Customer or Pro. Enter your name, phone number and email, set a password, then type the verification code we email you. Pros also upload their ID so our team can approve them within 3 business days.",
+        "k": "register registration create account join new account start signup enroll"
+      },
+      {
+        "q": "I forgot my password",
+        "a": "On the login screen tap Forgot password, enter your phone or email, type the code we send you and choose a new password.",
+        "k": "reset password cannot login can't sign in locked out passcode forgot"
+      },
+      {
+        "q": "How do I post a job and name my price?",
+        "a": "Choose the service, describe the problem, add photos and enter Your offer: the price you want to pay, in your own currency. Pros can accept your price or answer with their own, and you pick the bid you like.",
+        "k": "book request service budget how much"
+      },
+      {
+        "q": "What if my offer is too low?",
+        "a": "Pros may ignore very low offers. The app shows the usual price range and suggests a price inside it, which normally brings a bid within minutes.",
+        "k": "cheap low nobody replies no response too low minimum"
+      },
+      {
+        "q": "How do I pay the pro?",
+        "a": "You pay the pro directly, in cash, when the job is done. Servigic never holds your money.",
+        "k": "payment pay cash money card method"
+      },
+      {
+        "q": "How do pros bid on a job?",
+        "a": "Open a job in your area and you see the customer's offer. Accept it, or send a lower or higher price with your arrival time. The customer chooses one bid.",
+        "k": "bid quote offer accept counter price customer job pro respond"
+      },
+      {
+        "q": "Where is Servigic available?",
+        "a": "Servigic opens city by city, starting with Pakistan and Saudi Arabia. You only see jobs in your own country and area. If your city is not live yet, join the waiting list and we will tell you first.",
+        "k": "countries cities location coverage available area service area country"
+      },
+      {
+        "q": "Which documents do pros need?",
+        "a": "Pros upload a government ID (%%idDoc%%) and a selfie. Our team checks them, usually within 3 business days.",
+        "k": "id kyc verification identity police check approve verify documents papers"
+      },
+      {
+        "q": "How do I delete my account?",
+        "a": "Open Profile in the app and choose Delete account, or use the Delete account page on the website.",
+        "k": "remove deactivate close account erase data"
+      },
+      {
+        "q": "How do I contact support?",
+        "a": "Ask here in the chat, or use the Contact link at the bottom of the website. For a problem with a booking, open it in the app and report it.",
+        "k": "help complaint problem issue contact support helpline"
+      }
+    ]
+  },
   "faq": {
     "eyebrow": "FAQ",
     "title": "Questions? Answered.",

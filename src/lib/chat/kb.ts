@@ -53,6 +53,9 @@ export async function buildKb(langInput: string, country: string): Promise<ChatK
   ) as Messages;
 
   const entries: KbEntry[] = [];
+  // The how-to answers people ask first (sign up, password, price offer, payment ...), with the extra words they use for them.
+  const help = ((resolved.chatHelp as Messages | undefined)?.items ?? []) as { q: string; a: string; k?: string }[];
+  help.forEach((h, i) => entries.push({ id: `help${i}`, q: h.q, a: h.a, k: h.k }));
   const faq = ((resolved.faq as Messages | undefined)?.items ?? []) as { q: string; a: string }[];
   faq.forEach((f, i) => entries.push({ id: `faq${i}`, q: f.q, a: f.a }));
   const steps = ((resolved.howPage as Messages | undefined)?.steps ?? []) as { title: string; desc: string }[];

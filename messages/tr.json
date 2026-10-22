@@ -335,6 +335,60 @@
       "WATER_TANK_CLEANING": "6 ayda bir"
     }
   },
+  "chatHelp": {
+    "items": [
+      {
+        "q": "Nasıl kayıt olurum?",
+        "a": "Kayıt ol'a dokunun ve Müşteri ya da Usta seçin. Adınızı, telefonunuzu ve e-postanızı girin, şifre belirleyin, e-postayla gelen doğrulama kodunu yazın. Ustalar ayrıca kimliklerini yükler; ekibimiz 3 iş günü içinde onaylar.",
+        "k": "register registration create account join new account start signup enroll kayıt hesap oluştur üye ol"
+      },
+      {
+        "q": "Şifremi unuttum",
+        "a": "Giriş ekranında Şifremi unuttum'a dokunun, telefon veya e-postanızı girin, gönderdiğimiz kodu yazın ve yeni şifre seçin.",
+        "k": "reset password cannot login can't sign in locked out passcode forgot şifre sıfırla giriş yapamıyorum"
+      },
+      {
+        "q": "İş nasıl yayınlanır, fiyatımı nasıl belirlerim?",
+        "a": "Hizmeti seçin, sorunu anlatın, fotoğraf ekleyin ve Teklifiniz alanına ödemek istediğiniz fiyatı kendi para biriminizde yazın. Ustalar fiyatınızı kabul edebilir veya kendi fiyatlarını önerebilir; teklifi siz seçersiniz.",
+        "k": "book request service budget how much fiyat teklif bütçe ne kadar"
+      },
+      {
+        "q": "Teklifim çok düşükse ne olur?",
+        "a": "Ustalar çok düşük teklifleri görmezden gelebilir. Uygulama olağan fiyat aralığını gösterir ve içinden bir fiyat önerir; bu genelde dakikalar içinde teklif getirir.",
+        "k": "cheap low nobody replies no response too low minimum ucuz düşük teklif gelmiyor"
+      },
+      {
+        "q": "Ustaya nasıl ödeme yaparım?",
+        "a": "İş bitince ustaya doğrudan nakit ödersiniz. Servigic paranızı asla tutmaz.",
+        "k": "payment pay cash money card method ödeme nakit para"
+      },
+      {
+        "q": "Ustalar işe nasıl teklif verir?",
+        "a": "Bölgelerindeki bir işi açar ve müşterinin teklifini görürler. Kabul eder ya da varış saatiyle daha düşük veya yüksek fiyat gönderirler. Müşteri bir teklif seçer.",
+        "k": "bid quote offer accept counter price customer job pro respond teklif fiyat kabul"
+      },
+      {
+        "q": "Servigic nerede kullanılabilir?",
+        "a": "Servigic şehir şehir açılıyor; önce Pakistan ve Suudi Arabistan. Yalnızca kendi ülkenizdeki ve bölgenizdeki işleri görürsünüz. Şehriniz henüz açık değilse bekleme listesine katılın.",
+        "k": "countries cities location coverage available area service area country ülke şehir bölge mevcut"
+      },
+      {
+        "q": "Ustalar hangi belgeleri vermeli?",
+        "a": "Ustalar resmî kimlik (%%idDoc%%) ve selfie yükler. Ekibimiz genelde 3 iş günü içinde kontrol eder.",
+        "k": "id kyc verification identity police check approve verify documents papers kimlik doğrulama belge"
+      },
+      {
+        "q": "Hesabımı nasıl silerim?",
+        "a": "Uygulamada Profil'i açıp Hesabı sil'i seçin veya web sitesindeki Hesabı sil sayfasını kullanın.",
+        "k": "remove deactivate close account erase data sil kaldır hesap kapat"
+      },
+      {
+        "q": "Destekle nasıl iletişime geçerim?",
+        "a": "Burada sohbetten sorun ya da sitenin altındaki İletişim bağlantısını kullanın. Rezervasyon sorunu için uygulamada açıp bildirin.",
+        "k": "help complaint problem issue contact support helpline yardım şikayet sorun iletişim"
+      }
+    ]
+  },
   "faq": {
     "eyebrow": "SSS",
     "title": "Sorunuz mu var? Cevaplar burada.",

@@ -335,6 +335,60 @@
       "WATER_TANK_CLEANING": "Elke 6 maanden"
     }
   },
+  "chatHelp": {
+    "items": [
+      {
+        "q": "Hoe registreer ik me?",
+        "a": "Tik op Aanmelden en kies Klant of Vakman. Vul naam, telefoonnummer en e-mail in, kies een wachtwoord en typ de verificatiecode uit de e-mail. Vakmensen uploaden ook hun id zodat ons team ze binnen 3 werkdagen goedkeurt.",
+        "k": "register registration create account join new account start signup enroll registratie account aanmaken inschrijven"
+      },
+      {
+        "q": "Ik ben mijn wachtwoord vergeten",
+        "a": "Tik op het inlogscherm op Wachtwoord vergeten, vul telefoon of e-mail in, typ de code die we sturen en kies een nieuw wachtwoord.",
+        "k": "reset password cannot login can't sign in locked out passcode forgot wachtwoord resetten kan niet inloggen"
+      },
+      {
+        "q": "Hoe plaats ik een klus en noem ik mijn prijs?",
+        "a": "Kies de dienst, beschrijf het probleem, voeg foto's toe en vul Jouw bod in: de prijs die je wilt betalen, in je eigen valuta. Vakmensen kunnen je prijs accepteren of met hun eigen prijs antwoorden, en jij kiest het bod.",
+        "k": "book request service budget how much prijs bod budget hoeveel"
+      },
+      {
+        "q": "Wat als mijn bod te laag is?",
+        "a": "Vakmensen negeren erg lage biedingen vaak. De app toont de gebruikelijke prijsrange en stelt een prijs daarbinnen voor, wat meestal binnen minuten een bod oplevert.",
+        "k": "cheap low nobody replies no response too low minimum goedkoop laag geen biedingen"
+      },
+      {
+        "q": "Hoe betaal ik de vakman?",
+        "a": "Je betaalt de vakman rechtstreeks, contant, als de klus klaar is. Servigic houdt nooit je geld vast.",
+        "k": "payment pay cash money card method betaling betalen contant geld"
+      },
+      {
+        "q": "Hoe bieden vakmensen op een klus?",
+        "a": "Ze openen een klus in hun regio en zien het bod van de klant. Ze accepteren het of sturen een lagere of hogere prijs met aankomsttijd. De klant kiest één bod.",
+        "k": "bid quote offer accept counter price customer job pro respond bod offerte accepteren prijs"
+      },
+      {
+        "q": "Waar is Servigic beschikbaar?",
+        "a": "Servigic opent stad voor stad, te beginnen met Pakistan en Saoedi-Arabië. Je ziet alleen klussen in je eigen land en regio. Is je stad nog niet live, zet je dan op de wachtlijst.",
+        "k": "countries cities location coverage available area service area country landen steden beschikbaar regio"
+      },
+      {
+        "q": "Welke documenten hebben vakmensen nodig?",
+        "a": "Vakmensen uploaden een officieel id (%%idDoc%%) en een selfie. Ons team controleert ze meestal binnen 3 werkdagen.",
+        "k": "id kyc verification identity police check approve verify documents papers id verificatie documenten"
+      },
+      {
+        "q": "Hoe verwijder ik mijn account?",
+        "a": "Open Profiel in de app en kies Account verwijderen, of gebruik de pagina Account verwijderen op de website.",
+        "k": "remove deactivate close account erase data verwijderen account sluiten"
+      },
+      {
+        "q": "Hoe neem ik contact op met support?",
+        "a": "Vraag het hier in de chat of gebruik de link Contact onderaan de website. Bij een probleem met een boeking open je die in de app en meld je het.",
+        "k": "help complaint problem issue contact support helpline hulp klacht probleem contact"
+      }
+    ]
+  },
   "faq": {
     "eyebrow": "Veelgestelde vragen",
     "title": "Vragen? Antwoorden.",

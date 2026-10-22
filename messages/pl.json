@@ -335,6 +335,60 @@
       "WATER_TANK_CLEANING": "Co 6 miesięcy"
     }
   },
+  "chatHelp": {
+    "items": [
+      {
+        "q": "Jak się zarejestrować?",
+        "a": "Dotknij Zarejestruj się i wybierz Klient lub Fachowiec. Wpisz imię, numer telefonu i e-mail, ustaw hasło i wpisz kod weryfikacyjny z e-maila. Fachowcy przesyłają też dokument tożsamości, aby nasz zespół zatwierdził ich w 3 dni robocze.",
+        "k": "register registration create account join new account start signup enroll rejestracja załóż konto"
+      },
+      {
+        "q": "Zapomniałem hasła",
+        "a": "Na ekranie logowania dotknij Nie pamiętam hasła, wpisz telefon lub e-mail, podaj otrzymany kod i ustaw nowe hasło.",
+        "k": "reset password cannot login can't sign in locked out passcode forgot reset hasła nie mogę się zalogować"
+      },
+      {
+        "q": "Jak dodać zlecenie i podać swoją cenę?",
+        "a": "Wybierz usługę, opisz problem, dodaj zdjęcia i wpisz Twoją ofertę: cenę, którą chcesz zapłacić, w swojej walucie. Fachowcy mogą przyjąć Twoją cenę lub odpowiedzieć własną, a Ty wybierasz ofertę.",
+        "k": "book request service budget how much cena oferta budżet ile"
+      },
+      {
+        "q": "Co jeśli moja oferta jest za niska?",
+        "a": "Fachowcy mogą ignorować bardzo niskie oferty. Aplikacja pokazuje zwykły przedział cen i podpowiada cenę w nim, co zwykle daje ofertę w kilka minut.",
+        "k": "cheap low nobody replies no response too low minimum tanio niska brak ofert"
+      },
+      {
+        "q": "Jak zapłacić fachowcowi?",
+        "a": "Płacisz fachowcowi bezpośrednio, gotówką, po wykonaniu pracy. Servigic nigdy nie przetrzymuje Twoich pieniędzy.",
+        "k": "payment pay cash money card method płatność zapłata gotówka pieniądze"
+      },
+      {
+        "q": "Jak fachowcy licytują zlecenie?",
+        "a": "Otwierają zlecenie w swojej okolicy i widzą ofertę klienta. Przyjmują ją albo wysyłają niższą lub wyższą cenę z czasem dojazdu. Klient wybiera jedną ofertę.",
+        "k": "bid quote offer accept counter price customer job pro respond oferta wycena przyjąć cena"
+      },
+      {
+        "q": "Gdzie działa Servigic?",
+        "a": "Servigic otwiera się miasto po mieście, zaczynając od Pakistanu i Arabii Saudyjskiej. Widzisz tylko zlecenia ze swojego kraju i obszaru. Jeśli Twoje miasto jeszcze nie działa, zapisz się na listę oczekujących.",
+        "k": "countries cities location coverage available area service area country kraje miasta dostępne obszar"
+      },
+      {
+        "q": "Jakich dokumentów potrzebują fachowcy?",
+        "a": "Fachowcy przesyłają oficjalny dokument tożsamości (%%idDoc%%) i selfie. Nasz zespół sprawdza je zwykle w 3 dni robocze.",
+        "k": "id kyc verification identity police check approve verify documents papers tożsamość weryfikacja dokumenty"
+      },
+      {
+        "q": "Jak usunąć konto?",
+        "a": "Otwórz Profil w aplikacji i wybierz Usuń konto albo skorzystaj ze strony Usuń konto na stronie internetowej.",
+        "k": "remove deactivate close account erase data usuń skasuj konto zamknij"
+      },
+      {
+        "q": "Jak skontaktować się z pomocą?",
+        "a": "Zapytaj tutaj na czacie albo użyj linku Kontakt na dole strony. W sprawie rezerwacji otwórz ją w aplikacji i zgłoś problem.",
+        "k": "help complaint problem issue contact support helpline pomoc reklamacja problem kontakt"
+      }
+    ]
+  },
   "faq": {
     "eyebrow": "FAQ",
     "title": "Pytania? Odpowiedzi.",

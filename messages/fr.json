@@ -335,6 +335,60 @@
       "WATER_TANK_CLEANING": "Tous les 6 mois"
     }
   },
+  "chatHelp": {
+    "items": [
+      {
+        "q": "Comment m'inscrire ?",
+        "a": "Touchez S'inscrire et choisissez Client ou Pro. Saisissez votre nom, téléphone et e-mail, créez un mot de passe, puis entrez le code de vérification reçu par e-mail. Les pros téléversent aussi leur pièce d'identité pour être approuvés sous 3 jours ouvrés.",
+        "k": "register registration create account join new account start signup enroll inscription créer un compte rejoindre"
+      },
+      {
+        "q": "J'ai oublié mon mot de passe",
+        "a": "Sur l'écran de connexion, touchez Mot de passe oublié, saisissez votre téléphone ou e-mail, entrez le code reçu et choisissez un nouveau mot de passe.",
+        "k": "reset password cannot login can't sign in locked out passcode forgot réinitialiser mot de passe connexion impossible"
+      },
+      {
+        "q": "Comment publier une demande et fixer mon prix ?",
+        "a": "Choisissez le service, décrivez le problème, ajoutez des photos et saisissez Votre offre : le prix que vous voulez payer, dans votre devise. Les pros peuvent accepter votre prix ou répondre avec le leur, et vous choisissez l'offre.",
+        "k": "book request service budget how much prix offre budget combien"
+      },
+      {
+        "q": "Et si mon offre est trop basse ?",
+        "a": "Les pros peuvent ignorer les offres très basses. L'appli affiche la fourchette habituelle et propose un prix dans cette fourchette, ce qui apporte en général une offre en quelques minutes.",
+        "k": "cheap low nobody replies no response too low minimum pas cher bas aucune offre"
+      },
+      {
+        "q": "Comment payer le pro ?",
+        "a": "Vous payez le pro directement, en espèces, une fois le travail terminé. Servigic ne garde jamais votre argent.",
+        "k": "payment pay cash money card method paiement payer espèces argent"
+      },
+      {
+        "q": "Comment les pros font-ils une offre ?",
+        "a": "Ils ouvrent une demande de leur zone et voient l'offre du client. Ils l'acceptent ou envoient un prix plus bas ou plus haut avec leur heure d'arrivée. Le client choisit une offre.",
+        "k": "bid quote offer accept counter price customer job pro respond offre devis accepter prix"
+      },
+      {
+        "q": "Où Servigic est-il disponible ?",
+        "a": "Servigic ouvre ville par ville, d'abord au Pakistan et en Arabie saoudite. Vous ne voyez que les demandes de votre pays et zone. Si votre ville n'est pas encore ouverte, rejoignez la liste d'attente.",
+        "k": "countries cities location coverage available area service area country pays villes disponible zone"
+      },
+      {
+        "q": "Quels documents faut-il aux pros ?",
+        "a": "Les pros téléversent une pièce d'identité officielle (%%idDoc%%) et un selfie. Notre équipe les vérifie, en général sous 3 jours ouvrés.",
+        "k": "id kyc verification identity police check approve verify documents papers identité vérification documents"
+      },
+      {
+        "q": "Comment supprimer mon compte ?",
+        "a": "Ouvrez Profil dans l'appli et choisissez Supprimer le compte, ou utilisez la page Supprimer le compte du site.",
+        "k": "remove deactivate close account erase data supprimer effacer compte fermer"
+      },
+      {
+        "q": "Comment contacter le support ?",
+        "a": "Posez votre question ici dans le chat ou utilisez le lien Contact en bas du site. Pour un problème de réservation, ouvrez-la dans l'appli et signalez-le.",
+        "k": "help complaint problem issue contact support helpline aide réclamation problème contact"
+      }
+    ]
+  },
   "faq": {
     "eyebrow": "FAQ",
     "title": "Des questions ? Voici les réponses.",

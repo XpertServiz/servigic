@@ -13,7 +13,8 @@ import { checkRateLimit, clientKey } from "@/lib/rateLimit";
 //   4. otherwise a polite "ask our team" answer, and the question is remembered so the admin can add it to the FAQ.
 const schema = z.object({ lang: z.string().max(5).default("en"), country: z.string().length(2).default("PK"), question: z.string().trim().min(2).max(300) });
 
-const DAILY_AI_LIMIT = Number(process.env.CHATBOT_DAILY_AI_LIMIT) || 150;
+// Most a day the AI may be asked (a question the site texts already answer never reaches it). 0 switches the AI off.
+const DAILY_AI_LIMIT = process.env.CHATBOT_DAILY_AI_LIMIT?.trim() && !Number.isNaN(Number(process.env.CHATBOT_DAILY_AI_LIMIT)) ? Number(process.env.CHATBOT_DAILY_AI_LIMIT) : 150;
 const kbMemo = new Map<string, { at: number; kb: Awaited<ReturnType<typeof buildKb>> }>();
 async function kbFor(lang: string, country: string) {
   const key = `${lang}|${country}`;

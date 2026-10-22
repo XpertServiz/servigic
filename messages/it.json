@@ -335,6 +335,60 @@
       "WATER_TANK_CLEANING": "Ogni 6 mesi"
     }
   },
+  "chatHelp": {
+    "items": [
+      {
+        "q": "Come mi registro?",
+        "a": "Tocca Registrati e scegli Cliente o Professionista. Inserisci nome, telefono ed email, crea una password e digita il codice di verifica ricevuto per email. I professionisti caricano anche un documento d'identità per essere approvati entro 3 giorni lavorativi.",
+        "k": "register registration create account join new account start signup enroll registrazione creare account iscriversi"
+      },
+      {
+        "q": "Ho dimenticato la password",
+        "a": "Nella schermata di accesso tocca Password dimenticata, inserisci telefono o email, digita il codice ricevuto e scegli una nuova password.",
+        "k": "reset password cannot login can't sign in locked out passcode forgot reimposta password non riesco ad accedere"
+      },
+      {
+        "q": "Come pubblico un lavoro e indico il mio prezzo?",
+        "a": "Scegli il servizio, descrivi il problema, aggiungi foto e inserisci La tua offerta: il prezzo che vuoi pagare, nella tua valuta. I professionisti possono accettare il tuo prezzo o rispondere con il loro, e scegli tu l'offerta.",
+        "k": "book request service budget how much prezzo offerta budget quanto"
+      },
+      {
+        "q": "E se la mia offerta è troppo bassa?",
+        "a": "I professionisti possono ignorare offerte molto basse. L'app mostra la fascia di prezzo abituale e suggerisce un prezzo al suo interno, che di solito porta un'offerta in pochi minuti.",
+        "k": "cheap low nobody replies no response too low minimum economico basso nessuna offerta"
+      },
+      {
+        "q": "Come pago il professionista?",
+        "a": "Paghi il professionista direttamente, in contanti, a lavoro finito. Servigic non trattiene mai i tuoi soldi.",
+        "k": "payment pay cash money card method pagamento pagare contanti soldi"
+      },
+      {
+        "q": "Come fanno offerta i professionisti?",
+        "a": "Aprono un lavoro nella loro zona e vedono l'offerta del cliente. La accettano o inviano un prezzo più basso o più alto con l'orario di arrivo. Il cliente sceglie un'offerta.",
+        "k": "bid quote offer accept counter price customer job pro respond offerta preventivo accettare prezzo"
+      },
+      {
+        "q": "Dove è disponibile Servigic?",
+        "a": "Servigic apre città per città, a partire da Pakistan e Arabia Saudita. Vedi solo lavori del tuo paese e della tua zona. Se la tua città non è ancora attiva, iscriviti alla lista d'attesa.",
+        "k": "countries cities location coverage available area service area country paesi città disponibile zona"
+      },
+      {
+        "q": "Quali documenti servono ai professionisti?",
+        "a": "Caricano un documento d'identità ufficiale (%%idDoc%%) e un selfie. Il nostro team li controlla, di solito entro 3 giorni lavorativi.",
+        "k": "id kyc verification identity police check approve verify documents papers identità verifica documenti"
+      },
+      {
+        "q": "Come elimino il mio account?",
+        "a": "Apri Profilo nell'app e scegli Elimina account, oppure usa la pagina Elimina account del sito.",
+        "k": "remove deactivate close account erase data elimina cancella account chiudi"
+      },
+      {
+        "q": "Come contatto il supporto?",
+        "a": "Chiedi qui nella chat o usa il link Contatti in fondo al sito. Per un problema con una prenotazione, aprila nell'app e segnalalo.",
+        "k": "help complaint problem issue contact support helpline aiuto reclamo problema contatto"
+      }
+    ]
+  },
   "faq": {
     "eyebrow": "FAQ",
     "title": "Domande? Risposte.",

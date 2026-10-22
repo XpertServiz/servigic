@@ -335,6 +335,60 @@
       "WATER_TANK_CLEANING": "Alle 6 Monate"
     }
   },
+  "chatHelp": {
+    "items": [
+      {
+        "q": "Wie registriere ich mich?",
+        "a": "Tippen Sie auf Registrieren und wählen Sie Kunde oder Profi. Geben Sie Name, Telefonnummer und E-Mail ein, legen Sie ein Passwort fest und tragen Sie den Bestätigungscode aus der E-Mail ein. Profis laden zusätzlich ihren Ausweis hoch, damit unser Team sie innerhalb von 3 Werktagen freigibt.",
+        "k": "register registration create account join new account start signup enroll anmelden Konto erstellen Registrierung"
+      },
+      {
+        "q": "Ich habe mein Passwort vergessen",
+        "a": "Tippen Sie auf dem Anmeldebildschirm auf Passwort vergessen, geben Sie Telefon oder E-Mail ein, tragen Sie den gesendeten Code ein und wählen Sie ein neues Passwort.",
+        "k": "reset password cannot login can't sign in locked out passcode forgot Passwort zurücksetzen Login geht nicht"
+      },
+      {
+        "q": "Wie erstelle ich einen Auftrag und nenne meinen Preis?",
+        "a": "Wählen Sie die Leistung, beschreiben Sie das Problem, fügen Sie Fotos hinzu und geben Sie Ihr Angebot ein: den Preis, den Sie zahlen möchten, in Ihrer Währung. Profis können Ihren Preis annehmen oder mit eigenem antworten, und Sie wählen das Gebot.",
+        "k": "book request service budget how much Preis Angebot Budget wie viel"
+      },
+      {
+        "q": "Was, wenn mein Angebot zu niedrig ist?",
+        "a": "Profis ignorieren sehr niedrige Angebote oft. Die App zeigt die übliche Preisspanne und schlägt einen Preis darin vor, der meist innerhalb von Minuten ein Gebot bringt.",
+        "k": "cheap low nobody replies no response too low minimum billig niedrig keine Gebote"
+      },
+      {
+        "q": "Wie bezahle ich den Profi?",
+        "a": "Sie bezahlen den Profi direkt und in bar, wenn die Arbeit erledigt ist. Servigic hält nie Ihr Geld.",
+        "k": "payment pay cash money card method Zahlung bezahlen bar Geld"
+      },
+      {
+        "q": "Wie bieten Profis auf einen Auftrag?",
+        "a": "Öffnen Sie einen Auftrag in Ihrer Nähe und sehen Sie das Angebot des Kunden. Nehmen Sie es an oder senden Sie einen niedrigeren oder höheren Preis mit Ankunftszeit. Der Kunde wählt ein Gebot.",
+        "k": "bid quote offer accept counter price customer job pro respond Gebot Angebot annehmen Preis"
+      },
+      {
+        "q": "Wo ist Servigic verfügbar?",
+        "a": "Servigic startet Stadt für Stadt, zuerst in Pakistan und Saudi-Arabien. Sie sehen nur Aufträge in Ihrem Land und Gebiet. Ist Ihre Stadt noch nicht freigeschaltet, tragen Sie sich in die Warteliste ein.",
+        "k": "countries cities location coverage available area service area country Länder Städte verfügbar Gebiet"
+      },
+      {
+        "q": "Welche Dokumente brauchen Profis?",
+        "a": "Profis laden einen amtlichen Ausweis (%%idDoc%%) und ein Selfie hoch. Unser Team prüft sie meist innerhalb von 3 Werktagen.",
+        "k": "id kyc verification identity police check approve verify documents papers Ausweis Verifizierung Dokumente"
+      },
+      {
+        "q": "Wie lösche ich mein Konto?",
+        "a": "Öffnen Sie in der App das Profil und wählen Sie Konto löschen, oder nutzen Sie die Seite Konto löschen auf der Website.",
+        "k": "remove deactivate close account erase data löschen entfernen Konto schließen"
+      },
+      {
+        "q": "Wie erreiche ich den Support?",
+        "a": "Fragen Sie hier im Chat oder nutzen Sie den Kontakt-Link unten auf der Website. Bei Problemen mit einer Buchung öffnen Sie sie in der App und melden Sie sie.",
+        "k": "help complaint problem issue contact support helpline Hilfe Beschwerde Problem Kontakt"
+      }
+    ]
+  },
   "faq": {
     "eyebrow": "FAQ",
     "title": "Fragen? Antworten.",
