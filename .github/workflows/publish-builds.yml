@@ -1,0 +1,47 @@
+name: Publish builds to a release
+
+# Puts the APK / AAB files of finished "Build mobile APK" runs on a GitHub release, entirely on GitHub's side (no slow
+# download/upload through a home connection). Gives direct download links for testers and for Google Play Console.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. builds-v28"
+        required: true
+      title:
+        description: "Release title"
+        required: true
+      run_ids:
+        description: "IDs of the finished build runs, separated by spaces"
+        required: true
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the build files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p dl out
+          for id in ${{ github.event.inputs.run_ids }}; do
+            gh run download "$id" --repo "${{ github.repository }}" -D "dl/$id"
+          done
+          # dl/<run>/<artifact name, e.g. servigic-pro-preview.apk>/<file> -> out/<artifact name>
+          find dl -type f \( -name '*.apk' -o -name '*.aab' \) | while read -r f; do
+            name=$(basename "$(dirname "$f")")
+            cp "$f" "out/$name"
+          done
+          ls -la out
+      - name: Create the release with the files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.event.inputs.tag }}" out/* \
+            --repo "${{ github.repository }}" --prerelease --target "${{ github.sha }}" \
+            --title "${{ github.event.inputs.title }}" \
+            --notes "APK = install on an Android phone (open the link in Chrome, not inside WhatsApp; Android 7.0 or newer). AAB = upload to Google Play Console only."
