@@ -342,6 +342,9 @@ export default function PostJobScreen({ navigation, route }: Props) {
         <Field label={t("post.jobTitle")} placeholder={t("post.titlePlaceholder")} value={title} onChangeText={setTitle} />
         <Field label={t("post.description")} multiline numberOfLines={4} value={description} onChangeText={setDescription} />
 
+        {/* The customer's own price (like inDrive), right under the description so nobody misses it. */}
+        <OfferField categoryId={categoryId} city={userCity} value={offer} onChange={setOffer} />
+
         <Text style={styles.label}>{t("post.urgency")}</Text>
         <View style={{ marginBottom: 18 }}>
           <SegmentedControl options={urgencyOptions} value={urgency} onChange={setUrgency} />
@@ -354,7 +357,6 @@ export default function PostJobScreen({ navigation, route }: Props) {
           <Text style={{ color: colors.accent, fontWeight: "700" }}>{locating ? t("post.locating") : `📍 ${t("post.useLocation")}`}</Text>
         </Pressable>
 
-        <OfferField categoryId={categoryId} city={userCity} value={offer} onChange={setOffer} />
 
         {error && <Text style={{ color: colors.dangerSoft, marginBottom: 12 }}>{error}</Text>}
       </ScrollView>
