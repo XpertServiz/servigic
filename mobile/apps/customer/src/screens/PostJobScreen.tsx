@@ -18,6 +18,7 @@ import { loadMarketConfig } from "../lib/market";
 import { playVoiceAlert } from "../lib/voiceAlerts";
 import { colors } from "../lib/theme";
 import { useI18n } from "../lib/i18n";
+import { tradeLabel } from "../lib/status";
 import { areaExample } from "../lib/areaExamples";
 
 // Media limits (same as the server, src/lib/mediaLimits.ts): one photo up to 4 MB and one video up to 32 MB / 30 seconds.
@@ -297,7 +298,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
             return (
               <Pressable key={c.id} onPress={() => setCategoryId(c.id)} style={[styles.catChip, active && styles.catChipActive]}>
                 <Text style={{ fontSize: 12, fontWeight: active ? "800" : "600", color: active ? colors.accent : colors.textSecondary }}>
-                  {c.icon} {c.name}
+                  {c.icon} {tradeLabel(t, c.trade, c.name)}
                 </Text>
               </Pressable>
             );

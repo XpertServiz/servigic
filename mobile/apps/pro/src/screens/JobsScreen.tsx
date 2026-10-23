@@ -10,7 +10,7 @@ import { TabsUnderline, EmptyState, PriceText } from "../components/ds";
 import { RewardedBoostCard } from "../components/AdSlots";
 import { VerificationNotice } from "../components/VerificationNotice";
 import { colors } from "../lib/theme";
-import { enumLabel } from "../lib/status";
+import { enumLabel, tradeLabel } from "../lib/status";
 import { useI18n } from "../lib/i18n";
 
 type Props = NativeStackScreenProps<JobsStackParamList, "Jobs">;
@@ -137,7 +137,7 @@ export default function JobsScreen({ navigation }: Props) {
                         {item.title}
                       </Text>
                       <Text style={styles.cardSub} numberOfLines={1}>
-                        {item.areaLabel} · {item.categoryName}
+                        {item.areaLabel} · {tradeLabel(t, (item as { categoryTrade?: string }).categoryTrade, item.categoryName)}
                       </Text>
                     </View>
                   </View>

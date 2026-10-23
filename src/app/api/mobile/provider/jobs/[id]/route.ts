@@ -58,6 +58,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       status: job.status,
       areaLabel: job.areaLabel,
       categoryName: job.category.name,
+      categoryTrade: job.category.trade,
       urgency: job.urgency,
       scheduledAt: job.scheduledAt,
       scheduledWindowMins: job.scheduledWindowMins,

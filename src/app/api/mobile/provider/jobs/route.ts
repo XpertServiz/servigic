@@ -45,6 +45,7 @@ export async function GET() {
       approxLng: Math.round(job.lng * 100) / 100,
       createdAt: job.createdAt,
       categoryName: job.category.name,
+      categoryTrade: job.category.trade,
       categoryIcon: job.category.icon,
       alreadyBid: job.bids.length > 0,
     })),

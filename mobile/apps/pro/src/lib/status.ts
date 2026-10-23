@@ -31,3 +31,11 @@ export function enumLabel(td: TDynamic, group: EnumGroup, value: string | undefi
   if (!value) return "";
   return td(`${group}.${value}`) ?? humanize(value);
 }
+
+/** A trade's name in the app language ("trade.PLUMBER" -> "سبّاك"), or the server's (English) name when not translated. */
+export function tradeLabel(t: (key: never) => string, trade: string | null | undefined, fallback: string): string {
+  if (!trade) return fallback;
+  const key = `trade.${trade}`;
+  const v = (t as unknown as (k: string) => string)(key);
+  return v && v !== key ? v : fallback;
+}

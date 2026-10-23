@@ -718,6 +718,16 @@ export const en = {
   "request.counter": "Open requests: {open} of {max} · You can post {remaining} more",
   "request.limitTitle": "Too many open requests",
   "request.limitBody": "You can have up to {max} open requests at a time. Close or finish one before posting a new one.",
+  "trade.PEST_CONTROL": "Pest Control",
+  "trade.ROOFING": "Roofing",
+  "trade.LOCKSMITH": "Locksmith",
+  "trade.GARDENING": "Gardening",
+  "trade.TILING": "Tiling",
+  "trade.GENERATOR_REPAIR": "Generator Repair",
+  "trade.WATER_TANK_CLEANING": "Water Tank Cleaning",
+  "trade.GLASS_REPAIR": "Glass Repair",
+  "trade.WELDING": "Welding",
+  "trade.UPHOLSTERY": "Upholstery",
 } as const;
 
 export type TKey = keyof typeof en;

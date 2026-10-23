@@ -15,6 +15,7 @@ import { useMarketConfig } from "../lib/market";
 import { colors, accentGradientStops } from "../lib/theme";
 import { enumLabel } from "../lib/status";
 import { useI18n } from "../lib/i18n";
+import { tradeLabel } from "../lib/status";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "Home">;
 type Category = Awaited<ReturnType<typeof api.getCategories>>["categories"][number];
@@ -185,7 +186,7 @@ export default function HomeScreen({ navigation }: Props) {
               >
                 <AnimatedTradeIcon icon={item.icon} trade={item.trade} size={26} />
                 <Text style={styles.tileLabel} numberOfLines={2}>
-                  {item.name}
+                  {tradeLabel(t, item.trade, item.name)}
                 </Text>
                 {!item.available && <Text style={styles.soon}>{t("market.comingSoon")}</Text>}
               </Pressable>
@@ -196,7 +197,7 @@ export default function HomeScreen({ navigation }: Props) {
           <View style={{ paddingHorizontal: 18, paddingTop: 14 }}>
             <WaitlistCard
               key={comingSoon.id}
-              title={`${comingSoon.name} · ${t("market.comingSoon")}`}
+              title={`${tradeLabel(t, comingSoon.trade, comingSoon.name)} · ${t("market.comingSoon")}`}
               body={t("market.comingSoonBody", { service: comingSoon.name })}
               trade={comingSoon.trade}
               role="CUSTOMER"
