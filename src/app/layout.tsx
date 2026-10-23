@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { whatsappDigits } from "@/lib/phone";
 import { Suspense } from "react";
 import { Caveat, Geist_Mono, Noto_Nastaliq_Urdu, Noto_Sans_Arabic, Noto_Sans_Devanagari, Poppins } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
@@ -64,7 +65,7 @@ export default async function RootLayout({
   // The assistant opens in the language of the visitor's country (Arabic in Saudi Arabia, Urdu in Pakistan), English one tap away.
   const vm = await detectVisitorMarket(locale);
   const chatLang = vm.known ? localeForCountry(vm.country) : (locale as string);
-  const supportNumber = await prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { whatsappSupportNumber: true } }).then((s) => s?.whatsappSupportNumber ?? null).catch(() => null);
+  const supportNumber = await prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { whatsappSupportNumber: true } }).then((s) => whatsappDigits(s?.whatsappSupportNumber)).catch(() => null);
   const dir = RTL_LOCALES.includes(locale as Locale) ? "rtl" : "ltr";
 
   return (

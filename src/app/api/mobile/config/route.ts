@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { whatsappDigits } from "@/lib/phone";
 import { headers } from "next/headers";
 import { acceptsJobs, getMarkets, marketForCity, marketForCountry, marketForPoint } from "@/lib/marketConfig";
 import { prisma } from "@/lib/prisma";
@@ -14,7 +15,7 @@ async function appControls() {
     announcement: s?.announcementActive && (title || body) ? { title: title ?? "", body: body ?? "", audience: s.announcementAudience } : null,
     minVersionCode: s?.minAndroidVersionCode ?? 0,
     storeUrls: { pro: s?.storeUrlPro ?? null, customer: s?.storeUrlCustomer ?? null },
-    supportWhatsapp: s?.whatsappSupportNumber?.replace(/[^\d]/g, "") || null,
+    supportWhatsapp: whatsappDigits(s?.whatsappSupportNumber),
     minTopUpPKR: s?.minTopUpPKR ?? 500,
   };
 }

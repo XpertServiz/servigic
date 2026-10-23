@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { toE164 } from "@/lib/phone";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
@@ -71,6 +72,12 @@ export async function PUT(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message }, { status: 400 });
 
   const d = parsed.data;
+  // Saved in international form (+923001234567) so WhatsApp links work; a local number is read as Pakistani.
+  if (d.whatsappSupportNumber) {
+    const e164 = toE164(d.whatsappSupportNumber, "PK");
+    if (!e164) return NextResponse.json({ error: "WhatsApp number is not valid. Use the international form, e.g. +92 300 1234567 or +966 50 123 4567." }, { status: 400 });
+    d.whatsappSupportNumber = e164;
+  }
   if (d.proRadiusMinKm != null && d.proRadiusMaxKm != null && d.proRadiusMinKm > d.proRadiusMaxKm) {
     return NextResponse.json({ error: "The smallest pro radius cannot be bigger than the largest." }, { status: 400 });
   }

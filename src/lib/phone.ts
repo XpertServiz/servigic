@@ -21,6 +21,18 @@ export function toE164(input: string, country: CountryCode = DEFAULT_COUNTRY): s
   return parsed && parsed.isValid() ? parsed.number : null;
 }
 
+/**
+ * The digits WhatsApp needs in a wa.me link (country code, no "+", no leading 0): "0334 0035233" -> "923340035233",
+ * "+966 50 123 4567" -> "966501234567". A local number without a country code is read as Pakistani. Null if unusable.
+ */
+export function whatsappDigits(raw: string | null | undefined): string | null {
+  if (!raw || !raw.trim()) return null;
+  const e164 = toE164(raw, "PK");
+  if (e164) return e164.slice(1);
+  const digits = raw.replace(/[^\d]/g, "");
+  return digits.length >= 10 && !digits.startsWith("0") ? digits : null;
+}
+
 /** The ISO country of a number in international form ("+966..." -> "SA"), or null. */
 export function countryOfPhone(e164: string | null | undefined): string | null {
   if (!e164) return null;

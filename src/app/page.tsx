@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getLiveCities, getCountryCities } from "@/lib/liveCities";
+import { whatsappDigits } from "@/lib/phone";
 import { detectMarket } from "@/lib/geoDetect";
 import { getPaymentMode } from "@/lib/featureFlags";
 import { pageMetadata, localBusinessJsonLd, faqJsonLd } from "@/lib/seo";
@@ -48,7 +49,7 @@ export async function generateMetadata(): Promise<Metadata> {
 async function getWhatsappNumber() {
   try {
     const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
-    return settings?.whatsappSupportNumber ?? null;
+    return whatsappDigits(settings?.whatsappSupportNumber);
   } catch {
     return null;
   }
