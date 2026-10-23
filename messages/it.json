@@ -147,7 +147,7 @@
       {
         "title": "Pubblica il tuo lavoro",
         "desc": "30 secondi. Foto + zona. Il tuo indirizzo esatto resta nascosto finché non scegli un professionista.",
-        "mock": "📷 3 foto · Tecnico condizionatori · Gulshan-e-Iqbal · Urgente"
+        "mock": "📷 3 foto · Tecnico condizionatori · %%sampleArea%% · Urgente"
       },
       {
         "title": "I professionisti gareggiano",

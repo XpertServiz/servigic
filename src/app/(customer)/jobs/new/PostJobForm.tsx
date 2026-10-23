@@ -1,6 +1,9 @@
 "use client";
 
 import { OfferField } from "@/components/jobs/OfferField";
+import { areaExample } from "@/lib/areaExamples";
+import { SchedulePicker, type ScheduleValue } from "@/components/jobs/SchedulePicker";
+import { useLocale } from "next-intl";
 import { useTxCurrency } from "@/components/i18n/TxCurrency";
 import { plural } from "@/lib/plural";
 import { useState } from "react";
@@ -17,6 +20,9 @@ const URGENCY_OPTIONS = [
 ] as const;
 
 export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: { categories: CategoryWithSub[]; aiTriageEnabled: boolean; cities: { name: string; lat: number; lng: number }[] }) {
+  const locale = useLocale();
+  // Scheduled job: the day, then the arrival window (see SchedulePicker).
+  const [schedule, setSchedule] = useState<ScheduleValue | null>(null);
   const cur = useTxCurrency();
   const CITIES = cityList.map((c) => c.name);
   const router = useRouter();
@@ -84,7 +90,8 @@ export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: {
         body: JSON.stringify({
           ...form,
           subServiceId: form.subServiceId || undefined,
-          scheduledAt: form.urgency === "SCHEDULED" && form.scheduledAt ? new Date(form.scheduledAt).toISOString() : undefined,
+          scheduledAt: form.urgency === "SCHEDULED" && schedule ? schedule.scheduledAt : undefined,
+          scheduledWindowMins: form.urgency === "SCHEDULED" && schedule ? schedule.scheduledWindowMins : undefined,
           budgetPKR: form.budgetPKR ? Number(form.budgetPKR) : undefined,
         }),
       });
@@ -202,12 +209,9 @@ export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: {
           ))}
         </div>
         {form.urgency === "SCHEDULED" && (
-          <input
-            type="datetime-local"
-            value={form.scheduledAt}
-            onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })}
-            className="mt-3 w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
-          />
+          <div className="mt-3">
+            <SchedulePicker value={schedule} onChange={setSchedule} />
+          </div>
         )}
       </div>
 
@@ -235,7 +239,7 @@ export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: {
             required
             value={form.areaLabel}
             onChange={(e) => setForm({ ...form, areaLabel: e.target.value })}
-            placeholder="e.g. Gulshan-e-Iqbal"
+            placeholder={`e.g. ${areaExample(form.city, locale) ?? "your neighbourhood"}`}
             className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent"
           />
         </div>

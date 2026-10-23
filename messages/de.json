@@ -147,7 +147,7 @@
       {
         "title": "Auftrag einstellen",
         "desc": "30 Sekunden. Fotos + Gegend. Ihre genaue Adresse bleibt verborgen, bis Sie einen Profi wählen.",
-        "mock": "📷 3 Fotos · Klimatechniker · Gulshan-e-Iqbal · Notfall"
+        "mock": "📷 3 Fotos · Klimatechniker · %%sampleArea%% · Notfall"
       },
       {
         "title": "Profis überbieten sich",

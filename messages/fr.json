@@ -147,7 +147,7 @@
       {
         "title": "Publiez votre demande",
         "desc": "30 secondes. Photos + quartier. Votre adresse exacte reste masquée jusqu’au choix d’un pro.",
-        "mock": "📷 3 photos · Technicien clim · Gulshan-e-Iqbal · Urgence"
+        "mock": "📷 3 photos · Technicien clim · %%sampleArea%% · Urgence"
       },
       {
         "title": "Les pros se disputent l’offre",

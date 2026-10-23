@@ -2,6 +2,7 @@
 
 import { plural } from "@/lib/plural";
 import { useState } from "react";
+import { areaExample } from "@/lib/areaExamples";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -120,7 +121,7 @@ export function PostJobForm({ categories, cities }: { categories: Category[]; ci
         </div>
         <div>
           <label className={label}>Area / neighbourhood</label>
-          <input className={input} required placeholder="e.g. Gulshan-e-Iqbal" value={f.areaLabel} onChange={(e) => set({ areaLabel: e.target.value })} />
+          <input className={input} required placeholder={`e.g. ${areaExample(f.city, "en") ?? "the neighbourhood"}`} value={f.areaLabel} onChange={(e) => set({ areaLabel: e.target.value })} />
         </div>
       </div>
 

@@ -13,10 +13,16 @@ export type NewJobInput = Omit<z.infer<typeof createJobSchema>, "allowDuplicate"
 // the admin "post on behalf of a customer" route, so both go through exactly the same bidding window,
 // geohash and dispatch (market checks / caps stay with the callers).
 export async function createAndDispatchJob(customerId: string, data: NewJobInput, opts: { postedByAdminId?: string } = {}) {
-  const biddingClosesAt =
+  let biddingClosesAt =
     data.urgency === "EMERGENCY"
       ? new Date(Date.now() + EMERGENCY_BIDDING_WINDOW_MIN * 60 * 1000)
       : new Date(Date.now() + STANDARD_BIDDING_WINDOW_HOURS * 60 * 60 * 1000);
+  // A job booked for a time soon must be decided before then: bidding closes an hour before the arrival window
+  // (never sooner than 30 minutes from now).
+  if (data.urgency === "SCHEDULED" && data.scheduledAt) {
+    const beforeStart = new Date(new Date(data.scheduledAt).getTime() - 60 * 60 * 1000);
+    if (beforeStart < biddingClosesAt) biddingClosesAt = new Date(Math.max(beforeStart.getTime(), Date.now() + 30 * 60 * 1000));
+  }
 
   const job = await prisma.job.create({
     data: {
@@ -28,6 +34,7 @@ export async function createAndDispatchJob(customerId: string, data: NewJobInput
       photos: data.photos,
       urgency: data.urgency,
       scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
+      scheduledWindowMins: data.urgency === "SCHEDULED" && data.scheduledAt ? (data.scheduledWindowMins ?? 60) : undefined,
       city: data.city,
       areaLabel: data.areaLabel,
       exactAddress: data.exactAddress,

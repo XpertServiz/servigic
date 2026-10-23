@@ -147,7 +147,7 @@
       {
         "title": "İşinizi yayınlayın",
         "desc": "30 saniye. Fotoğraflar + bölge. Usta seçene kadar tam adresiniz gizli kalır.",
-        "mock": "📷 3 fotoğraf · Klima teknisyeni · Gulshan-e-Iqbal · Acil"
+        "mock": "📷 3 fotoğraf · Klima teknisyeni · %%sampleArea%% · Acil"
       },
       {
         "title": "Ustalar teklif için yarışır",

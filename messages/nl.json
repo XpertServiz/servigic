@@ -147,7 +147,7 @@
       {
         "title": "Plaats je klus",
         "desc": "30 seconden. Foto’s + buurt. Je exacte adres blijft verborgen tot je een vakman kiest.",
-        "mock": "📷 3 foto’s · Airco-monteur · Gulshan-e-Iqbal · Spoed"
+        "mock": "📷 3 foto’s · Airco-monteur · %%sampleArea%% · Spoed"
       },
       {
         "title": "Vakmensen strijden om de bieding",

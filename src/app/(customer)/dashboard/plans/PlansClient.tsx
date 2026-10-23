@@ -2,6 +2,8 @@
 
 import { useTxCurrency } from "@/components/i18n/TxCurrency";
 import { useState } from "react";
+import { useLocale } from "next-intl";
+import { areaExample } from "@/lib/areaExamples";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -29,6 +31,7 @@ const FREQUENCY_OPTIONS = [
 ] as const;
 
 export function PlansClient({ plans, categories, cities }: { plans: PlanView[]; categories: CategoryOption[]; cities: string[] }) {
+  const locale = useLocale();
   const cur = useTxCurrency();
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
@@ -145,7 +148,7 @@ export function PlansClient({ plans, categories, cities }: { plans: PlanView[]; 
               <input
                 value={form.areaLabel}
                 onChange={(e) => setForm({ ...form, areaLabel: e.target.value })}
-                placeholder="e.g. Gulshan-e-Iqbal"
+                placeholder={`e.g. ${areaExample(form.city, locale) ?? "your neighbourhood"}`}
                 className="w-full rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm"
               />
             </div>

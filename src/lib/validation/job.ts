@@ -8,6 +8,8 @@ export const createJobSchema = z.object({
   photos: z.array(z.string().url()).max(6).default([]),
   urgency: z.enum(["EMERGENCY", "TODAY", "SCHEDULED"]),
   scheduledAt: z.string().datetime().optional(),
+  // Arrival window from scheduledAt, in minutes (one hour, or the rest of the day for "any time that day").
+  scheduledWindowMins: z.number().int().min(30).max(24 * 60).optional(),
   city: z.string().trim().min(2),
   areaLabel: z.string().trim().min(2).max(80),
   exactAddress: z.string().trim().min(5).max(200),

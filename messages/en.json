@@ -162,7 +162,7 @@
       {
         "title": "Post your job",
         "desc": "30 seconds. Photos + area. Your exact address stays hidden until you choose a pro.",
-        "mock": "📷 3 photos · AC Technician · Gulshan-e-Iqbal · Emergency"
+        "mock": "📷 3 photos · AC Technician · %%sampleArea%% · Emergency"
       },
       {
         "title": "Pros race to bid",

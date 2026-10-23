@@ -147,7 +147,7 @@
       {
         "title": "Publica tu trabajo",
         "desc": "30 segundos. Fotos + zona. Tu dirección exacta permanece oculta hasta que elijas a un profesional.",
-        "mock": "📷 3 fotos · Técnico de aire acondicionado · Gulshan-e-Iqbal · Urgente"
+        "mock": "📷 3 fotos · Técnico de aire acondicionado · %%sampleArea%% · Urgente"
       },
       {
         "title": "Los profesionales compiten",

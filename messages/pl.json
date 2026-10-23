@@ -147,7 +147,7 @@
       {
         "title": "Dodaj zlecenie",
         "desc": "30 sekund. Zdjęcia + okolica. Dokładny adres pozostaje ukryty, dopóki nie wybierzesz fachowca.",
-        "mock": "📷 3 zdjęcia · Technik klimatyzacji · Gulshan-e-Iqbal · Pilne"
+        "mock": "📷 3 zdjęcia · Technik klimatyzacji · %%sampleArea%% · Pilne"
       },
       {
         "title": "Fachowcy ścigają się z ofertami",

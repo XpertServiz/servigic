@@ -543,6 +543,10 @@ model Job {
   photos          String[]        @default([])
   urgency         Urgency         @default(TODAY)
   scheduledAt     DateTime?
+  // Scheduled jobs: length of the arrival window from scheduledAt (60 = one hour; a whole day for "any time that day"),
+  // and which reminder was last sent ("24h" the day before, "1h" an hour before).
+  scheduledWindowMins Int?
+  scheduleReminder    String?
   city            String
   areaLabel       String
   exactAddress    String

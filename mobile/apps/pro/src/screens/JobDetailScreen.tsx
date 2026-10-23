@@ -11,6 +11,7 @@ import { sound } from "../lib/sound";
 import { colors } from "../lib/theme";
 import { enumLabel } from "../lib/status";
 import { useI18n } from "../lib/i18n";
+import { windowText } from "../lib/scheduleSlots";
 
 type Props = NativeStackScreenProps<JobsStackParamList, "JobDetail">;
 
@@ -24,7 +25,7 @@ function stepFor(base: number) {
 
 export default function JobDetailScreen({ route, navigation }: Props) {
   const insets = useSafeAreaInsets();
-  const { t, td } = useI18n();
+  const { t, td, lang } = useI18n();
   const { jobId } = route.params;
   const [job, setJob] = useState<Record<string, unknown> | null>(null);
   const [myBid, setMyBid] = useState<Record<string, unknown> | null>(null);
@@ -157,6 +158,11 @@ export default function JobDetailScreen({ route, navigation }: Props) {
       <Text style={{ color: colors.textMuted, marginTop: 10, fontSize: 13 }}>
         {job.customerFirstName as string} · {job.distanceBand as string} · {job.areaLabel as string}
       </Text>
+      {job.urgency === "SCHEDULED" && typeof job.scheduledAt === "string" && (
+        <View style={{ marginTop: 12, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.accentBorder, backgroundColor: colors.accentTint }}>
+          <Text style={{ color: colors.accent, fontWeight: "800" }}>{"🗓 " + t("schedule.scheduledFor", { when: windowText(job.scheduledAt, job.scheduledWindowMins as number | null, lang) })}</Text>
+        </View>
+      )}
 
       {!online && verificationLevel >= 1 && (
         <Card style={{ marginTop: 20, borderColor: colors.accentBorder }}>

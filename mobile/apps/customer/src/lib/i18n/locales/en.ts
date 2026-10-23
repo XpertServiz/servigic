@@ -362,7 +362,8 @@ export const en = {
   "post.description": "Description",
   "post.urgency": "Urgency",
   "post.area": "Area",
-  "post.areaPlaceholder": "e.g. Gulshan-e-Iqbal",
+  "post.areaPlaceholder": "e.g. {area}",
+  "post.areaPlaceholderPlain": "Your neighbourhood or district",
   "post.exactAddress": "Exact address (hidden until paid)",
   "post.useLocation": "Use my current location",
   "post.locating": "Locating…",
@@ -665,6 +666,17 @@ export const en = {
   "legal.gateTitle": "Please accept the agreement",
   "legal.gateBody": "To keep using Servigic, read and e-sign the agreement for {country}.",
   "legal.acceptButton": "Accept and sign",
+  "schedule.stepDay": "1. Choose the day",
+  "schedule.stepTime": "2. Choose when the pro should arrive",
+  "schedule.today": "Today",
+  "schedule.tomorrow": "Tomorrow",
+  "schedule.anyTime": "Any time that day ({from}–{to})",
+  "schedule.anyTimeHint": "More pros can bid",
+  "schedule.morning": "Morning",
+  "schedule.afternoon": "Afternoon",
+  "schedule.evening": "Evening",
+  "schedule.reminder": "The pro arrives in this window. We remind you and your pro a day before and an hour before.",
+  "schedule.scheduledFor": "Scheduled: {when}",
 } as const;
 
 export type TKey = keyof typeof en;

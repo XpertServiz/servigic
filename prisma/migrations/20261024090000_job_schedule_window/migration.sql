@@ -1,0 +1,2 @@
+ALTER TABLE "Job" ADD COLUMN IF NOT EXISTS "scheduledWindowMins" INTEGER;
+ALTER TABLE "Job" ADD COLUMN IF NOT EXISTS "scheduleReminder" TEXT;

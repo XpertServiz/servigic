@@ -147,7 +147,7 @@
       {
         "title": "Publique seu serviço",
         "desc": "30 segundos. Fotos + região. Seu endereço exato fica oculto até você escolher um profissional.",
-        "mock": "📷 3 fotos · Técnico de ar-condicionado · Gulshan-e-Iqbal · Urgente"
+        "mock": "📷 3 fotos · Técnico de ar-condicionado · %%sampleArea%% · Urgente"
       },
       {
         "title": "Profissionais disputam a proposta",

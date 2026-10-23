@@ -55,6 +55,8 @@ const SHARED = [
   // Customer Terms / Pro Agreement: accept and e-sign at sign-up, and the gate for existing accounts
   "src/components/AcceptAgreement.tsx",
   "src/components/TermsGate.tsx",
+  "src/lib/areaExamples.ts",
+  "src/lib/scheduleSlots.ts",
   "src/lib/currency.ts",
   "src/screens/ForgotPasswordScreen.tsx",
 ];

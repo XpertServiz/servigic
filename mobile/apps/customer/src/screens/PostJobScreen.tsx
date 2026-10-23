@@ -17,13 +17,15 @@ import { loadMarketConfig } from "../lib/market";
 import { playVoiceAlert } from "../lib/voiceAlerts";
 import { colors } from "../lib/theme";
 import { useI18n } from "../lib/i18n";
+import { areaExample } from "../lib/areaExamples";
+import { SchedulePicker, type ScheduleValue } from "../components/SchedulePicker";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "PostJob">;
 type Category = Awaited<ReturnType<typeof api.getCategories>>["categories"][number];
 type Urgency = "EMERGENCY" | "TODAY" | "SCHEDULED";
 
 export default function PostJobScreen({ navigation, route }: Props) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const insets = useSafeAreaInsets();
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryId, setCategoryId] = useState(route.params?.categoryId ?? "");
@@ -35,6 +37,8 @@ export default function PostJobScreen({ navigation, route }: Props) {
   const [coords, setCoords] = useState({ lat: 24.8607, lng: 67.0011 });
   const [locating, setLocating] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
+  // Scheduled job: the day first, then the arrival window.
+  const [schedule, setSchedule] = useState<ScheduleValue | null>(null);
   // The price the customer wants to pay (in his own currency); pros accept it or answer with their own.
   const [offer, setOffer] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -139,6 +143,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
         description,
         photos,
         urgency,
+        ...(urgency === "SCHEDULED" && schedule ? schedule : {}),
         city: userCity ?? "Karachi",
         ...(Number(offer) > 0 ? { budgetPKR: Number(offer) } : {}),
         areaLabel,
@@ -239,8 +244,9 @@ export default function PostJobScreen({ navigation, route }: Props) {
         <View style={{ marginBottom: 18 }}>
           <SegmentedControl options={urgencyOptions} value={urgency} onChange={setUrgency} />
         </View>
+        {urgency === "SCHEDULED" && <SchedulePicker value={schedule} onChange={setSchedule} />}
 
-        <Field label={t("post.area")} placeholder={t("post.areaPlaceholder")} value={areaLabel} onChangeText={setAreaLabel} />
+        <Field label={t("post.area")} placeholder={areaExample(userCity, lang) ? t("post.areaPlaceholder", { area: areaExample(userCity, lang) ?? "" }) : t("post.areaPlaceholderPlain")} value={areaLabel} onChangeText={setAreaLabel} />
         <Field label={`${t("post.exactAddress")} 🔒`} value={exactAddress} onChangeText={setExactAddress} />
         <Pressable onPress={useMyLocation} disabled={locating} style={{ marginBottom: 18 }}>
           <Text style={{ color: colors.accent, fontWeight: "700" }}>{locating ? t("post.locating") : `📍 ${t("post.useLocation")}`}</Text>
@@ -255,7 +261,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
         <GradientButton
           title={submitting ? t("post.posting") : t("post.submit")}
           onPress={() => submit(false)}
-          disabled={submitting || !title || !description || !areaLabel || !exactAddress || !categoryId}
+          disabled={submitting || !title || !description || !areaLabel || !exactAddress || !categoryId || (urgency === "SCHEDULED" && !schedule)}
         />
       </View>
     </KeyboardAvoidingView>

@@ -7,6 +7,7 @@ import { getFeatureFlags } from "@/lib/featureFlags";
 import { getMarkets } from "@/lib/marketConfig";
 import { proServesJob } from "@/lib/dispatch";
 import { headers } from "next/headers";
+import { windowText } from "@/lib/scheduleSlots";
 import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import { BidForm } from "./BidForm";
 
@@ -60,6 +61,11 @@ export default async function ProviderJobDetailPage({ params }: { params: Promis
         </div>
         <h1 className="font-display text-3xl font-bold">{job.title}</h1>
         <p className="mt-2 text-text-muted">{job.description}</p>
+        {job.urgency === "SCHEDULED" && job.scheduledAt && (
+          <p className="mt-3 inline-block rounded-[10px] border border-accent/40 bg-accent/10 px-3 py-2 text-sm font-bold text-accent">
+            🗓 Scheduled: {windowText(job.scheduledAt, job.scheduledWindowMins, "en")}
+          </p>
+        )}
         <p className="mt-3 text-sm text-text-muted">
           Customer: {firstNameOnly(job.customer.name)} · Contact unlocks after payment.
         </p>
