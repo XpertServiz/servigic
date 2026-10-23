@@ -453,4 +453,5 @@ export const hi: Partial<Record<TKey, string>> = {
   "docs.status.EXPIRED": "समाप्त",
   "docs.status.PENDING": "मंज़ूरी बाकी",
   "docs.status.REJECTED": "अस्वीकृत",
+  "booking.verifiedLevel": "सत्यापित प्रो · स्तर {n}",
 };

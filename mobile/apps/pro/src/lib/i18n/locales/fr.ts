@@ -630,4 +630,5 @@ export const fr: Partial<Record<TKey, string>> = {
   "docs.status.EXPIRED": "Expiré",
   "docs.status.PENDING": "En attente",
   "docs.status.REJECTED": "Refusé",
+  "booking.verifiedLevel": "Pro vérifié · niveau {n}",
 };

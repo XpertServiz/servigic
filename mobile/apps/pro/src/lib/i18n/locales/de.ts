@@ -630,4 +630,5 @@ export const de: Partial<Record<TKey, string>> = {
   "docs.status.EXPIRED": "Abgelaufen",
   "docs.status.PENDING": "Freigabe ausstehend",
   "docs.status.REJECTED": "Abgelehnt",
+  "booking.verifiedLevel": "Verifizierter Profi · Stufe {n}",
 };

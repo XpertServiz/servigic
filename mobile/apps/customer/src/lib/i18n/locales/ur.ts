@@ -666,4 +666,5 @@ export const ur: Partial<Record<TKey, string>> = {
   "docs.status.EXPIRED": "میعاد ختم",
   "docs.status.PENDING": "منظوری زیرِ التوا",
   "docs.status.REJECTED": "مسترد",
+  "booking.verifiedLevel": "تصدیق شدہ پرو · لیول {n}",
 };

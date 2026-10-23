@@ -774,6 +774,7 @@ export const en = {
   "docs.status.EXPIRED": "Expired",
   "docs.status.PENDING": "Pending approval",
   "docs.status.REJECTED": "Rejected",
+  "booking.verifiedLevel": "Verified pro · level {n}",
 } as const;
 
 export type TKey = keyof typeof en;

@@ -1,6 +1,6 @@
 import { currencyCode } from "../lib/currency";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, Pressable, Alert, Linking } from "react-native";
+import { View, Text, ScrollView, StyleSheet, Pressable, Alert, Linking, Image } from "react-native";
 import MapView, { Polyline } from "react-native-maps";
 import * as ImagePicker from "expo-image-picker";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -292,9 +292,19 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
         {revealStage === "FULL" && (
           <View style={styles.contactCard}>
             <Text style={[styles.contactLabel, { color: colors.success }]}>{t("booking.contactUnlocked")}</Text>
-            <Text style={styles.contactName}>
-              {proName} · {booking.otherPartyPhone as string}
-            </Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+              {typeof booking.proPhotoUrl === "string" && <Image source={{ uri: booking.proPhotoUrl }} style={{ width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderColor: colors.success }} />}
+              <View style={{ flex: 1 }}>
+                <Text style={styles.contactName}>
+                  {proName} · {booking.otherPartyPhone as string}
+                </Text>
+                {(booking.proRating as { avg: number; count: number } | null)?.count ? (
+                  <Text style={styles.contactSub}>{`★ ${(booking.proRating as { avg: number }).avg.toFixed(1)} · ${t("booking.verifiedLevel", { n: Number(booking.proVerificationLevel ?? 1) })}`}</Text>
+                ) : (
+                  <Text style={styles.contactSub}>{t("booking.verifiedLevel", { n: Number(booking.proVerificationLevel ?? 1) })}</Text>
+                )}
+              </View>
+            </View>
             <View style={styles.contactActions}>
               <Pressable onPress={() => Linking.openURL(`tel:${booking.otherPartyPhone}`)}>
                 <Text style={styles.contactAction}>📞 {t("common.call")}</Text>

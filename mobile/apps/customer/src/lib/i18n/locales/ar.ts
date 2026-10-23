@@ -666,4 +666,5 @@ export const ar: Partial<Record<TKey, string>> = {
   "docs.status.EXPIRED": "منتهي",
   "docs.status.PENDING": "بانتظار الاعتماد",
   "docs.status.REJECTED": "مرفوض",
+  "booking.verifiedLevel": "محترف موثّق · المستوى {n}",
 };

@@ -69,6 +69,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
           ? `Pro #${booking.providerProfile.serialNumber}`
           : "Customer",
       otherPartyPhone: unlocked ? (isCustomer ? booking.providerUser.phone : booking.customer.phone) : null,
+      // The pro's photo, shown to the customer together with his name and number (when he is on the way), so the customer
+      // recognises him at the door. Plus his verification level and rating.
+      proPhotoUrl: unlocked && isCustomer ? booking.providerProfile.selfieUrl : null,
+      proVerificationLevel: isCustomer ? booking.providerProfile.verificationLevel : null,
+      proRating: isCustomer ? { avg: booking.providerProfile.ratingAvg, count: booking.providerProfile.ratingCount } : null,
       hasReview: isCustomer ? Boolean(booking.review) : Boolean(booking.customerReview),
       revealStage,
       // Back-compat alias — migrate every reader off this in favor of

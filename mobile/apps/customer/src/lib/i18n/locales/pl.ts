@@ -451,4 +451,5 @@ export const pl: Partial<Record<TKey, string>> = {
   "docs.status.EXPIRED": "Wygasł",
   "docs.status.PENDING": "Oczekuje na zatwierdzenie",
   "docs.status.REJECTED": "Odrzucony",
+  "booking.verifiedLevel": "Zweryfikowany fachowiec · poziom {n}",
 };
