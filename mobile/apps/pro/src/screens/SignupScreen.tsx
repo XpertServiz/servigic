@@ -13,6 +13,7 @@ import { getDeviceId } from "../lib/device";
 import { GlowBackground } from "../components/ds";
 import { AuthBackdrop } from "../components/AuthBackdrop";
 import { authErrorMessage } from "../lib/authErrors";
+import { AcceptAgreement, type TermsAcceptance } from "../components/AcceptAgreement";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Signup">;
 
@@ -27,6 +28,8 @@ export default function SignupScreen({ navigation }: Props) {
   const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // The e-signed Customer Terms / Pro Agreement of the phone number's country; no account without it.
+  const [terms, setTerms] = useState<TermsAcceptance | null>(null);
   const [launching, setLaunching] = useState(false);
 
   // Honest expectation-setting: if the market is not fully live yet, say so before the pro invests time.
@@ -45,13 +48,17 @@ export default function SignupScreen({ navigation }: Props) {
       setError(t("phone.error", { example: phone.example.international }));
       return;
     }
+    if (!terms) {
+      setError(t("legal.required"));
+      return;
+    }
     setLoading(true);
     try {
       // Market config (handoff section 11.6): sign up into the market for the user's country. Without market
       // config (older backend / offline) keep the legacy default so nobody is locked out.
       const cfg = await loadMarketConfig(null);
       const city = cfg && !cfg.legacyOpen ? cfg.market?.cities?.[0] : "Karachi";
-      const { userId, verified } = await api.register({ role: "PROVIDER", name, phone: phone.e164, email, password, confirmPassword: confirm, ...(city ? { city } : {}), ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}), deviceId: await getDeviceId() });
+      const { userId, verified } = await api.register({ role: "PROVIDER", name, phone: phone.e164, email, password, confirmPassword: confirm, ...(city ? { city } : {}), ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}), deviceId: await getDeviceId(), country: phone.country, terms });
       // Second role on a number that is already verified: nothing to confirm, just sign in.
       if (verified) {
         Alert.alert(t("auth.linkedDone"));
@@ -100,6 +107,8 @@ export default function SignupScreen({ navigation }: Props) {
 
         <Field label={t("referral.signupLabel")} value={referralCode} onChangeText={(v) => setReferralCode(v.toUpperCase())} autoCapitalize="characters" />
 
+        <AcceptAgreement key={phone.country} role="PROVIDER" country={phone.country} name={name} onChange={setTerms} />
+
         {error && <Text style={styles.error}>{error}</Text>}
 
         <View style={styles.approval}>
@@ -107,7 +116,7 @@ export default function SignupScreen({ navigation }: Props) {
           <Text style={styles.approvalBody}>{t("auth.proPendingBody")}</Text>
         </View>
         {launching && <Text style={{ color: colors.accent, fontSize: 12.5, lineHeight: 18, marginBottom: 12 }}>{t("pro.launchingNote")}</Text>}
-        <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || !email || password.length < 8 || confirm !== password} />
+        <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || !email || password.length < 8 || confirm !== password || !terms} />
         <Text style={styles.legal}>{t("auth.legal")}</Text>
       </ScrollView>
       </KeyboardAvoidingView>

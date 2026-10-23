@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TxCurrencyProvider } from "@/components/i18n/TxCurrency";
 import { getTxCurrency } from "@/lib/txCurrency";
+import { TermsGate } from "@/components/legal/TermsGate";
 
 const NAV = [
   { href: "/pro/dashboard", label: "Dashboard" },
@@ -32,6 +33,7 @@ export default async function ProLayout({ children }: { children: React.ReactNod
         </div>
       )}
       <TxCurrencyProvider code={currency}>{children}</TxCurrencyProvider>
+      <TermsGate role="PROVIDER" name={session?.user?.name ?? ""} />
     </DashboardShell>
   );
 }

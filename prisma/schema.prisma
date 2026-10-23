@@ -297,6 +297,7 @@ model User {
   maintenancePlans        MaintenancePlan[] @relation("MaintenancePlanCustomer")
   cancellationEventsCaused CancellationEvent[] @relation("CancellationActor")
   rewardCredits            RewardCredit[]
+  termsAcceptances         TermsAcceptance[]
   flagsAsCustomer          ProviderFlag[]      @relation("ProviderFlagCustomer")
   // Anti-bypass anti-collusion tracking (v7 §2.3) — customer side of the
   // same rolling-30-day cancellation-rate mechanic ProviderProfile has.
@@ -1456,4 +1457,26 @@ model ChatAnswer {
 
   @@unique([lang, qHash])
   @@index([source, hits])
+}
+
+// Every acceptance (e-signature) of the Customer Terms / Pro Agreement: who, which version and exact text (hash + full
+// copy), when, from which IP and device, in which country. Kept as evidence for complaints and legal claims.
+model TermsAcceptance {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role         Role
+  document     String // CUSTOMER_TERMS | PRO_AGREEMENT
+  country      String
+  version      String
+  docHash      String
+  documentText String   @db.Text
+  signedName   String
+  ip           String?
+  userAgent    String?
+  locale       String?
+  source       String // web | app
+  acceptedAt   DateTime @default(now())
+
+  @@index([userId, document])
 }

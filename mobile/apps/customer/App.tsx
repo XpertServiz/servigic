@@ -8,6 +8,7 @@ import { AuthProvider } from "./src/lib/auth";
 import { I18nProvider } from "./src/lib/i18n";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { UpdateGate } from "./src/components/AppNotices";
+import { TermsGate } from "./src/components/TermsGate";
 import { configureApiClient } from "./src/lib/api";
 import { applyGlobalFont } from "./src/lib/globalFont";
 import { initAds } from "./src/lib/ads";
@@ -67,6 +68,7 @@ export default function App() {
         <UpdateGate>
           <AuthProvider>
             <RootNavigator />
+            <TermsGate />
           </AuthProvider>
         </UpdateGate>
       </I18nProvider>

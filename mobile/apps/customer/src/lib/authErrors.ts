@@ -24,6 +24,9 @@ export function authErrorMessage(e: unknown, t: TFunction, wantRole: "CUSTOMER" 
         return t("auth.passwordMismatch");
       case "SERVER_ERROR":
         return t("auth.errServer");
+      case "TERMS_REQUIRED":
+      case "TERMS_OUTDATED":
+        return t("legal.required");
       case "BAD_CODE":
         return t("auth.resetBadCode");
       case "WRONG_ROLE":

@@ -54,7 +54,7 @@ export default async function AdminProvidersPage({ searchParams }: { searchParam
           </thead>
           <tbody>
             {shown.map(({ p }) => (
-              <ProviderRow key={p.id} provider={access.maskPhones ? { ...p, user: { ...p.user, phone: maskPhone(p.user.phone) } } : p} />
+              <ProviderRow key={p.id} provider={access.maskPhones ? { ...p, user: { ...p.user, phone: maskPhone(p.user.phone) } } : p} canDelete={access.level === "super_admin"} />
             ))}
             {shown.length === 0 && (
               <tr>

@@ -34,6 +34,7 @@ const NAV = [
   { href: "/admin/accounting/ledger", label: "General Ledger" },
   { href: "/admin/accounting/reports", label: "Financial Reports" },
   { href: "/admin/settings", label: "Settings" },
+  { href: "/admin/reset", label: "Reset / wipe test data" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

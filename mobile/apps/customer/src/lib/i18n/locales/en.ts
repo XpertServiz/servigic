@@ -655,6 +655,16 @@ export const en = {
   "offer.same": "Same as the customer's offer: he can pick you straight away.",
   "offer.below": "{pct}% below his offer: very likely to be picked.",
   "offer.above": "{pct}% above his offer: he may decline or counter.",
+  "legal.heading": "Terms & electronic signature",
+  "legal.readFull": "Read the full agreement",
+  "legal.agree": "I have read and agree to the {title}, including the clauses on damage, loss, injury and theft.",
+  "legal.signLabel": "Type your full name to sign",
+  "legal.signNote": "Your typed name, the date, time, IP address and device are recorded as your electronic signature.",
+  "legal.required": "Please read and accept the agreement, and type your full name to sign it.",
+  "legal.englishNote": "The agreement is in English, which is the governing language.",
+  "legal.gateTitle": "Please accept the agreement",
+  "legal.gateBody": "To keep using Servigic, read and e-sign the agreement for {country}.",
+  "legal.acceptButton": "Accept and sign",
 } as const;
 
 export type TKey = keyof typeof en;

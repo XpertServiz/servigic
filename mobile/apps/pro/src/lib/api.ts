@@ -96,6 +96,8 @@ export function register(input: {
   referralCode?: string;
   deviceId?: string;
   confirmPassword?: string;
+  country?: string;
+  terms?: TermsInput;
 }) {
   return request<{ userId: string; phone: string; verified?: boolean; linked?: boolean; referral?: "applied" | "invalid" | "none" }>("/api/auth/register", {
     method: "POST",
@@ -521,4 +523,30 @@ export function getReferral() {
 // Sends a test job alert to this phone after a short delay, so the pro can lock the phone / swipe the app away first.
 export function sendTestJobAlert(delaySec = 15) {
   return request<{ ok: true; delaySec: number }>("/api/mobile/provider/test-alert", { method: "POST", body: JSON.stringify({ delaySec }) });
+}
+
+// ─── Customer Terms / Pro Agreement (accepted and e-signed at sign-up) ───
+export type AgreementDoc = {
+  kind: string;
+  role: string;
+  country: string;
+  countryName: string;
+  version: string;
+  title: string;
+  summary: string[];
+  sections: { title: string; paragraphs: string[] }[];
+  hash: string;
+};
+export type TermsInput = { version: string; hash: string; signedName: string; locale?: string };
+
+export function getAgreement(role: "CUSTOMER" | "PROVIDER", country?: string) {
+  return request<{ agreement: AgreementDoc }>(`/api/legal/agreement?role=${role}${country ? `&country=${encodeURIComponent(country)}` : ""}`);
+}
+
+export function getLegalStatus() {
+  return request<{ pending: AgreementDoc | null; signed: { version: string; country: string; signedName: string; acceptedAt: string } | null }>("/api/legal/status");
+}
+
+export function acceptTerms(input: TermsInput) {
+  return request<{ ok: true }>("/api/legal/accept", { method: "POST", body: JSON.stringify(input) });
 }

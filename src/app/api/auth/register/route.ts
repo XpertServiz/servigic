@@ -9,6 +9,8 @@ import { attachReferral } from "@/lib/referrals";
 import { syncLeadForUser } from "@/lib/leads";
 import { findAccountsByPhone, passwordMatchesAny, roleLabel } from "@/lib/accounts";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { getAgreement } from "@/lib/legal/agreements";
+import { agreementCountry, checkAcceptance, recordAcceptance } from "@/lib/legal/acceptance";
 
 // Every failure answers with JSON { error, code }: the web form and the apps show `error` (or translate `code`), never a
 // generic "network error" for something we can explain (a number or email that is already registered, a bad number).
@@ -20,12 +22,19 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return fail(parsed.error.issues[0]?.message ?? "Invalid input", "INVALID_INPUT", 400);
   }
-  const { role, name, email, password, city, referralCode, deviceId, country, confirmPassword } = parsed.data;
+  const { role, name, email, password, city, referralCode, deviceId, country, confirmPassword, terms } = parsed.data;
 
   if (confirmPassword !== undefined && confirmPassword !== password) return fail("The two passwords do not match.", "PASSWORD_MISMATCH", 400);
   // A number typed without +country is read in the visitor's country (IP / form), then in Pakistan.
   const phone = toE164(parsed.data.phone, ((country ?? "PK").toUpperCase() as never) ?? "PK");
   if (!phone) return fail("Enter a valid phone number, including the country code (e.g. +966 50 123 4567).", "INVALID_PHONE", 400);
+
+  // The Customer Terms / Pro Agreement of the user's country must be accepted and e-signed before any account is made.
+  const agreement = getAgreement(role, await agreementCountry({ city, phone }, country));
+  const termsProblem = checkAcceptance(terms, agreement);
+  if (termsProblem) return fail(termsProblem, terms ? "TERMS_OUTDATED" : "TERMS_REQUIRED", 400, { agreement: { version: agreement.version, hash: agreement.hash, country: agreement.country } });
+  const signTerms = (userId: string) =>
+    recordAcceptance({ userId, role, agreement, input: terms!, source: req.headers.get("x-servigic-client") === "app" || deviceId ? "app" : "web" }).catch((e) => console.error("[terms]", e));
 
   const limited = await checkRateLimit(`register:${phone}`, 8, 60 * 60);
   if (!limited.ok) return fail("Too many attempts. Please try again in a while.", "RATE_LIMITED", 429);
@@ -46,6 +55,7 @@ export async function POST(req: Request) {
         where: { id: same.id },
         data: { pendingPasswordHash: await bcrypt.hash(password, 12), pendingName: name, pendingEmail: email ?? null, city: same.city ?? city },
       });
+      await signTerms(same.id);
       await issueOtp(same.id, same.phone, "PHONE_VERIFY", email);
       return NextResponse.json({ userId: same.id, phone: same.phone });
     }
@@ -100,6 +110,8 @@ export async function POST(req: Request) {
     console.error("[register]", e);
     return fail("Something went wrong on our side. Please try again in a moment.", "SERVER_ERROR", 500);
   }
+
+  await signTerms(user.id);
 
   if (role === "PROVIDER") {
     await prisma.providerProfile.create({

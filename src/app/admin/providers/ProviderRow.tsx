@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { DeleteUserButton } from "../users/DeleteUserButton";
 import type { ProviderProfile } from "@prisma/client";
 import { TRADE_LABELS } from "@/lib/trades";
 import { ImageLightbox, type LightboxImage } from "@/components/ui/ImageLightbox";
@@ -20,7 +21,7 @@ const DISPATCH_STATUS_TONE: Record<string, string> = {
   SUSPENDED: "text-danger border-danger/30 bg-danger/10",
 };
 
-export function ProviderRow({ provider }: { provider: ProviderWithUser }) {
+export function ProviderRow({ provider, canDelete = false }: { provider: ProviderWithUser; canDelete?: boolean }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -133,6 +134,7 @@ export function ProviderRow({ provider }: { provider: ProviderWithUser }) {
           >
             Suspend
           </button>
+          <DeleteUserButton userId={provider.userId} name={provider.displayName || provider.user.name} enabled={canDelete} />
         </div>
       </td>
 

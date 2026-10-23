@@ -9,10 +9,12 @@ import { LLink } from "@/components/i18n/LLink";
 import { AuthShell, authButton, authInput, authLabel } from "@/components/landing/AuthShell";
 import { ProPendingNotice } from "@/components/auth/ProPendingNotice";
 import { cityName } from "@/lib/countryProfile";
+import { AcceptAgreement, type TermsAcceptance } from "@/components/legal/AcceptAgreement";
 import type { AuthContext } from "@/lib/authContext";
 
 function SignupInner({ ctx }: { ctx: AuthContext }) {
   const t = useTranslations("auth");
+  const tl = useTranslations("legal");
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -26,6 +28,8 @@ function SignupInner({ ctx }: { ctx: AuthContext }) {
   const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", confirmPassword: "", city: current?.cities[0] ?? "" });
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  // The e-signed acceptance of the Customer Terms / Pro Agreement for the chosen country; no account without it.
+  const [terms, setTerms] = useState<TermsAcceptance | null>(null);
 
   function pickCountry(code: string) {
     setCountry(code);
@@ -52,6 +56,9 @@ function SignupInner({ ctx }: { ctx: AuthContext }) {
         return t("passwordMismatch");
       case "SERVER_ERROR":
         return t("errServer");
+      case "TERMS_REQUIRED":
+      case "TERMS_OUTDATED":
+        return tl("required");
       default:
         return data.error || t("somethingWrong");
     }
@@ -64,12 +71,16 @@ function SignupInner({ ctx }: { ctx: AuthContext }) {
       setError(t("passwordMismatch"));
       return;
     }
+    if (!terms) {
+      setError(tl("required"));
+      return;
+    }
     setPending(true);
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, role, country }),
+        body: JSON.stringify({ ...form, role, country, terms }),
       });
       // The server always answers with JSON; if it does not (a proxy error page), say so instead of "network error".
       const data = await res.json().catch(() => null);
@@ -185,12 +196,13 @@ function SignupInner({ ctx }: { ctx: AuthContext }) {
           <PasswordInput id="confirmPassword" required autoComplete="new-password" minLength={8} value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} className={authInput} />
           {form.confirmPassword && form.confirmPassword !== form.password && <p className="mt-1.5 text-xs text-danger">{t("passwordMismatch")}</p>}
         </div>
+        <AcceptAgreement key={`${role}-${country}`} role={role} country={country} name={form.name} onChange={setTerms} />
         {error && (
           <p role="alert" className="text-sm text-danger">
             {error}
           </p>
         )}
-        <button type="submit" disabled={pending} className={authButton}>
+        <button type="submit" disabled={pending || !terms} className={authButton}>
           {pending ? t("creating") : t("createAccount")}
         </button>
       </form>

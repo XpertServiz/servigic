@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { RoleControl } from "./RoleControl";
 import { LevelControl } from "./LevelControl";
 import { getAdminAccess } from "@/lib/adminAccess";
+import { DeleteUserButton } from "./DeleteUserButton";
+import Link from "next/link";
 
 const ROLE_COLORS: Record<string, string> = {
   CUSTOMER: "text-accent border-accent/30 bg-accent/10",
@@ -12,7 +14,7 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 export default async function AdminUsersPage() {
-  const [users, session] = await Promise.all([prisma.user.findMany({ orderBy: { createdAt: "desc" }, take: 200 }), auth()]);
+  const [users, session] = await Promise.all([prisma.user.findMany({ orderBy: { createdAt: "desc" }, take: 200, include: { termsAcceptances: { orderBy: { acceptedAt: "desc" }, take: 1, select: { id: true, version: true, country: true, acceptedAt: true } } } }), auth()]);
   const mine = await getAdminAccess(session?.user?.id);
 
   return (
@@ -35,6 +37,8 @@ export default async function AdminUsersPage() {
               <th className="p-4">Admin level</th>
               <th className="p-4">Verified</th>
               <th className="p-4">Joined</th>
+              <th className="p-4">Agreement</th>
+              <th className="p-4">Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -52,6 +56,20 @@ export default async function AdminUsersPage() {
                 <td className="p-4">{u.role === "ADMIN" ? <LevelControl userId={u.id} level={u.adminLevel} editable={mine.level === "super_admin" && u.id !== session?.user?.id} /> : <span className="text-xs text-text-muted">—</span>}</td>
                 <td className="p-4 text-text-muted">{u.phoneVerified ? "✓" : "—"}</td>
                 <td className="p-4 text-text-muted">{u.createdAt.toLocaleDateString()}</td>
+                <td className="p-4 text-xs">
+                  {u.termsAcceptances[0] ? (
+                    <Link href={`/admin/users/${u.id}/agreement`} className="text-accent underline-offset-2 hover:underline">
+                      Signed {u.termsAcceptances[0].country} · {u.termsAcceptances[0].acceptedAt.toLocaleDateString()}
+                    </Link>
+                  ) : u.role === "CUSTOMER" || u.role === "PROVIDER" ? (
+                    <span className="text-danger">Not signed</span>
+                  ) : (
+                    <span className="text-text-muted">—</span>
+                  )}
+                </td>
+                <td className="p-4">
+                  <DeleteUserButton userId={u.id} name={u.name} enabled={mine.level === "super_admin" && (u.role === "CUSTOMER" || u.role === "PROVIDER")} />
+                </td>
               </tr>
             ))}
           </tbody>

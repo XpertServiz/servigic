@@ -21,6 +21,12 @@ export function toE164(input: string, country: CountryCode = DEFAULT_COUNTRY): s
   return parsed && parsed.isValid() ? parsed.number : null;
 }
 
+/** The ISO country of a number in international form ("+966..." -> "SA"), or null. */
+export function countryOfPhone(e164: string | null | undefined): string | null {
+  if (!e164) return null;
+  return parsePhoneNumberFromString(clean(e164))?.country ?? null;
+}
+
 /** Every stored form this number could plausibly be saved under. */
 export function phoneVariants(input: string, country: CountryCode = DEFAULT_COUNTRY): string[] {
   const raw = input.trim();
