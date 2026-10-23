@@ -49,6 +49,11 @@ export default function PostJobScreen({ navigation, route }: Props) {
   const [uploading, setUploading] = useState<"photo" | "video" | null>(null);
   // Scheduled job: the day first, then the arrival window.
   const [schedule, setSchedule] = useState<ScheduleValue | null>(null);
+  // Open requests now / maximum (5 at a time, against fake or duplicate requests).
+  const [quota, setQuota] = useState<{ open: number; max: number; remaining: number } | null>(null);
+  useEffect(() => {
+    api.getRequestQuota().then(setQuota).catch(() => {});
+  }, []);
   // The price the customer wants to pay (in his own currency); pros accept it or answer with their own.
   const [offer, setOffer] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -230,6 +235,8 @@ export default function PostJobScreen({ navigation, route }: Props) {
           { text: t("post.postAnyway"), onPress: () => submit(true) },
           { text: t("common.cancel"), style: "cancel" as const },
         ]);
+      } else if (e instanceof api.ApiError && e.code === "OPEN_JOB_LIMIT") {
+        Alert.alert(t("request.limitTitle"), t("request.limitBody", { max: Number(e.data.max ?? 5) }));
       } else if (e instanceof api.ApiError && e.code === "MARKET_NOT_AVAILABLE") {
         setAcceptingJobs(false);
       } else if (e instanceof api.ApiError && e.code === "CATEGORY_NOT_AVAILABLE") {
@@ -278,6 +285,11 @@ export default function PostJobScreen({ navigation, route }: Props) {
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
+        {quota && (
+          <View style={[styles.quota, quota.remaining === 0 && { borderColor: colors.dangerSoft }]}>
+            <Text style={{ color: quota.remaining === 0 ? colors.dangerSoft : colors.textSecondary, fontSize: 12.5, lineHeight: 18 }}>{t("request.counter", { open: quota.open, max: quota.max, remaining: quota.remaining })}</Text>
+          </View>
+        )}
         <Text style={styles.label}>{t("post.category")}</Text>
         <View style={styles.rowWrap}>
           {available.map((c) => {
@@ -359,6 +371,7 @@ const styles = StyleSheet.create({
   rowWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 18 },
   catChip: { backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: "rgba(255,255,255,0.08)", borderRadius: 11, paddingHorizontal: 13, paddingVertical: 9 },
   catChipActive: { backgroundColor: colors.accentTint, borderColor: "rgba(245,166,35,0.5)" },
+  quota: { borderWidth: 1, borderColor: colors.borderSoft, borderRadius: 12, padding: 10, marginBottom: 14, backgroundColor: colors.bgElevated },
   remove: { position: "absolute", top: -6, right: -6, backgroundColor: colors.bg, color: colors.dangerSoft, borderRadius: 10, overflow: "hidden", paddingHorizontal: 5, fontWeight: "900" },
   mediaHint: { color: colors.textMuted, fontSize: 10, marginTop: 2, textAlign: "center" },
   mediaNote: { color: colors.textFainter, fontSize: 11, lineHeight: 15, marginTop: -10, marginBottom: 16 },

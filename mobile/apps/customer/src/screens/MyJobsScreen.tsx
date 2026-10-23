@@ -19,6 +19,8 @@ type Segment = "OPEN" | "BOOKED" | "COMPLETED";
 const BOOKED_STATUSES = ["CONFIRMED", "PENDING_PAYMENT", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE"];
 
 export default function MyJobsScreen({ navigation }: Props) {
+  // How many requests are open and how many more can be posted (max 5 at a time).
+  const [quota, setQuota] = React.useState<{ open: number; max: number; remaining: number } | null>(null);
   const { t, td } = useI18n();
   const insets = useSafeAreaInsets();
   const [segment, setSegment] = useState<Segment>("OPEN");
@@ -30,6 +32,7 @@ export default function MyJobsScreen({ navigation }: Props) {
     setRefreshing(true);
     try {
       const [{ jobs: fetchedJobs }, { bookings: fetchedBookings }] = await Promise.all([api.getMyJobs(), api.getMyBookings()]);
+      api.getRequestQuota().then(setQuota).catch(() => {});
       setJobs(fetchedJobs);
       setBookings(fetchedBookings);
     } finally {
@@ -59,6 +62,7 @@ export default function MyJobsScreen({ navigation }: Props) {
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={{ paddingHorizontal: 18, paddingTop: insets.top + 16 }}>
         <Text style={styles.title}>{t("myjobs.title")}</Text>
+        {quota && <Text style={styles.quota}>{t("request.counter", { open: quota.open, max: quota.max, remaining: quota.remaining })}</Text>}
         <TabsUnderline options={segments} value={segment} onChange={setSegment} />
       </View>
 
@@ -139,5 +143,6 @@ export default function MyJobsScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  title: { color: colors.text, fontSize: 23, fontWeight: "800", marginBottom: 16 },
+  title: { color: colors.text, fontSize: 23, fontWeight: "800", marginBottom: 4 },
+  quota: { color: colors.textMuted, fontSize: 12.5, marginBottom: 14 },
 });

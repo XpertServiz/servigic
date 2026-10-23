@@ -8,6 +8,7 @@ import * as api from "../lib/api";
 import { Button, Card, Badge } from "../components/ui";
 import { PriceText, ProviderAvatar, SegmentedControl, EmptyState, haptic } from "../components/ds";
 import { WaitingHero } from "../components/WaitingHero";
+import { RequestManager } from "../components/RequestManager";
 import { colors } from "../lib/theme";
 import { enumLabel } from "../lib/status";
 import { useI18n } from "../lib/i18n";
@@ -144,6 +145,7 @@ export default function JobDetailScreen({ route, navigation }: Props) {
       <Text style={styles.title}>{job.title as string}</Text>
       <Text style={styles.desc}>{job.description as string}</Text>
       <Badge label={enumLabel(td, "job", job.status as string)} tone="muted" />
+      <RequestManager job={job} onChanged={load} onOpenBooking={(id) => navigation.navigate("BookingDetail", { bookingId: id })} onClosed={() => navigation.goBack()} />
 
       <View style={styles.sortRow}>
         <Text style={styles.sectionTitle}>{t("bids.title", { n: bids.length })}</Text>

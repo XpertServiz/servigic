@@ -2,16 +2,15 @@ import { prisma } from "@/lib/prisma";
 import { getPaymentMode } from "@/lib/featureFlags";
 import { recomputeAllActiveCancellationRates } from "@/lib/cancellationRate";
 import { notifyJobsWithoutBids } from "@/lib/jobHealth";
+import { expireRequestsWithNotice } from "@/lib/requestLifecycle";
 
 // Auto-expiry side-effects (Master Brief §12): run as a cheap updateMany at
 // the top of the relevant page/API load instead of a scheduled cron job.
 // Safe to call on every request — the `where` clause makes it idempotent.
 
+// Closing a request always tells the customer, with the option to keep it open (see requestLifecycle.ts).
 export async function expireStaleJobBidding() {
-  await prisma.job.updateMany({
-    where: { status: "OPEN", biddingClosesAt: { lt: new Date() } },
-    data: { status: "EXPIRED" },
-  });
+  await expireRequestsWithNotice();
 }
 
 export async function expireUnpaidBookings() {

@@ -29,8 +29,8 @@ export async function notifyJobsWithoutBids(): Promise<number> {
     await notify({
       userId: job.customerId,
       type: "STATUS_UPDATE",
-      title: "Still waiting for bids",
-      body: `No bids yet on "${job.title}". Widen your search area or edit the request to reach more pros.`,
+      title: "Still looking for a pro",
+      body: `We are still searching for available pros for "${job.title}". Widen your search area or edit the request to reach more pros. We will tell you as soon as one bids.`,
       linkUrl: `/jobs/${job.id}`,
       pushData: { jobId: job.id, noBids: true },
     }).catch((e) => console.error("[jobHealth] notify failed", e));

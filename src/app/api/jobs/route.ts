@@ -54,8 +54,10 @@ export async function POST(req: Request) {
   if (openJobs.length >= MAX_OPEN_JOBS_PER_CUSTOMER) {
     return NextResponse.json(
       {
-        error: `You can have up to ${MAX_OPEN_JOBS_PER_CUSTOMER} open requests at a time. Close or complete one first, or contact support to raise the limit.`,
+        error: `You already have ${openJobs.length} of ${MAX_OPEN_JOBS_PER_CUSTOMER} open requests. Close or complete one before posting a new one.`,
         code: "OPEN_JOB_LIMIT",
+        open: openJobs.length,
+        max: MAX_OPEN_JOBS_PER_CUSTOMER,
       },
       { status: 429 }
     );

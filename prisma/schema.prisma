@@ -569,6 +569,8 @@ model Job {
   // service radius for this job only.
   extraRadiusKm       Int             @default(0)
   noBidsNotifiedAt    DateTime?
+  // When the customer was warned that the request closes soon without a chosen pro.
+  expiryWarnedAt      DateTime?
   // Set when an admin posted this job on a customer's behalf (admin panel > Jobs > Post a job for a customer).
   postedByAdminId     String?
   createdAt       DateTime        @default(now())

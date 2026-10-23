@@ -236,6 +236,20 @@ export function getJobDetail(jobId: string) {
   return request<{ job: Record<string, unknown>; bids: Record<string, unknown>[]; notifiedCount: number; noBidsAfterMin: number }>(`/api/mobile/jobs/${jobId}`);
 }
 
+// Requests: change or cancel one before a bid is accepted, keep one open longer (or reopen it), and the open-request counter.
+export function editJob(jobId: string, input: { title?: string; description?: string; budgetPKR?: number | null; areaLabel?: string }) {
+  return request<{ ok: true }>(`/api/mobile/jobs/${jobId}`, { method: "PATCH", body: JSON.stringify(input) });
+}
+export function cancelJob(jobId: string) {
+  return request<{ ok: true }>(`/api/mobile/jobs/${jobId}/cancel`, { method: "POST" });
+}
+export function keepJobOpen(jobId: string) {
+  return request<{ ok: true; biddingClosesAt: string; reopened: boolean; days: number }>(`/api/mobile/jobs/${jobId}/keep-open`, { method: "POST" });
+}
+export function getRequestQuota() {
+  return request<{ open: number; max: number; remaining: number }>("/api/mobile/jobs/quota");
+}
+
 // Customer widens the search for a job with no bids (+5 km per tap, server-capped).
 export function widenJobSearch(jobId: string) {
   return request<{ extraRadiusKm: number; newlyNotified: number; notifiedCount: number }>(`/api/mobile/jobs/${jobId}/widen`, { method: "POST" });
