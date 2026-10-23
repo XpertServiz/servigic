@@ -57,6 +57,7 @@ const SHARED = [
   "src/components/TermsGate.tsx",
   "src/lib/areaExamples.ts",
   "src/lib/scheduleSlots.ts",
+  "src/lib/defaultCenter.ts",
   "src/lib/currency.ts",
   "src/screens/ForgotPasswordScreen.tsx",
 ];

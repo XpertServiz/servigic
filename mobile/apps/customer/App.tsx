@@ -3,6 +3,10 @@ import { StatusBar } from "expo-status-bar";
 import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold } from "@expo-google-fonts/inter";
+// Proper script fonts for Urdu (Nastaliq), Arabic and Hindi; the language picks one (see src/lib/globalFont.ts).
+import { NotoNastaliqUrdu_400Regular } from "@expo-google-fonts/noto-nastaliq-urdu";
+import { Cairo_400Regular } from "@expo-google-fonts/cairo";
+import { NotoSansDevanagari_400Regular } from "@expo-google-fonts/noto-sans-devanagari";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider } from "./src/lib/auth";
 import { I18nProvider } from "./src/lib/i18n";
@@ -10,7 +14,6 @@ import { RootNavigator } from "./src/navigation/RootNavigator";
 import { UpdateGate } from "./src/components/AppNotices";
 import { TermsGate } from "./src/components/TermsGate";
 import { configureApiClient } from "./src/lib/api";
-import { applyGlobalFont } from "./src/lib/globalFont";
 import { initAds } from "./src/lib/ads";
 import { hasVoiceAsset, playVoiceAlert, voiceEventForPushType } from "./src/lib/voiceAlerts";
 
@@ -48,11 +51,14 @@ export default function App() {
     Inter_600SemiBold,
     Inter_700Bold,
     Inter_800ExtraBold,
+    NotoNastaliqUrdu_400Regular,
+    Cairo_400Regular,
+    NotoSansDevanagari_400Regular,
   });
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      applyGlobalFont();
+      // The default font is set by the i18n provider for the chosen language (src/lib/globalFont.ts).
       SplashScreen.hideAsync().catch(() => {});
       // Consent + SDK init; placements stay empty until this resolves true.
       initAds();

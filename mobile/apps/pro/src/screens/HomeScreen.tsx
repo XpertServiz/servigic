@@ -6,6 +6,7 @@ import * as Location from "expo-location";
 import { useFocusEffect } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as api from "../lib/api";
+import { defaultCenter, FALLBACK_CENTER, type LatLng } from "../lib/defaultCenter";
 import { GlassCard, GradientButton, haptic } from "../components/ds";
 import { HeaderActions } from "../components/HeaderActions";
 import { JobPinMarker } from "../components/MapPins";
@@ -30,9 +31,13 @@ interface ProviderProfile {
 
 type FeedJob = Awaited<ReturnType<typeof api.getProviderJobFeed>>["jobs"][number];
 
-const KARACHI = { latitude: 24.8607, longitude: 67.0011 };
 
 export default function HomeScreen() {
+  // Map start when the pro has no work location yet: his city or the country the phone is in (never Karachi for a Saudi pro).
+  const [fallback, setFallback] = useState<LatLng>(FALLBACK_CENTER);
+  useEffect(() => {
+    defaultCenter(null).then(setFallback);
+  }, []);
   const t = useT();
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView>(null);
@@ -110,7 +115,7 @@ export default function HomeScreen() {
 
   if (!profile) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
   const online = profile.isOnline;
-  const center = me ?? (profile.baseLat && profile.baseLng ? { latitude: profile.baseLat, longitude: profile.baseLng } : KARACHI);
+  const center = me ?? (profile.baseLat && profile.baseLng ? { latitude: profile.baseLat, longitude: profile.baseLng } : { latitude: fallback.lat, longitude: fallback.lng });
   const pulseScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.6, 2.2] });
   const pulseOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] });
 

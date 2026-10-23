@@ -9,6 +9,7 @@
 // - Urdu and Arabic are right-to-left; switching to/from them flips
 //   I18nManager and reloads the JS bundle once (RN only applies RTL at start).
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { applyGlobalFont, fontForLang } from "../globalFont";
 import { I18nManager } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import * as Updates from "expo-updates";
@@ -144,6 +145,14 @@ const I18nContext = createContext<I18nState | null>(null);
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<LangCode>(DEFAULT_LANG);
+
+  // The app's default font follows the language (Nastaliq for Urdu, Cairo for Arabic...). Set during render, before the
+  // children draw, so the first screen already uses it; the fonts are loaded before this provider is mounted (App.tsx).
+  const fontFor = useRef<string | null>(null);
+  if (fontFor.current !== lang) {
+    applyGlobalFont(fontForLang(lang));
+    fontFor.current = lang;
+  }
 
   // Spoken alerts (notification channels) follow the selected app language.
   useEffect(() => {

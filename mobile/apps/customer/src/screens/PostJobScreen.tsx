@@ -9,6 +9,7 @@ import * as FileSystem from "expo-file-system/legacy";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { HomeStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
+import { defaultCenter } from "../lib/defaultCenter";
 import { Field } from "../components/ui";
 import { GradientButton, SegmentedControl } from "../components/ds";
 import { Icon } from "../components/Icon";
@@ -97,7 +98,12 @@ export default function PostJobScreen({ navigation, route }: Props) {
   useEffect(() => {
     api
       .getMe()
-      .then(({ user }) => setUserCity(typeof user.city === "string" ? user.city : null))
+      .then(({ user }) => {
+        const city = typeof user.city === "string" ? user.city : null;
+        setUserCity(city);
+        // Until GPS gives the real spot, start the pin in the customer's own city (not Karachi for someone in Saudi Arabia).
+        defaultCenter(city).then((c) => setCoords((cur) => (cur.lat === 24.8607 && cur.lng === 67.0011 ? c : cur)));
+      })
       .catch(() => {});
     api
       .getCategories()

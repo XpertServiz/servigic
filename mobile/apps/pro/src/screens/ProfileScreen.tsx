@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
 import * as api from "../lib/api";
+import { defaultCenter } from "../lib/defaultCenter";
 import { useAuth } from "../lib/auth";
 import { Button, Field } from "../components/ui";
 import { Chip } from "../components/ds";
@@ -113,6 +114,7 @@ export default function ProfileScreen() {
         setTradeRequests(requests ?? []);
         setRadiusKm(String(p.serviceRadiusKm ?? 5));
         if (p.baseLat && p.baseLng) setCoords({ lat: p.baseLat as number, lng: p.baseLng as number });
+        else defaultCenter((user as { city?: string | null } | null)?.city).then(setCoords);
         setCnicUrl((p.cnicUrl as string) ?? "");
         setSelfieUrl((p.selfieUrl as string) ?? "");
         setPoliceCertUrl((p.policeCertUrl as string) ?? "");
