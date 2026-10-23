@@ -433,6 +433,22 @@ export async function uploadFile(fileUri: string, fileName: string, mimeType: st
   return data.url;
 }
 
+// ─── Job video: sent straight to UploadThing with a one-time link from our server (too big to pass through it) ───
+export async function uploadJobVideo(fileUri: string, fileName: string, mimeType: string, size: number, durationSec?: number): Promise<string> {
+  const signed = await request<{ uploadUrl: string; fileUrl: string }>("/api/mobile/upload/video-url", {
+    method: "POST",
+    body: JSON.stringify({ name: fileName, size, type: mimeType, ...(durationSec ? { durationSec } : {}) }),
+  });
+  const result = await FileSystem.uploadAsync(signed.uploadUrl, fileUri, {
+    httpMethod: "PUT",
+    uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+    fieldName: "file",
+    mimeType,
+  });
+  if (result.status < 200 || result.status >= 300) throw new ApiError(result.status === 413 ? "VIDEO_TOO_LARGE" : `Upload failed (${result.status})`, result.status, { code: result.status === 413 ? "VIDEO_TOO_LARGE" : "UPLOAD_FAILED" });
+  return signed.fileUrl;
+}
+
 // ─── Referrals ───
 export type ReferralSummary = {
   code: string;

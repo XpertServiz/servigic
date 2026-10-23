@@ -3,6 +3,7 @@
 import { OfferField } from "@/components/jobs/OfferField";
 import { areaExample } from "@/lib/areaExamples";
 import { SchedulePicker, type ScheduleValue } from "@/components/jobs/SchedulePicker";
+import { VideoUploadField } from "@/components/ui/VideoUploadField";
 import { useLocale } from "next-intl";
 import { useTxCurrency } from "@/components/i18n/TxCurrency";
 import { plural } from "@/lib/plural";
@@ -23,6 +24,8 @@ export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: {
   const locale = useLocale();
   // Scheduled job: the day, then the arrival window (see SchedulePicker).
   const [schedule, setSchedule] = useState<ScheduleValue | null>(null);
+  // One optional short video of the problem.
+  const [video, setVideo] = useState<string | null>(null);
   const cur = useTxCurrency();
   const CITIES = cityList.map((c) => c.name);
   const router = useRouter();
@@ -93,6 +96,7 @@ export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: {
           scheduledAt: form.urgency === "SCHEDULED" && schedule ? schedule.scheduledAt : undefined,
           scheduledWindowMins: form.urgency === "SCHEDULED" && schedule ? schedule.scheduledWindowMins : undefined,
           budgetPKR: form.budgetPKR ? Number(form.budgetPKR) : undefined,
+          videoUrl: video ?? undefined,
         }),
       });
       const data = await res.json();
@@ -182,14 +186,20 @@ export function PostJobForm({ categories, aiTriageEnabled, cities: cityList }: {
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-text-muted">Photos (up to 6)</label>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Photo (optional · max 4 MB)</label>
         <PhotoUploadField
           endpoint="jobPhotos"
           urls={form.photos}
-          maxCount={6}
+          maxCount={1}
           label="Photo"
-          onAdd={(newUrls) => setForm((f) => ({ ...f, photos: [...f.photos, ...newUrls] }))}
+          onAdd={(newUrls) => setForm((f) => ({ ...f, photos: [...f.photos, ...newUrls].slice(0, 1) }))}
         />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Short video (optional · max 32 MB · up to 30 s)</label>
+        <VideoUploadField url={video} onChange={setVideo} />
+        <p className="mt-1.5 text-xs text-text-muted">A few seconds of the leak, the noise or the damage helps pros quote right. Photos and videos are deleted 24 hours after the job ends.</p>
       </div>
 
       <div>

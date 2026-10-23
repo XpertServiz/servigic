@@ -32,6 +32,7 @@ export async function createAndDispatchJob(customerId: string, data: NewJobInput
       title: data.title,
       description: data.description,
       photos: data.photos,
+      videoUrl: data.videoUrl,
       urgency: data.urgency,
       scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
       scheduledWindowMins: data.urgency === "SCHEDULED" && data.scheduledAt ? (data.scheduledWindowMins ?? 60) : undefined,

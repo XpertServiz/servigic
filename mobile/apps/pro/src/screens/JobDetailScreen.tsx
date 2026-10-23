@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable, StyleSheet, Alert, Image, Linking } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -158,6 +158,21 @@ export default function JobDetailScreen({ route, navigation }: Props) {
       <Text style={{ color: colors.textMuted, marginTop: 10, fontSize: 13 }}>
         {job.customerFirstName as string} · {job.distanceBand as string} · {job.areaLabel as string}
       </Text>
+      {(Array.isArray(job.photos) && job.photos.length > 0) || typeof job.videoUrl === "string" ? (
+        <View style={{ flexDirection: "row", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
+          {(job.photos as string[] | undefined)?.map((u) => (
+            <Pressable key={u} onPress={() => Linking.openURL(u)}>
+              <Image source={{ uri: u }} style={{ width: 84, height: 84, borderRadius: 12 }} />
+            </Pressable>
+          ))}
+          {typeof job.videoUrl === "string" && (
+            <Pressable onPress={() => Linking.openURL(job.videoUrl as string)} style={{ width: 84, height: 84, borderRadius: 12, borderWidth: 1, borderColor: colors.accentBorder, alignItems: "center", justifyContent: "center", backgroundColor: colors.accentTint }}>
+              <Text style={{ fontSize: 24 }}>▶</Text>
+              <Text style={{ color: colors.accent, fontSize: 11, fontWeight: "700" }}>{t("post.watchVideo")}</Text>
+            </Pressable>
+          )}
+        </View>
+      ) : null}
       {job.urgency === "SCHEDULED" && typeof job.scheduledAt === "string" && (
         <View style={{ marginTop: 12, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.accentBorder, backgroundColor: colors.accentTint }}>
           <Text style={{ color: colors.accent, fontWeight: "800" }}>{"🗓 " + t("schedule.scheduledFor", { when: windowText(job.scheduledAt, job.scheduledWindowMins as number | null, lang) })}</Text>

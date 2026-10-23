@@ -5,6 +5,7 @@ import { View, Text, ScrollView, StyleSheet, Pressable, Image, Alert, KeyboardAv
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system/legacy";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { HomeStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
@@ -18,6 +19,12 @@ import { playVoiceAlert } from "../lib/voiceAlerts";
 import { colors } from "../lib/theme";
 import { useI18n } from "../lib/i18n";
 import { areaExample } from "../lib/areaExamples";
+
+// Media limits (same as the server, src/lib/mediaLimits.ts): one photo up to 4 MB and one video up to 32 MB / 30 seconds.
+const PHOTO_MAX_BYTES = 4 * 1024 * 1024;
+const VIDEO_MAX_BYTES = 32 * 1024 * 1024;
+const VIDEO_MAX_SECONDS = 30;
+const mb = (b: number) => Math.round((b / (1024 * 1024)) * 10) / 10;
 import { SchedulePicker, type ScheduleValue } from "../components/SchedulePicker";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "PostJob">;
@@ -37,6 +44,9 @@ export default function PostJobScreen({ navigation, route }: Props) {
   const [coords, setCoords] = useState({ lat: 24.8607, lng: 67.0011 });
   const [locating, setLocating] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
+  // One optional short video (max 32 MB / 30 s).
+  const [video, setVideo] = useState<{ url: string; seconds: number } | null>(null);
+  const [uploading, setUploading] = useState<"photo" | "video" | null>(null);
   // Scheduled job: the day first, then the arrival window.
   const [schedule, setSchedule] = useState<ScheduleValue | null>(null);
   // The price the customer wants to pay (in his own currency); pros accept it or answer with their own.
@@ -121,16 +131,70 @@ export default function PostJobScreen({ navigation, route }: Props) {
     }
   }
 
+  // Sizes of a picked file (some Android pickers do not report it, so ask the file system).
+  async function sizeOf(asset: ImagePicker.ImagePickerAsset): Promise<number> {
+    if (asset.fileSize) return asset.fileSize;
+    const info = await FileSystem.getInfoAsync(asset.uri);
+    return info.exists && "size" in info ? (info.size ?? 0) : 0;
+  }
+
   async function pickPhoto() {
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 });
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.6 });
     if (result.canceled || !result.assets[0]) return;
     const asset = result.assets[0];
+    const size = await sizeOf(asset);
+    if (size > PHOTO_MAX_BYTES) {
+      Alert.alert(t("post.mediaTooBigTitle"), t("post.photoTooBig", { size: mb(size), max: mb(PHOTO_MAX_BYTES) }));
+      return;
+    }
+    setUploading("photo");
     try {
       const url = await api.uploadFile(asset.uri, asset.fileName ?? "photo.jpg", asset.mimeType ?? "image/jpeg");
-      setPhotos((p) => [...p, url]);
+      setPhotos([url]);
     } catch (e) {
       setError(e instanceof Error ? e.message : t("post.uploadFailed"));
+    } finally {
+      setUploading(null);
     }
+  }
+
+  async function pickVideo(source: "camera" | "library") {
+    const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ["videos"], videoMaxDuration: VIDEO_MAX_SECONDS, quality: 0.6 };
+    if (source === "camera") {
+      const perm = await ImagePicker.requestCameraPermissionsAsync();
+      if (perm.status !== "granted") return;
+    }
+    const result = source === "camera" ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
+    if (result.canceled || !result.assets[0]) return;
+    const asset = result.assets[0];
+    const seconds = asset.duration ? asset.duration / 1000 : 0;
+    const size = await sizeOf(asset);
+    if (seconds > VIDEO_MAX_SECONDS + 1) {
+      Alert.alert(t("post.mediaTooBigTitle"), t("post.videoTooLong", { seconds: Math.round(seconds), max: VIDEO_MAX_SECONDS }));
+      return;
+    }
+    if (size > VIDEO_MAX_BYTES) {
+      Alert.alert(t("post.mediaTooBigTitle"), t("post.videoTooBig", { size: mb(size), max: mb(VIDEO_MAX_BYTES), seconds: VIDEO_MAX_SECONDS }));
+      return;
+    }
+    setUploading("video");
+    try {
+      const url = await api.uploadJobVideo(asset.uri, asset.fileName ?? "video.mp4", asset.mimeType ?? "video/mp4", size, seconds || undefined);
+      setVideo({ url, seconds: Math.round(seconds) });
+    } catch (e) {
+      if (e instanceof api.ApiError && (e.code === "VIDEO_TOO_LARGE" || e.status === 413)) Alert.alert(t("post.mediaTooBigTitle"), t("post.videoTooBig", { size: mb(size), max: mb(VIDEO_MAX_BYTES), seconds: VIDEO_MAX_SECONDS }));
+      else setError(e instanceof Error ? e.message : t("post.uploadFailed"));
+    } finally {
+      setUploading(null);
+    }
+  }
+
+  function chooseVideo() {
+    Alert.alert(t("post.videoTitle"), t("post.videoHint", { seconds: VIDEO_MAX_SECONDS, max: mb(VIDEO_MAX_BYTES) }), [
+      { text: t("post.videoRecord"), onPress: () => pickVideo("camera") },
+      { text: t("post.videoGallery"), onPress: () => pickVideo("library") },
+      { text: t("common.cancel"), style: "cancel" },
+    ]);
   }
 
   async function submit(allowDuplicate = false) {
@@ -142,6 +206,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
         title,
         description,
         photos,
+        ...(video ? { videoUrl: video.url } : {}),
         urgency,
         ...(urgency === "SCHEDULED" && schedule ? schedule : {}),
         city: userCity ?? "Karachi",
@@ -227,15 +292,33 @@ export default function PostJobScreen({ navigation, route }: Props) {
           })}
         </View>
 
-        <Text style={styles.label}>{t("post.photos")}</Text>
+        <Text style={styles.label}>{t("post.mediaLabel")}</Text>
         <View style={styles.rowWrap}>
-          <Pressable onPress={pickPhoto} style={styles.photoAdd} accessibilityLabel={t("post.addPhoto")}>
-            <Text style={{ color: colors.accent, fontSize: 24, fontWeight: "300" }}>+</Text>
-          </Pressable>
-          {photos.map((url) => (
-            <Image key={url} source={{ uri: url }} style={{ width: 68, height: 68, borderRadius: 14 }} />
-          ))}
+          {photos[0] ? (
+            <Pressable onPress={() => setPhotos([])} accessibilityLabel={t("post.removeMedia")}>
+              <Image source={{ uri: photos[0] }} style={{ width: 68, height: 68, borderRadius: 14 }} />
+              <Text style={styles.remove}>✕</Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={pickPhoto} disabled={uploading !== null} style={styles.photoAdd} accessibilityLabel={t("post.addPhoto")}>
+              <Text style={{ color: colors.accent, fontSize: uploading === "photo" ? 12 : 22, fontWeight: "400" }}>{uploading === "photo" ? "…" : "📷"}</Text>
+              <Text style={styles.mediaHint}>{t("post.photoShort")}</Text>
+            </Pressable>
+          )}
+          {video ? (
+            <Pressable onPress={() => setVideo(null)} style={[styles.photoAdd, { borderStyle: "solid", borderColor: colors.success }]} accessibilityLabel={t("post.removeMedia")}>
+              <Text style={{ color: colors.success, fontSize: 20 }}>🎬</Text>
+              <Text style={[styles.mediaHint, { color: colors.success }]}>{video.seconds ? `${video.seconds}s ✓` : "✓"}</Text>
+              <Text style={styles.remove}>✕</Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={chooseVideo} disabled={uploading !== null} style={styles.photoAdd} accessibilityLabel={t("post.videoTitle")}>
+              <Text style={{ color: colors.accent, fontSize: uploading === "video" ? 12 : 22 }}>{uploading === "video" ? t("post.uploadingVideo") : "🎬"}</Text>
+              <Text style={styles.mediaHint}>{t("post.videoShort", { seconds: VIDEO_MAX_SECONDS })}</Text>
+            </Pressable>
+          )}
         </View>
+        <Text style={styles.mediaNote}>{t("post.mediaNote", { photo: mb(PHOTO_MAX_BYTES), video: mb(VIDEO_MAX_BYTES), seconds: VIDEO_MAX_SECONDS })}</Text>
 
         <Field label={t("post.jobTitle")} placeholder={t("post.titlePlaceholder")} value={title} onChangeText={setTitle} />
         <Field label={t("post.description")} multiline numberOfLines={4} value={description} onChangeText={setDescription} />
@@ -261,7 +344,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
         <GradientButton
           title={submitting ? t("post.posting") : t("post.submit")}
           onPress={() => submit(false)}
-          disabled={submitting || !title || !description || !areaLabel || !exactAddress || !categoryId || (urgency === "SCHEDULED" && !schedule)}
+          disabled={submitting || uploading !== null || !title || !description || !areaLabel || !exactAddress || !categoryId || (urgency === "SCHEDULED" && !schedule)}
         />
       </View>
     </KeyboardAvoidingView>
@@ -276,5 +359,8 @@ const styles = StyleSheet.create({
   rowWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 18 },
   catChip: { backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: "rgba(255,255,255,0.08)", borderRadius: 11, paddingHorizontal: 13, paddingVertical: 9 },
   catChipActive: { backgroundColor: colors.accentTint, borderColor: "rgba(245,166,35,0.5)" },
-  photoAdd: { width: 68, height: 68, borderRadius: 14, borderWidth: 1.5, borderStyle: "dashed", borderColor: "rgba(245,166,35,0.35)", alignItems: "center", justifyContent: "center" },
+  remove: { position: "absolute", top: -6, right: -6, backgroundColor: colors.bg, color: colors.dangerSoft, borderRadius: 10, overflow: "hidden", paddingHorizontal: 5, fontWeight: "900" },
+  mediaHint: { color: colors.textMuted, fontSize: 10, marginTop: 2, textAlign: "center" },
+  mediaNote: { color: colors.textFainter, fontSize: 11, lineHeight: 15, marginTop: -10, marginBottom: 16 },
+  photoAdd: { width: 76, height: 76, borderRadius: 14, borderWidth: 1.5, borderStyle: "dashed", borderColor: "rgba(245,166,35,0.35)", alignItems: "center", justifyContent: "center" },
 });

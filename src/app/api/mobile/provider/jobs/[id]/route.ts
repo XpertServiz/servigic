@@ -54,6 +54,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       title: job.title,
       description: job.description,
       photos: job.photos,
+      videoUrl: job.videoUrl,
       status: job.status,
       areaLabel: job.areaLabel,
       categoryName: job.category.name,

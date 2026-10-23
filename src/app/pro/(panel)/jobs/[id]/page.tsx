@@ -74,6 +74,9 @@ export default async function ProviderJobDetailPage({ params }: { params: Promis
             <PhotoGallery urls={job.photos} label="Job photo" thumbClassName="h-24 w-24" />
           </div>
         )}
+        {job.videoUrl && (
+          <video src={job.videoUrl} controls preload="metadata" className="mt-4 max-h-80 w-full max-w-md rounded-[12px] border border-border-subtle bg-black" />
+        )}
       </div>
 
       <BidForm

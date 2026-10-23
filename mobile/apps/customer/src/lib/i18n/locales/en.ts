@@ -683,6 +683,21 @@ export const en = {
   "legal.agreed": "You agreed to the {title}.",
   "legal.disagreed": "You did not agree, so the account cannot be created. Read the agreement again and choose I Agree to continue.",
   "legal.readAgain": "Read the agreement again",
+  "post.mediaLabel": "Photo and video (optional)",
+  "post.photoShort": "Photo",
+  "post.videoShort": "Video ≤{seconds}s",
+  "post.videoTitle": "Add a short video",
+  "post.videoHint": "Show the problem in up to {seconds} seconds (max {max} MB).",
+  "post.videoRecord": "Record now",
+  "post.videoGallery": "Choose from gallery",
+  "post.uploadingVideo": "Uploading…",
+  "post.mediaNote": "Optional: 1 photo (max {photo} MB) and 1 video (max {video} MB, up to {seconds} s). Deleted 24 hours after the job ends.",
+  "post.mediaTooBigTitle": "Size limit exceeded",
+  "post.photoTooBig": "This image is {size} MB. Please upload an image of at most {max} MB.",
+  "post.videoTooBig": "This video is {size} MB. Please upload a video of at most {max} MB: record a shorter clip (up to {seconds} seconds).",
+  "post.videoTooLong": "This video is {seconds} seconds long. Please upload at most {max} seconds.",
+  "post.removeMedia": "Remove",
+  "post.watchVideo": "Video",
 } as const;
 
 export type TKey = keyof typeof en;

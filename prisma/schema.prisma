@@ -541,6 +541,10 @@ model Job {
   title           String
   description     String
   photos          String[]        @default([])
+  // One optional short video of the problem (uploaded straight to UploadThing, see src/lib/mediaLimits.ts).
+  videoUrl        String?
+  // When the job's photos/video were deleted from storage (24 h after the job ended).
+  mediaDeletedAt  DateTime?
   urgency         Urgency         @default(TODAY)
   scheduledAt     DateTime?
   // Scheduled jobs: length of the arrival window from scheduledAt (60 = one hour; a whole day for "any time that day"),
