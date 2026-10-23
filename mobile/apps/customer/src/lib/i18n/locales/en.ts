@@ -728,6 +728,8 @@ export const en = {
   "trade.GLASS_REPAIR": "Glass Repair",
   "trade.WELDING": "Welding",
   "trade.UPHOLSTERY": "Upholstery",
+  "profile.photoRequiredTitle": "Add your profile photo",
+  "profile.photoRequiredBody": "Customers recognise you at the door by your photo. Open Account > Edit profile and add a clear, recent photo of yourself (face visible, no sunglasses). Until then you will not receive jobs or be able to bid.",
 } as const;
 
 export type TKey = keyof typeof en;

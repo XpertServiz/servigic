@@ -32,6 +32,8 @@ export async function GET() {
   }
 
   return NextResponse.json({
+    // No profile photo yet: the app asks the pro to add one (no jobs or bids until then).
+    photoRequired: !profile.selfieUrl,
     jobs: jobs.map((job) => ({
       id: job.id,
       title: job.title,

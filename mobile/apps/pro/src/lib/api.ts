@@ -257,6 +257,8 @@ export function getProviderJobFeed() {
     boostedUntil?: string | null;
     // Set while the Pro's area is not live yet (the job list then says "Launching soon in {area}").
     launchingSoon?: { area: string } | null;
+    // No profile photo yet: no jobs or bids until the pro adds one.
+    photoRequired?: boolean;
   }>("/api/mobile/provider/jobs");
 }
 

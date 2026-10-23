@@ -405,4 +405,6 @@ export const pl: Partial<Record<TKey, string>> = {
   "trade.GLASS_REPAIR": "Naprawa szyb",
   "trade.WELDING": "Spawanie",
   "trade.UPHOLSTERY": "Tapicerstwo",
+  "profile.photoRequiredTitle": "Dodaj zdjęcie profilowe",
+  "profile.photoRequiredBody": "Klienci rozpoznają Cię w drzwiach po zdjęciu. Otwórz Konto > Edytuj profil i dodaj wyraźne, aktualne zdjęcie. Do tego czasu nie otrzymasz zleceń ani nie złożysz oferty.",
 };

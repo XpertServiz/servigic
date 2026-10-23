@@ -160,6 +160,8 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
     where: {
       isVerified: true,
       activation: "ACTIVE",
+      // A pro without a profile photo is not sent jobs until he adds one.
+      selfieUrl: { not: null },
       trades: { has: category.trade },
       baseLat: { not: null },
       baseLng: { not: null },

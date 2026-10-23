@@ -1,4 +1,7 @@
 import { prisma } from "@/lib/prisma";
+import { getMarkets, marketForCity } from "@/lib/marketConfig";
+import { getExchangeRates } from "@/lib/currency";
+import { demoFactor } from "@/lib/marketPrices";
 
 // Customer rewarded-ad discount rules (handoff spec section 7):
 // - watching a rewarded ad earns one flat PKR 50 credit (never a percentage)
@@ -7,10 +10,25 @@ import { prisma } from "@/lib/prisma";
 //   credit per booking, credits never stack on a single booking
 // All of it is enforced here on the server; the app only shows the state.
 export const AD_DISCOUNT_PKR = 50;
+
+/**
+ * The ad reward in the customer's own currency, worth about the same as PKR 50 is in Pakistan: the Pakistani amount scaled by
+ * the local price level (the same factor that turns Pakistani job prices into Saudi or Canadian ones), rounded to a whole
+ * unit. So a Saudi customer gets about SAR 3, a Canadian about CAD 3, not "50" of a stronger currency.
+ */
+export async function adDiscountAmount(customerId: string): Promise<number> {
+  const user = await prisma.user.findUnique({ where: { id: customerId }, select: { city: true } });
+  const market = user?.city ? marketForCity(await getMarkets(), user.city) : null;
+  if (!market || market.currency === "PKR") return AD_DISCOUNT_PKR;
+  const rates = await getExchangeRates();
+  const local = AD_DISCOUNT_PKR * demoFactor(market.countryCode, rates[market.currency as keyof typeof rates] ?? 1);
+  return local < 10 ? Math.max(1, Math.round(local)) : Math.round(local / 5) * 5;
+}
 export const AD_DISCOUNT_WEEKLY_LIMIT = 2;
 const WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 export async function getAdDiscountState(customerId: string) {
+  const amount = await adDiscountAmount(customerId);
   const since = new Date(Date.now() - WINDOW_MS);
   const [recent, pendingCredits] = await Promise.all([
     prisma.rewardCredit.findMany({
@@ -27,7 +45,7 @@ export async function getAdDiscountState(customerId: string) {
     earnedThisWeek >= AD_DISCOUNT_WEEKLY_LIMIT ? new Date(recent[earnedThisWeek - AD_DISCOUNT_WEEKLY_LIMIT].earnedAt.getTime() + WINDOW_MS) : null;
 
   return {
-    amountPKR: AD_DISCOUNT_PKR,
+    amountPKR: amount,
     weeklyLimit: AD_DISCOUNT_WEEKLY_LIMIT,
     earnedThisWeek,
     remainingThisWeek: Math.max(0, AD_DISCOUNT_WEEKLY_LIMIT - earnedThisWeek),

@@ -407,4 +407,6 @@ export const hi: Partial<Record<TKey, string>> = {
   "trade.GLASS_REPAIR": "कांच मरम्मत",
   "trade.WELDING": "वेल्डिंग",
   "trade.UPHOLSTERY": "असबाब",
+  "profile.photoRequiredTitle": "अपनी प्रोफ़ाइल फोटो जोड़ें",
+  "profile.photoRequiredBody": "ग्राहक दरवाज़े पर आपको आपकी फोटो से पहचानते हैं। खाता > प्रोफ़ाइल बदलें खोलें और अपनी साफ़, हाल की फोटो जोड़ें। तब तक आपको काम नहीं मिलेंगे और आप बोली नहीं लगा सकेंगे।",
 };

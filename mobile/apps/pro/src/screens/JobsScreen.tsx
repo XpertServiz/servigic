@@ -45,6 +45,7 @@ export default function JobsScreen({ navigation }: Props) {
   const [isOnline, setIsOnline] = useState(true);
   const [boostedUntil, setBoostedUntil] = useState<string | null>(null);
   const [launchingSoon, setLaunchingSoon] = useState<string | null>(null);
+  const [photoRequired, setPhotoRequired] = useState(false);
   const [verified, setVerified] = useState(true);
   const [loaded, setLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -59,6 +60,7 @@ export default function JobsScreen({ navigation }: Props) {
       setIsOnline(feed.isOnline);
       setBoostedUntil(feed.boostedUntil ?? null);
       setLaunchingSoon(feed.launchingSoon?.area ?? null);
+      setPhotoRequired(Boolean(feed.photoRequired));
       setBookings(fetchedBookings);
       api
         .getProviderProfile()
@@ -122,7 +124,7 @@ export default function JobsScreen({ navigation }: Props) {
             </View>
           }
           ListEmptyComponent={
-            loaded ? <EmptyState icon={launchingSoon ? "🚀" : "📡"} title={launchingSoon ? t("jobs.launchingSoon", { area: launchingSoon }) : t("jobs.emptyTitle")} subtitle={launchingSoon ? t("jobs.launchingSoonSub") : t("jobs.emptySubtitle")} /> : <View style={{ gap: 12 }}><SkeletonCard /><SkeletonCard /></View>
+            loaded ? (photoRequired ? <EmptyState icon="📸" title={t("profile.photoRequiredTitle")} subtitle={t("profile.photoRequiredBody")} /> : <EmptyState icon={launchingSoon ? "🚀" : "📡"} title={launchingSoon ? t("jobs.launchingSoon", { area: launchingSoon }) : t("jobs.emptyTitle")} subtitle={launchingSoon ? t("jobs.launchingSoonSub") : t("jobs.emptySubtitle")} />) : <View style={{ gap: 12 }}><SkeletonCard /><SkeletonCard /></View>
           }
           renderItem={({ item, index }) => (
             <Pressable onPress={() => navigation.navigate("JobDetail", { jobId: item.id })}>

@@ -620,4 +620,6 @@ export const ar: Partial<Record<TKey, string>> = {
   "trade.GLASS_REPAIR": "إصلاح الزجاج",
   "trade.WELDING": "لحام",
   "trade.UPHOLSTERY": "تنجيد",
+  "profile.photoRequiredTitle": "أضف صورتك الشخصية",
+  "profile.photoRequiredBody": "يتعرف عليك العملاء عند الباب من صورتك. افتح الحساب > تعديل الملف وأضف صورة حديثة وواضحة لك (الوجه ظاهر، بدون نظارات شمسية). حتى ذلك الحين لن تصلك طلبات ولن تتمكن من تقديم عروض.",
 };

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
-import { AD_DISCOUNT_PKR, AD_DISCOUNT_WEEKLY_LIMIT, getAdDiscountState } from "@/lib/rewards";
+import { AD_DISCOUNT_WEEKLY_LIMIT, adDiscountAmount, getAdDiscountState } from "@/lib/rewards";
 
 export async function GET() {
   const auth = await requireRole("CUSTOMER");
@@ -19,6 +19,8 @@ export async function POST() {
   const auth = await requireRole("CUSTOMER");
   if (!auth.ok) return auth.response;
   const customerId = auth.session.user.id;
+  // In the customer's own currency (about PKR 50 worth: SAR 3, CAD 3...).
+  const rewardAmount = await adDiscountAmount(customerId);
 
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   let created: { id: string; amountPKR: number } | null;
@@ -27,7 +29,7 @@ export async function POST() {
       async (tx) => {
         const earned = await tx.rewardCredit.count({ where: { customerId, kind: "AD_DISCOUNT", earnedAt: { gte: since } } });
         if (earned >= AD_DISCOUNT_WEEKLY_LIMIT) return null;
-        return tx.rewardCredit.create({ data: { customerId, kind: "AD_DISCOUNT", amountPKR: AD_DISCOUNT_PKR } });
+        return tx.rewardCredit.create({ data: { customerId, kind: "AD_DISCOUNT", amountPKR: rewardAmount } });
       },
       { isolationLevel: "Serializable" }
     );

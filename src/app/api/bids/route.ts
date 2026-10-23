@@ -23,6 +23,13 @@ export async function POST(req: Request) {
   if (!profile || profile.verificationLevel < 1) {
     return NextResponse.json({ error: "Complete verification before bidding" }, { status: 403 });
   }
+  // Customers recognise their pro at the door by this photo: no bids without a clear, recent photo of the pro.
+  if (!profile.selfieUrl) {
+    return NextResponse.json(
+      { error: "Add a clear, recent photo of yourself to your profile before bidding. Customers use it to recognise you when you arrive.", code: "PHOTO_REQUIRED" },
+      { status: 403 },
+    );
+  }
   if (profile.dispatchStatus === "SUSPENDED") {
     return NextResponse.json(
       { error: "Dispatch paused — settle your wallet balance or resolve your cancellation rate to resume" },

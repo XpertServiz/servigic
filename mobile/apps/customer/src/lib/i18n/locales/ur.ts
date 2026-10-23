@@ -620,4 +620,6 @@ export const ur: Partial<Record<TKey, string>> = {
   "trade.GLASS_REPAIR": "شیشے کی مرمت",
   "trade.WELDING": "ویلڈنگ",
   "trade.UPHOLSTERY": "صوفہ پوشی",
+  "profile.photoRequiredTitle": "اپنی پروفائل تصویر لگائیں",
+  "profile.photoRequiredBody": "کسٹمر دروازے پر آپ کو آپ کی تصویر سے پہچانتے ہیں۔ اکاؤنٹ > پروفائل میں تبدیلی کھولیں اور اپنی صاف، حالیہ تصویر لگائیں (چہرہ واضح، کالے چشمے کے بغیر)۔ تب تک آپ کو کام نہیں ملیں گے اور آپ بولی نہیں لگا سکیں گے۔",
 };

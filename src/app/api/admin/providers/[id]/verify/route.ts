@@ -14,6 +14,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  if (parsed.data.verificationLevel >= 1) {
+    const current = await prisma.providerProfile.findUnique({ where: { id }, select: { selfieUrl: true } });
+    if (!current?.selfieUrl) return NextResponse.json({ error: "This pro has no profile photo yet. Ask for a clear, recent photo before approving." }, { status: 400 });
+  }
 
   const profile = await prisma.providerProfile.update({
     where: { id },
