@@ -414,6 +414,8 @@ model ProviderProfile {
   alertQuietStartMin      Int?
   alertQuietEndMin        Int?
   alertDailyCap           Int           @default(30)
+  // Working hours: several windows per weekday ({ mon: [{ start, end }], ... }, minutes after local midnight). null = always available.
+  availability            Json?
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 

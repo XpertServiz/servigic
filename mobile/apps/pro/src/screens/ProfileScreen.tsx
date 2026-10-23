@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
 import * as api from "../lib/api";
+import { WorkingHoursEditor } from "../components/WorkingHoursEditor";
 import { defaultCenter } from "../lib/defaultCenter";
 import { useAuth } from "../lib/auth";
 import { Button, Field } from "../components/ui";
@@ -348,6 +349,7 @@ export default function ProfileScreen() {
               <Chip key={n} label={String(n)} active={status.alerts.dailyCap === n} onPress={() => saveAlerts({ dailyCap: n })} />
             ))}
           </View>
+          <WorkingHoursEditor />
 
           <Pressable onPress={() => navigateRoot("NeverMiss")} style={[styles.row, { marginTop: 16 }]}>
             <Text style={styles.rowText}>🔔 {t("neverMiss.title")}</Text>

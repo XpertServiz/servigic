@@ -730,6 +730,17 @@ export const en = {
   "trade.UPHOLSTERY": "Upholstery",
   "profile.photoRequiredTitle": "Add your profile photo",
   "profile.photoRequiredBody": "Customers recognise you at the door by your photo. Open Account > Edit profile and add a clear, recent photo of yourself (face visible, no sunglasses). Until then you will not receive jobs or be able to bid.",
+  "hours.title": "Working hours",
+  "hours.subtitle": "Job alerts come only during these hours. Scheduled jobs are matched to the hours of their own day. Jobs still appear in your list.",
+  "hours.always": "Always available",
+  "hours.custom": "Set my hours",
+  "hours.add": "+ Add time",
+  "hours.from": "From",
+  "hours.to": "To",
+  "hours.dayOff": "Day off",
+  "hours.copyAll": "Copy to every day",
+  "hours.save": "Save working hours",
+  "hours.saved": "Working hours saved",
 } as const;
 
 export type TKey = keyof typeof en;

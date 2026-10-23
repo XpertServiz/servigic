@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { isAvailable } from "@/lib/availability";
 import { notify } from "@/lib/notify";
 import { geohashNeighborhood, haversineKm } from "@/lib/geo";
 import { getMarkets, marketForCity, marketForPoint, acceptsJobs, tradeEnabled, type MarketSnapshot } from "@/lib/marketConfig";
@@ -204,7 +205,11 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
   const plan = eligible.map((p) => {
     const mute =
       !options.force &&
-      (p.alertsPaused || inQuietHours(p.alertQuietStartMin, p.alertQuietEndMin, timezone) || (recentCount.get(p.id) ?? 0) >= p.alertDailyCap);
+      (p.alertsPaused ||
+        inQuietHours(p.alertQuietStartMin, p.alertQuietEndMin, timezone) ||
+        // Outside the pro's working hours (for a scheduled job: not working during its arrival window).
+        !(job.urgency === "SCHEDULED" && job.scheduledAt ? isAvailable(p.availability, timezone, job.scheduledAt, job.scheduledWindowMins ?? 60) : isAvailable(p.availability, timezone)) ||
+        (recentCount.get(p.id) ?? 0) >= p.alertDailyCap);
     return { p, pushSent: !mute };
   });
 

@@ -273,6 +273,15 @@ export function getPriceGuide(categoryId: string, city: string) {
   return request<{ guide: PriceGuide | null }>(`/api/market/price-guide?categoryId=${encodeURIComponent(categoryId)}&city=${encodeURIComponent(city)}`);
 }
 
+// Working hours (several windows per weekday; null = always available).
+export type WorkingHours = Record<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun", { start: number; end: number }[]>;
+export function getAvailability() {
+  return request<{ availability: WorkingHours | null }>("/api/mobile/provider/availability");
+}
+export function saveAvailability(availability: WorkingHours | null) {
+  return request<{ availability: WorkingHours | null }>("/api/mobile/provider/availability", { method: "PUT", body: JSON.stringify({ availability }) });
+}
+
 export function getProviderJobDetail(jobId: string) {
   return request<{
     job: Record<string, unknown>;
