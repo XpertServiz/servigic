@@ -339,6 +339,7 @@ model OtpCode {
 
 model ProviderProfile {
   tradeRequests ProviderTrade[]
+  documents     ProviderDocument[]
   // Founding Pro: reduced commission until this date, then the standard rate again (see src/lib/foundingPro.ts)
   foundingUntil           DateTime?
   foundingEndNotifiedAt   DateTime?
@@ -416,6 +417,9 @@ model ProviderProfile {
   alertDailyCap           Int           @default(30)
   // Working hours: several windows per weekday ({ mon: [{ start, end }], ... }, minutes after local midnight). null = always available.
   availability            Json?
+  // Set while a mandatory document has expired past its grace period: no job alerts or bids until a renewed one is approved.
+  documentsBlockedAt      DateTime?
+  documentsBlockedReason  String?
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -1081,6 +1085,11 @@ model Dispute {
 
 model SiteSettings {
   id                    String   @id @default("singleton")
+  // Pro documents: days before expiry to remind the pro (comma list), days allowed after expiry before job access is
+  // paused, and which document types are mandatory (comma list of ID, POLICE, LICENSE, CERTIFICATE, INSURANCE, OTHER).
+  docAlertDays          String   @default("30,14,7")
+  docGraceDays          Int      @default(7)
+  docMandatoryTypes     String   @default("ID")
   activeTheme           String   @default("electric-amber")
   defaultCommissionPct  Float    @default(12)
   whatsappSupportNumber String?
@@ -1491,4 +1500,26 @@ model TermsAcceptance {
   acceptedAt   DateTime @default(now())
 
   @@index([userId, document])
+}
+
+// A pro's identity documents, certificates, licences and insurance, with their expiry dates. Every new or replacement
+// document waits for admin approval (PENDING); when approved it replaces the previous one (SUPERSEDED).
+model ProviderDocument {
+  id             String          @id @default(cuid())
+  providerId     String
+  provider       ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  type           String // ID | POLICE | LICENSE | CERTIFICATE | INSURANCE | OTHER
+  label          String
+  fileUrl        String
+  expiresAt      DateTime?
+  status         String          @default("PENDING") // PENDING | APPROVED | REJECTED | SUPERSEDED
+  rejectReason   String?
+  submittedAt    DateTime        @default(now())
+  reviewedAt     DateTime?
+  reviewedById   String?
+  // Last expiry reminder sent ("30", "14", "7", "0" = on the day, "grace" = access paused).
+  lastExpiryAlert String?
+
+  @@index([providerId, status])
+  @@index([status, expiresAt])
 }

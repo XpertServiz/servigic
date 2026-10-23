@@ -112,6 +112,7 @@ export default function JobDetailScreen({ route, navigation }: Props) {
       load();
     } catch (e) {
       if (e instanceof api.ApiError && e.code === "PHOTO_REQUIRED") Alert.alert(t("profile.photoRequiredTitle"), t("profile.photoRequiredBody"));
+      else if (e instanceof api.ApiError && e.code === "DOCS_EXPIRED") Alert.alert(t("docs.blockedTitle"), t("docs.blockedBody"));
       else Alert.alert(t("common.error"), e instanceof Error ? e.message : t("bid.failed"));
     } finally {
       setBusy(false);

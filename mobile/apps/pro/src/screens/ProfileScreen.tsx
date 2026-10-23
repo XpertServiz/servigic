@@ -6,6 +6,7 @@ import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
 import * as api from "../lib/api";
 import { WorkingHoursEditor } from "../components/WorkingHoursEditor";
+import { MyDocuments } from "../components/MyDocuments";
 import { defaultCenter } from "../lib/defaultCenter";
 import { useAuth } from "../lib/auth";
 import { Button, Field } from "../components/ui";
@@ -350,6 +351,7 @@ export default function ProfileScreen() {
             ))}
           </View>
           <WorkingHoursEditor />
+          <MyDocuments />
 
           <Pressable onPress={() => navigateRoot("NeverMiss")} style={[styles.row, { marginTop: 16 }]}>
             <Text style={styles.rowText}>🔔 {t("neverMiss.title")}</Text>

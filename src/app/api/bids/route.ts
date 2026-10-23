@@ -30,6 +30,12 @@ export async function POST(req: Request) {
       { status: 403 },
     );
   }
+  if (profile.documentsBlockedAt) {
+    return NextResponse.json(
+      { error: "A required document has expired. Upload the renewed document in Account > My documents; you can bid again once it is approved.", code: "DOCS_EXPIRED" },
+      { status: 403 },
+    );
+  }
   if (profile.dispatchStatus === "SUSPENDED") {
     return NextResponse.json(
       { error: "Dispatch paused — settle your wallet balance or resolve your cancellation rate to resume" },

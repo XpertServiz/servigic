@@ -259,6 +259,7 @@ export function getProviderJobFeed() {
     launchingSoon?: { area: string } | null;
     // No profile photo yet: no jobs or bids until the pro adds one.
     photoRequired?: boolean;
+    documentsBlocked?: boolean;
   }>("/api/mobile/provider/jobs");
 }
 
@@ -271,6 +272,15 @@ export function claimVisibilityBoost() {
 export type PriceGuide = { currency: string; floor: number; low: number; suggested: number; high: number };
 export function getPriceGuide(categoryId: string, city: string) {
   return request<{ guide: PriceGuide | null }>(`/api/market/price-guide?categoryId=${encodeURIComponent(categoryId)}&city=${encodeURIComponent(city)}`);
+}
+
+// My documents (ID, certificates, licences, insurance): status, expiry, and new / renewed documents for approval.
+export type MyDocument = { id: string; type: string; label: string; fileUrl: string; expiresAt: string | null; status: string; rejectReason: string | null; submittedAt: string; mandatory: boolean };
+export function getMyDocuments() {
+  return request<{ documents: MyDocument[]; blocked: { since: string; reason: string | null } | null; reviewHours: string }>("/api/mobile/provider/documents");
+}
+export function submitDocument(input: { type: string; label: string; fileUrl: string; expiresAt: string | null }) {
+  return request<{ ok: true; id: string }>("/api/mobile/provider/documents", { method: "POST", body: JSON.stringify(input) });
 }
 
 // Working hours (several windows per weekday; null = always available).

@@ -34,6 +34,8 @@ export async function GET() {
   return NextResponse.json({
     // No profile photo yet: the app asks the pro to add one (no jobs or bids until then).
     photoRequired: !profile.selfieUrl,
+    // A mandatory document expired: no jobs or bids until the renewed one is approved.
+    documentsBlocked: Boolean(profile.documentsBlockedAt),
     jobs: jobs.map((job) => ({
       id: job.id,
       title: job.title,

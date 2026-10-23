@@ -25,6 +25,7 @@ const NAV = [
   { href: "/admin/waitlist", label: "Early list" },
   { href: "/admin/referrals", label: "Referrals" },
   { href: "/admin/trades", label: "Trade approvals" },
+  { href: "/admin/documents", label: "Pro documents" },
   { href: "/admin/locales", label: "Countries & Localization" },
   { href: "/admin/price-benchmarks", label: "Price Benchmarks" },
   { href: "/admin/maintenance-plans", label: "Maintenance Plans" },

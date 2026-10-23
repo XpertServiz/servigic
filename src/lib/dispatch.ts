@@ -163,6 +163,8 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
       activation: "ACTIVE",
       // A pro without a profile photo is not sent jobs until he adds one.
       selfieUrl: { not: null },
+      // Nor while a mandatory document has expired (see proDocuments.ts).
+      documentsBlockedAt: null,
       trades: { has: category.trade },
       baseLat: { not: null },
       baseLng: { not: null },
