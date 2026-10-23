@@ -18,7 +18,7 @@
       }
     },
     "android": {
-      "versionCode": 3,
+      "versionCode": 4,
       "package": "com.servigic.admin",
       "adaptiveIcon": {
         "backgroundColor": "#0A0B0F",

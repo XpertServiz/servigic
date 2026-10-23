@@ -58,6 +58,8 @@ const SHARED = [
   "src/lib/areaExamples.ts",
   "src/lib/scheduleSlots.ts",
   "src/lib/defaultCenter.ts",
+  // Animated chalk doodles behind sign-in / sign-up (AuthBackdrop.tsx)
+  "assets/doodles",
   "src/lib/currency.ts",
   "src/screens/ForgotPasswordScreen.tsx",
 ];
