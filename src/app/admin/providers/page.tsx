@@ -20,6 +20,10 @@ export default async function AdminProvidersPage({ searchParams }: { searchParam
     prisma.savedFilter.findMany({ where: { adminId: session?.user?.id ?? "", resource: "pros" }, orderBy: { createdAt: "desc" } }),
   ]);
   const shown = rows.slice(0, 300);
+  // Skills a pro asked for that still wait for approval: until approved he receives no jobs of that trade.
+  const waiting = await prisma.providerTrade.findMany({ where: { providerId: { in: shown.map((r) => r.p.id) }, status: "PENDING" }, select: { providerId: true, trade: true } });
+  const pendingByPro = new Map<string, string[]>();
+  for (const w of waiting) pendingByPro.set(w.providerId, [...(pendingByPro.get(w.providerId) ?? []), w.trade]);
 
   return (
     <div>
@@ -54,7 +58,7 @@ export default async function AdminProvidersPage({ searchParams }: { searchParam
           </thead>
           <tbody>
             {shown.map(({ p }) => (
-              <ProviderRow key={p.id} provider={access.maskPhones ? { ...p, user: { ...p.user, phone: maskPhone(p.user.phone) } } : p} canDelete={access.level === "super_admin"} />
+              <ProviderRow key={p.id} provider={access.maskPhones ? { ...p, user: { ...p.user, phone: maskPhone(p.user.phone) } } : p} canDelete={access.level === "super_admin"} pendingSkills={pendingByPro.get(p.id) ?? []} />
             ))}
             {shown.length === 0 && (
               <tr>

@@ -5,7 +5,7 @@ import { createJobSchema } from "@/lib/validation/job";
 import { haversineKm } from "@/lib/geo";
 import { createAndDispatchJob } from "@/lib/jobCreate";
 import { runExpirySweep } from "@/lib/expiry";
-import { checkJobAvailability } from "@/lib/marketConfig";
+import { checkJobAvailability, getMarkets, placeJob } from "@/lib/marketConfig";
 
 // A customer may run several requests at once (reverse-marketplace model, not
 // single-dispatch) — this is only an abuse guard. Overridable per deployment;
@@ -28,7 +28,10 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
-  const { allowDuplicate, ...data } = parsed.data;
+  const { allowDuplicate, ...raw } = parsed.data;
+  // The real city and position of the job (the pin decides, unless it is the app's default position in another country).
+  const placed = placeJob(await getMarkets(), raw.city, { lat: raw.lat, lng: raw.lng });
+  const data = { ...raw, ...placed };
 
   // Market config (handoff section 11.6): reject posts for a category / area that is not switched on,
   // so a stale or modified app cannot bypass the admin launch settings.

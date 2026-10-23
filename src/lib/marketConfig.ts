@@ -2,6 +2,8 @@ import { unstable_cache, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import type { Trade, MarketStatus, Currency } from "@prisma/client";
 import { parsePolygons, pointInPolygons, type Ring } from "@/lib/geofence";
+import { cityCenter } from "@/lib/cityCenters";
+import { haversineKm } from "@/lib/geo";
 
 // Market configuration (handoff §11.6). The whole table is tiny, so it is
 // read as one cached snapshot (60s, busted by the admin editor).
@@ -73,13 +75,49 @@ export function marketForCity(markets: MarketSnapshot[], city: string | null | u
 export type GeoPoint = { lat: number; lng: number };
 
 /**
- * The zone a map point belongs to. A zone with a drawn geofence owns exactly the points inside it; zones
- * without one fall back to their city names. A point inside no drawn zone and in no city-only zone is outside.
+ * The market city nearest to a map point, within `maxKm`: a pin in Madinah gives Madinah even when the account was
+ * created with Jeddah (or, from an old app, with Karachi).
+ */
+export function nearestMarketCity(markets: MarketSnapshot[], point: GeoPoint, maxKm = 150): { city: string; market: MarketSnapshot; km: number } | null {
+  let best: { city: string; market: MarketSnapshot; km: number } | null = null;
+  for (const m of markets) {
+    for (const city of m.cities) {
+      const c = cityCenter(city);
+      if (!c) continue;
+      const km = haversineKm(point.lat, point.lng, c.lat, c.lng);
+      if (km <= maxKm && (!best || km < best.km)) best = { city, market: m, km };
+    }
+  }
+  return best;
+}
+
+/**
+ * The zone a map point belongs to. A zone with a drawn geofence owns exactly the points inside it; zones without one
+ * own the points near their cities (the nearest market city within 150 km); only then does the city name decide.
  */
 export function marketForPoint(markets: MarketSnapshot[], point: GeoPoint, city?: string | null): MarketSnapshot | null {
   const drawn = markets.find((m) => m.polygons.length > 0 && pointInPolygons(point.lat, point.lng, m.polygons));
   if (drawn) return drawn;
-  return marketForCity(markets.filter((m) => m.polygons.length === 0), city);
+  const open = markets.filter((m) => m.polygons.length === 0);
+  const near = nearestMarketCity(open, point);
+  if (near) return near.market;
+  return marketForCity(open, city);
+}
+
+/**
+ * Where a new job really is. The pin is trusted when it lies in the same country as the account's city, and the job then
+ * takes the nearest market city (a customer registered as "Jeddah" posting from Madinah posts a Madinah job). A pin in
+ * another country is the app's default map position (no GPS), so the job is placed at the centre of the account's city.
+ */
+export function placeJob(markets: MarketSnapshot[], city: string, point: GeoPoint): { city: string; lat: number; lng: number } {
+  const near = nearestMarketCity(markets, point);
+  const cityMarket = marketForCity(markets, city);
+  if (near && (!cityMarket || near.market.countryCode === cityMarket.countryCode)) return { city: near.city, lat: point.lat, lng: point.lng };
+  if (near && cityMarket && near.market.countryCode !== cityMarket.countryCode) {
+    const c = cityCenter(city);
+    if (c) return { city, lat: c.lat, lng: c.lng };
+  }
+  return { city, lat: point.lat, lng: point.lng };
 }
 
 /** First enabled market of a country (used before a city is known, e.g. on first launch). */

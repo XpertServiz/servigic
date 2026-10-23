@@ -21,7 +21,7 @@ const DISPATCH_STATUS_TONE: Record<string, string> = {
   SUSPENDED: "text-danger border-danger/30 bg-danger/10",
 };
 
-export function ProviderRow({ provider, canDelete = false }: { provider: ProviderWithUser; canDelete?: boolean }) {
+export function ProviderRow({ provider, canDelete = false, pendingSkills = [] }: { provider: ProviderWithUser; canDelete?: boolean; pendingSkills?: string[] }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -93,6 +93,14 @@ export function ProviderRow({ provider, canDelete = false }: { provider: Provide
       </td>
       <td className="p-4 text-text-muted">
         {provider.trades.map((t) => TRADE_LABELS[t]?.icon ?? "").join(" ") || "—"}
+        {pendingSkills.length > 0 && (
+          <a href="/admin/trades" className="mt-1 block text-[11px] font-semibold text-accent underline-offset-2 hover:underline">
+            ⏳ {pendingSkills.length} skill{pendingSkills.length > 1 ? "s" : ""} waiting: {pendingSkills.map((t) => TRADE_LABELS[t]?.name ?? t).join(", ")}
+          </a>
+        )}
+        {provider.trades.length === 0 && provider.verificationLevel >= 1 && (
+          <div className="mt-1 text-[11px] font-semibold text-danger">No approved skill: gets no jobs</div>
+        )}
       </td>
       <td className="p-4">
         <div className="flex gap-2 text-xs">

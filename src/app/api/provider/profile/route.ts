@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { providerProfileSchema } from "@/lib/validation/provider";
 import { encodeGeohash } from "@/lib/geo";
-import { getMarkets, marketForCity } from "@/lib/marketConfig";
+import { getMarkets, marketForCity, nearestMarketCity } from "@/lib/marketConfig";
 import { evaluateProActivation } from "@/lib/proActivation";
 import { listTradeRequests, requestTradeSelection } from "@/lib/providerTrades";
 import { notify } from "@/lib/notify";
@@ -59,6 +59,12 @@ export async function PUT(req: Request) {
   const newDocsSent = Boolean(cnicUrl || selfieUrl);
   const hasBothDocs = Boolean(cnicUrl || existing?.cnicUrl) && Boolean(selfieUrl || existing?.selfieUrl);
   const submittedForReview = newDocsSent && hasBothDocs && !existing?.isVerified;
+
+  // The pro's city follows his work location: a pin in Madinah makes him a Madinah pro, whatever city the account had.
+  if (data.baseLat !== undefined && data.baseLng !== undefined && data.baseLat !== null && data.baseLng !== null) {
+    const near = nearestMarketCity(await getMarkets(), { lat: data.baseLat, lng: data.baseLng });
+    if (near) await prisma.user.update({ where: { id: auth.session.user.id }, data: { city: near.city } }).catch(() => null);
+  }
 
   const profile = await prisma.providerProfile.update({
     where: { userId: auth.session.user.id },

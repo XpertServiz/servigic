@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { notify } from "@/lib/notify";
 import { evaluateProActivation } from "@/lib/proActivation";
+import { findJobsForProvider } from "@/lib/dispatch";
 
 // Admin decision on one trade a pro asked to work in: approve it, reject it, or ask for a certificate / photo
 // first (typically gas, electrical and AC work). Only approved trades ever reach ProviderProfile.trades, which is
@@ -49,6 +50,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       body: "You will now get job alerts for this trade.",
       linkUrl: "/pro/profile",
     });
+    // Jobs of this trade already waiting near him: tell him now instead of waiting for the next new job.
+    const waiting = (await findJobsForProvider(row.provider.id).catch(() => [])).filter((j) => j.category.trade === row.trade);
+    if (waiting.length > 0) {
+      await notify({
+        userId: row.provider.userId,
+        type: "DISPATCH_ALERT",
+        title: `${waiting.length} open ${label} job${waiting.length > 1 ? "s" : ""} near you`,
+        body: "Open your job list and send your bid.",
+        linkUrl: "/pro/jobs",
+      }).catch(() => null);
+    }
     return NextResponse.json({ ok: true });
   }
 
