@@ -511,6 +511,12 @@
     }
   },
   "legal": {
+    "iAgree": "Zgadzam się",
+    "iDisagree": "Nie zgadzam się",
+    "readToContinue": "Przeczytaj całą umowę poniżej. Na końcu wybierz Zgadzam się lub Nie zgadzam się.",
+    "agreed": "Zaakceptowano: {title}.",
+    "disagreed": "Nie wyrażono zgody, więc konta nie można utworzyć. Przeczytaj umowę ponownie i wybierz Zgadzam się, aby kontynuować.",
+    "readAgain": "Przeczytaj umowę ponownie",
     "heading": "Warunki i podpis elektroniczny",
     "readFull": "Przeczytaj całą umowę",
     "hideFull": "Ukryj całą umowę",

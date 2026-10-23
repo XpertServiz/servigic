@@ -511,6 +511,12 @@
     }
   },
   "legal": {
+    "iAgree": "Ich stimme zu",
+    "iDisagree": "Ich stimme nicht zu",
+    "readToContinue": "Lesen Sie den vollständigen Vertrag unten. Wählen Sie am Ende \"Ich stimme zu\" oder \"Ich stimme nicht zu\".",
+    "agreed": "Sie haben der {title} zugestimmt.",
+    "disagreed": "Sie haben nicht zugestimmt, daher kann das Konto nicht erstellt werden. Lesen Sie den Vertrag erneut und stimmen Sie zu, um fortzufahren.",
+    "readAgain": "Vertrag erneut lesen",
     "heading": "Bedingungen & elektronische Unterschrift",
     "readFull": "Vollständigen Vertrag lesen",
     "hideFull": "Vollständigen Vertrag ausblenden",

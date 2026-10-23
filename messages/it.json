@@ -511,6 +511,12 @@
     }
   },
   "legal": {
+    "iAgree": "Accetto",
+    "iDisagree": "Non accetto",
+    "readToContinue": "Leggi l'accordo completo qui sotto. Alla fine scegli Accetto o Non accetto.",
+    "agreed": "Hai accettato {title}.",
+    "disagreed": "Non hai accettato, quindi l'account non può essere creato. Rileggi l'accordo e scegli Accetto per continuare.",
+    "readAgain": "Rileggi l'accordo",
     "heading": "Termini e firma elettronica",
     "readFull": "Leggi l'accordo completo",
     "hideFull": "Nascondi l'accordo completo",

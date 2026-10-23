@@ -511,6 +511,12 @@
     }
   },
   "legal": {
+    "iAgree": "Ik ga akkoord",
+    "iDisagree": "Ik ga niet akkoord",
+    "readToContinue": "Lees de volledige overeenkomst hieronder. Kies aan het einde Ik ga akkoord of Ik ga niet akkoord.",
+    "agreed": "Je bent akkoord gegaan met de {title}.",
+    "disagreed": "Je bent niet akkoord gegaan, dus het account kan niet worden aangemaakt. Lees de overeenkomst opnieuw en kies Ik ga akkoord om door te gaan.",
+    "readAgain": "Overeenkomst opnieuw lezen",
     "heading": "Voorwaarden en elektronische handtekening",
     "readFull": "Lees de volledige overeenkomst",
     "hideFull": "Verberg de volledige overeenkomst",

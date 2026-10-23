@@ -533,4 +533,10 @@ export const de: Partial<Record<TKey, string>> = {
   "schedule.evening": "Abends",
   "schedule.reminder": "Der Profi kommt in diesem Zeitfenster. Wir erinnern Sie und den Profi einen Tag und eine Stunde vorher.",
   "schedule.scheduledFor": "Geplant: {when}",
+  "legal.iAgree": "Ich stimme zu",
+  "legal.iDisagree": "Ich stimme nicht zu",
+  "legal.readToContinue": "Lesen Sie den vollständigen Vertrag unten. Wählen Sie am Ende \"Ich stimme zu\" oder \"Ich stimme nicht zu\".",
+  "legal.agreed": "Sie haben der {title} zugestimmt.",
+  "legal.disagreed": "Sie haben nicht zugestimmt, daher kann das Konto nicht erstellt werden. Lesen Sie den Vertrag erneut und stimmen Sie zu, um fortzufahren.",
+  "legal.readAgain": "Vertrag erneut lesen",
 };

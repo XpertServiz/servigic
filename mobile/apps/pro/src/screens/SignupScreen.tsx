@@ -117,7 +117,6 @@ export default function SignupScreen({ navigation }: Props) {
         </View>
         {launching && <Text style={{ color: colors.accent, fontSize: 12.5, lineHeight: 18, marginBottom: 12 }}>{t("pro.launchingNote")}</Text>}
         <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || !email || password.length < 8 || confirm !== password || !terms} />
-        <Text style={styles.legal}>{t("auth.legal")}</Text>
       </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -135,5 +134,4 @@ const styles = StyleSheet.create({
   approval: { backgroundColor: colors.accentTint, borderWidth: 1, borderColor: colors.accentBorder, borderRadius: 14, padding: 13, marginBottom: 14 },
   approvalTitle: { color: colors.accent, fontSize: 13, fontWeight: "800" },
   approvalBody: { color: colors.textSecondary, fontSize: 12, marginTop: 3, lineHeight: 17 },
-  legal: { marginTop: 18, fontSize: 11, color: colors.textFainter, lineHeight: 16 },
 });

@@ -677,6 +677,12 @@ export const en = {
   "schedule.evening": "Evening",
   "schedule.reminder": "The pro arrives in this window. We remind you and your pro a day before and an hour before.",
   "schedule.scheduledFor": "Scheduled: {when}",
+  "legal.iAgree": "I Agree",
+  "legal.iDisagree": "I Don't Agree",
+  "legal.readToContinue": "Read the complete agreement below. At the end, choose I Agree or I Don't Agree.",
+  "legal.agreed": "You agreed to the {title}.",
+  "legal.disagreed": "You did not agree, so the account cannot be created. Read the agreement again and choose I Agree to continue.",
+  "legal.readAgain": "Read the agreement again",
 } as const;
 
 export type TKey = keyof typeof en;

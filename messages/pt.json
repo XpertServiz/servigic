@@ -511,6 +511,12 @@
     }
   },
   "legal": {
+    "iAgree": "Concordo",
+    "iDisagree": "Não concordo",
+    "readToContinue": "Leia o acordo completo abaixo. No final, escolha Concordo ou Não concordo.",
+    "agreed": "Você concordou com {title}.",
+    "disagreed": "Você não concordou, então a conta não pode ser criada. Leia o acordo novamente e escolha Concordo para continuar.",
+    "readAgain": "Ler o acordo novamente",
     "heading": "Termos e assinatura eletrônica",
     "readFull": "Ler o acordo completo",
     "hideFull": "Ocultar o acordo completo",

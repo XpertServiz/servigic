@@ -511,6 +511,12 @@
     }
   },
   "legal": {
+    "iAgree": "Kabul ediyorum",
+    "iDisagree": "Kabul etmiyorum",
+    "readToContinue": "Aşağıdaki sözleşmenin tamamını okuyun. Sonunda Kabul ediyorum veya Kabul etmiyorum'u seçin.",
+    "agreed": "{title} metnini kabul ettiniz.",
+    "disagreed": "Kabul etmediniz, bu yüzden hesap oluşturulamaz. Sözleşmeyi tekrar okuyun ve devam etmek için Kabul ediyorum'u seçin.",
+    "readAgain": "Sözleşmeyi tekrar oku",
     "heading": "Koşullar ve elektronik imza",
     "readFull": "Sözleşmenin tamamını oku",
     "hideFull": "Sözleşmenin tamamını gizle",

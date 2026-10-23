@@ -106,7 +106,6 @@ export default function SignupScreen({ navigation }: Props) {
         {error && <Text style={styles.error}>{error}</Text>}
 
         <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || !EMAIL_RE.test(email.trim()) || password.length < 8 || confirm !== password || !terms} />
-        <Text style={styles.legal}>{t("auth.legal")}</Text>
       </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -121,5 +120,4 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 26, fontWeight: "800", marginBottom: 8 },
   subtitle: { color: colors.textMuted, fontSize: 14, marginBottom: 26 },
   error: { color: colors.dangerSoft, marginBottom: 12, fontSize: 13 },
-  legal: { marginTop: 18, fontSize: 11, color: colors.textFainter, lineHeight: 16 },
 });

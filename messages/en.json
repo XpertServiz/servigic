@@ -653,6 +653,12 @@
     }
   },
   "legal": {
+    "iAgree": "I Agree",
+    "iDisagree": "I Don't Agree",
+    "readToContinue": "Read the complete agreement below. At the end, choose I Agree or I Don't Agree.",
+    "agreed": "You agreed to the {title}.",
+    "disagreed": "You did not agree, so the account cannot be created. Read the agreement again and choose I Agree to continue.",
+    "readAgain": "Read the agreement again",
     "heading": "Terms & electronic signature",
     "readFull": "Read the full agreement",
     "hideFull": "Hide the full agreement",

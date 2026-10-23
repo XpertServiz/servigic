@@ -356,4 +356,10 @@ export const hi: Partial<Record<TKey, string>> = {
   "schedule.evening": "शाम",
   "schedule.reminder": "प्रो इसी समय में पहुँचेगा। हम आपको और प्रो को एक दिन पहले और एक घंटा पहले याद दिलाएँगे।",
   "schedule.scheduledFor": "शेड्यूल: {when}",
+  "legal.iAgree": "मैं सहमत हूँ",
+  "legal.iDisagree": "मैं सहमत नहीं हूँ",
+  "legal.readToContinue": "नीचे पूरा समझौता पढ़ें। अंत में \"मैं सहमत हूँ\" या \"मैं सहमत नहीं हूँ\" चुनें।",
+  "legal.agreed": "आपने {title} से सहमति दी।",
+  "legal.disagreed": "आपने सहमति नहीं दी, इसलिए खाता नहीं बन सकता। समझौता दोबारा पढ़ें और जारी रखने के लिए \"मैं सहमत हूँ\" चुनें।",
+  "legal.readAgain": "समझौता दोबारा पढ़ें",
 };

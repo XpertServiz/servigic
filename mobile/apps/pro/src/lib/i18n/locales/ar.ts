@@ -569,4 +569,10 @@ export const ar: Partial<Record<TKey, string>> = {
   "schedule.evening": "مساءً",
   "schedule.reminder": "يصل المحترف خلال هذه الفترة. سنذكّرك أنت والمحترف قبل يوم وقبل ساعة.",
   "schedule.scheduledFor": "موعد مجدول: {when}",
+  "legal.iAgree": "أوافق",
+  "legal.iDisagree": "لا أوافق",
+  "legal.readToContinue": "اقرأ الاتفاقية كاملة أدناه، وفي نهايتها اختر \"أوافق\" أو \"لا أوافق\".",
+  "legal.agreed": "لقد وافقت على {title}.",
+  "legal.disagreed": "لم توافق، لذلك لا يمكن إنشاء الحساب. اقرأ الاتفاقية مرة أخرى واختر \"أوافق\" للمتابعة.",
+  "legal.readAgain": "اقرأ الاتفاقية مرة أخرى",
 };

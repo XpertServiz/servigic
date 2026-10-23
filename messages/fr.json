@@ -511,6 +511,12 @@
     }
   },
   "legal": {
+    "iAgree": "J'accepte",
+    "iDisagree": "Je n'accepte pas",
+    "readToContinue": "Lisez le contrat complet ci-dessous. À la fin, choisissez J'accepte ou Je n'accepte pas.",
+    "agreed": "Vous avez accepté {title}.",
+    "disagreed": "Vous n'avez pas accepté : le compte ne peut pas être créé. Relisez le contrat et choisissez J'accepte pour continuer.",
+    "readAgain": "Relire le contrat",
     "heading": "Conditions et signature électronique",
     "readFull": "Lire le contrat complet",
     "hideFull": "Masquer le contrat complet",
