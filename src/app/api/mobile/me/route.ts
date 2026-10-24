@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { ensureAccountCity } from "@/lib/userCountry";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
@@ -6,6 +7,8 @@ import { requireRole } from "@/lib/requireRole";
 export async function GET() {
   const auth = await requireRole("CUSTOMER", "PROVIDER", "ADMIN");
   if (!auth.ok) return auth.response;
+  // The account's own country decides currency and documents (not the connection): fill or fix a missing / foreign city.
+  if (auth.session.user.role !== "ADMIN") await ensureAccountCity(auth.session.user.id).catch(() => null);
 
   const user = await prisma.user.findUnique({
     where: { id: auth.session.user.id },

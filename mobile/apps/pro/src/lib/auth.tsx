@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as Notifications from "expo-notifications";
 import * as api from "./api";
+import { loadMarketConfig } from "./market";
 import { useI18n } from "./i18n";
 import { setupNotificationChannels } from "./notifications";
 
@@ -29,6 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const { user: me } = await api.getMe();
           setUser(me as unknown as User);
+          // The account's own market (currency SAR / PKR ..., document names) as soon as the account is known.
+          loadMarketConfig((me as { city?: string | null }).city ?? null).catch(() => null);
           syncWithAccount(me.language);
           registerForPush();
         } catch {
@@ -77,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { token, user: loggedInUser } = await api.login(phone, password);
     await api.setAuthToken(token);
     setUser(loggedInUser as User);
+    loadMarketConfig((loggedInUser as { city?: string | null }).city ?? null).catch(() => null);
     syncWithAccount(loggedInUser.language);
     registerForPush();
   }

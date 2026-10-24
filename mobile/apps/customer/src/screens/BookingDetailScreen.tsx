@@ -8,6 +8,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { HomeStackParamList } from "../navigation/RootNavigator";
 import * as api from "../lib/api";
+import { countryWord, useMarketConfig } from "../lib/market";
 import { Button, Card, Field, Badge } from "../components/ui";
 import { StatusStepper, PriceText, RatingStars, ConfettiBurst, GradientButton, GlassCard, haptic } from "../components/ds";
 import { DestinationMarker, TrackedBikeMarker } from "../components/MapPins";
@@ -56,6 +57,10 @@ const TRACKED_STATUSES = ["ON_MY_WAY", "ARRIVED", "WORKING"];
 const STATUS_POLL_MS = 6000;
 
 export default function BookingDetailScreen({ route, navigation }: Props) {
+  // How people pay in the customer's country (cash, mada, STC Pay in Saudi Arabia; cash, JazzCash, EasyPaisa in Pakistan ...).
+  const { config: marketCfg } = useMarketConfig();
+  const { lang: payLang } = useI18n();
+  const payMethods = countryWord(marketCfg, "pay", payLang, "cash");
   const { t, td } = useI18n();
   const insets = useSafeAreaInsets();
   const { bookingId } = route.params;
@@ -272,7 +277,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
                 {t("reward.applied", { amount: booking.rewardDiscountPKR as number, total: (booking.totalPKR as number).toLocaleString() })}
               </Text>
             )}
-            <Text style={{ color: colors.textMuted, marginTop: 6, fontSize: 13, lineHeight: 19 }}>{t("pay.cashNote")}</Text>
+            <Text style={{ color: colors.textMuted, marginTop: 6, fontSize: 13, lineHeight: 19 }}>{t("pay.cashNote", { methods: payMethods })}</Text>
           </Card>
         )}
 

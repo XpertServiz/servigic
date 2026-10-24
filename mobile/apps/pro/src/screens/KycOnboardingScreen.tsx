@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import * as api from "../lib/api";
+import { countryWord, useMarketConfig } from "../lib/market";
 import { Button } from "../components/ui";
 import { GlowBackground } from "../components/ds";
 import { HeaderActions } from "../components/HeaderActions";
@@ -10,9 +11,12 @@ import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
 import { useAuth } from "../lib/auth";
 import { readIdCard, type IdOcr } from "../lib/idOcr";
-import { useT } from "../lib/i18n";
+import { useI18n, useT } from "../lib/i18n";
 
 export default function KycOnboardingScreen({ onSubmitted, rejectedReason }: { onSubmitted: () => void; rejectedReason?: string | null }) {
+  const { config: marketCfg } = useMarketConfig();
+  const { lang: kycLang } = useI18n();
+  const words = { id: countryWord(marketCfg, "id", kycLang, "ID"), police: countryWord(marketCfg, "police", kycLang, "police certificate") };
   const t = useT();
   const insets = useSafeAreaInsets();
   const { signOut } = useAuth();
@@ -85,9 +89,9 @@ export default function KycOnboardingScreen({ onSubmitted, rejectedReason }: { o
           </View>
         )}
 
-        <DocRow label={t("kyc.cnic")} done={Boolean(cnicUrl)} loading={busy === "cnic"} onPress={() => pickDoc("cnic", setCnicUrl)} />
+        <DocRow label={t("kyc.cnic", words)} done={Boolean(cnicUrl)} loading={busy === "cnic"} onPress={() => pickDoc("cnic", setCnicUrl)} />
         <DocRow label={t("kyc.selfie")} done={Boolean(selfieUrl)} loading={busy === "selfie"} onPress={() => pickDoc("selfie", setSelfieUrl)} />
-        <DocRow label={t("kyc.police")} done={Boolean(policeCertUrl)} loading={busy === "police"} onPress={() => pickDoc("police", setPoliceCertUrl)} />
+        <DocRow label={t("kyc.police", words)} done={Boolean(policeCertUrl)} loading={busy === "police"} onPress={() => pickDoc("police", setPoliceCertUrl)} />
 
         {ocr?.idNumber ? <Text style={styles.ocrNote}>{t("kyc.ocrRead", { id: ocr.idNumber })}</Text> : null}
 

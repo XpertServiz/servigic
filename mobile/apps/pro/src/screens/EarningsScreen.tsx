@@ -9,6 +9,7 @@ import { HeaderActions } from "../components/HeaderActions";
 import { colors, radius } from "../lib/theme";
 import { enumLabel } from "../lib/status";
 import { useI18n } from "../lib/i18n";
+import { countryWord, useMarketConfig } from "../lib/market";
 import { TopUpSheet } from "./TopUpSheet";
 
 type Earnings = Awaited<ReturnType<typeof api.getProviderEarnings>>;
@@ -17,7 +18,10 @@ type Earnings = Awaited<ReturnType<typeof api.getProviderEarnings>>;
 const LADDER_KEYS = ["earnings.ladderNew", "earnings.ladderVerified", "earnings.ladderTrusted"] as const;
 
 export default function EarningsScreen() {
-  const { t, td } = useI18n();
+  const { t, td, lang } = useI18n();
+  // The country's own police / background document name (police certificate in Pakistan, Führungszeugnis in Germany ...).
+  const { config: marketCfg } = useMarketConfig();
+  const policeWord = countryWord(marketCfg, "police", lang, t("docs.type.POLICE"));
   const insets = useSafeAreaInsets();
   const [data, setData] = useState<Earnings | null>(null);
   const [verificationLevel, setVerificationLevel] = useState(0);
@@ -57,7 +61,7 @@ export default function EarningsScreen() {
         <View style={[styles.fill, { width: `${((tier + 1) / LADDER_KEYS.length) * 100}%` }]} />
       </View>
       {tier < LADDER_KEYS.length - 1 && (
-        <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 6 }}>{t("earnings.reach", { level: t(LADDER_KEYS[tier + 1]) })}</Text>
+        <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 6 }}>{t("earnings.reach", { level: t(LADDER_KEYS[tier + 1]), police: policeWord })}</Text>
       )}
     </View>
   );

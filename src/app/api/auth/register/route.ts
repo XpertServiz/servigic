@@ -10,6 +10,7 @@ import { syncLeadForUser } from "@/lib/leads";
 import { findAccountsByPhone, passwordMatchesAny, roleLabel } from "@/lib/accounts";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { getAgreement } from "@/lib/legal/agreements";
+import { cityForAccount } from "@/lib/userCountry";
 import { agreementCountry, checkAcceptance, recordAcceptance } from "@/lib/legal/acceptance";
 
 // Every failure answers with JSON { error, code }: the web form and the apps show `error` (or translate `code`), never a
@@ -22,12 +23,16 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return fail(parsed.error.issues[0]?.message ?? "Invalid input", "INVALID_INPUT", 400);
   }
-  const { role, name, email, password, city, referralCode, deviceId, country, confirmPassword, terms } = parsed.data;
+  const { role, name, email, password, referralCode, deviceId, country, confirmPassword, terms } = parsed.data;
+  let city = parsed.data.city;
 
   if (confirmPassword !== undefined && confirmPassword !== password) return fail("The two passwords do not match.", "PASSWORD_MISMATCH", 400);
   // A number typed without +country is read in the visitor's country (IP / form), then in Pakistan.
   const phone = toE164(parsed.data.phone, ((country ?? "PK").toUpperCase() as never) ?? "PK");
   if (!phone) return fail("Enter a valid phone number, including the country code (e.g. +966 50 123 4567).", "INVALID_PHONE", 400);
+
+  // The phone number's country decides the account's country: a Saudi number registered from Pakistan is a Saudi account.
+  city = (await cityForAccount({ city: city ?? null, phone }, { preferPhone: true })) ?? city;
 
   // The Customer Terms / Pro Agreement of the user's country must be accepted and e-signed before any account is made.
   const agreement = getAgreement(role, await agreementCountry({ city, phone }, country));

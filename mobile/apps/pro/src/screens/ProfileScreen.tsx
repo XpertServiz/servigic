@@ -21,7 +21,7 @@ import { navigateRoot } from "../navigation/ref";
 import { ReferralCard } from "../components/ReferralCard";
 import { SupportRow } from "../components/AppNotices";
 import { readIdCard, type IdOcr } from "../lib/idOcr";
-import { useMarketConfig } from "../lib/market";
+import { countryWord, useMarketConfig } from "../lib/market";
 
 const QUIET_PRESETS: { label: string; start: number | null; end: number | null }[] = [
   { label: "", start: null, end: null },
@@ -72,6 +72,8 @@ export default function ProfileScreen() {
   const [editing, setEditing] = useState(false);
   const [ocr, setOcr] = useState<IdOcr | null>(null);
   const { config } = useMarketConfig();
+  // The country's own document names and payout methods (Iqama in Saudi Arabia, CNIC in Pakistan ...).
+  const words = { id: countryWord(config, "id", lang, t("docs.type.ID")), police: countryWord(config, "police", lang, t("docs.type.POLICE")), payout: countryWord(config, "payout", lang, "") };
   const [status, setStatus] = useState<api.ProviderStatus | null>(null);
 
   useEffect(() => {
@@ -222,9 +224,9 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.chipRow}>
-        {cnicUrl ? <DocChip label={t("account.cnic")} /> : null}
+        {cnicUrl ? <DocChip label={t("account.cnic", words)} /> : null}
         {selfieUrl ? <DocChip label={t("account.selfie")} /> : null}
-        {policeCertUrl ? <DocChip label={t("account.police")} /> : null}
+        {policeCertUrl ? <DocChip label={t("account.police", words)} /> : null}
         {status?.foundingPro ? <DocChip label={t("pro.foundingPro")} /> : null}
       </View>
       {status?.foundingPro && status.commissionFreeJobsLeft > 0 && (
@@ -301,7 +303,7 @@ export default function ProfileScreen() {
       <View style={styles.track}>
         <View style={[styles.fill, { width: `${(docsDone / 3) * 100}%` }]} />
       </View>
-      {!policeCertUrl && <Text style={styles.verifyHint}>{t("account.policeHint")}</Text>}
+      {!policeCertUrl && <Text style={styles.verifyHint}>{t("account.policeHint", words)}</Text>}
 
       <ReferralCard />
 
@@ -415,19 +417,19 @@ export default function ProfileScreen() {
 
           <View style={{ gap: 12, marginBottom: 16 }}>
             <Pressable onPress={() => pickDoc(setCnicUrl, true)}>
-              <Text style={{ color: cnicUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>{cnicUrl ? t("account.cnicDone") : t("account.uploadCnic")}</Text>
+              <Text style={{ color: cnicUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>{cnicUrl ? t("account.cnicDone", words) : t("account.uploadCnic", words)}</Text>
             </Pressable>
             <Pressable onPress={() => pickDoc(setSelfieUrl)}>
               <Text style={{ color: selfieUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>{selfieUrl ? t("account.selfieDone") : t("account.uploadSelfie")}</Text>
             </Pressable>
             <Pressable onPress={() => pickDoc(setPoliceCertUrl)}>
               <Text style={{ color: policeCertUrl ? colors.secondary : colors.accent, fontWeight: "700" }}>
-                {policeCertUrl ? t("account.policeDone") : t("account.uploadPolice")}
+                {policeCertUrl ? t("account.policeDone", words) : t("account.uploadPolice", words)}
               </Text>
             </Pressable>
           </View>
 
-          <Field label={t("account.payoutAccount")} value={payoutAccount} onChangeText={setPayoutAccount} />
+          <Field label={t("account.payoutAccount", words)} value={payoutAccount} onChangeText={setPayoutAccount} />
           <Button title={t("account.save")} onPress={save} loading={saving} />
         </View>
       )}

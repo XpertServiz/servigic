@@ -13,6 +13,7 @@ import { setCurrencyCode } from "./currency";
 const KEY = "servigic_market_config";
 const TTL_MS = 60_000;
 let memo: { cfg: api.MarketConfig; at: number; key: string } | null = null;
+let currencyFromAccount = false;
 
 const keyFor = (city: string | null, point?: api.GeoPoint | null) => `${city ?? ""}|${point ? `${point.lat.toFixed(3)},${point.lng.toFixed(3)}` : ""}`;
 
@@ -23,7 +24,13 @@ export async function loadMarketConfig(city?: string | null, point?: api.GeoPoin
   if (memo && memo.key === key && Date.now() - memo.at < TTL_MS) return memo.cfg;
   try {
     const cfg = await api.getMarketConfig(wanted, point);
-    setCurrencyCode(cfg.market?.currency);
+    // The account's own city decides the currency. A lookup without a city (first launch, before sign-in) is only a guess
+    // from the connection, so it never overrides a currency already set from the account (a Saudi pro testing from Pakistan
+    // keeps SAR).
+    if (wanted) {
+      setCurrencyCode(cfg.market?.currency);
+      currencyFromAccount = true;
+    } else if (!currencyFromAccount) setCurrencyCode(cfg.market?.currency);
     memo = { cfg, at: Date.now(), key };
     SecureStore.setItemAsync(KEY, JSON.stringify(cfg)).catch(() => {});
     return cfg;
@@ -79,4 +86,10 @@ export function useMarketConfig(opts: { useGps?: boolean } = {}) {
   }, [refresh]);
 
   return { config, city, point, loading, refresh, outsideArea: config != null && !config.legacyOpen && !config.acceptingJobs };
+}
+
+/** One of the country's own words (ID document, police document, payout / payment methods) in the app language. */
+export function countryWord(cfg: api.MarketConfig | null | undefined, kind: "id" | "police" | "payout" | "pay", lang: string, fallback: string): string {
+  const m = cfg?.docs?.[kind];
+  return (m && (m[lang] || m.en)) || fallback;
 }

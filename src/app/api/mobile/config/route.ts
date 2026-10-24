@@ -1,4 +1,18 @@
 import { NextResponse } from "next/server";
+import { tokensFor } from "@/lib/countryProfile";
+
+const APP_LANGS = ["en", "ur", "ar", "de", "fr", "es", "hi", "pl"] as const;
+function countryWords(country: string | null | undefined) {
+  const out: Record<"id" | "police" | "payout" | "pay", Record<string, string>> = { id: {}, police: {}, payout: {}, pay: {} };
+  for (const lang of APP_LANGS) {
+    const tk = tokensFor({ countryCode: country, locale: lang as never, countryName: country ?? "", isLive: true });
+    out.id[lang] = tk.idDoc;
+    out.police[lang] = tk.policeDoc;
+    out.payout[lang] = tk.payoutList;
+    out.pay[lang] = tk.payList;
+  }
+  return out;
+}
 import { whatsappDigits } from "@/lib/phone";
 import { headers } from "next/headers";
 import { acceptsJobs, getMarkets, marketForCity, marketForCountry, marketForPoint } from "@/lib/marketConfig";
@@ -53,6 +67,9 @@ export async function GET(req: Request) {
       // trade -> enabled (only meaningful when acceptingJobs)
       trades: market ? Object.fromEntries(Object.entries(market.trades).map(([t, v]) => [t, v.enabled])) : {},
       app,
+      // The country's own words, in every app language: ID document (CNIC / Iqama / Emirates ID ...), police or background
+      // document, how pros get paid out and how customers pay. The apps pick their language.
+      docs: countryWords(market?.countryCode ?? geoCountry),
     },
     { headers: { "Cache-Control": "private, max-age=60" } },
   );

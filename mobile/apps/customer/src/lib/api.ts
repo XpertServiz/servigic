@@ -193,6 +193,8 @@ export type MarketConfig = {
     supportWhatsapp: string | null;
     minTopUpPKR: number;
   };
+  // The country's words in every app language (ID document, police document, payout methods, payment methods).
+  docs?: Record<"id" | "police" | "payout" | "pay", Record<string, string>>;
 };
 
 export type GeoPoint = { lat: number; lng: number };
