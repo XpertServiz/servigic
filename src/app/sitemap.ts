@@ -38,6 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const pages = [
     ...STATIC_PAGES,
+    ...slugs.map((slug) => ({ path: `/services/${slug}`, priority: 0.85, changeFrequency: "weekly" as const })),
     ...slugs.flatMap((slug) => CITY_SLUGS.map((c) => ({ path: `/services/${slug}/${c.slug}`, priority: 0.8, changeFrequency: "weekly" as const }))),
   ];
 

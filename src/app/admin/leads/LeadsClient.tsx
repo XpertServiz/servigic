@@ -25,6 +25,8 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled, places }: { init
   // Every city that already has leads, for the table filter below.
   const leadCities = useMemo(() => [...new Set(initialLeads.map((l) => l.city))].sort(), [initialLeads]);
   const [fetching, setFetching] = useState(false);
+  // Why Google gave nothing (for example billing not enabled), shown under the button instead of a bare "0 results".
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<{ found: number; saved: number; skipped: number } | null>(null);
   const [aiResults, setAiResults] = useState<Record<string, AiResult>>({});
   const [aiPendingId, setAiPendingId] = useState<string | null>(null);
@@ -110,6 +112,7 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled, places }: { init
 
   async function fetchLeads() {
     setFetching(true);
+    setFetchError(null);
     try {
       const res = await fetch("/api/admin/leads/fetch", {
         method: "POST",
@@ -118,7 +121,8 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled, places }: { init
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error || "Failed to fetch leads");
+        setFetchError(data.error || "Failed to fetch leads");
+        toast.error("Google did not return any leads - see the message under the button", { duration: 8000 });
         return;
       }
       setLastResult(data);
@@ -244,6 +248,16 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled, places }: { init
         >
           {fetching ? "Fetching…" : "Fetch from Google Places"}
         </button>
+        {fetchError && (
+          <div className="w-full rounded-[10px] border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
+            <p className="font-semibold">{fetchError}</p>
+            {/billing|PERMISSION_DENIED|REQUEST_DENIED|not enabled|API key/i.test(fetchError) && (
+              <p className="mt-1 text-xs text-text-muted">
+                Fix: in Google Cloud Console open the project of this key, switch on <b>Billing</b>, enable <b>Places API (New)</b> (and Places API), and make sure the key is not restricted to other APIs. Then try again.
+              </p>
+            )}
+          </div>
+        )}
         {lastResult && (
           <span className="text-xs text-text-muted">
             Found {lastResult.found} · Saved {lastResult.saved} · Skipped {lastResult.skipped}

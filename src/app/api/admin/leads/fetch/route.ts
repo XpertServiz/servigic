@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { TRADES } from "@/lib/validation/provider";
-import { searchPlaces, getPlaceDetails } from "@/lib/googlePlaces";
+import { searchLeads, PlacesError } from "@/lib/googlePlaces";
 
 export const maxDuration = 60;
 
@@ -30,14 +30,17 @@ export async function POST(req: Request) {
   const { trade, country, city, area, searchTerm, seenPhones } = parsed.data;
 
   // e.g. "plumber in Aziziyah, Madinah, Saudi Arabia": an area narrows the search to that neighbourhood.
-  const places = await searchPlaces(`${searchTerm} in ${area ? `${area}, ` : ""}${city}, ${country}`);
-  const details = await Promise.all(places.map((p) => getPlaceDetails(p.place_id)));
+  let found;
+  try {
+    found = await searchLeads(`${searchTerm} in ${area ? `${area}, ` : ""}${city}, ${country}`);
+  } catch (e) {
+    // Google's own reason (for example "enable billing"), instead of a silent "0 results".
+    if (e instanceof PlacesError) return NextResponse.json({ error: e.message }, { status: 502 });
+    throw e;
+  }
 
   const seen = new Set(seenPhones.map((p) => p.replace(/\s+/g, "")));
-  const candidates = details
-    .filter((d) => d.formatted_phone_number && d.name)
-    .map((d) => ({ ...d, phone: d.formatted_phone_number!.replace(/\s+/g, "") }))
-    .filter((d) => !seen.has(d.phone));
+  const candidates = found.filter((d) => !seen.has(d.phone));
 
   const existing = await prisma.lead.findMany({
     where: { phone: { in: candidates.map((c) => c.phone) } },
@@ -48,20 +51,20 @@ export async function POST(req: Request) {
 
   const result = await prisma.lead.createMany({
     data: toCreate.map((c) => ({
-      businessName: c.name!,
+      businessName: c.name,
       phone: c.phone,
       trade,
       city,
       areaLabel: area || null,
       rating: c.rating,
       source: "GOOGLE_PLACES",
-      notes: c.formatted_address,
+      notes: c.address,
     })),
     skipDuplicates: true,
   });
 
   return NextResponse.json({
-    found: places.length,
+    found: found.length,
     saved: result.count,
     skipped: candidates.length - toCreate.length,
     fetchedPhones: candidates.map((c) => c.phone),

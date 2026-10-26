@@ -720,6 +720,14 @@
       }
     ]
   },
+  "categoryPage": {
+    "metaTitle": "{service} near you: book verified pros | Servigic",
+    "metaDescription": "Hire verified {service} professionals near you. Post your job free, compare offers from nearby pros, set your own price and pay the pro directly. Available in {cities}.",
+    "h1": "{service} services",
+    "sub": "Post your job in a minute, get offers from verified {service} pros near you and choose the one you like.",
+    "pickCity": "Choose your city",
+    "cta": "Post a job"
+  },
   "servicesPage": {
     "eyebrow": "Services",
     "title": "Home services in %%country%% — post once, pros bid.",
