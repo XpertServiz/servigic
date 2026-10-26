@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
   const profile = await prisma.providerProfile.update({
     where: { userId: auth.session.user.id },
-    data: { isOnline: parsed.data.isOnline },
+    data: { isOnline: parsed.data.isOnline, ...(parsed.data.isOnline ? {} : { liveLat: null, liveLng: null, liveAt: null }) },
   });
 
   return NextResponse.json({ isOnline: profile.isOnline });

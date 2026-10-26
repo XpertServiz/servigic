@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { isAvailable } from "@/lib/availability";
 import { notify } from "@/lib/notify";
-import { geohashNeighborhood, haversineKm } from "@/lib/geo";
+import { haversineKm } from "@/lib/geo";
 import { getMarkets, marketForCity, marketForPoint, acceptsJobs, tradeEnabled, type MarketSnapshot } from "@/lib/marketConfig";
 import type { Job } from "@prisma/client";
 import { alertEmailsLeft, recentEmailCounts, EMAIL_PER_PRO_PER_DAY } from "@/lib/emailBudget";
@@ -41,6 +41,14 @@ export function jobInActiveZone(markets: MarketSnapshot[], job: { lat: number; l
   return acceptsJobs(zone) && tradeEnabled(zone, trade);
 }
 
+/** A live position older than this is ignored (the app sends one every few minutes while the pro is online). */
+export const LIVE_LOCATION_MAX_AGE_MS = 3 * 60 * 60 * 1000;
+
+export function liveSpot(p: { liveLat?: number | null; liveLng?: number | null; liveAt?: Date | null }, now = Date.now()): { lat: number; lng: number } | null {
+  if (p.liveLat == null || p.liveLng == null || !p.liveAt) return null;
+  return now - p.liveAt.getTime() <= LIVE_LOCATION_MAX_AGE_MS ? { lat: p.liveLat, lng: p.liveLng } : null;
+}
+
 export type ServeVerdict = { ok: true } | { ok: false; code: "TRADE" | "NO_ZONE" | "OTHER_COUNTRY" | "OUT_OF_AREA"; message: string };
 
 /**
@@ -51,7 +59,7 @@ export type ServeVerdict = { ok: true } | { ok: false; code: "TRADE" | "NO_ZONE"
  */
 export function proServesJob(
   input: {
-    provider: { trades: string[]; baseLat: number | null; baseLng: number | null; serviceRadiusKm: number; visibilityBoostUntil: Date | null };
+    provider: { trades: string[]; baseLat: number | null; baseLng: number | null; serviceRadiusKm: number; visibilityBoostUntil: Date | null; liveLat?: number | null; liveLng?: number | null; liveAt?: Date | null };
     userCity: string | null | undefined;
     job: { lat: number; lng: number; city: string; extraRadiusKm: number };
     trade: string;
@@ -73,7 +81,10 @@ export function proServesJob(
     if ((jobCountry && proCountry && jobCountry !== proCountry) || km > 400) {
       return { ok: false, code: "OTHER_COUNTRY", message: "This job is in another country, outside the area where you work." };
     }
-    if (km > effectiveRadiusKm(provider, input.limits) + job.extraRadiusKm) return { ok: false, code: "OUT_OF_AREA", message: "This job is outside your service area." };
+    // A pro who is online counts from where he is now, if that is closer than his saved work location.
+    const here = liveSpot(provider);
+    const nearKm = here ? Math.min(km, haversineKm(job.lat, job.lng, here.lat, here.lng)) : km;
+    if (nearKm > effectiveRadiusKm(provider, input.limits) + job.extraRadiusKm) return { ok: false, code: "OUT_OF_AREA", message: "This job is outside your service area." };
     return { ok: true };
   }
   const proCountry = (input.userCity ? marketForCity(markets, input.userCity)?.countryCode : null) ?? null;
@@ -160,8 +171,14 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
   const timezone = marketForCity(markets, job.city)?.timezone ?? "Asia/Karachi";
   const alertedIds = new Set(alreadyAlerted.map((a) => a.providerId));
 
-  // A widened search reaches past the nearby geohash cells, so it filters by distance only.
-  const useGeohash = job.extraRadiusKm === 0 && !options.onlyProviderId;
+  // Only pros whose saved work location, or live position, is inside the largest radius this job can reach are loaded at
+  // all (a coarse box; the exact per-pro radius is checked below). The old 1.2 km geohash cells silently limited alerts
+  // to pros about 2 km away, whatever radius the pro had set.
+  const reachKm = limits.max + job.extraRadiusKm;
+  const dLat = reachKm / 111;
+  const dLng = reachKm / (111 * Math.max(0.2, Math.cos((job.lat * Math.PI) / 180)));
+  const box = (latKey: string, lngKey: string) => ({ [latKey]: { gte: job.lat - dLat, lte: job.lat + dLat }, [lngKey]: { gte: job.lng - dLng, lte: job.lng + dLng } });
+  const useBox = !options.onlyProviderId && reachKm < 400;
 
   const candidates = await prisma.providerProfile.findMany({
     where: {
@@ -174,7 +191,7 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
       trades: { has: category.trade },
       baseLat: { not: null },
       baseLng: { not: null },
-      ...(useGeohash ? { geohash: { in: geohashNeighborhood(job.geohash) } } : {}),
+      ...(useBox ? { OR: [box("baseLat", "baseLng"), { ...box("liveLat", "liveLng"), liveAt: { gte: new Date(Date.now() - LIVE_LOCATION_MAX_AGE_MS) } }] } : {}),
       ...(options.onlyProviderId ? { id: options.onlyProviderId } : {}),
     },
     include: { user: { select: { id: true, city: true, email: true } } },
@@ -188,10 +205,14 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
       // enforcement point; bid-creation also blocks them, see bids/route.ts).
       if (p.dispatchStatus === "SUSPENDED") return false;
       if (alertedIds.has(p.id) && options.onlyNew) return false;
-      const distanceKm = haversineKm(job.lat, job.lng, p.baseLat!, p.baseLng!);
-      return distanceKm <= effectiveRadiusKm(p, limits) + job.extraRadiusKm;
+      // The same rule as the job list, the job page and the bid button, so a pro who is alerted always sees the job.
+      return proServesJob({ provider: p, userCity: p.user.city, job, trade: category.trade, markets, limits }).ok;
     })
-    .map((p) => ({ p, distanceKm: haversineKm(job.lat, job.lng, p.baseLat!, p.baseLng!) }))
+    .map((p) => {
+      const here = liveSpot(p);
+      const pinKm = haversineKm(job.lat, job.lng, p.baseLat!, p.baseLng!);
+      return { p, distanceKm: here ? Math.min(pinKm, haversineKm(job.lat, job.lng, here.lat, here.lng)) : pinKm };
+    })
     // Nearest matching pros first (an offline pro gets the same push, so online status does not outrank distance).
     .sort((a, b) => a.distanceKm - b.distanceKm || Number(b.p.isOnline) - Number(a.p.isOnline))
     .slice(0, options.onlyProviderId ? 1 : job.urgency === "EMERGENCY" ? nearestN * 2 : nearestN)
@@ -274,7 +295,8 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
     ),
   );
 
-  return plan.length;
+  // Only pros whose alert was really sent: a muted pro (paused, quiet hours, outside working hours, daily cap) is not "notified".
+  return plan.filter((x) => x.pushSent).length;
 }
 
 // Live dispatch feed (Master Brief §7 provider panel): every currently-OPEN

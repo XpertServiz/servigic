@@ -29,7 +29,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   }
 
   const [notifiedCount, settings] = await Promise.all([
-    prisma.dispatchAlert.count({ where: { jobId: job.id } }),
+    prisma.dispatchAlert.count({ where: { jobId: job.id, pushSent: true } }),
     prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { noBidsAfterMin: true } }),
   ]);
 

@@ -1,4 +1,5 @@
 import { currencyCode, useCurrencyCode } from "../lib/currency";
+import { useLiveLocation } from "../lib/liveLocation";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Animated, Easing } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
@@ -71,6 +72,7 @@ export default function HomeScreen() {
   }, []);
 
   useFocusEffect(load);
+  useLiveLocation(Boolean(profile?.isOnline));
 
   useEffect(() => {
     (async () => {

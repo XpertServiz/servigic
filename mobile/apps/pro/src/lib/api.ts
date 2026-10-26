@@ -324,6 +324,11 @@ export function setOnline(isOnline: boolean) {
   return request<{ isOnline: boolean }>("/api/provider/online", { method: "POST", body: JSON.stringify({ isOnline }) });
 }
 
+/** Tells the server where the pro is now (only while he is online), so jobs near him reach him, not only jobs near his work pin. */
+export function reportLocation(lat: number, lng: number) {
+  return request<{ ok: boolean }>("/api/mobile/provider/location", { method: "POST", body: JSON.stringify({ lat, lng }) });
+}
+
 export type TradeRequest = {
   trade: string;
   status: "PENDING" | "APPROVED" | "REJECTED";

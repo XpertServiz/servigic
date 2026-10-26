@@ -20,6 +20,6 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   const widened = await prisma.job.update({ where: { id }, data: { extraRadiusKm: job.extraRadiusKm + STEP_KM } });
   const newlyNotified = await dispatchJob(widened, { onlyNew: true });
-  const notifiedCount = await prisma.dispatchAlert.count({ where: { jobId: id } });
+  const notifiedCount = await prisma.dispatchAlert.count({ where: { jobId: id, pushSent: true } });
   return NextResponse.json({ extraRadiusKm: widened.extraRadiusKm, newlyNotified, notifiedCount });
 }
