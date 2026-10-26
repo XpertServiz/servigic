@@ -13,7 +13,7 @@ const PAGE_SIZE = 50;
 
 type AiResult = { priorityScore: number; likelySoloOperator: boolean; outreachMessage: string };
 
-export function LeadsClient({ initialLeads, aiQualifierEnabled, places }: { initialLeads: Lead[]; aiQualifierEnabled: boolean; places: LeadPlaceCountry[] }) {
+export function LeadsClient({ initialLeads, aiQualifierEnabled, places, fetchPaused = false }: { initialLeads: Lead[]; aiQualifierEnabled: boolean; places: LeadPlaceCountry[]; fetchPaused?: boolean }) {
   const router = useRouter();
   const [trade, setTrade] = useState<(typeof TRADES)[number]>("PLUMBER");
   const [countryCode, setCountryCode] = useState(places.some((c) => c.code === "PK") ? "PK" : places[0]?.code ?? "");
@@ -243,10 +243,10 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled, places }: { init
         </datalist>
         <button
           onClick={fetchLeads}
-          disabled={fetching || !city.trim() || searchTerm.trim().length < 2}
+          disabled={fetching || fetchPaused || !city.trim() || searchTerm.trim().length < 2}
           className="rounded-[8px] bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground disabled:opacity-60"
         >
-          {fetching ? "Fetching…" : "Fetch from Google Places"}
+          {fetching ? "Fetching…" : fetchPaused ? "Paused until next month" : "Fetch from Google Places"}
         </button>
         {fetchError && (
           <div className="w-full rounded-[10px] border border-danger/40 bg-danger/10 p-3 text-sm text-danger">

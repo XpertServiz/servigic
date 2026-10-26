@@ -1223,6 +1223,14 @@ model ExchangeRate {
 // Deliberately does NOT duplicate an exchange rate here — currency is
 // shared across countries (DE/AT/CH all use EUR) so the rate stays owned
 // by ExchangeRate.currency, joined via this row's `currency` field.
+// How many requests this project has sent to Google Places in a calendar month (Pacific time, like Google's billing).
+// The Leads page stops at GOOGLE_PLACES_MONTHLY_LIMIT so the free allowance is never exceeded (see lib/placesUsage.ts).
+model PlacesUsage {
+  month     String   @id // "2026-10"
+  requests  Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
 model LocaleConfig {
   countryCode         String   @id // ISO 3166-1 alpha-2, e.g. "PK"
   countryName         String

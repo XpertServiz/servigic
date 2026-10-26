@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { TRADES } from "@/lib/validation/provider";
 import { searchLeads, PlacesError } from "@/lib/googlePlaces";
+import { PlacesLimitError, limitMessage, placesUsage } from "@/lib/placesUsage";
 
 export const maxDuration = 60;
 
@@ -29,12 +30,16 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   const { trade, country, city, area, searchTerm, seenPhones } = parsed.data;
 
+  const usage = await placesUsage();
+  if (usage.left <= 0) return NextResponse.json({ error: limitMessage(usage), code: "PLACES_LIMIT" }, { status: 429 });
+
   // e.g. "plumber in Aziziyah, Madinah, Saudi Arabia": an area narrows the search to that neighbourhood.
   let found;
   try {
     found = await searchLeads(`${searchTerm} in ${area ? `${area}, ` : ""}${city}, ${country}`);
   } catch (e) {
     // Google's own reason (for example "enable billing"), instead of a silent "0 results".
+    if (e instanceof PlacesLimitError) return NextResponse.json({ error: e.message, code: "PLACES_LIMIT" }, { status: 429 });
     if (e instanceof PlacesError) return NextResponse.json({ error: e.message }, { status: 502 });
     throw e;
   }

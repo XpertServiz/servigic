@@ -5,6 +5,8 @@
 // and fall back to the old one. Both need billing switched on for the Google Cloud project. When Google refuses, the reason
 // is passed on to the admin (PlacesError) - it used to be swallowed and shown as "0 results".
 
+import { PlacesLimitError, takePlacesRequest } from "@/lib/placesUsage";
+
 export class PlacesError extends Error {}
 
 export type PlaceLead = { name: string; phone: string; address: string | null; rating: number | null };
@@ -31,6 +33,7 @@ async function searchNew(query: string): Promise<PlaceLead[]> {
   const out: PlaceLead[] = [];
   let pageToken: string | undefined;
   for (let page = 0; page < MAX_PAGES; page++) {
+    await takePlacesRequest();
     const res = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
       headers: {
@@ -58,6 +61,7 @@ async function searchLegacy(query: string): Promise<PlaceLead[]> {
   const ids: string[] = [];
   let pageToken: string | undefined;
   for (let page = 0; page < MAX_PAGES; page++) {
+    await takePlacesRequest();
     const url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json");
     url.searchParams.set("query", query);
     url.searchParams.set("key", key());
@@ -70,7 +74,9 @@ async function searchLegacy(query: string): Promise<PlaceLead[]> {
     await sleep(2000); // Google requires a pause before the next page token works
   }
   const details = await Promise.all(
-    ids.map(async (id) => {
+    // The older API needs one details request per place: at most 20, and each one is counted.
+    ids.slice(0, 20).map(async (id) => {
+      await takePlacesRequest();
       const url = new URL("https://maps.googleapis.com/maps/api/place/details/json");
       url.searchParams.set("place_id", id);
       url.searchParams.set("fields", "name,formatted_address,international_phone_number,formatted_phone_number,rating");
@@ -90,9 +96,12 @@ export async function searchLeads(query: string): Promise<PlaceLead[]> {
   try {
     return await searchNew(query);
   } catch (newError) {
+    // The monthly stop is final: do not try the other API (it would only spend more of the allowance).
+    if (newError instanceof PlacesLimitError) throw newError;
     try {
       return await searchLegacy(query);
     } catch (legacyError) {
+      if (legacyError instanceof PlacesLimitError) throw legacyError;
       const a = newError instanceof Error ? newError.message : String(newError);
       const b = legacyError instanceof Error ? legacyError.message : String(legacyError);
       throw new PlacesError(`Google Places did not answer. New Places API: ${a} | Older Places API: ${b}`);
