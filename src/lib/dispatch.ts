@@ -4,6 +4,7 @@ import { notify } from "@/lib/notify";
 import { haversineKm } from "@/lib/geo";
 import { getMarkets, marketForCity, marketForPoint, acceptsJobs, tradeEnabled, type MarketSnapshot } from "@/lib/marketConfig";
 import type { Job } from "@prisma/client";
+import { hasLateCancelPenalty } from "@/lib/cancelFee";
 import { alertEmailsLeft, recentEmailCounts, EMAIL_PER_PRO_PER_DAY } from "@/lib/emailBudget";
 
 // Rewarded-ad perk (ProviderProfile.visibilityBoostUntil): while active, a
@@ -93,6 +94,24 @@ export function proServesJob(
     return { ok: false, code: "OTHER_COUNTRY", message: "This job is in another country, outside the area where you work." };
   }
   return { ok: true };
+}
+
+/** A pro whose current job has been under way this long counts as nearly finished (typical home-service visit). */
+const NEARLY_DONE_AFTER_MIN = 45;
+
+/** 0 = free or nearly done with his job, 1 = only just started one. Pros are alerted either way. */
+async function busyRanks(userIds: string[]): Promise<Map<string, number>> {
+  const rows = await prisma.booking.findMany({
+    where: { providerUserId: { in: userIds }, status: { in: ["ON_MY_WAY", "ARRIVED", "WORKING"] } },
+    select: { providerUserId: true, status: true, timeline: true },
+  });
+  const ranks = new Map<string, number>();
+  for (const r of rows) {
+    const startedAt = (r.timeline as Record<string, string> | null)?.WORKING;
+    const nearlyDone = r.status === "WORKING" && startedAt != null && Date.now() - new Date(startedAt).getTime() >= NEARLY_DONE_AFTER_MIN * 60000;
+    ranks.set(r.providerUserId, Math.max(ranks.get(r.providerUserId) ?? 0, nearlyDone ? 0 : 1));
+  }
+  return ranks;
 }
 
 /** A pro is never alerted more than this many times for the same job (handoff §11.5). */
@@ -197,6 +216,13 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
     include: { user: { select: { id: true, city: true, email: true } } },
   });
 
+  // A customer who keeps cancelling after the pro has left reaches half as many pros for a while (lib/cancelFee.ts).
+  const [asker, busyRank] = await Promise.all([
+    prisma.user.findUnique({ where: { id: job.customerId }, select: { lateCancelCount: true, lastLateCancelAt: true } }),
+    busyRanks(candidates.map((c) => c.user.id)),
+  ]);
+  const reachPenalty = asker ? hasLateCancelPenalty(asker) : false;
+
   const eligible = candidates
     .filter((p) => {
       if (p.user.city && p.user.city !== job.city) return false;
@@ -213,9 +239,11 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
       const pinKm = haversineKm(job.lat, job.lng, p.baseLat!, p.baseLng!);
       return { p, distanceKm: here ? Math.min(pinKm, haversineKm(job.lat, job.lng, here.lat, here.lng)) : pinKm };
     })
-    // Nearest matching pros first (an offline pro gets the same push, so online status does not outrank distance).
-    .sort((a, b) => a.distanceKm - b.distanceKm || Number(b.p.isOnline) - Number(a.p.isOnline))
-    .slice(0, options.onlyProviderId ? 1 : job.urgency === "EMERGENCY" ? nearestN * 2 : nearestN)
+    // Free pros and pros nearly done with their job first, then pros who have only just started one; nearest first within
+    // each group (an offline pro gets the same push, so online status does not outrank distance). Busy pros are alerted like
+    // everyone else: the same alert and ringtone, no "you are busy" notice.
+    .sort((a, b) => (busyRank.get(a.p.user.id) ?? 0) - (busyRank.get(b.p.user.id) ?? 0) || a.distanceKm - b.distanceKm || Number(b.p.isOnline) - Number(a.p.isOnline))
+    .slice(0, options.onlyProviderId ? 1 : Math.max(1, Math.floor((job.urgency === "EMERGENCY" ? nearestN * 2 : nearestN) * (reachPenalty ? 0.5 : 1))))
     .map((x) => x.p);
 
   if (eligible.length === 0) return 0;

@@ -5,12 +5,14 @@ import * as api from "../lib/api";
 import { Button, Field } from "../components/ui";
 import { colors, radius } from "../lib/theme";
 import { useT } from "../lib/i18n";
+import * as Location from "expo-location";
 
 // `code` is stored by the backend; `key` is the localized label.
 const REASONS = [
   { code: "PROVIDER_UNAVAILABLE", key: "cancel.unavailable" },
   { code: "PROVIDER_JOB_TOO_FAR", key: "cancel.tooFar" },
   { code: "PROVIDER_PRICE_DISPUTE", key: "cancel.priceDispute" },
+  { code: "PROVIDER_CUSTOMER_NOT_AVAILABLE", key: "cancel.customerAway" },
   { code: "OTHER", key: "cancel.other" },
 ] as const;
 
@@ -18,11 +20,14 @@ const REASONS = [
 export function CancelBookingSheet({
   visible,
   bookingId,
+  arrived = false,
   onClose,
   onCancelled,
 }: {
   visible: boolean;
   bookingId: string;
+  /** The pro is at the address: "customer not available" is offered, and his position is sent as proof. */
+  arrived?: boolean;
   onClose: () => void;
   onCancelled: () => void;
 }) {
@@ -36,7 +41,16 @@ export function CancelBookingSheet({
     if (!reasonCode) return;
     setBusy(true);
     try {
-      await api.cancelBooking(bookingId, reasonCode, note.trim() || undefined);
+      let position: { lat: number; lng: number } | undefined;
+      if (reasonCode === "PROVIDER_CUSTOMER_NOT_AVAILABLE") {
+        try {
+          const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+          position = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        } catch {
+          // The fee still applies; the time is recorded without a position.
+        }
+      }
+      await api.cancelBooking(bookingId, reasonCode, note.trim() || undefined, position);
       setReasonCode(null);
       setNote("");
       onCancelled();
@@ -58,7 +72,7 @@ export function CancelBookingSheet({
           <Text style={{ color: colors.textMuted, fontSize: 13, marginBottom: 16 }}>{t("cancel.proWarning")}</Text>
 
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-            {REASONS.map((r) => (
+            {REASONS.filter((r) => arrived || r.code !== "PROVIDER_CUSTOMER_NOT_AVAILABLE").map((r) => (
               <Pressable
                 key={r.code}
                 onPress={() => setReasonCode(r.code)}

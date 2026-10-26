@@ -71,6 +71,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       guide: await priceGuideFor(job.categoryId, job.city).catch(() => null),
     },
     myBid,
+    // On another job right now: the bid screen offers later arrival times and the customer sees he is finishing one first.
+    afterCurrentJob: Boolean(await prisma.booking.findFirst({ where: { providerUserId: auth.session.user.id, status: { in: ["ON_MY_WAY", "ARRIVED", "WORKING"] } }, select: { id: true } })),
     bookingId: booking?.id ?? null,
     verificationLevel: profile.verificationLevel,
   });

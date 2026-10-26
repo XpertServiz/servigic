@@ -465,10 +465,10 @@ export function openDispute(bookingId: string, reason: string) {
   });
 }
 
-export function cancelBooking(bookingId: string, reasonCode: string, reasonNote?: string) {
+export function cancelBooking(bookingId: string, reasonCode: string, reasonNote?: string, position?: { lat: number; lng: number }) {
   return request<{ ok: true }>(`/api/bookings/${bookingId}/cancel`, {
     method: "POST",
-    body: JSON.stringify({ reasonCode, reasonNote }),
+    body: JSON.stringify({ reasonCode, reasonNote, ...(position ?? {}) }),
   });
 }
 

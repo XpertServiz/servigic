@@ -40,6 +40,8 @@ const schema = z.object({
   minAndroidVersionCode: z.number().int().min(0).max(1000000).optional(),
   faceVerifyMode: z.enum(["off", "saudi", "all"]).optional(),
   faceMatchMinPct: z.number().int().min(10).max(95).optional(),
+  cancelFeeOnWayPct: z.number().int().min(0).max(50).optional(),
+  cancelFeeArrivedPct: z.number().int().min(0).max(50).optional(),
   storeUrlPro: z.string().trim().max(300).optional(),
   storeUrlCustomer: z.string().trim().max(300).optional(),
   minTopUpPKR: z.number().int().min(0).max(1000000).optional(),

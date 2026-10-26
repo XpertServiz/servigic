@@ -12,7 +12,7 @@ import { PROFILES } from "@/lib/countryProfile";
 // Have them reviewed by counsel in each country before launch, then bump VERSION whenever a word changes: every
 // acceptance stores the version, a fingerprint (hash) and a full copy of the text the person accepted.
 
-export const VERSION = "1.0 (23 October 2026)";
+export const VERSION = "1.1 (27 October 2026)"; // 1.1: face recognition, cancellation fee, one job at a time
 
 export type AgreementRole = "CUSTOMER" | "PROVIDER";
 export type DocumentKind = "CUSTOMER_TERMS" | "PRO_AGREEMENT";
@@ -165,6 +165,8 @@ function customerTerms(country: string): Omit<Agreement, "hash"> {
       "If a pro damages your property or appliances, causes injury, or something goes missing, the pro is responsible. Servigic is not, except where the law makes Servigic responsible or Servigic itself was at fault.",
       "Secure your valuables, take photos before and after the work, inspect the work before paying, and report any problem in the app within 48 hours.",
       "Servigic keeps the booking records and the pro's verified identity, and will share them with you, the police or a court as the law allows.",
+      "Pros are checked by face recognition each time they open the Servigic Pro app (a live selfie compared with the face on their ID). Servigic does not use face recognition on customers.",
+      "Cancelling is free until the Pro is on the way. After that, a cancellation fee applies, shown in the app before you confirm.",
       "Your mandatory rights under consumer law are not affected.",
     ],
     sections: [
@@ -202,6 +204,7 @@ function customerTerms(country: string): Omit<Agreement, "hash"> {
         paragraphs: [
           `Servigic checks the identity of each Pro (for example the Pro's ${idDocFor(country)}) and, for some trades or levels, other documents such as a ${policeDocFor(country)} or trade qualifications. The app shows which checks were done.`,
           "Verification reduces risk but is not a guarantee of a Pro's skill, honesty, future conduct, insurance or financial capacity.",
+          "Face recognition of Pros: each time a Pro opens the Servigic Pro app or signs in, and before he goes online or bids, he must pass a face check - a live selfie that software compares with the face on his ID document and his profile photo. This helps make sure that the person who comes to you is the Pro who was verified. It is a security aid, not a guarantee, and software can make mistakes. The Pro's face data is never shown to you; you see only his profile photo. Servigic does not collect or analyse your face.",
         ],
       },
       {
@@ -244,7 +247,8 @@ function customerTerms(country: string): Omit<Agreement, "hash"> {
       {
         title: "10. Cancellations",
         paragraphs: [
-          "You may cancel a request in the app. Any cancellation rule or fee will be shown before you confirm a booking and will be reasonable and lawful. A refund of money you paid directly to a Pro is a matter between you and the Pro, subject to the law.",
+          "You may cancel a request in the app. Cancelling a booking is free until the Pro is on the way. Once the Pro has left for your address, a cancellation fee applies: a percentage of the agreed price, higher once the Pro has arrived, that the app shows you before you confirm the cancellation. The fee compensates the Pro for the trip, and the same fee applies if the Pro arrives and nobody is at the address.",
+          "No fee applies if the Pro was late, asked you to cancel, or could not do the job. Until a cancellation fee is cleared with Servigic you cannot post new requests, and repeated late cancellations may reduce how many Pros see your requests. A refund of money you paid directly to a Pro is a matter between you and the Pro, subject to the law.",
         ],
       },
       {
@@ -252,6 +256,7 @@ function customerTerms(country: string): Omit<Agreement, "hash"> {
         paragraphs: [
           `We handle your personal data under our Privacy Policy and ${L.data}. We share your name, address and job details with the Pro you choose so the work can be done.`,
           "We keep booking records, messages, photos, bids, approvals and this acceptance record as evidence, for as long as is reasonably needed to deal with complaints, claims and the law.",
+          "We do not take, store or analyse your face. Photos and videos you add to a request are used only to describe the job to Pros and are deleted from our servers 24 hours after the job ends, unless a dispute is open.",
         ],
       },
       {
@@ -303,6 +308,8 @@ function proAgreement(country: string): Omit<Agreement, "hash"> {
       "Check and photograph the work area before starting, warn the customer about existing defects, and get approval for any extra work or price.",
       "Your documents must be genuine. Servigic may share your verified identity and records with the customer, the police or a court as the law allows.",
       "Customers pay you directly; you pay Servigic's fees as shown in the app.",
+      "Face recognition: every time you open the app or sign in, you take a live selfie that is compared with your ID photo and profile photo. You consent to this by accepting. The selfie itself is not saved.",
+      "Finish the job you are on before you head to the next one. If a customer cancels after you left, or nobody is there, a cancellation fee applies and your share is credited to your wallet once it is paid.",
     ],
     sections: [
       {
@@ -323,6 +330,8 @@ function proAgreement(country: string): Omit<Agreement, "hash"> {
         paragraphs: [
           "Only bid on or accept work that you are competent, qualified, licensed (where the law requires it) and equipped to do safely and lawfully. Electrical, gas, air-conditioning/refrigerant and structural work must only be done where you hold any authorisation the law requires.",
           "Once a booking is accepted, keep the appointment and the agreed scope, or tell the customer and Servigic promptly if you cannot.",
+          "You may bid on a new job while you are finishing another, and the customer will see that you are finishing one first, so give an arrival time you can keep. You must mark your current job done before you set off for the next one.",
+          "If a customer cancels after you have left, or you arrive and nobody is at the address, use the \"customer not available\" option in the app so that your trip is recorded (time and your phone's location). A cancellation fee then applies to the customer; once Servigic has collected it, your share (the fee less Servigic's usual commission) is credited to your wallet. No fee applies if you were late or asked the customer to cancel.",
         ],
       },
       {
@@ -344,6 +353,10 @@ function proAgreement(country: string): Omit<Agreement, "hash"> {
         paragraphs: [
           `You must give true and complete information and genuine documents, including your ${idDocFor(country)} and, where asked, a ${policeDocFor(country)}, trade certificates, licences and insurance documents, and keep them up to date. You authorise Servigic to verify them by lawful means.`,
           "Forged or borrowed documents, impersonation, or letting someone else use your account are serious breaches: Servigic may close your account immediately and report the matter to the authorities.",
+          `Face recognition. To make sure the person who works is the person who registered, the Servigic Pro app asks you for a live selfie every time you open the app or sign in, and before you go online or bid. Software compares the selfie with the face on your ${idDocFor(country)} and with your Servigic profile photo.`,
+          `Your consent. A face is biometric personal data. By accepting this Agreement and using the Pro app you give Servigic your free, specific and informed consent to collect and process your face image for this purpose only: confirming your identity, preventing the misuse of accounts and keeping customers safe. The check is a condition of working through Servigic. You may withdraw your consent at any time by writing to ${OPERATOR.email}; your account is then paused because it cannot be verified, and your other rights stay.`,
+          `What we keep. The live selfie is checked in memory and is not saved. We keep a numeric face template made from your ID photo and profile photo (not the photo itself), and the time, result and match score of each check, for as long as your account is active and for 12 months after it is closed, and then delete them. We do not sell or rent your face data and do not show it to customers or advertisers. We share it only with service providers who process it for us under confidentiality, or where the law or a court requires it. This is done under ${L.data}.`,
+          "A fair review. The software can make mistakes (poor light, a cap, glasses, a new haircut). A failed check alone never ends your account: after three failed tries a person at Servigic looks at your case and can approve you. Never let anyone else take the selfie for you: that is impersonation and a serious breach. You may ask for access to, correction or deletion of your data as the law allows, by writing to the contact address in this Agreement.",
         ],
       },
       {

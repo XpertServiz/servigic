@@ -500,4 +500,11 @@ export const pl: Partial<Record<TKey, string>> = {
   "face.verifiedLine": "Twoja tożsamość jest potwierdzona",
   "brand.realPeople": "Prawdziwi ludzie. Prawdziwa usługa.",
   "brand.verifiedPros": "Zweryfikowani fachowcy. Twoje zaufanie.",
+  "cancel.proLate": "Fachowiec się spóźnił",
+  "cancel.feeWarnOnWay": "Fachowiec już jedzie. Jeśli anulujesz teraz, obowiązuje opłata za anulowanie: {amount}.",
+  "cancel.feeWarnArrived": "Fachowiec już dotarł. Jeśli anulujesz teraz, obowiązuje opłata za anulowanie: {amount}.",
+  "cancel.customerAway": "Klient nieobecny pod adresem",
+  "bids.finishingOther": "Najpierw kończy inne zlecenie",
+  "bid.etaAfterJob": "Kiedy możesz dojechać? (kończysz inne zlecenie)",
+  "face.consent": "Kontynuując, zgadzasz się na warunki rozpoznawania twarzy z Umowy Pro. Selfie jest porównywane ze zdjęciem z dokumentu i nie jest zapisywane.",
 };

@@ -83,10 +83,13 @@ export async function POST(req: Request) {
 
   const safeMessage = message ? scrubContactInfo(message) : undefined;
 
+  // Is the pro on another job right now? The customer then sees that he is finishing one before he arrives.
+  const busy = Boolean(await prisma.booking.findFirst({ where: { providerUserId: auth.session.user.id, status: { in: ["ON_MY_WAY", "ARRIVED", "WORKING"] } }, select: { id: true } }));
+
   const alreadyBid = await prisma.bid.findUnique({ where: { jobId_providerId: { jobId, providerId: profile.id } }, select: { id: true } });
   const bid = await prisma.bid.upsert({
     where: { jobId_providerId: { jobId, providerId: profile.id } },
-    update: { pricePKR, etaMinutes, message: safeMessage, estimatedPartsNote, status: "PENDING" },
+    update: { pricePKR, etaMinutes, message: safeMessage, estimatedPartsNote, status: "PENDING", afterCurrentJob: busy },
     create: {
       jobId,
       providerId: profile.id,
@@ -95,6 +98,7 @@ export async function POST(req: Request) {
       etaMinutes,
       message: safeMessage,
       estimatedPartsNote,
+      afterCurrentJob: busy,
     },
   });
 

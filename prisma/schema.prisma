@@ -169,6 +169,7 @@ enum LedgerEntryType {
   ADJUSTMENT
   REFERRAL_BONUS
   DISCOUNT_CREDIT // Servigic-funded customer discount paid into the pro wallet
+  CANCEL_FEE_CREDIT // the pro's share of a cancellation fee paid by the customer
 }
 
 enum TopUpStatus {
@@ -190,6 +191,8 @@ enum CancellationReasonCode {
   // Special chip — customer-side only; excluded from the customer's own
   // rate and auto-flags the pro for admin review (v7 §2.3).
   CUSTOMER_PRO_ASKED_TO_CANCEL
+  CUSTOMER_PRO_LATE // the pro was late: no fee for the customer
+  PROVIDER_CUSTOMER_NOT_AVAILABLE // the pro arrived and the customer was not there: the customer pays the fee
   PROVIDER_UNAVAILABLE
   PROVIDER_JOB_TOO_FAR
   PROVIDER_PRICE_DISPUTE
@@ -322,6 +325,10 @@ model User {
   // The same phone number may hold one customer and one pro account (same person, two roles).
   @@unique([phone, role])
   @@unique([email, role])
+  // Late cancellations (after the pro left) and the fee still owed; see lib/cancelFee.ts
+  cancelFeeOwedPKR  Int       @default(0)
+  lateCancelCount   Int       @default(0)
+  lastLateCancelAt  DateTime?
 }
 
 model OtpCode {
@@ -351,7 +358,7 @@ model ProviderProfile {
   serialNumber        Int           @unique @default(autoincrement())
   trades              Trade[]       @default([])
   skillsNote          String?
-  serviceRadiusKm     Int           @default(15)
+  serviceRadiusKm     Int           @default(10)
   baseLat             Float?
   baseLng             Float?
   geohash             String?
@@ -633,6 +640,8 @@ model Bid {
   user            User            @relation(fields: [userId], references: [id])
   pricePKR        Int
   etaMinutes      Int
+  // The pro was finishing another job when he bid (the customer sees it next to the arrival time).
+  afterCurrentJob Boolean         @default(false)
   message         String?
   itemized        Json?
   // Display-only, informational estimate of parts/materials cost — never
@@ -680,6 +689,10 @@ model Booking {
   // bookings go straight to CONFIRMED and never set this.
   paymentDeadline DateTime?
   timeline        Json            @default("{}")
+  // Cancellation after the pro has left: the fee the customer owes (see lib/cancelFee.ts), and the pro's proof (time + GPS)
+  cancelFeePKR    Int             @default(0)
+  cancelFeeStatus String? // OWED | PAID | WAIVED
+  cancelProof     Json?
   // Optional "photo of finished work" from the pro (max 2 MB), deleted with the job's media 24 h after the job ends.
   completionPhotoUrl String?
   createdAt       DateTime        @default(now())
@@ -1134,7 +1147,7 @@ model SiteSettings {
   // Pro service radius slider limits (km) and the cap on trades per pro.
   proRadiusMinKm            Int     @default(2)
   proRadiusMaxKm            Int     @default(30)
-  proRadiusDefaultKm        Int     @default(5)
+  proRadiusDefaultKm        Int     @default(10)
   maxTradesPerPro           Int     @default(3)
   // Where pros send money to top up their wallet (shown inside the Pro app's top-up sheet). Empty = fall back to the
   // NEXT_PUBLIC_* payment numbers in the environment; placeholder values like 0000 are never shown.
@@ -1152,6 +1165,9 @@ model SiteSettings {
   announcementAudience      String  @default("ALL") // ALL | CUSTOMER | PROVIDER
   // Face check for pros: off | saudi (Saudi Arabia only) | all. Match score (0-100) needed to pass; 50 = the standard same-person cutoff.
   faceVerifyMode            String  @default("all")
+  // Fee when a customer cancels after the pro has left (% of the price) - free before; more once the pro has arrived.
+  cancelFeeOnWayPct         Int     @default(10)
+  cancelFeeArrivedPct       Int     @default(15)
   faceMatchMinPct           Int     @default(50)
   minAndroidVersionCode     Int     @default(0)     // apps older than this show "please update" (0 = off)
   storeUrlPro               String?

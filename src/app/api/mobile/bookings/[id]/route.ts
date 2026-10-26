@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/requireRole";
 import { getTimelineDurationMinutes } from "@/lib/jobDuration";
 import { getPaymentMode } from "@/lib/featureFlags";
 import { computeRevealStage } from "@/lib/reveal";
+import { cancelFeeRates, feeFor } from "@/lib/cancelFee";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole("CUSTOMER", "PROVIDER");
@@ -54,6 +55,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       // in-progress timer and ETA on the redesigned screens.
       timeline: booking.timeline,
       completionPhotoUrl: booking.completionPhotoUrl,
+      // What cancelling right now would cost the customer (0 until the pro is on the way), shown in the cancel window.
+      cancelFeeIfCancelledPKR: isCustomer ? feeFor(booking.status, booking.totalPKR, await cancelFeeRates()) : 0,
+      cancelFeePKR: booking.cancelFeePKR,
       jobsCompleted: booking.providerProfile.jobsCompleted,
       jobTitle: booking.job.title,
       categoryIcon: booking.job.category.icon,

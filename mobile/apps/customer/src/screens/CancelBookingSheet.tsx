@@ -5,6 +5,7 @@ import * as api from "../lib/api";
 import { Button, Field } from "../components/ui";
 import { colors, radius } from "../lib/theme";
 import { useT } from "../lib/i18n";
+import { currencyCode, useCurrencyCode } from "../lib/currency";
 
 // `code` is stored by the backend; `key` is the localized label.
 const REASONS = [
@@ -12,6 +13,7 @@ const REASONS = [
   { code: "CUSTOMER_FOUND_ANOTHER_PRO", key: "cancel.foundAnother" },
   { code: "CUSTOMER_PRICE_TOO_HIGH", key: "cancel.priceTooHigh" },
   { code: "CUSTOMER_PRO_ASKED_TO_CANCEL", key: "cancel.proAskedCancel" },
+  { code: "CUSTOMER_PRO_LATE", key: "cancel.proLate" },
   { code: "OTHER", key: "cancel.other" },
 ] as const;
 
@@ -19,11 +21,16 @@ const REASONS = [
 export function CancelBookingSheet({
   visible,
   bookingId,
+  feePKR = 0,
+  proArrived = false,
   onClose,
   onCancelled,
 }: {
   visible: boolean;
   bookingId: string;
+  /** What cancelling now would cost (0 = free). From the booking, so it follows the Admin setting. */
+  feePKR?: number;
+  proArrived?: boolean;
   onClose: () => void;
   onCancelled: () => void;
 }) {
@@ -32,6 +39,7 @@ export function CancelBookingSheet({
   const [reasonCode, setReasonCode] = useState<(typeof REASONS)[number]["code"] | null>(null);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
+  useCurrencyCode();
 
   async function submit() {
     if (!reasonCode) return;
@@ -55,6 +63,13 @@ export function CancelBookingSheet({
           contentContainerStyle={{ padding: 20, paddingBottom: 20 + insets.bottom }}
           keyboardShouldPersistTaps="handled"
         >
+          {feePKR > 0 && reasonCode !== "CUSTOMER_PRO_ASKED_TO_CANCEL" && reasonCode !== "CUSTOMER_PRO_LATE" && (
+            <View style={{ backgroundColor: colors.dangerTint, borderWidth: 1, borderColor: colors.danger, borderRadius: 12, padding: 12, marginBottom: 12 }}>
+              <Text style={{ color: colors.dangerSoft, fontWeight: "700", fontSize: 13 }}>
+                {t(proArrived ? "cancel.feeWarnArrived" : "cancel.feeWarnOnWay", { amount: `${currencyCode()} ${feePKR.toLocaleString()}` })}
+              </Text>
+            </View>
+          )}
           <Text style={{ color: colors.dangerSoft, fontSize: 18, fontWeight: "800", marginBottom: 4 }}>{t("cancel.title")}</Text>
           <Text style={{ color: colors.textMuted, fontSize: 13, marginBottom: 16 }}>{t("cancel.customerWarning")}</Text>
 

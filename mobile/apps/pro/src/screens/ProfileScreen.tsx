@@ -116,7 +116,7 @@ export default function ProfileScreen() {
         const pending = (requests ?? []).filter((r) => r.status === "PENDING").map((r) => r.trade);
         setTrades(Array.from(new Set([...((p.trades as string[]) ?? []), ...pending])));
         setTradeRequests(requests ?? []);
-        setRadiusKm(String(p.serviceRadiusKm ?? 5));
+        setRadiusKm(String(p.serviceRadiusKm ?? 10));
         if (p.baseLat && p.baseLng) setCoords({ lat: p.baseLat as number, lng: p.baseLng as number });
         else defaultCenter((user as { city?: string | null } | null)?.city).then(setCoords);
         setCnicUrl((p.cnicUrl as string) ?? "");
@@ -133,7 +133,7 @@ export default function ProfileScreen() {
   const maxTrades = status?.limits.maxTrades ?? 3;
   const radiusMin = status?.limits.radiusMinKm ?? 2;
   const radiusMax = status?.limits.radiusMaxKm ?? 15;
-  const radiusValue = Math.min(radiusMax, Math.max(radiusMin, Number(radiusKm) || status?.limits.radiusDefaultKm || 5));
+  const radiusValue = Math.min(radiusMax, Math.max(radiusMin, Number(radiusKm) || status?.limits.radiusDefaultKm || 10));
   const requestOf = (trade: string) => tradeRequests.find((r) => r.trade === trade);
 
   function toggleTrade(trade: string) {

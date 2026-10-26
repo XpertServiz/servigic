@@ -106,6 +106,7 @@ export function FaceGate() {
                 {left != null && left < 3 && <Text style={styles.warn}>{t("face.tries", { n: left })}</Text>}
                 <GradientButton title={"📷  " + t("face.take")} onPress={() => setStep("camera")} style={{ alignSelf: "stretch" }} />
                 <Text style={styles.tip}>{t("face.tip")}</Text>
+                <Text style={[styles.tip, { marginTop: 8, fontSize: 11.5 }]}>{t("face.consent")}</Text>
               </>
             )}
 

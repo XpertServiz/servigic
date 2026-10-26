@@ -668,4 +668,11 @@ export const fr: Partial<Record<TKey, string>> = {
   "face.verifiedLine": "Votre identité est vérifiée",
   "brand.realPeople": "De vraies personnes. Un vrai service.",
   "brand.verifiedPros": "Des professionnels vérifiés. Votre confiance.",
+  "cancel.proLate": "Le pro était en retard",
+  "cancel.feeWarnOnWay": "Le pro est déjà en route. Si vous annulez maintenant, des frais d'annulation de {amount} s'appliquent.",
+  "cancel.feeWarnArrived": "Le pro est déjà arrivé. Si vous annulez maintenant, des frais d'annulation de {amount} s'appliquent.",
+  "cancel.customerAway": "Client absent à l'adresse",
+  "bids.finishingOther": "Termine d'abord une autre mission",
+  "bid.etaAfterJob": "Quand pouvez-vous arriver ? (vous terminez une autre mission)",
+  "face.consent": "En continuant, vous acceptez les conditions de reconnaissance faciale du contrat Pro. Votre selfie est comparé à votre photo d'identité et n'est pas conservé.",
 };

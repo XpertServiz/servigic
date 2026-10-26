@@ -20,6 +20,8 @@ interface BidView {
   proLabel: string;
   pricePKR: number;
   etaMinutes: number;
+  /** The pro is finishing another job and will come after it. */
+  afterCurrentJob?: boolean;
   message: string | null;
   estimatedPartsNote: string | null;
   status: string;
@@ -196,6 +198,7 @@ export default function JobDetailScreen({ route, navigation }: Props) {
           <Text style={{ color: colors.textMuted, marginTop: 2, fontSize: 12 }}>
             {bid.ratingCount > 0 ? `${bid.ratingAvg.toFixed(1)}★` : t("bids.new")} · {bid.distanceBand} · {t("bids.eta", { n: bid.etaMinutes })}
           </Text>
+          {bid.afterCurrentJob && <Text style={{ color: colors.accent, marginTop: 4, fontSize: 12, fontWeight: "700" }}>⏳ {t("bids.finishingOther")}</Text>}
           {bid.estimatedPartsNote && (
             <Text style={{ color: colors.textMuted, marginTop: 6, fontSize: 12, lineHeight: 17 }}>🔧 {t("bids.partsEstimate", { note: bid.estimatedPartsNote })}</Text>
           )}

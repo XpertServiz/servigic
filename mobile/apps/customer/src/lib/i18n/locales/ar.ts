@@ -703,4 +703,11 @@ export const ar: Partial<Record<TKey, string>> = {
   "face.verifiedLine": "تم التحقق من هويتك",
   "brand.realPeople": "أشخاص حقيقيون. خدمة حقيقية.",
   "brand.verifiedPros": "محترفون موثّقون. محل ثقتك.",
+  "cancel.proLate": "تأخر المحترف",
+  "cancel.feeWarnOnWay": "المحترف في الطريق بالفعل. إذا ألغيت الآن تُطبَّق رسوم إلغاء قدرها {amount}.",
+  "cancel.feeWarnArrived": "وصل المحترف بالفعل. إذا ألغيت الآن تُطبَّق رسوم إلغاء قدرها {amount}.",
+  "cancel.customerAway": "العميل غير موجود في العنوان",
+  "bids.finishingOther": "ينهي عملاً آخر أولاً",
+  "bid.etaAfterJob": "متى يمكنك الوصول؟ (تُنهي عملاً آخر)",
+  "face.consent": "بالمتابعة توافق على شروط التعرف على الوجه في اتفاقية المحترف. تُقارَن صورتك بصورة هويتك ولا تُحفظ.",
 };

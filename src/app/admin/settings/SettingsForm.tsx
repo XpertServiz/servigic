@@ -52,6 +52,8 @@ export function SettingsForm({
     minAndroidVersionCode: number;
     faceVerifyMode: string;
     faceMatchMinPct: number;
+    cancelFeeOnWayPct: number;
+    cancelFeeArrivedPct: number;
     storeUrlPro: string;
     storeUrlCustomer: string;
     minTopUpPKR: number;
@@ -257,6 +259,24 @@ export function SettingsForm({
             <option value="PROVIDER">Pros only</option>
             <option value="CUSTOMER">Customers only</option>
           </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Customer cancellation fee</label>
+        <p className="mb-2 text-xs text-text-muted">Cancelling is free until the pro is on the way. After that the customer owes a share of the price (not when the pro was late or asked him to cancel). He cannot post a new request until you clear it in Admin &gt; Cancellation fees.</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              ["cancelFeeOnWayPct", "Pro is on the way (%)"],
+              ["cancelFeeArrivedPct", "Pro has arrived (%)"],
+            ] as const
+          ).map(([key, label]) => (
+            <div key={key}>
+              <label className="mb-1 block text-xs font-semibold text-text-muted">{label}</label>
+              <input type="number" min={0} max={50} value={form[key]} onChange={(e) => setForm({ ...form, [key]: Number(e.target.value) })} className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent" />
+            </div>
+          ))}
         </div>
       </div>
 

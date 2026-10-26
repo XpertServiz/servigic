@@ -811,6 +811,13 @@ export const en = {
   "face.verifiedLine": "Your identity is verified",
   "brand.realPeople": "Real People. Real Service.",
   "brand.verifiedPros": "Verified professionals. Trusted by you.",
+  "cancel.proLate": "The pro was late",
+  "cancel.feeWarnOnWay": "The pro is already on the way. If you cancel now, a cancellation fee of {amount} applies.",
+  "cancel.feeWarnArrived": "The pro has already arrived. If you cancel now, a cancellation fee of {amount} applies.",
+  "cancel.customerAway": "Customer not available at the address",
+  "bids.finishingOther": "Finishing another job first",
+  "bid.etaAfterJob": "When can you arrive? (you are finishing another job)",
+  "face.consent": "By continuing you agree to the face recognition terms in the Pro Agreement. Your selfie is compared with your ID photo and is not saved.",
 } as const;
 
 export type TKey = keyof typeof en;

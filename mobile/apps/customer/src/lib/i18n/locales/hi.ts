@@ -502,4 +502,11 @@ export const hi: Partial<Record<TKey, string>> = {
   "face.verifiedLine": "आपकी पहचान सत्यापित है",
   "brand.realPeople": "असली लोग। असली सेवा।",
   "brand.verifiedPros": "सत्यापित पेशेवर। आपका भरोसा।",
+  "cancel.proLate": "प्रो देर से आया",
+  "cancel.feeWarnOnWay": "प्रो पहले ही रास्ते में है। अभी रद्द करने पर {amount} का रद्दीकरण शुल्क लगेगा।",
+  "cancel.feeWarnArrived": "प्रो पहुँच चुका है। अभी रद्द करने पर {amount} का रद्दीकरण शुल्क लगेगा।",
+  "cancel.customerAway": "ग्राहक पते पर नहीं है",
+  "bids.finishingOther": "पहले दूसरा काम पूरा कर रहा है",
+  "bid.etaAfterJob": "आप कब पहुँच सकते हैं? (आप दूसरा काम पूरा कर रहे हैं)",
+  "face.consent": "जारी रखकर आप प्रो अनुबंध में चेहरा पहचान की शर्तों से सहमत होते हैं। आपकी सेल्फ़ी आईडी फ़ोटो से मिलाई जाती है और सहेजी नहीं जाती।",
 };

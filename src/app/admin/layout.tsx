@@ -7,6 +7,7 @@ const NAV = [
   { href: "/admin/providers", label: "Providers" },
   { href: "/admin/jobs", label: "Jobs" },
   { href: "/admin/payments", label: "Payments" },
+  { href: "/admin/cancel-fees", label: "Cancellation fees" },
   { href: "/admin/payouts", label: "Payouts" },
   { href: "/admin/wallets", label: "Pro Wallets" },
   { href: "/admin/topups", label: "Top-ups" },

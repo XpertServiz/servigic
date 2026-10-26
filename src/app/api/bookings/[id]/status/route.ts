@@ -37,6 +37,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: `Cannot move from ${booking.status} to ${parsed.data.status}` }, { status: 400 });
   }
 
+  // No double-booking: a pro finishes the job he is on (marks it done) before heading to the next one.
+  if (parsed.data.status === "ON_MY_WAY") {
+    const other = await prisma.booking.findFirst({
+      where: { providerUserId: auth.session.user.id, id: { not: id }, status: { in: ["ON_MY_WAY", "ARRIVED", "WORKING"] } },
+      select: { id: true },
+    });
+    if (other) return NextResponse.json({ error: "Finish your current job first (mark it done), then head to the next one.", code: "FINISH_CURRENT_JOB" }, { status: 409 });
+  }
+
   const updated = await prisma.booking.update({
     where: { id },
     data: {

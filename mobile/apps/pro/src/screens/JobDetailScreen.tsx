@@ -17,6 +17,8 @@ type Props = NativeStackScreenProps<JobsStackParamList, "JobDetail">;
 
 const ETA_MINUTES = [30, 60, 120];
 const EMERGENCY_ETA_MINUTES = [15, 30, 45, 60];
+// A pro who is finishing another job: longer arrival choices (the customer sees he is finishing one first).
+const BUSY_ETA_MINUTES = [30, 60, 120, 180];
 
 // Step of the price buttons: about 5% of the customer's offer (or the suggested price), in a round number.
 function stepFor(base: number) {
@@ -39,6 +41,7 @@ export default function JobDetailScreen({ route, navigation }: Props) {
   const [winHint, setWinHint] = useState<{ winProbability: number; isHeuristic: boolean } | null>(null);
   const [online, setOnlineState] = useState(true);
   const [goingOnline, setGoingOnline] = useState(false);
+  const [finishingJob, setFinishingJob] = useState(false);
 
   const load = useCallback(() => {
     // Opened from an alert while offline? Offer a one-tap "Go online and bid".
@@ -56,6 +59,7 @@ export default function JobDetailScreen({ route, navigation }: Props) {
         return;
       }
       setJob(data.job);
+      setFinishingJob(Boolean((data as { afterCurrentJob?: boolean }).afterCurrentJob));
       setMyBid(data.myBid);
       setVerificationLevel(data.verificationLevel);
       if (!data.myBid) {
@@ -255,9 +259,9 @@ export default function JobDetailScreen({ route, navigation }: Props) {
             </Text>
           )}
 
-          <Text style={[styles.label, { marginTop: 18 }]}>{t("bid.eta")}</Text>
+          <Text style={[styles.label, { marginTop: 18 }]}>{finishingJob ? t("bid.etaAfterJob") : t("bid.eta")}</Text>
           <View style={{ flexDirection: "row", gap: 8, marginBottom: 4 }}>
-            {(job.urgency === "EMERGENCY" ? EMERGENCY_ETA_MINUTES : ETA_MINUTES).map((m) => (
+            {(job.urgency === "EMERGENCY" ? EMERGENCY_ETA_MINUTES : finishingJob ? BUSY_ETA_MINUTES : ETA_MINUTES).map((m) => (
               <Chip
                 key={m}
                 label={m < 60 ? t("time.minutesShort", { n: m }) : t("time.hoursShort", { n: m / 60 })}

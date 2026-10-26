@@ -703,4 +703,11 @@ export const ur: Partial<Record<TKey, string>> = {
   "face.verifiedLine": "آپ کی شناخت کی تصدیق ہو چکی ہے",
   "brand.realPeople": "اصل لوگ۔ اصل خدمت۔",
   "brand.verifiedPros": "تصدیق شدہ پیشہ ور۔ آپ کا بھروسہ۔",
+  "cancel.proLate": "پرو دیر سے آیا",
+  "cancel.feeWarnOnWay": "پرو پہلے ہی راستے میں ہے۔ اگر آپ ابھی منسوخ کریں گے تو {amount} منسوخی فیس لگے گی۔",
+  "cancel.feeWarnArrived": "پرو پہنچ چکا ہے۔ اگر آپ ابھی منسوخ کریں گے تو {amount} منسوخی فیس لگے گی۔",
+  "cancel.customerAway": "کسٹمر پتے پر موجود نہیں",
+  "bids.finishingOther": "پہلے دوسرا کام ختم کر رہا ہے",
+  "bid.etaAfterJob": "آپ کب پہنچ سکتے ہیں؟ (آپ دوسرا کام ختم کر رہے ہیں)",
+  "face.consent": "جاری رکھ کر آپ پرو معاہدے میں چہرہ شناسی کی شرائط سے اتفاق کرتے ہیں۔ آپ کی سیلفی شناختی تصویر سے ملائی جاتی ہے اور محفوظ نہیں کی جاتی۔",
 };

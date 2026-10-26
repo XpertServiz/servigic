@@ -22,6 +22,13 @@ function normalizeAddress(address: string) {
 export async function POST(req: Request) {
   const auth = await requireRole("CUSTOMER");
   if (!auth.ok) return auth.response;
+  const owing = await prisma.user.findUnique({ where: { id: auth.session.user.id }, select: { cancelFeeOwedPKR: true } });
+  if (owing && owing.cancelFeeOwedPKR > 0) {
+    return NextResponse.json(
+      { error: `You have an unpaid cancellation fee of ${owing.cancelFeeOwedPKR.toLocaleString()} from an earlier booking. Please clear it with Servigic support (WhatsApp) to post a new request.`, code: "CANCEL_FEE_OWED", amount: owing.cancelFeeOwedPKR },
+      { status: 403 },
+    );
+  }
 
   const body = await req.json();
   const parsed = createJobSchema.safeParse(body);

@@ -38,6 +38,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     proLabel: proSerial(bid.provider.serialNumber),
     pricePKR: bid.pricePKR,
     etaMinutes: bid.etaMinutes,
+    afterCurrentJob: bid.afterCurrentJob,
     message: bid.message,
     estimatedPartsNote: bid.estimatedPartsNote,
     status: bid.status,

@@ -47,6 +47,8 @@ export default async function AdminSettingsPage() {
           minAndroidVersionCode: settings?.minAndroidVersionCode ?? 0,
           faceVerifyMode: settings?.faceVerifyMode ?? "all",
           faceMatchMinPct: settings?.faceMatchMinPct ?? 50,
+          cancelFeeOnWayPct: settings?.cancelFeeOnWayPct ?? 10,
+          cancelFeeArrivedPct: settings?.cancelFeeArrivedPct ?? 15,
           storeUrlPro: settings?.storeUrlPro ?? "",
           storeUrlCustomer: settings?.storeUrlCustomer ?? "",
           minTopUpPKR: settings?.minTopUpPKR ?? 500,

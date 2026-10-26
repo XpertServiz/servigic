@@ -484,7 +484,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
           {body}
         </DraggableSheet>
         <ConfettiBurst trigger={confettiTrigger} />
-        <CancelBookingSheet visible={cancelSheetOpen} bookingId={bookingId} onClose={() => setCancelSheetOpen(false)} onCancelled={load} />
+        <CancelBookingSheet visible={cancelSheetOpen} bookingId={bookingId} feePKR={Number(booking?.cancelFeeIfCancelledPKR ?? 0)} proArrived={status === "ARRIVED"} onClose={() => setCancelSheetOpen(false)} onCancelled={load} />
       </View>
     );
   }
@@ -502,7 +502,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
         {body}
       </ScrollView>
       <ConfettiBurst trigger={confettiTrigger} />
-      <CancelBookingSheet visible={cancelSheetOpen} bookingId={bookingId} onClose={() => setCancelSheetOpen(false)} onCancelled={load} />
+      <CancelBookingSheet visible={cancelSheetOpen} bookingId={bookingId} feePKR={Number(booking?.cancelFeeIfCancelledPKR ?? 0)} proArrived={status === "ARRIVED"} onClose={() => setCancelSheetOpen(false)} onCancelled={load} />
     </View>
   );
 }

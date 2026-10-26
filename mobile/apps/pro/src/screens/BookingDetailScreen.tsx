@@ -259,7 +259,7 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
   return (
     <>
       {body}
-      <CancelBookingSheet visible={cancelSheetOpen} bookingId={bookingId} onClose={() => setCancelSheetOpen(false)} onCancelled={load} />
+      <CancelBookingSheet visible={cancelSheetOpen} bookingId={bookingId} arrived={status === "ARRIVED"} onClose={() => setCancelSheetOpen(false)} onCancelled={load} />
     </>
   );
 }
