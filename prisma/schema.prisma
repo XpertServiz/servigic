@@ -360,6 +360,14 @@ model ProviderProfile {
   liveLat             Float?
   liveLng             Float?
   liveAt              DateTime?
+  // Face check every time the app is opened (see lib/faceCheck.ts). faceRef caches the face of the ID card photo and the
+  // profile photo (faceRefKey says which photos it was made from); the live selfie itself is never stored.
+  faceRef             Json?
+  faceRefKey          String?
+  faceVerifiedAt      DateTime?
+  faceFailCount       Int           @default(0)
+  faceLastScore       Int?
+  faceReviewAt        DateTime? // 3 failed tries in a row: waits for an admin to approve (Admin > Providers)
   isOnline            Boolean       @default(false)
   verificationLevel   Int           @default(0) // 0 unverified, 1 approved, 2 verified pro, 3 gold ustad
   cnicUrl             String?
@@ -1142,6 +1150,9 @@ model SiteSettings {
   announcementTitle         String?
   announcementBody          String?
   announcementAudience      String  @default("ALL") // ALL | CUSTOMER | PROVIDER
+  // Face check for pros: off | saudi (Saudi Arabia only) | all. Match score (0-100) needed to pass; 50 = the standard same-person cutoff.
+  faceVerifyMode            String  @default("all")
+  faceMatchMinPct           Int     @default(50)
   minAndroidVersionCode     Int     @default(0)     // apps older than this show "please update" (0 = off)
   storeUrlPro               String?
   storeUrlCustomer          String?

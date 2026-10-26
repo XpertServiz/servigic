@@ -1,5 +1,7 @@
 import { currencyCode, useCurrencyCode } from "../lib/currency";
 import { useLiveLocation } from "../lib/liveLocation";
+import { useFaceVerified } from "../lib/faceSession";
+import { useAuth } from "../lib/auth";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Animated, Easing } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
@@ -73,6 +75,8 @@ export default function HomeScreen() {
 
   useFocusEffect(load);
   useLiveLocation(Boolean(profile?.isOnline));
+  const faceOk = useFaceVerified();
+  const { user: me0 } = useAuth();
 
   useEffect(() => {
     (async () => {
@@ -171,6 +175,12 @@ export default function HomeScreen() {
         </View>
 
         <GlassCard style={styles.trust}>
+          {faceOk && (
+            <View style={{ marginBottom: 6 }}>
+              <Text style={{ color: colors.text, fontSize: 15, fontWeight: "800" }}>{t("face.hello", { name: String((me0 as { name?: string } | null)?.name ?? "").split(" ")[0] })}</Text>
+              <Text style={{ color: colors.success, fontSize: 12, fontWeight: "700" }}>{t("face.verifiedLine")} ✓</Text>
+            </View>
+          )}
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
             <Text style={{ color: colors.accent, fontSize: 12, fontWeight: "700" }}>★ {profile.ratingAvg.toFixed(1)}</Text>
             <Text style={{ color: colors.textFaint }}>·</Text>

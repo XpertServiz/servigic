@@ -45,6 +45,8 @@ export default async function AdminSettingsPage() {
           announcementBody: settings?.announcementBody ?? "",
           announcementAudience: (settings?.announcementAudience ?? "ALL") as "ALL" | "CUSTOMER" | "PROVIDER",
           minAndroidVersionCode: settings?.minAndroidVersionCode ?? 0,
+          faceVerifyMode: settings?.faceVerifyMode ?? "all",
+          faceMatchMinPct: settings?.faceMatchMinPct ?? 50,
           storeUrlPro: settings?.storeUrlPro ?? "",
           storeUrlCustomer: settings?.storeUrlCustomer ?? "",
           minTopUpPKR: settings?.minTopUpPKR ?? 500,

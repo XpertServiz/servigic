@@ -12,6 +12,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Face check (free, on our own server): libraries run from node_modules, and their model / wasm files are shipped with the route.
+  serverExternalPackages: ["@vladmandic/face-api", "@tensorflow/tfjs", "@tensorflow/tfjs-backend-wasm", "sharp"],
+  outputFileTracingIncludes: {
+    "/api/mobile/provider/face-check": ["./node_modules/@vladmandic/face-api/model/**/*", "./node_modules/@vladmandic/face-api/dist/face-api.node-wasm.js", "./node_modules/@tensorflow/tfjs-backend-wasm/dist/**/*"],
+  },
   poweredByHeader: false,
   compress: true,
   images: {

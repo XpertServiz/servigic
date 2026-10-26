@@ -21,7 +21,7 @@
     },
     "android": {
       "package": "com.servigic.pro",
-      "versionCode": 31,
+      "versionCode": 32,
       "adaptiveIcon": {
         "backgroundColor": "#FFB800",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -48,6 +48,13 @@
     },
     "plugins": [
       "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Servigic Pro uses the camera for the face check when you open the app.",
+          "recordAudioAndroid": false
+        }
+      ],
       [
         "expo-location",
         {
@@ -131,7 +138,7 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-1826338688325435~4438940394"
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713"
         }
       ]
     ],
@@ -149,7 +156,7 @@
     }
   },
   "react-native-google-mobile-ads": {
-    "android_app_id": "ca-app-pub-1826338688325435~4438940394",
+    "android_app_id": "ca-app-pub-3940256099942544~3347511713",
     "delay_app_measurement_init": false,
     "optimize_initialization": true,
     "optimize_ad_loading": true

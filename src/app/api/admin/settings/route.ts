@@ -38,6 +38,8 @@ const schema = z.object({
   announcementBody: z.string().trim().max(400).optional(),
   announcementAudience: z.enum(["ALL", "CUSTOMER", "PROVIDER"]).optional(),
   minAndroidVersionCode: z.number().int().min(0).max(1000000).optional(),
+  faceVerifyMode: z.enum(["off", "saudi", "all"]).optional(),
+  faceMatchMinPct: z.number().int().min(10).max(95).optional(),
   storeUrlPro: z.string().trim().max(300).optional(),
   storeUrlCustomer: z.string().trim().max(300).optional(),
   minTopUpPKR: z.number().int().min(0).max(1000000).optional(),

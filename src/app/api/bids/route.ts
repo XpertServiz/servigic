@@ -6,6 +6,7 @@ import { scrubContactInfo } from "@/lib/scrub";
 import { notify } from "@/lib/notify";
 import { headers } from "next/headers";
 import { getMarkets } from "@/lib/marketConfig";
+import { faceBlock } from "@/lib/faceCheck";
 import { proServesJob, radiusLimitsFor } from "@/lib/dispatch";
 
 export async function POST(req: Request) {
@@ -23,6 +24,9 @@ export async function POST(req: Request) {
   if (!profile || profile.verificationLevel < 1) {
     return NextResponse.json({ error: "Complete verification before bidding" }, { status: 403 });
   }
+  // Face check on app open: no bids without a recent pass (or after 3 failed tries, until an admin approves).
+  const face = await faceBlock(auth.session.user.id, profile);
+  if (face) return NextResponse.json({ error: face.message, code: face.code }, { status: 403 });
   // Customers recognise their pro at the door by this photo: no bids without a clear, recent photo of the pro.
   if (!profile.selfieUrl) {
     return NextResponse.json(

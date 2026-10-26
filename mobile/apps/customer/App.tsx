@@ -13,6 +13,7 @@ import { I18nProvider } from "./src/lib/i18n";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { UpdateGate } from "./src/components/AppNotices";
 import { TermsGate } from "./src/components/TermsGate";
+import { FaceGate } from "./src/components/FaceGate";
 import { configureApiClient } from "./src/lib/api";
 import { initAds } from "./src/lib/ads";
 import { hasVoiceAsset, playVoiceAlert, voiceEventForPushType } from "./src/lib/voiceAlerts";
@@ -75,6 +76,7 @@ export default function App() {
           <AuthProvider>
             <RootNavigator />
             <TermsGate />
+            <FaceGate />
           </AuthProvider>
         </UpdateGate>
       </I18nProvider>

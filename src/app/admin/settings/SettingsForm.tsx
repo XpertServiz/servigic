@@ -50,6 +50,8 @@ export function SettingsForm({
     announcementBody: string;
     announcementAudience: "ALL" | "CUSTOMER" | "PROVIDER";
     minAndroidVersionCode: number;
+    faceVerifyMode: string;
+    faceMatchMinPct: number;
     storeUrlPro: string;
     storeUrlCustomer: string;
     minTopUpPKR: number;
@@ -255,6 +257,26 @@ export function SettingsForm({
             <option value="PROVIDER">Pros only</option>
             <option value="CUSTOMER">Customers only</option>
           </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-text-muted">Pro face check</label>
+        <p className="mb-2 text-xs text-text-muted">Every time a pro opens the Pro app he takes a live selfie that is matched with his ID card photo and profile photo (free, runs on our server). 3 failed tries send him to Admin &gt; Providers for approval.</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-text-muted">Who must do it</label>
+            <select value={form.faceVerifyMode} onChange={(e) => setForm({ ...form, faceVerifyMode: e.target.value })} className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent">
+              <option value="all">All pros (every country)</option>
+              <option value="saudi">Saudi Arabia only</option>
+              <option value="off">Off</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-text-muted">Match needed to pass (%)</label>
+            <input type="number" min={10} max={95} value={form.faceMatchMinPct} onChange={(e) => setForm({ ...form, faceMatchMinPct: Number(e.target.value) })} className="w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 outline-none focus:border-accent" />
+            <p className="mt-1 text-xs text-text-muted">50 = the standard same-person cutoff (easy). Raise it (55-65) if you see look-alikes passing.</p>
+          </div>
         </div>
       </div>
 

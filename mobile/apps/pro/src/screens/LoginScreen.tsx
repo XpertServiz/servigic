@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, KeyboardAvoidingView, ScrollView } from "react-native";
+import { View, Text, StyleSheet, KeyboardAvoidingView, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../navigation/RootNavigator";
@@ -83,6 +83,14 @@ export default function LoginScreen({ navigation }: Props) {
               </Text>
             </Text>
           </View>
+
+          <View style={styles.banner}>
+            <View style={{ flex: 1, paddingEnd: 8 }}>
+              <Text style={styles.bannerTitle}>{t("brand.realPeople")}</Text>
+              <Text style={styles.bannerSub}>{t("brand.verifiedPros")}</Text>
+            </View>
+            <Image source={require("../../assets/face/people.webp")} style={styles.bannerImg} resizeMode="cover" />
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -97,4 +105,8 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 30, fontWeight: "800", marginBottom: 8 },
   subtitle: { color: colors.textSecondary, fontSize: 14, marginBottom: 26 },
   error: { color: colors.dangerSoft, marginBottom: 12, fontSize: 13 },
+  banner: { marginTop: 26, flexDirection: "row", alignItems: "center", backgroundColor: colors.bgElevated, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,166,35,0.2)", overflow: "hidden", paddingStart: 16, minHeight: 120 },
+  bannerTitle: { color: colors.text, fontSize: 18, fontWeight: "800", marginBottom: 4 },
+  bannerSub: { color: colors.textMuted, fontSize: 12.5 },
+  bannerImg: { width: 120, height: 120 },
 });

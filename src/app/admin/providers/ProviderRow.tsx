@@ -64,6 +64,20 @@ export function ProviderRow({ provider, canDelete = false, pendingSkills = [] }:
     }
   }
 
+  async function approveFace() {
+    setPending(true);
+    try {
+      const res = await fetch(`/api/admin/providers/${provider.id}/face-approve`, { method: "POST" });
+      if (!res.ok) throw new Error();
+      toast.success("Face check approved");
+      router.refresh();
+    } catch {
+      toast.error("Failed to approve");
+    } finally {
+      setPending(false);
+    }
+  }
+
   function openDoc(label: string) {
     const index = docs.findIndex((d) => d.label === label);
     if (index >= 0) setLightboxIndex(index);
@@ -97,6 +111,12 @@ export function ProviderRow({ provider, canDelete = false, pendingSkills = [] }:
           <a href="/admin/trades" className="mt-1 block text-[11px] font-semibold text-accent underline-offset-2 hover:underline">
             ⏳ {pendingSkills.length} skill{pendingSkills.length > 1 ? "s" : ""} waiting: {pendingSkills.map((t) => TRADE_LABELS[t]?.name ?? t).join(", ")}
           </a>
+        )}
+        {provider.faceReviewAt && (
+          <div className="mt-1 text-[11px] font-semibold text-danger">
+            Face check failed {provider.faceFailCount}× (best match {provider.faceLastScore ?? "?"}%).{" "}
+            <button onClick={approveFace} disabled={pending} className="underline">Approve</button>
+          </div>
         )}
         {provider.trades.length === 0 && provider.verificationLevel >= 1 && (
           <div className="mt-1 text-[11px] font-semibold text-danger">No approved skill: gets no jobs</div>

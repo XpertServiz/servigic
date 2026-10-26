@@ -324,6 +324,34 @@ export function setOnline(isOnline: boolean) {
   return request<{ isOnline: boolean }>("/api/provider/online", { method: "POST", body: JSON.stringify({ isOnline }) });
 }
 
+export type FaceStatus = { required: boolean; locked?: boolean; attemptsLeft?: number; recentlyVerified?: boolean };
+export type FaceResult = { ok: boolean; skipped?: boolean; code?: "NO_FACE" | "NO_MATCH" | "REVIEW"; message?: string; attemptsLeft?: number };
+
+/** Does the app have to ask for the face check now? */
+export function getFaceStatus() {
+  return request<FaceStatus>("/api/mobile/provider/face-check");
+}
+
+/** Sends the live selfie. It is matched on the server with the ID card photo and the profile photo, and never stored. */
+export async function submitFaceCheck(fileUri: string): Promise<FaceResult> {
+  const result = await FileSystem.uploadAsync(`${apiBaseUrl}/api/mobile/provider/face-check`, fileUri, {
+    httpMethod: "POST",
+    uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+    fieldName: "file",
+    mimeType: "image/jpeg",
+    headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
+  });
+  let data: FaceResult & { error?: string } = { ok: false };
+  try {
+    data = JSON.parse(result.body);
+  } catch {
+    // non-JSON error body; handled below
+  }
+  // 200 (match / no match / no face) and 423 (waiting for an admin) carry a result; anything else is a failure to check.
+  if (result.status !== 200 && result.status !== 423) throw new ApiError(data.error ?? `Face check failed (${result.status})`, result.status);
+  return data;
+}
+
 /** Tells the server where the pro is now (only while he is online), so jobs near him reach him, not only jobs near his work pin. */
 export function reportLocation(lat: number, lng: number) {
   return request<{ ok: boolean }>("/api/mobile/provider/location", { method: "POST", body: JSON.stringify({ lat, lng }) });

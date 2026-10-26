@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Pressable, StyleSheet, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import * as api from "../lib/api";
@@ -79,6 +79,7 @@ export default function KycOnboardingScreen({ onSubmitted, rejectedReason }: { o
       </View>
 
       <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + 64 }]}>
+        <Image source={require("../../assets/face/pro.webp")} style={{ width: "100%", height: 150, borderRadius: 16, marginBottom: 14 }} resizeMode="cover" />
         <Text style={styles.title}>{t("kyc.title")}</Text>
         <Text style={styles.subtitle}>{t("kyc.subtitle")}</Text>
 
