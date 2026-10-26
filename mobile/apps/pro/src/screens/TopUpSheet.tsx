@@ -1,4 +1,4 @@
-import { currencyCode } from "../lib/currency";
+import { currencyCode, useCurrencyCode } from "../lib/currency";
 import React, { useEffect, useState } from "react";
 import { Modal, View, Text, Pressable, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -12,6 +12,7 @@ import { useI18n } from "../lib/i18n";
 const METHODS = ["JAZZCASH", "EASYPAISA", "BANK_TRANSFER"] as const;
 
 export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean; onClose: () => void; onSubmitted: () => void }) {
+  useCurrencyCode(); // re-render when the currency (SAR, PKR ...) becomes known
   const insets = useSafeAreaInsets();
   const { t, td } = useI18n();
   const [amount, setAmount] = useState("");

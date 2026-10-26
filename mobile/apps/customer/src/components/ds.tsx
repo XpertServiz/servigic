@@ -9,7 +9,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { colors, radius, accentGradient, accentGradientStops } from "../lib/theme";
 import * as Haptics from "expo-haptics";
 import { Icon } from "./Icon";
-import { currencyCode } from "../lib/currency";
+import { currencyCode, useCurrencyCode } from "../lib/currency";
 
 // Every native haptics call is guarded — a misbehaving/unavailable haptics
 // engine on a given device must never be able to interrupt a tap handler.
@@ -112,9 +112,10 @@ export function PriceText({
   color?: string;
 }) {
   const fontSize = { sm: 16, md: 20, lg: 28, xl: 40 }[size];
+  const cur = useCurrencyCode();
   return (
     <View style={{ flexDirection: "row", alignItems: "baseline", gap: 4 }}>
-      <Text style={{ color, fontSize: fontSize * 0.4, fontWeight: "700" }}>{currencyCode()}</Text>
+      <Text style={{ color, fontSize: fontSize * 0.4, fontWeight: "700" }}>{cur}</Text>
       <Text style={{ color, fontSize, fontWeight: "800", fontVariant: ["tabular-nums"] }}>{pkr.toLocaleString()}</Text>
     </View>
   );

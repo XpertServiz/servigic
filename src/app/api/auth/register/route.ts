@@ -31,8 +31,8 @@ export async function POST(req: Request) {
   const phone = toE164(parsed.data.phone, ((country ?? "PK").toUpperCase() as never) ?? "PK");
   if (!phone) return fail("Enter a valid phone number, including the country code (e.g. +966 50 123 4567).", "INVALID_PHONE", 400);
 
-  // The phone number's country decides the account's country: a Saudi number registered from Pakistan is a Saudi account.
-  city = (await cityForAccount({ city: city ?? null, phone }, { preferPhone: true })) ?? city;
+  // Where the app is used decides the account's country (a Pakistani number registered in Saudi Arabia is a Saudi account).
+  city = (await cityForAccount({ city: city ?? null, phone }, { ipCountry: req.headers.get("x-vercel-ip-country") || req.headers.get("cf-ipcountry") })) ?? city;
 
   // The Customer Terms / Pro Agreement of the user's country must be accepted and e-signed before any account is made.
   const agreement = getAgreement(role, await agreementCountry({ city, phone }, country));

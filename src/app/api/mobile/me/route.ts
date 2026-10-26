@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { ensureAccountCity } from "@/lib/userCountry";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -8,7 +9,10 @@ export async function GET() {
   const auth = await requireRole("CUSTOMER", "PROVIDER", "ADMIN");
   if (!auth.ok) return auth.response;
   // The account's own country decides currency and documents (not the connection): fill or fix a missing / foreign city.
-  if (auth.session.user.role !== "ADMIN") await ensureAccountCity(auth.session.user.id).catch(() => null);
+  if (auth.session.user.role !== "ADMIN") {
+    const h = await headers();
+    await ensureAccountCity(auth.session.user.id, h.get("x-vercel-ip-country") || h.get("cf-ipcountry")).catch(() => null);
+  }
 
   const user = await prisma.user.findUnique({
     where: { id: auth.session.user.id },

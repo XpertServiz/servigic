@@ -5,7 +5,7 @@ import { firstNameOnly, distanceBand } from "@/lib/anon";
 import { haversineKm } from "@/lib/geo";
 import { headers } from "next/headers";
 import { getMarkets } from "@/lib/marketConfig";
-import { proServesJob } from "@/lib/dispatch";
+import { proServesJob, radiusLimitsFor } from "@/lib/dispatch";
 import { getTxCurrencyForCity } from "@/lib/txCurrency";
 import { priceGuideFor } from "@/lib/priceGuide";
 
@@ -34,7 +34,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       job,
       trade: job.category.trade,
       markets,
-      limits: { min: settings?.proRadiusMinKm ?? 2, max: settings?.proRadiusMaxKm ?? 15 },
+      limits: radiusLimitsFor(settings, markets, job.city),
       requestCountry: reqHeaders.get("x-vercel-ip-country") || reqHeaders.get("cf-ipcountry"),
     });
     if (!verdict.ok) return NextResponse.json({ error: verdict.message, code: "OUT_OF_AREA" }, { status: 404 });

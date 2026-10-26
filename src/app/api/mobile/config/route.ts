@@ -54,7 +54,11 @@ export async function GET(req: Request) {
 
   // A known city decides the market on its own (a city that is in no market is "outside the area");
   // only when the app does not know the city yet (first launch, before signup) do we guess from the IP country.
-  const market = hasPoint ? marketForPoint(markets, { lat, lng }, city) : city ? marketForCity(markets, city) : marketForCountry(markets, geoCountry);
+  // A map point decides by geofence. Otherwise the country the app is used in (internet location) wins over a city on the
+  // account from another country: a Pakistani-number account used in Madinah gets the Saudi market and SAR.
+  const cityMarket = city ? marketForCity(markets, city) : null;
+  const ipMarket = geoCountry ? marketForCountry(markets, geoCountry) : null;
+  const market = hasPoint ? marketForPoint(markets, { lat, lng }, city) : ipMarket && (!cityMarket || cityMarket.countryCode !== geoCountry) ? ipMarket : cityMarket ?? (city ? null : ipMarket);
   const accepting = acceptsJobs(market);
   // The smallest wallet top-up in the user's own market and currency.
   app.minTopUpPKR = (await walletLimitsForMarket(market)).minTopUp;

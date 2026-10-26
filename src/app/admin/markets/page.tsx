@@ -67,6 +67,8 @@ export default async function AdminMarketsPage() {
       timezone: m.timezone,
       launchDate: m.launchDate ? m.launchDate.toISOString().slice(0, 10) : "",
       walletCeiling: m.walletCeiling,
+      proRadiusMaxKm: m.proRadiusMaxKm,
+      maxUnpaidJobs: m.maxUnpaidJobs,
       minTopUp: m.minTopUp,
       autoCeiling: autoLimits.get(m.id)?.ceiling ?? 0,
       autoMinTopUp: autoLimits.get(m.id)?.minTopUp ?? 0,

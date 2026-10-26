@@ -4,7 +4,7 @@
 // "added to the wallet"). In the legacy PROTECTED mode it shows the payout.
 // The one full-screen interstitial in the whole app is shown from "Back to
 // jobs" below — a natural transition point, once per session, never on a timer.
-import { currencyCode } from "../../lib/currency";
+import { currencyCode, useCurrencyCode } from "../../lib/currency";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,6 +16,7 @@ import { useT } from "../../lib/i18n";
 import type { BookingData } from "./types";
 
 export function JobDoneView({ booking, onBackToJobs }: { booking: BookingData; onBackToJobs: () => void }) {
+  useCurrencyCode(); // re-render when the currency (SAR, PKR ...) becomes known
   const t = useT();
   const insets = useSafeAreaInsets();
   const [leaving, setLeaving] = useState(false);

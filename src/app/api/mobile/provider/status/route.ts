@@ -23,7 +23,7 @@ export async function GET() {
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   // Only real numbers: jobs posted in the pro's area this week.
   const jobsThisWeek = market
-    ? await prisma.job.count({ where: { city: { in: market.cities }, createdAt: { gte: weekAgo } } })
+    ? await prisma.job.count({ where: { city: user?.city ?? undefined, createdAt: { gte: weekAgo }, category: { trade: { in: profile.trades } } } })
     : 0;
 
   return NextResponse.json({
@@ -35,7 +35,7 @@ export async function GET() {
     jobsThisWeek,
     limits: {
       radiusMinKm: settings?.proRadiusMinKm ?? 2,
-      radiusMaxKm: settings?.proRadiusMaxKm ?? 15,
+      radiusMaxKm: market?.proRadiusMaxKm ?? settings?.proRadiusMaxKm ?? 30,
       radiusDefaultKm: settings?.proRadiusDefaultKm ?? 5,
       maxTrades: settings?.maxTradesPerPro ?? 3,
     },

@@ -22,6 +22,9 @@ export interface MarketSnapshot {
   /** Overrides in the market's own currency; null = automatic (see walletLimits.ts). */
   walletCeiling: number | null;
   minTopUp: number | null;
+  /** Per-zone overrides; null = the global setting. */
+  proRadiusMaxKm: number | null;
+  maxUnpaidJobs: number | null;
   /** trade → { enabled, maxActivePros } */
   trades: Record<string, { enabled: boolean; maxActivePros: number | null }>;
 }
@@ -41,6 +44,8 @@ async function readMarkets(): Promise<MarketSnapshot[]> {
       polygons: parsePolygons(m.polygons),
       walletCeiling: m.walletCeiling,
       minTopUp: m.minTopUp,
+      proRadiusMaxKm: m.proRadiusMaxKm,
+      maxUnpaidJobs: m.maxUnpaidJobs,
       trades: Object.fromEntries(m.categories.map((c) => [c.trade, { enabled: c.enabled, maxActivePros: c.maxActivePros }])),
     }));
 }

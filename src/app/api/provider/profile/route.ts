@@ -28,7 +28,8 @@ export async function PUT(req: Request) {
   const { agreementAccepted, cnicUrl, selfieUrl, policeCertUrl, photoQualityOk, photoConsentPublic, cnicOcr, trades: requestedTrades, ...data } = parsed.data;
   const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
   const radiusMin = settings?.proRadiusMinKm ?? 2;
-  const radiusMax = settings?.proRadiusMaxKm ?? 15;
+  const userCity = (await prisma.user.findUnique({ where: { id: auth.session.user.id }, select: { city: true } }))?.city;
+  const radiusMax = (userCity ? marketForCity(await getMarkets(), userCity)?.proRadiusMaxKm : null) ?? settings?.proRadiusMaxKm ?? 30;
   if (data.serviceRadiusKm !== undefined && (data.serviceRadiusKm < radiusMin || data.serviceRadiusKm > radiusMax)) {
     return NextResponse.json({ error: `Service radius must be between ${radiusMin} and ${radiusMax} km.`, code: "RADIUS_OUT_OF_RANGE" }, { status: 400 });
   }

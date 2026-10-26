@@ -351,7 +351,7 @@ model ProviderProfile {
   serialNumber        Int           @unique @default(autoincrement())
   trades              Trade[]       @default([])
   skillsNote          String?
-  serviceRadiusKm     Int           @default(5)
+  serviceRadiusKm     Int           @default(15)
   baseLat             Float?
   baseLng             Float?
   geohash             String?
@@ -1118,7 +1118,7 @@ model SiteSettings {
   referralNewCustomerMinJobPKR   Int @default(1000) // minimum job value for that discount
   // Pro service radius slider limits (km) and the cap on trades per pro.
   proRadiusMinKm            Int     @default(2)
-  proRadiusMaxKm            Int     @default(15)
+  proRadiusMaxKm            Int     @default(30)
   proRadiusDefaultKm        Int     @default(5)
   maxTradesPerPro           Int     @default(3)
   // Where pros send money to top up their wallet (shown inside the Pro app's top-up sheet). Empty = fall back to the
@@ -1264,6 +1264,10 @@ model Market {
   // in Settings (see src/lib/walletLimits.ts).
   walletCeiling Int?
   minTopUp      Int?
+  // Per-zone overrides (null = the global setting): the largest radius a pro may set here, and how many completed jobs
+  // with unpaid commission a pro may have before new jobs pause until he tops up.
+  proRadiusMaxKm Int?
+  maxUnpaidJobs  Int?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 

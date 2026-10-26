@@ -60,7 +60,7 @@ async function main() {
   check("point outside the polygon", !pointInRing(25.5, 67.05, square));
   const zone = (over: Partial<MarketSnapshot>): MarketSnapshot => ({
     id: "z1", countryCode: "PK", name: "Test zone", cities: [], enabled: true, status: "LIVE", currency: "PKR", phoneCode: "+92", timezone: "Asia/Karachi",
-    polygons: [square], walletCeiling: null, minTopUp: null, trades: { ELECTRICIAN: { enabled: true, maxActivePros: null } }, ...over,
+    polygons: [square], walletCeiling: null, minTopUp: null, proRadiusMaxKm: null, maxUnpaidJobs: null, trades: { ELECTRICIAN: { enabled: true, maxActivePros: null } }, ...over,
   });
   const job = { lat: 24.8, lng: 67.05, city: "Karachi" };
   check("job inside a live zone with the trade -> sent", jobInActiveZone([zone({})], job, "ELECTRICIAN"));

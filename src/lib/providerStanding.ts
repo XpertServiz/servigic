@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getMarkets, marketForCity } from "@/lib/marketConfig";
 import type { WalletDispatchStatus } from "@prisma/client";
 import { notify } from "@/lib/notify";
 
@@ -18,10 +19,13 @@ export async function recomputeProviderStanding(providerId: string): Promise<voi
   if (profile.dispatchStatus === "SUSPENDED" && profile.dispatchBlockedReason === "ADMIN_FLAG") return;
 
   const wallet = await prisma.proWallet.findUnique({ where: { providerId } });
+  // How many completed jobs with unpaid commission before new jobs pause: the zone's own number (Markets & Launch), else 3.
+  const proCity = (await prisma.user.findUnique({ where: { id: profile.userId }, select: { city: true } }))?.city;
+  const maxUnpaid = (proCity ? marketForCity(await getMarkets(), proCity)?.maxUnpaidJobs : null) ?? 3;
   const debtPKR = wallet ? Math.max(0, -wallet.balancePKR) : 0;
   const walletSeverity: WalletDispatchStatus = !wallet
     ? "NORMAL"
-    : debtPKR >= wallet.ceilingPKR || wallet.unsettledJobCount >= 3
+    : debtPKR >= wallet.ceilingPKR || wallet.unsettledJobCount >= maxUnpaid
       ? "SUSPENDED"
       : debtPKR >= wallet.ceilingPKR * 0.8
         ? "WARNED"
@@ -65,7 +69,7 @@ export async function recomputeProviderStanding(providerId: string): Promise<voi
     finalStatus === "NORMAL"
       ? null
       : walletWins
-        ? wallet && wallet.unsettledJobCount >= 3
+        ? wallet && wallet.unsettledJobCount >= maxUnpaid
           ? "WALLET_UNSETTLED_JOBS"
           : "WALLET_CEILING"
         : "CANCELLATION_RATE";
@@ -96,7 +100,7 @@ export async function recomputeProviderStanding(providerId: string): Promise<voi
         type: "SYSTEM",
         title: "Top up your wallet to keep getting jobs",
         body:
-          wallet.unsettledJobCount >= 3 && debtPKR < wallet.ceilingPKR
+          wallet.unsettledJobCount >= maxUnpaid && debtPKR < wallet.ceilingPKR
             ? `You have ${wallet.unsettledJobCount} completed jobs with commission not paid yet (${owe}). New job alerts and bidding are paused until you top up. Open Earnings > Top up, pay, and upload the payment screenshot with its transaction ID.`
             : `You owe ${owe} in commission, which is over your limit of PKR ${wallet.ceilingPKR.toLocaleString()}. New job alerts and bidding are paused until you top up. Open Earnings > Top up, pay, and upload the payment screenshot with its transaction ID.`,
         linkUrl: "/pro/earnings",

@@ -1,4 +1,4 @@
-import { currencyCode } from "../lib/currency";
+import { currencyCode, useCurrencyCode } from "../lib/currency";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Animated, Easing } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
@@ -33,6 +33,7 @@ type FeedJob = Awaited<ReturnType<typeof api.getProviderJobFeed>>["jobs"][number
 
 
 export default function HomeScreen() {
+  useCurrencyCode(); // re-render when the currency (SAR, PKR ...) becomes known
   // Map start when the pro has no work location yet: his city or the country the phone is in (never Karachi for a Saudi pro).
   const [fallback, setFallback] = useState<LatLng>(FALLBACK_CENTER);
   useEffect(() => {

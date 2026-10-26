@@ -6,7 +6,7 @@ import { scrubContactInfo } from "@/lib/scrub";
 import { notify } from "@/lib/notify";
 import { headers } from "next/headers";
 import { getMarkets } from "@/lib/marketConfig";
-import { proServesJob } from "@/lib/dispatch";
+import { proServesJob, radiusLimitsFor } from "@/lib/dispatch";
 
 export async function POST(req: Request) {
   const auth = await requireRole("PROVIDER");
@@ -71,7 +71,7 @@ export async function POST(req: Request) {
       job,
       trade: category.trade,
       markets,
-      limits: { min: settings?.proRadiusMinKm ?? 2, max: settings?.proRadiusMaxKm ?? 15 },
+      limits: radiusLimitsFor(settings, markets, job.city),
       requestCountry: reqHeaders.get("x-vercel-ip-country") || reqHeaders.get("cf-ipcountry"),
     });
     if (!verdict.ok) return NextResponse.json({ error: verdict.message, code: verdict.code === "OTHER_COUNTRY" ? "OTHER_COUNTRY" : "OUT_OF_AREA" }, { status: 403 });

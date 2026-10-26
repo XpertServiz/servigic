@@ -1,4 +1,4 @@
-import { currencyCode } from "../lib/currency";
+import { currencyCode, useCurrencyCode } from "../lib/currency";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, Pressable, Alert, Linking, Image } from "react-native";
 import MapView, { Polyline } from "react-native-maps";
@@ -57,6 +57,7 @@ const TRACKED_STATUSES = ["ON_MY_WAY", "ARRIVED", "WORKING"];
 const STATUS_POLL_MS = 6000;
 
 export default function BookingDetailScreen({ route, navigation }: Props) {
+  useCurrencyCode(); // re-render when the currency (SAR, PKR ...) becomes known
   // How people pay in the customer's country (cash, mada, STC Pay in Saudi Arabia; cash, JazzCash, EasyPaisa in Pakistan ...).
   const { config: marketCfg } = useMarketConfig();
   const { lang: payLang } = useI18n();

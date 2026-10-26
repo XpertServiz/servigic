@@ -5,7 +5,7 @@ import { firstNameOnly, distanceBand } from "@/lib/anon";
 import { haversineKm } from "@/lib/geo";
 import { getFeatureFlags } from "@/lib/featureFlags";
 import { getMarkets } from "@/lib/marketConfig";
-import { proServesJob } from "@/lib/dispatch";
+import { proServesJob, radiusLimitsFor } from "@/lib/dispatch";
 import { headers } from "next/headers";
 import { windowText } from "@/lib/scheduleSlots";
 import { PhotoGallery } from "@/components/ui/PhotoGallery";
@@ -44,7 +44,7 @@ export default async function ProviderJobDetailPage({ params }: { params: Promis
       job,
       trade: job.category.trade,
       markets,
-      limits: { min: settings?.proRadiusMinKm ?? 2, max: settings?.proRadiusMaxKm ?? 15 },
+      limits: radiusLimitsFor(settings, markets, job.city),
       requestCountry: reqHeaders.get("x-vercel-ip-country") || reqHeaders.get("cf-ipcountry"),
     });
     if (!verdict.ok) notFound();

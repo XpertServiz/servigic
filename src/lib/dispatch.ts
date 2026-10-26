@@ -11,7 +11,13 @@ import { alertEmailsLeft, recentEmailCounts, EMAIL_PER_PRO_PER_DAY } from "@/lib
 export const BOOST_RADIUS_MULTIPLIER = 1.3;
 
 export type RadiusLimits = { min: number; max: number };
-export const DEFAULT_RADIUS_LIMITS: RadiusLimits = { min: 2, max: 15 };
+export const DEFAULT_RADIUS_LIMITS: RadiusLimits = { min: 2, max: 30 };
+
+/** Radius limits for a place: the global settings, with the zone's own maximum when the admin set one (Markets & Launch). */
+export function radiusLimitsFor(settings: { proRadiusMinKm?: number | null; proRadiusMaxKm?: number | null } | null | undefined, markets: MarketSnapshot[], city: string | null | undefined): RadiusLimits {
+  const market = city ? marketForCity(markets, city) : null;
+  return { min: settings?.proRadiusMinKm ?? 2, max: market?.proRadiusMaxKm ?? settings?.proRadiusMaxKm ?? 30 };
+}
 
 /** A pro's radius always sits inside the admin limits (older pros saved up to 50 km before the limits existed). */
 export function clampRadiusKm(km: number, limits: RadiusLimits = DEFAULT_RADIUS_LIMITS): number {
@@ -150,7 +156,7 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
   ]);
   if (!jobInActiveZone(markets, job, category.trade)) return 0;
   const nearestN = settings?.alertNearestN ?? 12;
-  const limits: RadiusLimits = { min: settings?.proRadiusMinKm ?? 2, max: settings?.proRadiusMaxKm ?? 15 };
+  const limits: RadiusLimits = radiusLimitsFor(settings, await getMarkets(), job.city);
   const timezone = marketForCity(markets, job.city)?.timezone ?? "Asia/Karachi";
   const alertedIds = new Set(alreadyAlerted.map((a) => a.providerId));
 
@@ -293,7 +299,7 @@ export async function findJobsForProvider(providerId: string) {
     getMarkets(),
     prisma.siteSettings.findUnique({ where: { id: "singleton" } }),
   ]);
-  const limits: RadiusLimits = { min: settings?.proRadiusMinKm ?? 2, max: settings?.proRadiusMaxKm ?? 15 };
+  const limits: RadiusLimits = radiusLimitsFor(settings, await getMarkets(), provider.user.city);
   const jobs = allJobs;
 
   // Same rule as the bid button: right trade, live zone, same country, inside the radius once a work location is set.
