@@ -87,7 +87,7 @@ export function TopUpSheet({ visible, onClose, onSubmitted }: { visible: boolean
           <Text style={{ color: colors.text, fontSize: 18, fontWeight: "800", marginBottom: 16 }}>{t("topup.title")}</Text>
 
           <Field label={t("topup.amount")} keyboardType="number-pad" value={amount} onChangeText={setAmount} placeholder="1000" />
-          {minTopUp > 0 && <Text style={{ color: colors.textMuted, fontSize: 11.5, marginTop: -10, marginBottom: 12 }}>{t("topup.minimum", { amount: `PKR ${minTopUp.toLocaleString()}` })}</Text>}
+          {minTopUp > 0 && <Text style={{ color: colors.textMuted, fontSize: 11.5, marginTop: -10, marginBottom: 12 }}>{t("topup.minimum", { amount: `${currencyCode()} ${minTopUp.toLocaleString()}` })}</Text>}
 
           <Text style={{ color: colors.textMuted, fontSize: 12, fontWeight: "600", marginBottom: 8 }}>{t("topup.method")}</Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>

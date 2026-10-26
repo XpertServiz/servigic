@@ -353,6 +353,15 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
           </View>
         )}
 
+        {done && typeof booking.completionPhotoUrl === "string" && (
+          <Card style={{ marginTop: 16 }}>
+            <Text style={styles.cardTitle}>{t("done.workPhoto")}</Text>
+            <Pressable onPress={() => Linking.openURL(booking.completionPhotoUrl as string)}>
+              <Image source={{ uri: booking.completionPhotoUrl }} style={{ width: "100%", height: 220, borderRadius: 12, marginTop: 8 }} resizeMode="cover" />
+            </Pressable>
+          </Card>
+        )}
+
         {status === "COMPLETED" && (
           <View style={{ marginTop: 16, gap: 14 }}>
             {!!booking.totalDurationMinutes && (

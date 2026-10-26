@@ -75,13 +75,19 @@ body {
 }
 
 /* Script-specific faces. Poppins has no Arabic/Devanagari glyphs; these load only for those languages. */
+/* Jameel Noori Nastaleeq from the visitor's own computer when installed (never downloaded). */
+@font-face {
+  font-family: "Jameel Noori Local";
+  src: local("Jameel Noori Nastaleeq"), local("JameelNooriNastaleeq"), local("Jameel Noori Nastaleeq Regular"), local("Jameel Noori Nastaleeq Kasheeda");
+  font-display: swap;
+}
 :lang(ar),
 :lang(ar) .font-display {
   font-family: var(--font-arabic), var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
 }
 :lang(ur),
 :lang(ur) .font-display {
-  font-family: var(--font-urdu), var(--font-arabic), var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  font-family: "Jameel Noori Local", var(--font-urdu), var(--font-arabic), var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   line-height: 1.9;
 }
 :lang(hi),

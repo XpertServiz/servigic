@@ -145,6 +145,12 @@ export default function JobDetailScreen({ route, navigation }: Props) {
       <Text style={styles.title}>{job.title as string}</Text>
       <Text style={styles.desc}>{job.description as string}</Text>
       <Badge label={enumLabel(td, "job", job.status as string)} tone="muted" />
+      {job.urgency === "EMERGENCY" && job.status === "OPEN" && (
+        <View style={{ marginTop: 12, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.danger, backgroundColor: colors.dangerTint }}>
+          <Text style={{ color: colors.danger, fontWeight: "800" }}>{"🚨 " + t("emergency.customerTitle")}</Text>
+          <Text style={{ color: colors.textSecondary, fontSize: 12.5, marginTop: 4 }}>{t("emergency.customerBody")}</Text>
+        </View>
+      )}
       <RequestManager job={job} onChanged={load} onOpenBooking={(id) => navigation.navigate("BookingDetail", { bookingId: id })} onClosed={() => navigation.goBack()} />
 
       <View style={styles.sortRow}>

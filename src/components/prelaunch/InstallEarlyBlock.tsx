@@ -4,21 +4,29 @@ import { useTranslations } from "next-intl";
 import type { PrelaunchPublic } from "@/lib/prelaunchPublic";
 
 /**
- * Pakistan Pros: install the Pro app early through Google Play's testing track. Each step has its own button and a
+ * Install the Pro app (or, with app="customer", the Customer app) early through Google Play's testing track. Each step has its own button and a
  * button whose link is empty stays hidden; the whole block is hidden until at least one link is filled in.
  */
-export function InstallEarlyBlock({ config }: { config: Pick<PrelaunchPublic, "proTesterGroupUrl" | "proTestingOptInUrl" | "proStoreUrl"> }) {
+type Links = Pick<PrelaunchPublic, "proTesterGroupUrl" | "proTestingOptInUrl" | "proStoreUrl"> &
+  Partial<Pick<PrelaunchPublic, "customerTesterGroupUrl" | "customerTestingOptInUrl" | "customerStoreUrl">>;
+
+export function InstallEarlyBlock({ config, app = "pro" }: { config: Links; app?: "pro" | "customer" }) {
   const t = useTranslations("prelaunch");
+  const k = app === "customer" ? "customer_install" : "pro_install";
+  const urls =
+    app === "customer"
+      ? [config.customerTesterGroupUrl ?? null, config.customerTestingOptInUrl ?? null, config.customerStoreUrl ?? null]
+      : [config.proTesterGroupUrl, config.proTestingOptInUrl, config.proStoreUrl];
   const steps = [
-    { text: t("pro_install_step1"), label: t("pro_install_btn1"), url: config.proTesterGroupUrl, id: "tester-group" },
-    { text: t("pro_install_step2"), label: t("pro_install_btn2"), url: config.proTestingOptInUrl, id: "opt-in" },
-    { text: t("pro_install_step3"), label: t("pro_install_btn3"), url: config.proStoreUrl, id: "play-store" },
+    { text: t(`${k}_step1`), label: t(`${k}_btn1`), url: urls[0], id: "tester-group" },
+    { text: t(`${k}_step2`), label: t(`${k}_btn2`), url: urls[1], id: "opt-in" },
+    { text: t(`${k}_step3`), label: t(`${k}_btn3`), url: urls[2], id: "play-store" },
   ];
   if (!steps.some((s) => s.url)) return null;
 
   return (
     <div className="rounded-[14px] border border-accent/30 bg-accent/[0.07] p-4" data-testid="install-early">
-      <h3 className="mb-3 text-base font-bold">{t("pro_install_title")}</h3>
+      <h3 className="mb-3 text-base font-bold">{t(`${k}_title`)}</h3>
       <ol className="flex flex-col gap-4 text-[14px] text-text-muted">
         {steps.map((s) => (
           <li key={s.id}>
@@ -37,7 +45,7 @@ export function InstallEarlyBlock({ config }: { config: Pick<PrelaunchPublic, "p
           </li>
         ))}
       </ol>
-      <p className="mt-3 text-[12.5px] text-text-muted">{t("pro_install_note")}</p>
+      <p className="mt-3 text-[12.5px] text-text-muted">{t(`${k}_note`)}</p>
     </div>
   );
 }

@@ -497,6 +497,29 @@ export async function uploadFile(fileUri: string, fileName: string, mimeType: st
   return data.url;
 }
 
+/** "Photo of finished work" (optional, max 2 MB): uploads it for the booking and returns its URL. */
+export async function uploadCompletionPhoto(bookingId: string, fileUri: string, mimeType = "image/jpeg"): Promise<string> {
+  const result = await FileSystem.uploadAsync(`${apiBaseUrl}/api/mobile/bookings/${bookingId}/completion-photo`, fileUri, {
+    httpMethod: "POST",
+    uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+    fieldName: "file",
+    mimeType,
+    headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
+  });
+  let data: { url?: string; error?: string } = {};
+  try {
+    data = JSON.parse(result.body);
+  } catch {
+    // non-JSON error body; the status check below reports it
+  }
+  if (result.status < 200 || result.status >= 300 || !data.url) throw new ApiError(data.error ?? `Upload failed (${result.status})`, result.status);
+  return data.url;
+}
+
+export function removeCompletionPhoto(bookingId: string) {
+  return request<{ ok: true }>(`/api/mobile/bookings/${bookingId}/completion-photo`, { method: "DELETE" });
+}
+
 // ─── Pro supply/demand + alert controls (handoff sections 11.4, 11.5) ───
 export type ProviderStatus = {
   activation: "ACTIVE" | "WAITING";

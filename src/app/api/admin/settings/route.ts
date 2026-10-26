@@ -46,6 +46,8 @@ const schema = z.object({
   proTesterGroupUrl: z.string().trim().max(300).optional(),
   proTestingOptInUrl: z.string().trim().max(300).optional(),
   customerPreregUrl: z.string().trim().max(300).optional(),
+  customerTesterGroupUrl: z.string().trim().max(300).optional(),
+  customerTestingOptInUrl: z.string().trim().max(300).optional(),
   signupNotifyEmail: z.string().trim().max(120).optional(),
   foundingProSlots: z.number().int().min(0).max(100000).optional(),
   foundingProPct: z.number().min(0).max(50).optional(),

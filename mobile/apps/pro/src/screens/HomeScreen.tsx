@@ -143,7 +143,7 @@ export default function HomeScreen() {
               key={job.id}
               coordinate={{ latitude: job.approxLat as number, longitude: job.approxLng as number }}
               emoji={job.categoryIcon}
-              priceLabel={job.budgetPKR ? `PKR ${job.budgetPKR.toLocaleString()}` : undefined}
+              priceLabel={job.budgetPKR ? `${currencyCode()} ${job.budgetPKR.toLocaleString()}` : undefined}
               onPress={() => navigateRoot("Main", { screen: "JobsTab", params: { screen: "JobDetail", params: { jobId: job.id } } })}
             />
           ))}

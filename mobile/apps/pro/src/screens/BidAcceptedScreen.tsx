@@ -1,5 +1,6 @@
 // Celebration shown when a customer accepts the pro's bid (D3-BidWon).
 import React, { useEffect, useRef, useState } from "react";
+import { currencyCode, useCurrencyCode } from "../lib/currency";
 import { View, Text, Pressable, Animated, Easing, StyleSheet, Linking } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -16,6 +17,7 @@ import type { BookingData } from "./booking/types";
 type Props = NativeStackScreenProps<RootStackParamList, "BidAccepted">;
 
 export default function BidAcceptedScreen({ route, navigation }: Props) {
+  useCurrencyCode(); // re-render when the currency (SAR, PKR ...) becomes known
   const t = useT();
   const insets = useSafeAreaInsets();
   const { bookingId } = route.params;
@@ -67,7 +69,7 @@ export default function BidAcceptedScreen({ route, navigation }: Props) {
         <Text style={styles.title}>{t("bidWon.title")}</Text>
         {booking && (
           <Text style={styles.body}>
-            {booking.jobTitle} · PKR {booking.totalPKR.toLocaleString()}
+            {booking.jobTitle} · {currencyCode()} {booking.totalPKR.toLocaleString()}
             {"\n"}
             {t("bidWon.body")}
           </Text>

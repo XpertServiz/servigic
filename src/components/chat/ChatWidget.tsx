@@ -54,6 +54,20 @@ export function ChatWidget({ defaultLang, country, supportNumber }: { defaultLan
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [tip, setTip] = useState(false);
+  // The avatar button can be dragged anywhere (mouse or finger) and stays there on this device, so it never covers a
+  // message box or button. Stored as an offset from its default corner.
+  const [drag, setDrag] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem("chat_fab_offset");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (v) setDrag(JSON.parse(v) as { x: number; y: number });
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  const dragStart = useRef<{ px: number; py: number; x: number; y: number; moved: boolean } | null>(null);
+  const dragged = useRef(false);
   const bottom = useRef<HTMLDivElement>(null);
   const langs = useMemo(() => Array.from(new Set([defaultLang, "en"])), [defaultLang]);
 
@@ -165,7 +179,40 @@ export function ChatWidget({ defaultLang, country, supportNumber }: { defaultLan
   return (
     <>
       {!open && (
-        <div className="fixed bottom-24 end-4 z-40 flex items-end gap-2">
+        <div
+          className="fixed bottom-24 end-4 z-40 flex touch-none select-none items-end gap-2"
+          style={{ transform: `translate(${drag.x}px, ${drag.y}px)` }}
+          onPointerDown={(e) => {
+            dragStart.current = { px: e.clientX, py: e.clientY, x: drag.x, y: drag.y, moved: false };
+            dragged.current = false;
+            e.currentTarget.setPointerCapture(e.pointerId);
+          }}
+          onPointerMove={(e) => {
+            const d = dragStart.current;
+            if (!d) return;
+            const dx = e.clientX - d.px;
+            const dy = e.clientY - d.py;
+            if (!d.moved && Math.abs(dx) + Math.abs(dy) < 6) return;
+            d.moved = true;
+            // Keep the button on screen (it starts 16px from the end edge and 96px from the bottom).
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            const rtl = document.documentElement.dir === "rtl";
+            const x = rtl ? Math.min(Math.max(d.x + dx, 0), w - 96) : Math.max(Math.min(d.x + dx, 0), -(w - 96));
+            setDrag({ x, y: Math.max(Math.min(d.y + dy, 80), -(h - 190)) });
+          }}
+          onPointerUp={() => {
+            if (dragStart.current?.moved) {
+              dragged.current = true;
+              try {
+                window.localStorage.setItem("chat_fab_offset", JSON.stringify(drag));
+              } catch {
+                /* ignore */
+              }
+            }
+            dragStart.current = null;
+          }}
+        >
           {tip && ui.tooltip && (
             <div dir={dir} className="mb-3 max-w-[200px] rounded-2xl rounded-ee-sm border border-border-subtle bg-bg-elevated px-3.5 py-2 text-[13px] font-semibold text-text shadow-lg">
               {ui.tooltip}
@@ -174,6 +221,10 @@ export function ChatWidget({ defaultLang, country, supportNumber }: { defaultLan
           <button
             type="button"
             onClick={() => {
+              if (dragged.current) {
+                dragged.current = false;
+                return;
+              }
               setOpen(true);
               setTip(false);
             }}

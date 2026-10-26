@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import type { Ring } from "./ZoneMapEditor";
+import { AreaFencePicker } from "./AreaFencePicker";
 
 const ZoneMapEditor = dynamic(() => import("./ZoneMapEditor").then((m) => m.ZoneMapEditor), {
   ssr: false,
@@ -218,11 +219,12 @@ function MarketCard({ market, allTrades }: { market: MarketView; allTrades: stri
           </div>
           <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-text-muted">Zone boundary (geofence)</h3>
           <p className="mb-3 max-w-3xl text-xs text-text-muted">
-            Draw the area on the map. The Customer app checks the customer&apos;s GPS location or job pin against it, and the server rejects jobs outside active zones.
+            Tick the areas of a city (quickest), or draw the area on the map. The Customer app checks the customer&apos;s GPS location or job pin against it, and the server rejects jobs outside active zones.
             Leave it empty to use the named cities above instead. Saving an enabled zone notifies everyone waiting for it.
           </p>
+          <AreaFencePicker countryCode={market.countryCode} marketCities={market.cities} onAdd={(rings) => setPolygons((cur) => [...cur, ...rings])} />
           <div className="mb-6">
-            <ZoneMapEditor polygons={polygons} onChange={setPolygons} center={market.center} />
+            <ZoneMapEditor key={polygons.length} polygons={polygons} onChange={setPolygons} center={market.center} />
           </div>
           <div className="mb-6 flex gap-3">
             <button onClick={saveMarket} disabled={busy} className="rounded-[10px] bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground disabled:opacity-60">

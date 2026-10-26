@@ -194,7 +194,7 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
     .map((p) => ({ p, distanceKm: haversineKm(job.lat, job.lng, p.baseLat!, p.baseLng!) }))
     // Nearest matching pros first (an offline pro gets the same push, so online status does not outrank distance).
     .sort((a, b) => a.distanceKm - b.distanceKm || Number(b.p.isOnline) - Number(a.p.isOnline))
-    .slice(0, options.onlyProviderId ? 1 : nearestN)
+    .slice(0, options.onlyProviderId ? 1 : job.urgency === "EMERGENCY" ? nearestN * 2 : nearestN)
     .map((x) => x.p);
 
   if (eligible.length === 0) return 0;
@@ -215,9 +215,11 @@ export async function dispatchJob(job: Job, options: DispatchOptions = {}): Prom
       !options.force &&
       (p.alertsPaused ||
         inQuietHours(p.alertQuietStartMin, p.alertQuietEndMin, timezone) ||
-        // Outside the pro's working hours (for a scheduled job: not working during its arrival window).
-        !(job.urgency === "SCHEDULED" && job.scheduledAt ? isAvailable(p.availability, timezone, job.scheduledAt, job.scheduledWindowMins ?? 60) : isAvailable(p.availability, timezone)) ||
-        (recentCount.get(p.id) ?? 0) >= p.alertDailyCap);
+        // An emergency rings outside working hours and past the daily cap: someone needs help now.
+        (job.urgency !== "EMERGENCY" &&
+          // Outside the pro's working hours (for a scheduled job: not working during its arrival window).
+          (!(job.urgency === "SCHEDULED" && job.scheduledAt ? isAvailable(p.availability, timezone, job.scheduledAt, job.scheduledWindowMins ?? 60) : isAvailable(p.availability, timezone)) ||
+            (recentCount.get(p.id) ?? 0) >= p.alertDailyCap)));
     return { p, pushSent: !mute };
   });
 
@@ -303,5 +305,8 @@ export async function findJobsForProvider(providerId: string) {
   const jobs = allJobs;
 
   // Same rule as the bid button: right trade, live zone, same country, inside the radius once a work location is set.
-  return jobs.filter((job) => proServesJob({ provider, userCity: provider.user.city, job, trade: job.category.trade, markets, limits }).ok);
+  // Emergencies first, then newest.
+  return jobs
+    .filter((job) => proServesJob({ provider, userCity: provider.user.city, job, trade: job.category.trade, markets, limits }).ok)
+    .sort((a, b) => Number(b.urgency === "EMERGENCY") - Number(a.urgency === "EMERGENCY"));
 }

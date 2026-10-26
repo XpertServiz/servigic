@@ -53,6 +53,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       // ISO timestamps keyed by status (CONFIRMED, ON_MY_WAY, ... ) — drives the
       // in-progress timer and ETA on the redesigned screens.
       timeline: booking.timeline,
+      completionPhotoUrl: booking.completionPhotoUrl,
       jobsCompleted: booking.providerProfile.jobsCompleted,
       jobTitle: booking.job.title,
       categoryIcon: booking.job.category.icon,

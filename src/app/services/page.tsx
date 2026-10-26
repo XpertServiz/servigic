@@ -16,6 +16,8 @@ import { breadcrumbJsonLd, pageMetadata, absoluteUrl, SITE_NAME } from "@/lib/se
 import { localizePath, type Locale } from "@/i18n/locales";
 import { minPriceLabel } from "@/lib/marketPrices";
 import { getMoney } from "@/lib/money";
+import { getPrelaunchPublic } from "@/lib/prelaunchPublic";
+import { InstallEarlyBlock } from "@/components/prelaunch/InstallEarlyBlock";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +37,7 @@ async function getCategories() {
 }
 
 export default async function ServicesIndexPage() {
-  const [t, ts, tc, tn, locale, videos, categories, money, CITY_SLUGS] = await Promise.all([
+  const [t, ts, tc, tn, locale, videos, categories, money, CITY_SLUGS, prelaunch] = await Promise.all([
     getTranslations("servicesPage"),
     getTranslations("services.trades"),
     getTranslations("cities"),
@@ -45,6 +47,7 @@ export default async function ServicesIndexPage() {
     getCategories(),
     getMoney(),
     getCitySlugs(),
+    getPrelaunchPublic(),
   ]);
   const why = t.raw("whyItems") as string[];
   const name = (c: { trade: string; name: string }) => (ts.has(c.trade) ? ts(c.trade) : c.name);
@@ -68,6 +71,11 @@ export default async function ServicesIndexPage() {
             <h1 className="mx-auto max-w-3xl text-[clamp(32px,5.8vw,60px)] font-extrabold leading-[1.06] tracking-[-0.018em]">{t("title")}</h1>
             <p className="mx-auto mt-5 max-w-2xl text-base text-text-muted md:text-lg">{t("sub")}</p>
           </div>
+        </section>
+
+        {/* Customers install the app themselves: tester group -> Play testing -> install (links in Admin > Settings). */}
+        <section className="container-x max-w-[720px] pb-8">
+          <InstallEarlyBlock config={prelaunch} app="customer" />
         </section>
 
         {/* Autoplay demo: set the YouTube link in Admin → Settings (customer demo video) */}

@@ -7,6 +7,8 @@
 // ("-v2") because Android fixes a channel's sound at creation.
 // Spoken alerts (voice kit): one channel per event per language, "<event>_<lang>", created by the apps. A language
 // without recordings falls back to English (the app languages are en, ur, ar, de, fr, pl, es, hi).
+import { prisma } from "@/lib/prisma";
+
 const VOICE_LANGS = new Set(["en", "ur", "ar", "hi", "fr", "de", "es", "pa"]);
 const VOICE_EVENT_BY_TYPE: Record<string, string> = {
   DISPATCH_ALERT: "new_job",
@@ -69,9 +71,21 @@ export async function sendExpoPushChannel(input: {
 
   if (messages.length === 0) return;
 
-  await fetch("https://exp.host/--/api/v2/push/send", {
+  const res = await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify(messages),
   });
+  // Tokens of apps that were uninstalled (or reinstalled with a new token) are removed, so they do not hide real failures.
+  const tickets = ((await res.json().catch(() => null)) as { data?: { status: string; message?: string; details?: { error?: string } }[] } | null)?.data ?? [];
+  const dead: string[] = [];
+  tickets.forEach((ticket, i) => {
+    if (ticket.status !== "error") return;
+    if (ticket.details?.error === "DeviceNotRegistered") dead.push(messages[i].to);
+    else console.error("[push]", type, ticket.details?.error ?? "", ticket.message ?? "");
+  });
+  if (dead.length > 0) {
+    const users = await prisma.user.findMany({ where: { fcmTokens: { hasSome: dead } }, select: { id: true, fcmTokens: true } });
+    await Promise.all(users.map((u) => prisma.user.update({ where: { id: u.id }, data: { fcmTokens: u.fcmTokens.filter((t) => !dead.includes(t)) } })));
+  }
 }

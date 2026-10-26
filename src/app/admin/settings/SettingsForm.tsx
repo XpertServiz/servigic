@@ -57,6 +57,8 @@ export function SettingsForm({
     customerAppLive: boolean;
     proTesterGroupUrl: string;
     proTestingOptInUrl: string;
+    customerTesterGroupUrl: string;
+    customerTestingOptInUrl: string;
     customerPreregUrl: string;
     signupNotifyEmail: string;
     foundingProSlots: number;
@@ -318,6 +320,8 @@ export function SettingsForm({
             [
               ["proTesterGroupUrl", "Pro tester group link (Google Group)"],
               ["proTestingOptInUrl", "Pro testing opt-in link (Play testing)"],
+              ["customerTesterGroupUrl", "Customer tester group link (Google Group) - shown on the Services page"],
+              ["customerTestingOptInUrl", "Customer testing opt-in link (Play testing)"],
               ["customerPreregUrl", "Customer pre-registration link (Play)"],
               ["signupNotifyEmail", "Email that receives a message on every waitlist signup"],
             ] as const

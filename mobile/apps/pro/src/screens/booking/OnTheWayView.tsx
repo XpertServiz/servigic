@@ -2,6 +2,7 @@
 // customer's destination pin, an ETA pill, the customer card and one big CTA.
 // Also used for CONFIRMED (CTA = start driving) and ARRIVED (CTA = start work).
 import React from "react";
+import { currencyCode, useCurrencyCode } from "../../lib/currency";
 import { View, Text, Pressable, StyleSheet, Linking } from "react-native";
 import MapView, { Polyline } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -38,6 +39,7 @@ export function OnTheWayView({
   ctaLabel: string;
   canCancel: boolean;
 }) {
+  useCurrencyCode(); // re-render when the currency (SAR, PKR ...) becomes known
   const { t, td } = useI18n();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
@@ -100,7 +102,7 @@ export function OnTheWayView({
               <View style={{ flex: 1 }}>
                 <Text style={styles.personName}>{booking.otherPartyName}</Text>
                 <Text style={styles.personSub} numberOfLines={1}>
-                  {booking.jobTitle} · PKR {booking.totalPKR.toLocaleString()}
+                  {booking.jobTitle} · {currencyCode()} {booking.totalPKR.toLocaleString()}
                 </Text>
               </View>
               <Pressable onPress={actions.openMessages} style={styles.roundBtnLight} accessibilityLabel={t("common.message")}>

@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from "react";
+import { currencyCode, useCurrencyCode } from "../lib/currency";
 import { View, Text, FlatList, Pressable, RefreshControl, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
@@ -37,6 +38,7 @@ function SkeletonCard() {
 }
 
 export default function JobsScreen({ navigation }: Props) {
+  useCurrencyCode(); // re-render when the currency (SAR, PKR ...) becomes known
   const { t, td } = useI18n();
   const insets = useSafeAreaInsets();
   const [segment, setSegment] = useState<Segment>("AVAILABLE");
@@ -146,7 +148,7 @@ export default function JobsScreen({ navigation }: Props) {
                     </View>
                   </View>
                   {item.budgetPKR ? (
-                    <Text style={[styles.price, index === 0 && !item.alreadyBid && { color: colors.accent }]}>PKR {item.budgetPKR.toLocaleString()}</Text>
+                    <Text style={[styles.price, index === 0 && !item.alreadyBid && { color: colors.accent }]}>{currencyCode()} {item.budgetPKR.toLocaleString()}</Text>
                   ) : (
                     <Badge label={enumLabel(td, "urgency", item.urgency)} tone={item.urgency === "EMERGENCY" ? "danger" : "accent"} />
                   )}

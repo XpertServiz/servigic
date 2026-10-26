@@ -9,7 +9,9 @@ export const maxDuration = 60;
 
 const schema = z.object({
   trade: z.enum(TRADES),
+  country: z.string().trim().min(2).default("Pakistan"),
   city: z.string().trim().min(2),
+  area: z.string().trim().max(80).optional().default(""),
   searchTerm: z.string().trim().min(2),
   seenPhones: z.array(z.string()).default([]),
 });
@@ -25,9 +27,10 @@ export async function POST(req: Request) {
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
-  const { trade, city, searchTerm, seenPhones } = parsed.data;
+  const { trade, country, city, area, searchTerm, seenPhones } = parsed.data;
 
-  const places = await searchPlaces(`${searchTerm} in ${city}, Pakistan`);
+  // e.g. "plumber in Aziziyah, Madinah, Saudi Arabia": an area narrows the search to that neighbourhood.
+  const places = await searchPlaces(`${searchTerm} in ${area ? `${area}, ` : ""}${city}, ${country}`);
   const details = await Promise.all(places.map((p) => getPlaceDetails(p.place_id)));
 
   const seen = new Set(seenPhones.map((p) => p.replace(/\s+/g, "")));
@@ -49,6 +52,7 @@ export async function POST(req: Request) {
       phone: c.phone,
       trade,
       city,
+      areaLabel: area || null,
       rating: c.rating,
       source: "GOOGLE_PLACES",
       notes: c.formatted_address,

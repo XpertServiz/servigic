@@ -775,6 +775,17 @@ export const en = {
   "docs.status.PENDING": "Pending approval",
   "docs.status.REJECTED": "Rejected",
   "booking.verifiedLevel": "Verified pro · level {n}",
+  "active.photoOptional": "Optional · photo under 2 MB",
+  "active.photoCamera": "Camera",
+  "active.photoGallery": "Gallery",
+  "active.photoRemove": "Remove",
+  "active.photoTooBig": "This photo is {size} MB. Please use a photo under 2 MB.",
+  "active.photoSaved": "Photo added. The customer can see it.",
+  "done.workPhoto": "Photo of finished work",
+  "emergency.proTitle": "Emergency: the customer needs help now",
+  "emergency.proBody": "Bid only if you can leave right away. Pick an arrival time you can keep - the fastest pros win emergency jobs. Phone number and address open as soon as your bid is accepted.",
+  "emergency.customerTitle": "Emergency request",
+  "emergency.customerBody": "Twice as many nearby pros got a priority alert, even outside their usual hours. Bids usually come within minutes and pros offer arrival in 15-60 minutes. Once you accept, you get the pro's number straight away.",
 } as const;
 
 export type TKey = keyof typeof en;

@@ -50,7 +50,7 @@ export function JobDoneView({ booking, onBackToJobs }: { booking: BookingData; o
 
         <View style={styles.card}>
           <Text style={styles.cardLabel}>{cash ? t("done.collect") : t("done.payout")}</Text>
-          <Text style={styles.amount}>PKR {(cash ? booking.totalPKR - reward : booking.payoutPKR).toLocaleString()}</Text>
+          <Text style={styles.amount}>{currencyCode()} {(cash ? booking.totalPKR - reward : booking.payoutPKR).toLocaleString()}</Text>
           {cash && reward > 0 && <Text style={styles.rewardNote}>{t("done.rewardNote", { amount: reward })}</Text>}
           <View style={styles.statsRow}>
             <View>
@@ -65,7 +65,7 @@ export function JobDoneView({ booking, onBackToJobs }: { booking: BookingData; o
             )}
             <View style={{ alignItems: "flex-end" }}>
               <Text style={styles.statLabel}>{cash ? t("done.youKeep") : t("done.jobsTotal")}</Text>
-              <Text style={styles.statValue}>{cash ? `PKR ${booking.payoutPKR.toLocaleString()}` : String(booking.jobsCompleted ?? "—")}</Text>
+              <Text style={styles.statValue}>{cash ? `${currencyCode()} ${booking.payoutPKR.toLocaleString()}` : String(booking.jobsCompleted ?? "—")}</Text>
             </View>
           </View>
           {cash && <Text style={styles.note}>{t("done.cashNote")}</Text>}

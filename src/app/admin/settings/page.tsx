@@ -53,6 +53,8 @@ export default async function AdminSettingsPage() {
           proTesterGroupUrl: settings?.proTesterGroupUrl ?? "",
           proTestingOptInUrl: settings?.proTestingOptInUrl ?? "",
           customerPreregUrl: settings?.customerPreregUrl ?? "",
+          customerTesterGroupUrl: settings?.customerTesterGroupUrl ?? "",
+          customerTestingOptInUrl: settings?.customerTestingOptInUrl ?? "",
           signupNotifyEmail: settings?.signupNotifyEmail ?? "",
           foundingProSlots: settings?.foundingProSlots ?? 100,
           foundingProPct: settings?.foundingProPct ?? 10,

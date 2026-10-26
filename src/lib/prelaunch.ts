@@ -9,6 +9,8 @@ export interface PrelaunchConfig {
   proTesterGroupUrl: string | null;
   proTestingOptInUrl: string | null;
   customerPreregUrl: string | null;
+  customerTesterGroupUrl: string | null;
+  customerTestingOptInUrl: string | null;
   /** Play Store pages, used once an app is live (the same links as the in-app update screen). */
   proStoreUrl: string | null;
   customerStoreUrl: string | null;
@@ -29,6 +31,8 @@ export async function getPrelaunchConfig(): Promise<PrelaunchConfig> {
     proTesterGroupUrl: clean(s?.proTesterGroupUrl) ?? clean(process.env.PRO_TESTER_GROUP_URL),
     proTestingOptInUrl: clean(s?.proTestingOptInUrl) ?? clean(process.env.PRO_TESTING_OPTIN_URL),
     customerPreregUrl: clean(s?.customerPreregUrl) ?? clean(process.env.CUSTOMER_PREREG_URL),
+    customerTesterGroupUrl: clean(s?.customerTesterGroupUrl),
+    customerTestingOptInUrl: clean(s?.customerTestingOptInUrl),
     proStoreUrl: clean(s?.storeUrlPro) ?? clean(process.env.PRO_PLAY_STORE_URL),
     customerStoreUrl: clean(s?.storeUrlCustomer),
     notifyEmail: (s?.signupNotifyEmail ?? process.env.SIGNUP_NOTIFY_EMAIL ?? "xpertserviz@gmail.com").trim(),

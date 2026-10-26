@@ -667,6 +667,8 @@ model Booking {
   // bookings go straight to CONFIRMED and never set this.
   paymentDeadline DateTime?
   timeline        Json            @default("{}")
+  // Optional "photo of finished work" from the pro (max 2 MB), deleted with the job's media 24 h after the job ends.
+  completionPhotoUrl String?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -1144,6 +1146,8 @@ model SiteSettings {
   customerAppLive           Boolean @default(false)
   proTesterGroupUrl         String?
   proTestingOptInUrl        String?
+  customerTesterGroupUrl    String?
+  customerTestingOptInUrl   String?
   customerPreregUrl         String?
   signupNotifyEmail         String? // who gets an email on every waitlist signup
   // Founding Pro: the first N approved pros in the city pay foundingProPct instead of the standard rate for N months

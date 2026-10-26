@@ -10,6 +10,8 @@ export interface PrelaunchPublic {
   proTesterGroupUrl: string | null;
   proTestingOptInUrl: string | null;
   customerPreregUrl: string | null;
+  customerTesterGroupUrl: string | null;
+  customerTestingOptInUrl: string | null;
   proStoreUrl: string | null;
   customerStoreUrl: string | null;
   /** True while Founding Pro places remain (the website offer is hidden once they are filled). */
@@ -27,6 +29,8 @@ export const getPrelaunchPublic = unstable_cache(
       proTesterGroupUrl: cfg.proTesterGroupUrl,
       proTestingOptInUrl: cfg.proTestingOptInUrl,
       customerPreregUrl: cfg.customerPreregUrl,
+      customerTesterGroupUrl: cfg.customerTesterGroupUrl,
+      customerTestingOptInUrl: cfg.customerTestingOptInUrl,
       proStoreUrl: cfg.proStoreUrl,
       customerStoreUrl: cfg.customerStoreUrl,
       foundingOpen: founding.left > 0,

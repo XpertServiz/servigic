@@ -7,17 +7,23 @@ import type { Lead } from "@prisma/client";
 import { TRADES } from "@/lib/validation/provider";
 import { TRADE_LABELS } from "@/lib/trades";
 import { buildOutreachMessage } from "@/lib/outreach";
-import { LIVE_CITIES as CITIES } from "@/lib/markets";
+import type { LeadPlaceCountry } from "@/lib/leadPlaces";
 const STATUSES = ["NEW", "CONTACTED", "INTERESTED", "ONBOARDED", "NOT_INTERESTED", "CALLBACK"] as const;
 const PAGE_SIZE = 50;
 
 type AiResult = { priorityScore: number; likelySoloOperator: boolean; outreachMessage: string };
 
-export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads: Lead[]; aiQualifierEnabled: boolean }) {
+export function LeadsClient({ initialLeads, aiQualifierEnabled, places }: { initialLeads: Lead[]; aiQualifierEnabled: boolean; places: LeadPlaceCountry[] }) {
   const router = useRouter();
   const [trade, setTrade] = useState<(typeof TRADES)[number]>("PLUMBER");
-  const [city, setCity] = useState(CITIES[0]);
+  const [countryCode, setCountryCode] = useState(places.some((c) => c.code === "PK") ? "PK" : places[0]?.code ?? "");
+  const country = places.find((c) => c.code === countryCode);
+  const [city, setCity] = useState(country?.cities.find((c) => c.name === "Karachi")?.name ?? country?.cities[0]?.name ?? "");
+  const [area, setArea] = useState("");
+  const cityAreas = country?.cities.find((c) => c.name.toLowerCase() === city.trim().toLowerCase())?.areas ?? [];
   const [searchTerm, setSearchTerm] = useState("plumber");
+  // Every city that already has leads, for the table filter below.
+  const leadCities = useMemo(() => [...new Set(initialLeads.map((l) => l.city))].sort(), [initialLeads]);
   const [fetching, setFetching] = useState(false);
   const [lastResult, setLastResult] = useState<{ found: number; saved: number; skipped: number } | null>(null);
   const [aiResults, setAiResults] = useState<Record<string, AiResult>>({});
@@ -108,7 +114,7 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
       const res = await fetch("/api/admin/leads/fetch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ trade, city, searchTerm }),
+        body: JSON.stringify({ trade, country: country?.name ?? countryCode, city, area, searchTerm }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -156,7 +162,15 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
       <div className="mb-8 flex flex-wrap items-end gap-3 rounded-[14px] border border-border-subtle bg-bg-elevated p-5">
         <div>
           <label className="mb-1 block text-xs font-semibold text-text-muted">Trade</label>
-          <select value={trade} onChange={(e) => setTrade(e.target.value as typeof trade)} className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm">
+          <select
+            value={trade}
+            onChange={(e) => {
+              const next = e.target.value as typeof trade;
+              setTrade(next);
+              setSearchTerm(TRADE_LABELS[next].name.toLowerCase());
+            }}
+            className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm"
+          >
             {TRADES.map((t) => (
               <option key={t} value={t}>
                 {TRADE_LABELS[t].name}
@@ -165,26 +179,67 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold text-text-muted">City</label>
-          <select value={city} onChange={(e) => setCity(e.target.value)} className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm">
-            {CITIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
+          <label className="mb-1 block text-xs font-semibold text-text-muted">Country</label>
+          <select
+            value={countryCode}
+            onChange={(e) => {
+              setCountryCode(e.target.value);
+              setCity(places.find((c) => c.code === e.target.value)?.cities[0]?.name ?? "");
+              setArea("");
+            }}
+            className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm"
+          >
+            {places.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.name}
               </option>
             ))}
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold text-text-muted">Search term</label>
+          <label className="mb-1 block text-xs font-semibold text-text-muted">City (pick or type)</label>
           <input
+            list="lead-cities"
+            value={city}
+            onChange={(e) => {
+              setCity(e.target.value);
+              setArea("");
+            }}
+            placeholder="City"
+            className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm"
+          />
+          <datalist id="lead-cities">
+            {country?.cities.map((c) => <option key={c.name} value={c.name} />)}
+          </datalist>
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-text-muted">Area (optional, pick or type)</label>
+          <input
+            list="lead-areas"
+            value={area}
+            onChange={(e) => setArea(e.target.value)}
+            placeholder={cityAreas[0] ? `e.g. ${cityAreas.slice(0, 2).join(", ")}` : "Whole city"}
+            className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm"
+          />
+          <datalist id="lead-areas">
+            {cityAreas.map((a) => <option key={a} value={a} />)}
+          </datalist>
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-text-muted">Professionals to find (pick or type)</label>
+          <input
+            list="lead-professions"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm"
           />
         </div>
+        <datalist id="lead-professions">
+          {TRADES.map((t) => <option key={t} value={TRADE_LABELS[t].name.toLowerCase()} />)}
+        </datalist>
         <button
           onClick={fetchLeads}
-          disabled={fetching}
+          disabled={fetching || !city.trim() || searchTerm.trim().length < 2}
           className="rounded-[8px] bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground disabled:opacity-60"
         >
           {fetching ? "Fetching…" : "Fetch from Google Places"}
@@ -220,7 +275,7 @@ export function LeadsClient({ initialLeads, aiQualifierEnabled }: { initialLeads
             className="rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm"
           >
             <option value="ALL">All cities</option>
-            {CITIES.map((c) => (
+            {leadCities.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>

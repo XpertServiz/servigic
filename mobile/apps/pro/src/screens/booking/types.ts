@@ -13,6 +13,7 @@ export interface BookingData {
   rewardDiscountPKR?: number;
   areaLabel?: string;
   timeline?: Record<string, string> | null;
+  completionPhotoUrl?: string | null;
   jobsCompleted?: number;
   jobTitle: string;
   categoryIcon: string;

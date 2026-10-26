@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { whatsappDigits } from "@/lib/phone";
 import { Suspense } from "react";
-import { Caveat, Geist_Mono, Noto_Nastaliq_Urdu, Noto_Sans_Arabic, Noto_Sans_Devanagari, Poppins } from "next/font/google";
+import { Cairo, Caveat, Geist_Mono, Noto_Nastaliq_Urdu, Noto_Sans_Devanagari, Poppins } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale, getTranslations } from "next-intl/server";
 import { Toaster } from "sonner";
@@ -27,7 +27,9 @@ const poppins = Poppins({ variable: "--font-poppins", subsets: ["latin", "latin-
 const caveat = Caveat({ variable: "--font-caveat", subsets: ["latin", "latin-ext"], weight: ["700"], display: "swap" });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], display: "swap" });
 // Script fallbacks (Poppins has no Arabic/Devanagari glyphs). Only downloaded when a page actually uses those scripts.
-const notoArabic = Noto_Sans_Arabic({ variable: "--font-arabic", subsets: ["arabic"], display: "swap", preload: false });
+// Arabic: Cairo, the clean modern face common in Gulf apps (same as the mobile apps). Urdu: Jameel Noori Nastaleeq when the
+// visitor has it installed (most Urdu users on Windows do; it cannot be redistributed), else Noto Nastaliq Urdu.
+const notoArabic = Cairo({ variable: "--font-arabic", subsets: ["arabic", "latin"], weight: ["400", "500", "600", "700", "800"], display: "swap", preload: false });
 const notoUrdu = Noto_Nastaliq_Urdu({ variable: "--font-urdu", subsets: ["arabic"], display: "swap", preload: false });
 const notoDevanagari = Noto_Sans_Devanagari({ variable: "--font-devanagari", subsets: ["devanagari"], display: "swap", preload: false });
 

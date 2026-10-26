@@ -4,7 +4,7 @@
 // country (Arabic in Saudi Arabia, Urdu in Pakistan, ...) with English one tap away.
 // Shared verbatim by apps/customer and apps/pro.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Animated, Easing, KeyboardAvoidingView, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Animated, Dimensions, Easing, KeyboardAvoidingView, Linking, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as SecureStore from "expo-secure-store";
@@ -53,10 +53,67 @@ function Avatar({ size, wave }: { size: number; wave: boolean }) {
   );
 }
 
+const FAB = 64;
+const KEY_POS = "assistant_fab_pos";
+
+// The assistant's button can be dragged anywhere and stays where it is put (per device). It starts on the right edge at
+// mid-height, clear of message boxes and bottom buttons; after a drag it snaps to the nearer side. A tap opens the chat.
+function DraggableFab({ onPress, label, children }: { onPress: () => void; label: string; children: React.ReactNode }) {
+  const insets = useSafeAreaInsets();
+  const bounds = useCallback(() => {
+    const { width, height } = Dimensions.get("window");
+    return { minX: 6, maxX: width - FAB - 6, minY: insets.top + 8, maxY: height - FAB - insets.bottom - 70 };
+  }, [insets.top, insets.bottom]);
+  const pos = useRef(new Animated.ValueXY({ x: bounds().maxX, y: Dimensions.get("window").height * 0.42 })).current;
+  const last = useRef({ x: bounds().maxX, y: Dimensions.get("window").height * 0.42 });
+
+  useEffect(() => {
+    SecureStore.getItemAsync(KEY_POS)
+      .then((v) => {
+        if (!v) return;
+        const saved = JSON.parse(v) as { x: number; y: number };
+        const b = bounds();
+        last.current = { x: Math.min(Math.max(saved.x, b.minX), b.maxX), y: Math.min(Math.max(saved.y, b.minY), b.maxY) };
+        pos.setValue(last.current);
+      })
+      .catch(() => {});
+  }, [bounds, pos]);
+
+  const responder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: (_e, g) => Math.abs(g.dx) + Math.abs(g.dy) > 4,
+        onPanResponderMove: (_e, g) => pos.setValue({ x: last.current.x + g.dx, y: last.current.y + g.dy }),
+        onPanResponderRelease: (_e, g) => {
+          if (Math.abs(g.dx) + Math.abs(g.dy) < 6) {
+            pos.setValue(last.current);
+            onPress();
+            return;
+          }
+          const b = bounds();
+          const x = last.current.x + g.dx + FAB / 2 < Dimensions.get("window").width / 2 ? b.minX : b.maxX;
+          const y = Math.min(Math.max(last.current.y + g.dy, b.minY), b.maxY);
+          last.current = { x, y };
+          Animated.spring(pos, { toValue: { x, y }, useNativeDriver: false, friction: 7 }).start();
+          SecureStore.setItemAsync(KEY_POS, JSON.stringify(last.current)).catch(() => {});
+        },
+      }),
+    [bounds, onPress, pos]
+  );
+
+  return (
+    <Animated.View {...responder.panHandlers} accessibilityRole="button" accessibilityLabel={label} style={[styles.fab, { left: pos.x, top: pos.y }]}>
+      {children}
+    </Animated.View>
+  );
+}
+
 export function ChatAssistant() {
   const t = useT();
   const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
+  const openChat = useCallback(() => setOpen(true), []);
   const [country, setCountry] = useState("PK");
   const [defaultLang, setDefaultLang] = useState("en");
   const [lang, setLang] = useState("en");
@@ -154,9 +211,9 @@ export function ChatAssistant() {
   return (
     <>
       {!open && (
-        <Pressable onPress={() => setOpen(true)} accessibilityRole="button" accessibilityLabel={t("assistant.title")} style={[styles.fab, { bottom: insets.bottom + 84 }]}>
-          <Avatar size={64} wave />
-        </Pressable>
+        <DraggableFab onPress={openChat} label={t("assistant.title")}>
+          <Avatar size={FAB} wave />
+        </DraggableFab>
       )}
       <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
         <View style={styles.backdrop}>
@@ -241,7 +298,7 @@ export function ChatAssistant() {
 }
 
 const styles = StyleSheet.create({
-  fab: { position: "absolute", right: 14, zIndex: 50, shadowColor: colors.accent, shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
+  fab: { position: "absolute", zIndex: 50, shadowColor: colors.accent, shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
   backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.55)" },
   sheet: { backgroundColor: colors.bgElevated, borderTopLeftRadius: 26, borderTopRightRadius: 26, height: 560, maxHeight: "86%", overflow: "hidden", borderWidth: 1, borderColor: colors.border },
   header: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderBottomWidth: 1, borderBottomColor: colors.border },

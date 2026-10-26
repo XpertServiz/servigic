@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from "react";
+import { currencyCode, useCurrencyCode } from "../lib/currency";
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
@@ -18,6 +19,7 @@ type Earnings = Awaited<ReturnType<typeof api.getProviderEarnings>>;
 const LADDER_KEYS = ["earnings.ladderNew", "earnings.ladderVerified", "earnings.ladderTrusted"] as const;
 
 export default function EarningsScreen() {
+  useCurrencyCode(); // re-render when the currency (SAR, PKR ...) becomes known
   const { t, td, lang } = useI18n();
   // The country's own police / background document name (police certificate in Pakistan, Führungszeugnis in Germany ...).
   const { config: marketCfg } = useMarketConfig();
@@ -159,7 +161,7 @@ export default function EarningsScreen() {
                 <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                   <Text style={{ color: colors.text, fontWeight: "600", flex: 1 }}>{item.jobTitle ?? item.memo ?? enumLabel(td, "ledger", item.type)}</Text>
                   <Text style={{ color: debit ? colors.dangerSoft : colors.secondary, fontWeight: "700" }}>
-                    {debit ? "-" : "+"}PKR {item.amountPKR.toLocaleString()}
+                    {debit ? "-" : "+"}{currencyCode()} {item.amountPKR.toLocaleString()}
                   </Text>
                 </View>
               </Card>

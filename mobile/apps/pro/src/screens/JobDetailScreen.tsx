@@ -16,6 +16,7 @@ import { windowText } from "../lib/scheduleSlots";
 type Props = NativeStackScreenProps<JobsStackParamList, "JobDetail">;
 
 const ETA_MINUTES = [30, 60, 120];
+const EMERGENCY_ETA_MINUTES = [15, 30, 45, 60];
 
 // Step of the price buttons: about 5% of the customer's offer (or the suggested price), in a round number.
 function stepFor(base: number) {
@@ -175,6 +176,12 @@ export default function JobDetailScreen({ route, navigation }: Props) {
           )}
         </View>
       ) : null}
+      {job.urgency === "EMERGENCY" && (
+        <View style={{ marginTop: 12, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.danger, backgroundColor: colors.dangerTint }}>
+          <Text style={{ color: colors.danger, fontWeight: "800" }}>{"🚨 " + t("emergency.proTitle")}</Text>
+          <Text style={{ color: colors.textSecondary, fontSize: 12.5, marginTop: 4 }}>{t("emergency.proBody")}</Text>
+        </View>
+      )}
       {job.urgency === "SCHEDULED" && typeof job.scheduledAt === "string" && (
         <View style={{ marginTop: 12, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.accentBorder, backgroundColor: colors.accentTint }}>
           <Text style={{ color: colors.accent, fontWeight: "800" }}>{"🗓 " + t("schedule.scheduledFor", { when: windowText(job.scheduledAt, job.scheduledWindowMins as number | null, lang) })}</Text>
@@ -250,7 +257,7 @@ export default function JobDetailScreen({ route, navigation }: Props) {
 
           <Text style={[styles.label, { marginTop: 18 }]}>{t("bid.eta")}</Text>
           <View style={{ flexDirection: "row", gap: 8, marginBottom: 4 }}>
-            {ETA_MINUTES.map((m) => (
+            {(job.urgency === "EMERGENCY" ? EMERGENCY_ETA_MINUTES : ETA_MINUTES).map((m) => (
               <Chip
                 key={m}
                 label={m < 60 ? t("time.minutesShort", { n: m }) : t("time.hoursShort", { n: m / 60 })}
