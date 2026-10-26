@@ -4,11 +4,14 @@ import { SERVICE_CATALOG } from "@/lib/catalog";
 import { getCitySlugs } from "@/lib/liveCities";
 import { COUNTRY_LANDINGS, LOCALES, localizePath } from "@/i18n/locales";
 import { absoluteUrl, languageAlternates } from "@/lib/seo";
+import { cityCountryBySlug, localesForCountry } from "@/lib/seoLocales";
 
 // Rebuilt daily; the service list comes from the DB so new categories are indexed automatically.
 export const revalidate = 86400;
 
-const STATIC_PAGES: { path: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly" }[] = [
+const HUB_LOCALES = ["en", "ur", "ar"];
+
+const STATIC_PAGES: { path: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly"; locales?: string[] }[] = [
   { path: "/", priority: 1, changeFrequency: "daily" },
   ...COUNTRY_LANDINGS.map((c) => ({ path: `/${c}`, priority: 0.95, changeFrequency: "daily" as const })),
   { path: "/services", priority: 0.9, changeFrequency: "weekly" },
@@ -36,20 +39,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
   lastModified.setUTCHours(0, 0, 0, 0);
 
-  const pages = [
+  const countryOf = await cityCountryBySlug();
+  const pages: { path: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly"; locales?: string[] }[] = [
     ...STATIC_PAGES,
-    ...slugs.map((slug) => ({ path: `/services/${slug}`, priority: 0.85, changeFrequency: "weekly" as const })),
-    ...slugs.flatMap((slug) => CITY_SLUGS.map((c) => ({ path: `/services/${slug}/${c.slug}`, priority: 0.8, changeFrequency: "weekly" as const }))),
+    ...slugs.map((slug) => ({ path: `/services/${slug}`, priority: 0.85, changeFrequency: "weekly" as const, locales: HUB_LOCALES })),
+    // A city page is listed only in English and the languages people in that country use (see lib/seoLocales.ts).
+    ...slugs.flatMap((slug) => CITY_SLUGS.map((c) => ({ path: `/services/${slug}/${c.slug}`, priority: 0.8, changeFrequency: "weekly" as const, locales: localesForCountry(countryOf.get(c.slug)) }))),
   ];
 
   // One URL per language, each pointing at all its siblings (hreflang) so Google serves the right language per country.
   return pages.flatMap((p) =>
-    LOCALES.map((l) => ({
+    LOCALES.filter((l) => !p.locales || p.locales.includes(l.code)).map((l) => ({
       url: absoluteUrl(localizePath(p.path, l.code)),
       lastModified,
       changeFrequency: p.changeFrequency,
       priority: l.code === "en" ? p.priority : Math.max(0.1, p.priority - 0.1),
-      alternates: { languages: languageAlternates(p.path) },
+      alternates: { languages: languageAlternates(p.path, p.locales) },
     })),
   );
 }

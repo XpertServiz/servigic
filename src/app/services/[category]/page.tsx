@@ -31,6 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   return pageMetadata({
     path: `/services/${category}`,
     locale: locale as Locale,
+    indexedLocales: ["en", "ur", "ar"],
     title: t("metaTitle", { service }),
     description: t("metaDescription", { service, cities: names }),
     keywords: [`${service}`, `${service} near me`, `hire ${service}`, `${service} services`, "Servigic", ...cities.slice(0, 6).map((x) => `${service} ${x.name}`)],

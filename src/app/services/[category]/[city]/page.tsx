@@ -18,6 +18,7 @@ import { getPriceBenchmark } from "@/lib/priceBenchmark";
 import { getDemoVideos } from "@/lib/siteVideos";
 import { TRADE_ICONS } from "@/lib/catalog";
 import { getCitySlugs, slugToLiveCity } from "@/lib/liveCities";
+import { cityCountryBySlug, localesForCountry } from "@/lib/seoLocales";
 import { breadcrumbJsonLd, faqJsonLd, pageMetadata, serviceJsonLd, SITE_NAME } from "@/lib/seo";
 import type { Locale } from "@/i18n/locales";
 
@@ -46,11 +47,13 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
     getLocale(),
   ]);
   if (!data) return { robots: { index: false, follow: false } };
+  const indexedLocales = localesForCountry((await cityCountryBySlug()).get(city));
   const service = ts.has(data.category.trade) ? ts(data.category.trade) : data.category.name;
   const cityName = tc.has(data.cityLabel) ? tc(data.cityLabel) : data.cityLabel;
   return pageMetadata({
     path: `/services/${category}/${city}`,
     locale: locale as Locale,
+    indexedLocales,
     title: t("title", { service, city: cityName }),
     description: t("description", { service, city: cityName }),
     keywords: [`${service} ${cityName}`, `${service}`, `hire ${service} ${data.cityLabel}`, `${data.cityLabel} home services`, "Servigic"],

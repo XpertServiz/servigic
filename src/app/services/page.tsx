@@ -94,7 +94,11 @@ export default async function ServicesIndexPage() {
                   <div className="mb-4 flex items-center gap-3">
                     <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-2xl">{TRADE_ICONS[c.trade] ?? "🛠️"}</span>
                     <div>
-                      <h2 className="text-lg font-bold">{name(c)}</h2>
+                      <h2 className="text-lg font-bold">
+                        <LLink href={`/services/${c.slug}`} className="hover:text-accent">
+                          {name(c)}
+                        </LLink>
+                      </h2>
                       {(() => { const price = minPriceLabel({ trade: c.trade, pkr: c.minPricePKR, country: money.country, locale, currency: money.currency, rate: money.rate }); return price ? <p className="text-xs text-text-muted">{t("startingFrom", { price })}</p> : null; })()}
                     </div>
                   </div>

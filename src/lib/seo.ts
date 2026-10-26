@@ -15,9 +15,9 @@ export function absoluteUrl(path: string): string {
 }
 
 /** Every language version of a marketing page, for hreflang + the sitemap. */
-export function languageAlternates(path: string): Record<string, string> {
+export function languageAlternates(path: string, only?: string[]): Record<string, string> {
   const out: Record<string, string> = {};
-  for (const l of LOCALES) out[l.hreflang] = absoluteUrl(localizePath(path, l.code));
+  for (const l of LOCALES) if (!only || only.includes(l.code)) out[l.hreflang] = absoluteUrl(localizePath(path, l.code));
   out["x-default"] = absoluteUrl(path);
   return out;
 }
@@ -31,11 +31,14 @@ interface PageSeo {
   keywords?: string[];
   /** Keep private/transactional pages out of the index. */
   noindex?: boolean;
+  /** Only these language versions are indexed and listed in hreflang; the other versions of the page are noindex. */
+  indexedLocales?: string[];
   type?: "website" | "article";
 }
 
 /** One place that builds title/description/canonical/hreflang/OG/Twitter for a marketing page. */
-export function pageMetadata({ path, locale, title, description, keywords, noindex, type = "website" }: PageSeo): Metadata {
+export function pageMetadata({ path, locale, title, description, keywords, noindex: noindexIn, indexedLocales, type = "website" }: PageSeo): Metadata {
+  const noindex = noindexIn || Boolean(indexedLocales && !indexedLocales.includes(locale));
   const url = absoluteUrl(localizePath(path, locale));
   const meta = localeMeta(locale);
   const plainTitle = typeof title === "string" ? `${title} | ${SITE_NAME}` : title.absolute;
@@ -43,8 +46,8 @@ export function pageMetadata({ path, locale, title, description, keywords, noind
     title,
     description,
     keywords,
-    alternates: { canonical: url, languages: languageAlternates(path) },
-    robots: noindex ? { index: false, follow: false } : { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+    alternates: { canonical: url, languages: languageAlternates(path, indexedLocales) },
+    robots: noindex ? { index: false, follow: Boolean(indexedLocales) && !noindexIn } : { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
     openGraph: {
       type,
       url,
