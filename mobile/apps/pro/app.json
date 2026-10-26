@@ -21,7 +21,7 @@
     },
     "android": {
       "package": "com.servigic.pro",
-      "versionCode": 30,
+      "versionCode": 31,
       "adaptiveIcon": {
         "backgroundColor": "#FFB800",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -131,7 +131,7 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-3940256099942544~3347511713"
+          "androidAppId": "ca-app-pub-1826338688325435~4438940394"
         }
       ]
     ],
@@ -149,7 +149,7 @@
     }
   },
   "react-native-google-mobile-ads": {
-    "android_app_id": "ca-app-pub-3940256099942544~3347511713",
+    "android_app_id": "ca-app-pub-1826338688325435~4438940394",
     "delay_app_measurement_init": false,
     "optimize_initialization": true,
     "optimize_ad_loading": true
