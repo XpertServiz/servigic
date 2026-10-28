@@ -28,6 +28,7 @@ export function ProviderProfileForm({ initial, idLabel = "ID document", country 
     baseLat: initial?.baseLat ?? 24.8607,
     baseLng: initial?.baseLng ?? 67.0011,
     cnicUrl: initial?.cnicUrl ?? "",
+    cnicBackUrl: initial?.cnicBackUrl ?? "",
     selfieUrl: initial?.selfieUrl ?? "",
     photoQualityOk: initial?.photoQualityOk ?? false,
     policeCertUrl: initial?.policeCertUrl ?? "",
@@ -176,6 +177,12 @@ export function ProviderProfileForm({ initial, idLabel = "ID document", country 
           url={form.cnicUrl}
           endpoint="providerDocs"
           onUploaded={(url) => setForm({ ...form, cnicUrl: url })}
+        />
+        <DocUploadField
+          label={`ID document: ${idLabel} (back)`}
+          url={form.cnicBackUrl}
+          endpoint="providerDocs"
+          onUploaded={(url) => setForm({ ...form, cnicBackUrl: url })}
         />
         <DocUploadField
           label="Police cert. (optional)"

@@ -25,8 +25,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   const existing = await prisma.providerProfile.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: "Provider not found" }, { status: 404 });
-  if (!existing.cnicUrl || !existing.selfieUrl) {
-    return NextResponse.json({ error: "This provider has not submitted both documents" }, { status: 400 });
+  if (!existing.cnicUrl || !existing.cnicBackUrl || !existing.selfieUrl) {
+    return NextResponse.json({ error: "This provider has not submitted the front and back of the ID and the selfie" }, { status: 400 });
   }
 
   const now = new Date();

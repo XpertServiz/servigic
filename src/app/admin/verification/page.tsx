@@ -7,7 +7,7 @@ import { ReviewCard, type ReviewItem } from "./ReviewCard";
 // to save typing; the reviewer's job is the quick selfie-vs-ID face check.
 export default async function VerificationQueuePage() {
   const candidates = await prisma.providerProfile.findMany({
-    where: { isVerified: false, verificationLevel: 0, cnicUrl: { not: null }, selfieUrl: { not: null } },
+    where: { isVerified: false, verificationLevel: 0, cnicUrl: { not: null }, cnicBackUrl: { not: null }, selfieUrl: { not: null } },
     include: { user: { select: { name: true, phone: true, city: true } } },
     orderBy: { verificationSubmittedAt: "asc" },
   });

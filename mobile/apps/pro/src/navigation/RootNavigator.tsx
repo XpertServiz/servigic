@@ -247,13 +247,13 @@ export function RootNavigator() {
     try {
       let { profile } = await api.getProviderProfile();
       let p = (profile ?? {}) as Record<string, unknown>;
-      let hasDocs = Boolean(p.cnicUrl) && Boolean(p.selfieUrl);
+      let hasDocs = Boolean(p.cnicUrl) && Boolean(p.cnicBackUrl) && Boolean(p.selfieUrl);
       // The ID and selfie he picked on the sign-up screen are uploaded now, right after his first sign-in.
       let justSubmitted = false;
       if (!hasDocs && user.phone && (await submitPendingDocs(user.phone))) {
         ({ profile } = await api.getProviderProfile());
         p = (profile ?? {}) as Record<string, unknown>;
-        hasDocs = Boolean(p.cnicUrl) && Boolean(p.selfieUrl);
+        hasDocs = Boolean(p.cnicUrl) && Boolean(p.cnicBackUrl) && Boolean(p.selfieUrl);
         justSubmitted = true;
       }
       // Documents arrived (here or on the documents screen): the face check can now compare him with them.

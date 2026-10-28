@@ -23,6 +23,7 @@ export async function POST(req: Request) {
       isVerified: true,
       verificationLevel: true,
       cnicUrl: true,
+      cnicBackUrl: true,
       selfieUrl: true,
       verificationSubmittedAt: true,
       verificationRejectedAt: true,

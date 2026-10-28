@@ -30,6 +30,18 @@ export default function KycOnboardingScreen({ onSubmitted, rejectedReason }: { o
   const docName = t(`signup.doc.${idDocKind(countryFromPhone((user as { phone?: string } | null)?.phone))}` as "signup.doc.id");
   const [policeCertUrl, setPoliceCertUrl] = useState("");
   const [photoConsent, setPhotoConsent] = useState(false);
+  // Keep what he already uploaded (for example a front photo from before the back was required): only the missing part is asked for.
+  React.useEffect(() => {
+    api
+      .getProviderProfile()
+      .then(({ profile }) => {
+        const p = (profile ?? {}) as Record<string, unknown>;
+        if (typeof p.cnicUrl === "string" && p.cnicUrl) setCnicUrl(p.cnicUrl);
+        if (typeof p.cnicBackUrl === "string" && p.cnicBackUrl) setCnicBackUrl(p.cnicBackUrl);
+        if (typeof p.selfieUrl === "string" && p.selfieUrl) setSelfieUrl(p.selfieUrl);
+      })
+      .catch(() => {});
+  }, []);
   const [ocr, setOcr] = useState<IdOcr | null>(null);
   const [busy, setBusy] = useState<"cnic" | "cnicBack" | "selfie" | "police" | "submit" | null>(null);
   const [error, setError] = useState<string | null>(null);

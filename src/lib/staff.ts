@@ -12,11 +12,12 @@ export function isAwaitingReview(p: {
   isVerified: boolean;
   verificationLevel: number;
   cnicUrl: string | null;
+  cnicBackUrl: string | null;
   selfieUrl: string | null;
   verificationSubmittedAt: Date | null;
   verificationRejectedAt: Date | null;
 }): boolean {
-  if (p.isVerified || p.verificationLevel >= 1 || !p.cnicUrl || !p.selfieUrl) return false;
+  if (p.isVerified || p.verificationLevel >= 1 || !p.cnicUrl || !p.cnicBackUrl || !p.selfieUrl) return false;
   if (p.verificationRejectedAt && (!p.verificationSubmittedAt || p.verificationSubmittedAt <= p.verificationRejectedAt)) return false;
   return true;
 }

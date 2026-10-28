@@ -57,8 +57,9 @@ export async function PUT(req: Request) {
   // it stamps the SLA clock and clears any earlier rejection. Only counts when
   // new documents actually arrived with this request.
   const existing = await prisma.providerProfile.findUnique({ where: { userId: auth.session.user.id } });
-  const newDocsSent = Boolean(cnicUrl || selfieUrl);
-  const hasBothDocs = Boolean(cnicUrl || existing?.cnicUrl) && Boolean(selfieUrl || existing?.selfieUrl);
+  const newDocsSent = Boolean(cnicUrl || cnicBackUrl || selfieUrl);
+  // Front AND back of the ID, plus the selfie: a front-only submission does not enter the review queue.
+  const hasBothDocs = Boolean(cnicUrl || existing?.cnicUrl) && Boolean(cnicBackUrl || existing?.cnicBackUrl) && Boolean(selfieUrl || existing?.selfieUrl);
   const submittedForReview = newDocsSent && hasBothDocs && !existing?.isVerified;
 
   // The pro's city follows his work location: a pin in Madinah makes him a Madinah pro, whatever city the account had.
