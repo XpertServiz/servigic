@@ -12,6 +12,8 @@ import { colors } from "../lib/theme";
 import { useAuth } from "../lib/auth";
 import { readIdCard, type IdOcr } from "../lib/idOcr";
 import { useI18n, useT } from "../lib/i18n";
+import { countryFromPhone, idDocKind } from "../lib/idDoc";
+import { SelfieCaptureModal } from "../components/SelfieCaptureModal";
 
 export default function KycOnboardingScreen({ onSubmitted, rejectedReason }: { onSubmitted: () => void; rejectedReason?: string | null }) {
   const { config: marketCfg } = useMarketConfig();
@@ -19,20 +21,26 @@ export default function KycOnboardingScreen({ onSubmitted, rejectedReason }: { o
   const words = { id: countryWord(marketCfg, "id", kycLang, "ID"), police: countryWord(marketCfg, "police", kycLang, "police certificate") };
   const t = useT();
   const insets = useSafeAreaInsets();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
 
   const [cnicUrl, setCnicUrl] = useState("");
+  const [cnicBackUrl, setCnicBackUrl] = useState("");
   const [selfieUrl, setSelfieUrl] = useState("");
+  const [selfieOpen, setSelfieOpen] = useState(false);
+  const docName = t(`signup.doc.${idDocKind(countryFromPhone((user as { phone?: string } | null)?.phone))}` as "signup.doc.id");
   const [policeCertUrl, setPoliceCertUrl] = useState("");
   const [photoConsent, setPhotoConsent] = useState(false);
   const [ocr, setOcr] = useState<IdOcr | null>(null);
-  const [busy, setBusy] = useState<"cnic" | "selfie" | "police" | "submit" | null>(null);
+  const [busy, setBusy] = useState<"cnic" | "cnicBack" | "selfie" | "police" | "submit" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function pickDoc(kind: "cnic" | "selfie" | "police", setUrl: (url: string) => void) {
+  async function pickDoc(kind: "cnic" | "cnicBack" | "selfie" | "police", setUrl: (url: string) => void) {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 });
     if (result.canceled || !result.assets[0]) return;
-    const asset = result.assets[0];
+    await uploadAsset(kind, result.assets[0], setUrl);
+  }
+
+  async function uploadAsset(kind: "cnic" | "cnicBack" | "selfie" | "police", asset: { uri: string; fileName?: string | null; mimeType?: string | null }, setUrl: (url: string) => void) {
     setBusy(kind);
     setError(null);
     try {
@@ -57,6 +65,7 @@ export default function KycOnboardingScreen({ onSubmitted, rejectedReason }: { o
     try {
       await api.updateProviderProfile({
         cnicUrl,
+        ...(cnicBackUrl ? { cnicBackUrl } : {}),
         selfieUrl,
         policeCertUrl: policeCertUrl || undefined,
         agreementAccepted: true,
@@ -90,8 +99,10 @@ export default function KycOnboardingScreen({ onSubmitted, rejectedReason }: { o
           </View>
         )}
 
-        <DocRow label={t("kyc.cnic", words)} done={Boolean(cnicUrl)} loading={busy === "cnic"} onPress={() => pickDoc("cnic", setCnicUrl)} />
-        <DocRow label={t("kyc.selfie")} done={Boolean(selfieUrl)} loading={busy === "selfie"} onPress={() => pickDoc("selfie", setSelfieUrl)} />
+        <DocRow label={t("signup.idFront", { doc: docName })} done={Boolean(cnicUrl)} loading={busy === "cnic"} onPress={() => pickDoc("cnic", setCnicUrl)} />
+        <DocRow label={t("signup.idBack", { doc: docName })} done={Boolean(cnicBackUrl)} loading={busy === "cnicBack"} onPress={() => pickDoc("cnicBack", setCnicBackUrl)} />
+        <DocRow label={t("kyc.selfie")} done={Boolean(selfieUrl)} loading={busy === "selfie"} onPress={() => setSelfieOpen(true)} />
+        <SelfieCaptureModal visible={selfieOpen} onClose={() => setSelfieOpen(false)} onPicked={(uri) => uploadAsset("selfie", { uri }, setSelfieUrl)} />
         <DocRow label={t("kyc.police", words)} done={Boolean(policeCertUrl)} loading={busy === "police"} onPress={() => pickDoc("police", setPoliceCertUrl)} />
 
         {ocr?.idNumber ? <Text style={styles.ocrNote}>{t("kyc.ocrRead", { id: ocr.idNumber })}</Text> : null}
@@ -106,7 +117,7 @@ export default function KycOnboardingScreen({ onSubmitted, rejectedReason }: { o
         {error && <Text style={styles.error}>{error}</Text>}
 
         <View style={{ marginTop: 20, width: "100%" }}>
-          <Button title={busy === "submit" ? t("kyc.submitting") : t("kyc.submit")} onPress={submit} loading={busy === "submit"} disabled={!cnicUrl || !selfieUrl} />
+          <Button title={busy === "submit" ? t("kyc.submitting") : t("kyc.submit")} onPress={submit} loading={busy === "submit"} disabled={!cnicUrl || !cnicBackUrl || !selfieUrl} />
         </View>
 
         <Pressable onPress={signOut} style={{ marginTop: 20 }}>

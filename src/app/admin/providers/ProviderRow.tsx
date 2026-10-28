@@ -28,6 +28,7 @@ export function ProviderRow({ provider, canDelete = false, pendingSkills = [] }:
 
   const docs: LightboxImage[] = [
     provider.cnicUrl ? { url: provider.cnicUrl, label: "CNIC" } : null,
+    provider.cnicBackUrl ? { url: provider.cnicBackUrl, label: "ID back" } : null,
     provider.selfieUrl ? { url: provider.selfieUrl, label: "Selfie" } : null,
     provider.policeCertUrl ? { url: provider.policeCertUrl, label: "Police Certificate" } : null,
   ].filter((d): d is LightboxImage => d !== null);
@@ -125,6 +126,7 @@ export function ProviderRow({ provider, canDelete = false, pendingSkills = [] }:
       <td className="p-4">
         <div className="flex gap-2 text-xs">
           <DocLink label="CNIC" available={Boolean(provider.cnicUrl)} onClick={() => openDoc("CNIC")} />
+          <DocLink label="ID back" available={Boolean(provider.cnicBackUrl)} onClick={() => openDoc("ID back")} />
           <DocLink label="Selfie" available={Boolean(provider.selfieUrl)} onClick={() => openDoc("Selfie")} />
           <DocLink label="Police" available={Boolean(provider.policeCertUrl)} onClick={() => openDoc("Police Certificate")} />
         </div>

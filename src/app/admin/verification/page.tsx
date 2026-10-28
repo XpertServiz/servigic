@@ -22,6 +22,7 @@ export default async function VerificationQueuePage() {
       phone: p.user.phone,
       city: p.user.city,
       cnicUrl: p.cnicUrl as string,
+      cnicBackUrl: p.cnicBackUrl,
       selfieUrl: p.selfieUrl as string,
       policeCertUrl: p.policeCertUrl,
       ocr: (p.cnicOcr as ReviewItem["ocr"]) ?? null,

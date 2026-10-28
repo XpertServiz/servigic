@@ -16,6 +16,8 @@ import { AuthBackdrop } from "../components/AuthBackdrop";
 import { authErrorMessage } from "../lib/authErrors";
 import { AcceptAgreement, type TermsAcceptance } from "../components/AcceptAgreement";
 import { savePendingDocs } from "../lib/pendingDocs";
+import { idDocKind } from "../lib/idDoc";
+import { SelfieCaptureModal } from "../components/SelfieCaptureModal";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Signup">;
 
@@ -38,28 +40,29 @@ export default function SignupScreen({ navigation }: Props) {
   const [selfieUri, setSelfieUri] = useState<string | null>(null);
   const [photoConsent, setPhotoConsent] = useState(false);
 
-  async function capture(kind: "cnic" | "selfie", gallery: boolean) {
-    setError(null);
-    try {
-      if (!gallery) {
-        const perm = await ImagePicker.requestCameraPermissionsAsync();
-        if (!perm.granted) return setError(t("signup.cameraNeeded"));
-      }
-      const res = gallery
-        ? await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 })
-        : await ImagePicker.launchCameraAsync({ mediaTypes: ["images"], quality: 0.7, cameraType: kind === "selfie" ? ImagePicker.CameraType.front : ImagePicker.CameraType.back });
-      if (res.canceled || !res.assets[0]) return;
-      if (kind === "cnic") setCnicUri(res.assets[0].uri);
-      else setSelfieUri(res.assets[0].uri);
-    } catch {
-      setError(t("kyc.uploadFailed"));
-    }
-  }
+  const [cnicBackUri, setCnicBackUri] = useState<string | null>(null);
+  const [selfieOpen, setSelfieOpen] = useState(false);
+  const docName = t(`signup.doc.${idDocKind(phone.country)}` as "signup.doc.id");
 
-  function pickId() {
-    Alert.alert(t("signup.idLabel"), undefined, [
-      { text: t("signup.takePhoto"), onPress: () => capture("cnic", false) },
-      { text: t("signup.fromGallery"), onPress: () => capture("cnic", true) },
+  // Front and back of the ID: camera or gallery.
+  function pickDoc(side: "front" | "back") {
+    const set = side === "front" ? setCnicUri : setCnicBackUri;
+    const take = async (gallery: boolean) => {
+      setError(null);
+      try {
+        if (!gallery) {
+          const perm = await ImagePicker.requestCameraPermissionsAsync();
+          if (!perm.granted) return setError(t("signup.cameraNeeded"));
+        }
+        const res = gallery ? await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 }) : await ImagePicker.launchCameraAsync({ mediaTypes: ["images"], quality: 0.7 });
+        if (!res.canceled && res.assets[0]) set(res.assets[0].uri);
+      } catch {
+        setError(t("kyc.uploadFailed"));
+      }
+    };
+    Alert.alert(t(side === "front" ? "signup.idFront" : "signup.idBack", { doc: docName }), undefined, [
+      { text: t("signup.takePhoto"), onPress: () => take(false) },
+      { text: t("signup.fromGallery"), onPress: () => take(true) },
       { text: t("common.back"), style: "cancel" },
     ]);
   }
@@ -84,7 +87,7 @@ export default function SignupScreen({ navigation }: Props) {
       setError(t("legal.required"));
       return;
     }
-    if (!cnicUri || !selfieUri) {
+    if (!cnicUri || !cnicBackUri || !selfieUri) {
       setError(t("signup.docsSub"));
       return;
     }
@@ -95,7 +98,7 @@ export default function SignupScreen({ navigation }: Props) {
       const cfg = await loadMarketConfig(null);
       const city = cfg && !cfg.legacyOpen ? cfg.market?.cities?.[0] : "Karachi";
       const { userId, verified } = await api.register({ role: "PROVIDER", name, phone: phone.e164, email, password, confirmPassword: confirm, ...(city ? { city } : {}), ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}), deviceId: await getDeviceId(), country: phone.country, terms });
-      await savePendingDocs({ phone: phone.e164, cnicUri, selfieUri, photoConsent }).catch(() => {});
+      await savePendingDocs({ phone: phone.e164, cnicUri, cnicBackUri, selfieUri, photoConsent }).catch(() => {});
       // Second role on a number that is already verified: nothing to confirm, just sign in.
       if (verified) {
         Alert.alert(t("auth.linkedDone"));
@@ -144,8 +147,10 @@ export default function SignupScreen({ navigation }: Props) {
 
         <Text style={styles.docsTitle}>{t("signup.docsTitle")}</Text>
         <Text style={styles.docsSub}>{t("signup.docsSub")}</Text>
-        <DocPick label={t("signup.idLabel")} uri={cnicUri} onPress={pickId} />
-        <DocPick label={t("signup.selfieLabel")} uri={selfieUri} onPress={() => capture("selfie", false)} />
+        <DocPick label={t("signup.idFront", { doc: docName })} uri={cnicUri} onPress={() => pickDoc("front")} />
+        <DocPick label={t("signup.idBack", { doc: docName })} uri={cnicBackUri} onPress={() => pickDoc("back")} />
+        <DocPick label={t("signup.selfieLabel")} uri={selfieUri} onPress={() => setSelfieOpen(true)} />
+        <SelfieCaptureModal visible={selfieOpen} onClose={() => setSelfieOpen(false)} onPicked={setSelfieUri} />
         <Pressable onPress={() => setPhotoConsent((v) => !v)} style={styles.consentRow}>
           <View style={[styles.checkbox, photoConsent && styles.checkboxOn]}>{photoConsent && <Icon name="check" size={13} color={colors.accentForeground} />}</View>
           <Text style={styles.consentText}>{t("kyc.consent")}</Text>
@@ -162,7 +167,7 @@ export default function SignupScreen({ navigation }: Props) {
           <Text style={styles.approvalBody}>{t("auth.proPendingBody")}</Text>
         </View>
         {launching && <Text style={{ color: colors.accent, fontSize: 12.5, lineHeight: 18, marginBottom: 12 }}>{t("pro.launchingNote")}</Text>}
-        <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || !email || password.length < 8 || confirm !== password || !terms || !cnicUri || !selfieUri} />
+        <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || !email || password.length < 8 || confirm !== password || !terms || !cnicUri || !cnicBackUri || !selfieUri} />
       </ScrollView>
       </KeyboardAvoidingView>
     </View>

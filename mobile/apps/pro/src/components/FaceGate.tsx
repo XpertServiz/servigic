@@ -2,17 +2,16 @@
 // photo and profile photo (free, open-source; see src/lib/faceMatch.ts on the server). Until it passes, the app stays behind
 // this full-screen window. 3 failed tries wait for an admin. Switched on/off and tuned in Admin > Settings.
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Animated, AppState, Easing, Image, Linking, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, AppState, Easing, Image, Modal, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Ellipse, Path } from "react-native-svg";
-import { CameraView, useCameraPermissions } from "expo-camera";
-import * as ImageManipulator from "expo-image-manipulator";
 import * as api from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { faceSession } from "../lib/faceSession";
 import { colors } from "../lib/theme";
 import { useT } from "../lib/i18n";
 import { GradientButton } from "./ds";
+import { SelfieCamera } from "./SelfieCamera";
+import { SelfieTips } from "./SelfieIntro";
 
 type Step = "idle" | "intro" | "camera" | "verifying" | "done" | "fail" | "locked";
 const AWAY_BEFORE_ASKING_AGAIN_MS = 6 * 60 * 60 * 1000;
@@ -105,14 +104,14 @@ export function FaceGate() {
         {step === "camera" ? (
           <SelfieCamera onShot={onShot} onBack={() => setStep("intro")} />
         ) : (
-          <View style={{ flex: 1, paddingTop: insets.top + 18, paddingBottom: insets.bottom + 18, paddingHorizontal: 22, alignItems: "center", justifyContent: "center" }}>
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top + 18, paddingBottom: insets.bottom + 18, paddingHorizontal: 22, alignItems: "center", justifyContent: "center" }}>
             <Text style={styles.brand}>SERVIGIC PRO</Text>
 
             {step === "intro" && (
               <>
                 <Text style={styles.title}>{t("face.title")}</Text>
                 <Text style={styles.sub}>{t("face.sub")}</Text>
-                <Image source={require("../../assets/face/intro.webp")} style={styles.introImg} resizeMode="contain" />
+                <SelfieTips />
                 {left != null && left < 3 && <Text style={styles.warn}>{t("face.tries", { n: left })}</Text>}
                 <GradientButton title={"📷  " + t("face.take")} onPress={() => setStep("camera")} style={{ alignSelf: "stretch" }} />
                 <Text style={styles.tip}>{t("face.tip")}</Text>
@@ -147,7 +146,7 @@ export function FaceGate() {
                 <GradientButton title={t("face.recheck")} onPress={check} disabled={busy} style={{ alignSelf: "stretch", marginTop: 18 }} />
               </>
             )}
-          </View>
+          </ScrollView>
         )}
       </View>
     </Modal>
@@ -171,76 +170,6 @@ function Verifying() {
         <Animated.View style={[styles.bar, { left: slide.interpolate({ inputRange: [0, 1], outputRange: ["-35%", "100%"] }) }]} />
       </View>
     </>
-  );
-}
-
-function SelfieCamera({ onShot, onBack }: { onShot: (uri: string) => void; onBack: () => void }) {
-  const t = useT();
-  const insets = useSafeAreaInsets();
-  const [permission, requestPermission] = useCameraPermissions();
-  const cam = useRef<CameraView>(null);
-  const [busy, setBusy] = useState(false);
-  const [size, setSize] = useState({ w: 0, h: 0 });
-
-  useEffect(() => {
-    if (permission && !permission.granted && permission.canAskAgain) requestPermission();
-  }, [permission, requestPermission]);
-
-  async function shoot() {
-    if (busy || !cam.current) return;
-    setBusy(true);
-    try {
-      const pic = await cam.current.takePictureAsync({ quality: 0.7 });
-      // Small enough to upload fast on a weak connection (and under the server limit).
-      const small = await ImageManipulator.manipulateAsync(pic.uri, [{ resize: { width: 720 } }], { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG });
-      onShot(small.uri);
-    } catch {
-      setBusy(false);
-    }
-  }
-
-  if (!permission) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
-  if (!permission.granted) {
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24, paddingTop: insets.top }}>
-        <Text style={styles.sub}>{t("face.permission")}</Text>
-        <GradientButton title={t("face.openSettings")} onPress={() => (permission.canAskAgain ? requestPermission() : Linking.openSettings())} style={{ alignSelf: "stretch", marginTop: 16 }} />
-        <Text style={[styles.tip, { marginTop: 16 }]} onPress={onBack}>
-          {t("common.back")}
-        </Text>
-      </View>
-    );
-  }
-
-  const cx = size.w / 2;
-  const cy = size.h * 0.4;
-  const rx = Math.min(size.w * 0.34, 150);
-  const ry = rx * 1.3;
-  const br = 26; // corner bracket length
-  const corner = (x: number, y: number, dx: number, dy: number) => `M${x},${y + dy * br} L${x},${y} L${x + dx * br},${y}`;
-  const l = cx - rx - 18, r = cx + rx + 18, tp = cy - ry - 18, bt = cy + ry + 18;
-
-  return (
-    <View style={{ flex: 1, backgroundColor: "#000" }} onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
-      <CameraView ref={cam} style={StyleSheet.absoluteFill} facing="front" />
-      {size.w > 0 && (
-        <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
-          <Ellipse cx={cx} cy={cy} rx={rx} ry={ry} stroke="#fff" strokeWidth={3} fill="none" />
-          <Path d={corner(l, tp, 1, 1) + corner(r, tp, -1, 1) + corner(l, bt, 1, -1) + corner(r, bt, -1, -1)} stroke="#fff" strokeWidth={4} fill="none" strokeLinecap="round" />
-        </Svg>
-      )}
-      <Pressable onPress={onBack} hitSlop={14} style={{ position: "absolute", top: insets.top + 12, left: 18 }}>
-        <Text style={{ color: "#fff", fontSize: 28 }}>←</Text>
-      </Pressable>
-      <View style={[styles.framePill, { top: cy + ry + 44 }]}>
-        <Text style={{ color: "#fff", fontSize: 14 }}>{t("face.frame")}</Text>
-      </View>
-      <View style={{ position: "absolute", bottom: insets.bottom + 28, left: 0, right: 0, alignItems: "center" }}>
-        <Pressable onPress={shoot} disabled={busy} style={styles.shutterOuter}>
-          {busy ? <ActivityIndicator color={colors.accent} /> : <View style={styles.shutterInner} />}
-        </Pressable>
-      </View>
-    </View>
   );
 }
 

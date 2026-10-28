@@ -10,6 +10,7 @@ export interface ReviewItem {
   phone: string;
   city: string | null;
   cnicUrl: string;
+  cnicBackUrl: string | null;
   selfieUrl: string;
   policeCertUrl: string | null;
   ocr: { fullName?: string; idNumber?: string; dob?: string; address?: string; rawLines?: string[] } | null;
@@ -83,6 +84,15 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
             <img src={item.cnicUrl} alt="ID" className="max-h-80 w-full rounded-lg border border-border-subtle object-contain bg-black/20" />
           </a>
         </figure>
+        {item.cnicBackUrl && (
+          <figure>
+            <figcaption className="mb-1 text-xs font-semibold uppercase tracking-wide text-text-muted">ID photo (back)</figcaption>
+            <a href={item.cnicBackUrl} target="_blank" rel="noreferrer">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.cnicBackUrl} alt="ID back" className="max-h-80 w-full rounded-lg border border-border-subtle object-contain bg-black/20" />
+            </a>
+          </figure>
+        )}
         <figure>
           <figcaption className="mb-1 text-xs font-semibold uppercase tracking-wide text-text-muted">Selfie</figcaption>
           <a href={item.selfieUrl} target="_blank" rel="noreferrer">

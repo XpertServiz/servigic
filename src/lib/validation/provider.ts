@@ -41,6 +41,7 @@ export const providerProfileSchema = z.object({
   baseLat: z.number().min(-90).max(90).optional(),
   baseLng: z.number().min(-180).max(180).optional(),
   cnicUrl: z.string().url().optional().or(z.literal("")),
+  cnicBackUrl: z.string().url().optional().or(z.literal("")),
   selfieUrl: z.string().url().optional().or(z.literal("")),
   photoQualityOk: z.boolean().optional(),
   policeCertUrl: z.string().url().optional().or(z.literal("")),

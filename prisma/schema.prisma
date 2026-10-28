@@ -363,6 +363,7 @@ model ProviderProfile {
   baseLat             Float?
   baseLng             Float?
   geohash             String?
+  cnicBackUrl         String? // the back of the ID document (the front is cnicUrl)
   // Where the pro is right now (sent by the Pro app while he is online, refreshed every few minutes). Jobs are matched
   // from his work location OR from here, whichever is closer.
   liveLat             Float?

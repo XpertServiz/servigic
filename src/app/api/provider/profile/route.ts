@@ -25,7 +25,7 @@ export async function PUT(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
-  const { agreementAccepted, cnicUrl, selfieUrl, policeCertUrl, photoQualityOk, photoConsentPublic, cnicOcr, trades: requestedTrades, ...data } = parsed.data;
+  const { agreementAccepted, cnicUrl, cnicBackUrl, selfieUrl, policeCertUrl, photoQualityOk, photoConsentPublic, cnicOcr, trades: requestedTrades, ...data } = parsed.data;
   const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
   const radiusMin = settings?.proRadiusMinKm ?? 2;
   const userCity = (await prisma.user.findUnique({ where: { id: auth.session.user.id }, select: { city: true } }))?.city;
@@ -87,6 +87,7 @@ export async function PUT(req: Request) {
       ...(geohash ? { geohash } : {}),
       // "" means "nothing new uploaded" — leave whatever was already saved.
       ...(cnicUrl ? { cnicUrl } : {}),
+      ...(cnicBackUrl ? { cnicBackUrl } : {}),
       // photoQualityOk only ever flips alongside a genuinely new compliant
       // upload (SelfieUploadField always sends both together) — never
       // settable independently of an actual selfieUrl change.
