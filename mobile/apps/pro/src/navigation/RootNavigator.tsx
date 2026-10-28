@@ -13,6 +13,8 @@ import { AppTabBar } from "../components/TabBar";
 import { LanguageSuggestion } from "../components/LanguageSuggestion";
 import { SplashScreen } from "../screens/SplashScreen";
 import KycOnboardingScreen from "../screens/KycOnboardingScreen";
+import { submitPendingDocs } from "../lib/pendingDocs";
+import { faceSession } from "../lib/faceSession";
 import IncomingJobRing, { type IncomingJob } from "../screens/IncomingJobRing";
 
 import LoginScreen from "../screens/LoginScreen";
@@ -238,13 +240,25 @@ export function RootNavigator() {
   const { user, loading } = useAuth();
   const [gate, setGate] = React.useState<ProfileGate>("loading");
   const [rejectedReason, setRejectedReason] = React.useState<string | null>(null);
+  const hadDocs = React.useRef<boolean | null>(null);
 
   const refreshGate = React.useCallback(async () => {
     if (!user) return;
     try {
-      const { profile } = await api.getProviderProfile();
-      const p = (profile ?? {}) as Record<string, unknown>;
-      const hasDocs = Boolean(p.cnicUrl) && Boolean(p.selfieUrl);
+      let { profile } = await api.getProviderProfile();
+      let p = (profile ?? {}) as Record<string, unknown>;
+      let hasDocs = Boolean(p.cnicUrl) && Boolean(p.selfieUrl);
+      // The ID and selfie he picked on the sign-up screen are uploaded now, right after his first sign-in.
+      let justSubmitted = false;
+      if (!hasDocs && user.phone && (await submitPendingDocs(user.phone))) {
+        ({ profile } = await api.getProviderProfile());
+        p = (profile ?? {}) as Record<string, unknown>;
+        hasDocs = Boolean(p.cnicUrl) && Boolean(p.selfieUrl);
+        justSubmitted = true;
+      }
+      // Documents arrived (here or on the documents screen): the face check can now compare him with them.
+      if (hasDocs && (justSubmitted || hadDocs.current === false)) faceSession.requestRecheck();
+      hadDocs.current = hasDocs;
       // A rejection stands until the pro uploads new documents (which stamps a newer submission).
       const rejectedAt = p.verificationRejectedAt ? new Date(p.verificationRejectedAt as string).getTime() : 0;
       const submittedAt = p.verificationSubmittedAt ? new Date(p.verificationSubmittedAt as string).getTime() : 0;

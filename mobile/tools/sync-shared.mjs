@@ -58,8 +58,8 @@ const SHARED = [
   "src/lib/areaExamples.ts",
   "src/lib/scheduleSlots.ts",
   "src/lib/defaultCenter.ts",
-  // Animated chalk doodles behind sign-in / sign-up (AuthBackdrop.tsx)
-  "assets/doodles",
+  // Country photos behind sign-in / sign-up (AuthBackdrop.tsx); each app keeps its own Saudi artwork in assets/auth/sa
+  "assets/auth/world",
   "src/lib/currency.ts",
   "src/screens/ForgotPasswordScreen.tsx",
 ];
@@ -72,5 +72,17 @@ for (const rel of SHARED) {
 // auth.tsx is identical except for the role literal.
 const auth = readFileSync(join(from, "src/lib/auth.tsx"), "utf8").replace('role: "PROVIDER"', 'role: "CUSTOMER"');
 writeFileSync(join(to, "src/lib/auth.tsx"), auth);
+
+// The Admin app shows every picture of both apps and of every country behind its sign-in.
+const admin = join(root, "admin");
+for (const [src, dst] of [
+  [join(from, "src/components/AuthBackdrop.tsx"), join(admin, "src/components/AuthBackdrop.tsx")],
+  [join(from, "assets/auth/sa"), join(admin, "assets/auth/pro")],
+  [join(to, "assets/auth/sa"), join(admin, "assets/auth/customer")],
+  [join(from, "assets/auth/world"), join(admin, "assets/auth/world")],
+]) {
+  mkdirSync(dirname(dst), { recursive: true });
+  cpSync(src, dst, { recursive: true });
+}
 
 console.log(`Synced ${SHARED.length + 1} shared files from apps/pro to apps/customer`);

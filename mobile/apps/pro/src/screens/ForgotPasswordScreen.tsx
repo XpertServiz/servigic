@@ -67,7 +67,7 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <GlowBackground cx="30%" cy="15%" r="70%" opacity={0.14} />
-      <AuthBackdrop />
+      <AuthBackdrop country={phone.country} heightFrac={0.4} dim={0.5} />
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Pressable onPress={() => navigation.goBack()} style={styles.back} accessibilityLabel={t("common.back")}>
           <Icon name="back" size={16} />

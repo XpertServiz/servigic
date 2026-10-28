@@ -42,6 +42,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         verifiedAt: existing.verifiedAt ?? now,
         verificationRejectedAt: null,
         verificationRejectedReason: null,
+        faceReviewAt: null,
+        faceFailCount: 0,
       },
     });
     // The trades a new pro signed up with are approved together with their documents.

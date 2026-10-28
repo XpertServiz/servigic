@@ -24,6 +24,7 @@ const RULES: { trade: Trade; re: RegExp }[] = [
   { trade: "ROOFING", re: /(roof)/i },
   { trade: "GARDENING", re: /(garden|\bmali\b|مالی)/i },
   { trade: "UPHOLSTERY", re: /(upholster|sofa repair)/i },
+  { trade: "TOWING", re: /(\btow(ing)?\b|tow truck|roadside|breakdown|recovery truck|\bwinch\b|ٹو ?ٹرک|کرین|سحب|ونش)/i },
   { trade: "HANDYMAN", re: /(handyman|all rounder|general repair)/i },
 ];
 

@@ -41,6 +41,8 @@ export default function PostJobScreen({ navigation, route }: Props) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [urgency, setUrgency] = useState<Urgency>(route.params?.urgency ?? "TODAY");
+  // Car towing / roadside help is urgent by default (the customer can still change it).
+  const urgencyChosen = React.useRef(Boolean(route.params?.urgency));
   const [areaLabel, setAreaLabel] = useState("");
   const [exactAddress, setExactAddress] = useState("");
   const [coords, setCoords] = useState({ lat: 24.8607, lng: 67.0011 });
@@ -263,6 +265,10 @@ export default function PostJobScreen({ navigation, route }: Props) {
   ];
 
   const available = categories.filter((c) => c.available);
+  const selectedTrade = categories.find((c) => c.id === categoryId)?.trade;
+  React.useEffect(() => {
+    if (selectedTrade === "TOWING" && !urgencyChosen.current) setUrgency("EMERGENCY");
+  }, [selectedTrade]);
 
   if (!acceptingJobs || pinOutside) {
     return (
@@ -347,7 +353,7 @@ export default function PostJobScreen({ navigation, route }: Props) {
 
         <Text style={styles.label}>{t("post.urgency")}</Text>
         <View style={{ marginBottom: 18 }}>
-          <SegmentedControl options={urgencyOptions} value={urgency} onChange={setUrgency} />
+          <SegmentedControl options={urgencyOptions} value={urgency} onChange={(v) => { urgencyChosen.current = true; setUrgency(v); }} />
         </View>
         {urgency === "SCHEDULED" && <SchedulePicker value={schedule} onChange={setSchedule} />}
 

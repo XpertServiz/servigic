@@ -14,6 +14,7 @@ export const SERVICE_CATALOG = [
   { trade: "CLEANER", slug: "cleaner", icon: "🧹", minPricePKR: 1800 },
   { trade: "MASON", slug: "mason", icon: "🧱", minPricePKR: 2200 },
   { trade: "HANDYMAN", slug: "handyman", icon: "🛠️", minPricePKR: 900 },
+  { trade: "TOWING", slug: "car-towing", icon: "🚛", minPricePKR: 3000 },
 ] as const;
 
 export const TRADE_ICONS: Record<string, string> = Object.fromEntries(SERVICE_CATALOG.map((s) => [s.trade, s.icon]));

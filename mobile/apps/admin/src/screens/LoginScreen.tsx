@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, Image, KeyboardAvoidingVi
 import { colors, radius } from "../lib/theme";
 import { useAuth } from "../lib/auth";
 import { ApiError } from "../lib/api";
+import { AuthBackdrop } from "../components/AuthBackdrop";
 
 export function LoginScreen() {
   const { signIn } = useAuth();
@@ -29,6 +30,7 @@ export function LoginScreen() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
+      <AuthBackdrop heightFrac={1} dim={0.62} />
       <Image source={require("../../assets/icon.png")} style={styles.logo} resizeMode="contain" />
       <Text style={styles.title}>Servigic Admin</Text>
       <Text style={styles.subtitle}>Approve payments and manage the platform from anywhere.</Text>

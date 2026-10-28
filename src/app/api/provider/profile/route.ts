@@ -67,10 +67,14 @@ export async function PUT(req: Request) {
     if (near) await prisma.user.update({ where: { id: auth.session.user.id }, data: { city: near.city } }).catch(() => null);
   }
 
+  const photoChanged = Boolean((cnicUrl && cnicUrl !== existing?.cnicUrl) || (selfieUrl && selfieUrl !== existing?.selfieUrl));
+  const swappedWhileVerified = photoChanged && Boolean(existing?.isVerified) && Boolean(existing?.cnicUrl || existing?.selfieUrl);
+
   const profile = await prisma.providerProfile.update({
     where: { userId: auth.session.user.id },
     data: {
       ...data,
+      ...(photoChanged ? { faceVerifiedAt: null, faceFailCount: 0, faceReviewAt: swappedWhileVerified ? new Date() : null } : {}),
       ...(cnicOcr ? { cnicOcr } : {}),
       ...(submittedForReview
         ? {

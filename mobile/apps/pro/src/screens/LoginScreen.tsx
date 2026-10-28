@@ -45,7 +45,7 @@ export default function LoginScreen({ navigation }: Props) {
   return (
     <View style={styles.root}>
       <GlowBackground cx="30%" cy="15%" r="70%" opacity={0.14} />
-      <AuthBackdrop />
+      <AuthBackdrop country={phone.country} />
       <View style={[styles.topBar, { top: insets.top + 12 }]}>
         <HeaderActions showBell={false} />
       </View>

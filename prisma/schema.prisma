@@ -73,6 +73,7 @@ enum Trade {
   GLASS_REPAIR
   WELDING
   UPHOLSTERY
+  TOWING // Car towing and roadside assistance (tow truck, flat tyre, jump start, fuel, lockout, recovery)
 }
 
 enum PayoutMethod {

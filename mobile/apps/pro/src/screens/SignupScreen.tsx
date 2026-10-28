@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Alert, KeyboardAvoidingView, ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import { Alert, Image, KeyboardAvoidingView, ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../navigation/RootNavigator";
@@ -14,6 +15,7 @@ import { GlowBackground } from "../components/ds";
 import { AuthBackdrop } from "../components/AuthBackdrop";
 import { authErrorMessage } from "../lib/authErrors";
 import { AcceptAgreement, type TermsAcceptance } from "../components/AcceptAgreement";
+import { savePendingDocs } from "../lib/pendingDocs";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Signup">;
 
@@ -31,6 +33,36 @@ export default function SignupScreen({ navigation }: Props) {
   // The e-signed Customer Terms / Pro Agreement of the phone number's country; no account without it.
   const [terms, setTerms] = useState<TermsAcceptance | null>(null);
   const [launching, setLaunching] = useState(false);
+  // The ID photo and a selfie: uploaded automatically after his first sign-in, and what the face check compares him with.
+  const [cnicUri, setCnicUri] = useState<string | null>(null);
+  const [selfieUri, setSelfieUri] = useState<string | null>(null);
+  const [photoConsent, setPhotoConsent] = useState(false);
+
+  async function capture(kind: "cnic" | "selfie", gallery: boolean) {
+    setError(null);
+    try {
+      if (!gallery) {
+        const perm = await ImagePicker.requestCameraPermissionsAsync();
+        if (!perm.granted) return setError(t("signup.cameraNeeded"));
+      }
+      const res = gallery
+        ? await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 })
+        : await ImagePicker.launchCameraAsync({ mediaTypes: ["images"], quality: 0.7, cameraType: kind === "selfie" ? ImagePicker.CameraType.front : ImagePicker.CameraType.back });
+      if (res.canceled || !res.assets[0]) return;
+      if (kind === "cnic") setCnicUri(res.assets[0].uri);
+      else setSelfieUri(res.assets[0].uri);
+    } catch {
+      setError(t("kyc.uploadFailed"));
+    }
+  }
+
+  function pickId() {
+    Alert.alert(t("signup.idLabel"), undefined, [
+      { text: t("signup.takePhoto"), onPress: () => capture("cnic", false) },
+      { text: t("signup.fromGallery"), onPress: () => capture("cnic", true) },
+      { text: t("common.back"), style: "cancel" },
+    ]);
+  }
 
   // Honest expectation-setting: if the market is not fully live yet, say so before the pro invests time.
   useEffect(() => {
@@ -52,6 +84,10 @@ export default function SignupScreen({ navigation }: Props) {
       setError(t("legal.required"));
       return;
     }
+    if (!cnicUri || !selfieUri) {
+      setError(t("signup.docsSub"));
+      return;
+    }
     setLoading(true);
     try {
       // Market config (handoff section 11.6): sign up into the market for the user's country. Without market
@@ -59,6 +95,7 @@ export default function SignupScreen({ navigation }: Props) {
       const cfg = await loadMarketConfig(null);
       const city = cfg && !cfg.legacyOpen ? cfg.market?.cities?.[0] : "Karachi";
       const { userId, verified } = await api.register({ role: "PROVIDER", name, phone: phone.e164, email, password, confirmPassword: confirm, ...(city ? { city } : {}), ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}), deviceId: await getDeviceId(), country: phone.country, terms });
+      await savePendingDocs({ phone: phone.e164, cnicUri, selfieUri, photoConsent }).catch(() => {});
       // Second role on a number that is already verified: nothing to confirm, just sign in.
       if (verified) {
         Alert.alert(t("auth.linkedDone"));
@@ -76,7 +113,7 @@ export default function SignupScreen({ navigation }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <GlowBackground cx="30%" cy="15%" r="70%" opacity={0.12} />
-      <AuthBackdrop />
+      <AuthBackdrop country={phone.country} heightFrac={0.4} dim={0.5} />
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Pressable onPress={() => navigation.goBack()} style={styles.back} accessibilityLabel={t("common.back")}>
           <Icon name="back" size={16} />
@@ -105,6 +142,15 @@ export default function SignupScreen({ navigation }: Props) {
         <Field label={t("auth.password")} secureTextEntry value={password} onChangeText={setPassword} placeholder="••••••••" />
         <Field label={t("auth.confirmPassword")} secureTextEntry value={confirm} onChangeText={setConfirm} placeholder="••••••••" error={confirm && confirm !== password ? t("auth.passwordMismatch") : null} />
 
+        <Text style={styles.docsTitle}>{t("signup.docsTitle")}</Text>
+        <Text style={styles.docsSub}>{t("signup.docsSub")}</Text>
+        <DocPick label={t("signup.idLabel")} uri={cnicUri} onPress={pickId} />
+        <DocPick label={t("signup.selfieLabel")} uri={selfieUri} onPress={() => capture("selfie", false)} />
+        <Pressable onPress={() => setPhotoConsent((v) => !v)} style={styles.consentRow}>
+          <View style={[styles.checkbox, photoConsent && styles.checkboxOn]}>{photoConsent && <Icon name="check" size={13} color={colors.accentForeground} />}</View>
+          <Text style={styles.consentText}>{t("kyc.consent")}</Text>
+        </Pressable>
+
         <Field label={t("referral.signupLabel")} value={referralCode} onChangeText={(v) => setReferralCode(v.toUpperCase())} autoCapitalize="characters" />
 
         <AcceptAgreement key={phone.country} role="PROVIDER" country={phone.country} name={name} onChange={setTerms} />
@@ -116,14 +162,35 @@ export default function SignupScreen({ navigation }: Props) {
           <Text style={styles.approvalBody}>{t("auth.proPendingBody")}</Text>
         </View>
         {launching && <Text style={{ color: colors.accent, fontSize: 12.5, lineHeight: 18, marginBottom: 12 }}>{t("pro.launchingNote")}</Text>}
-        <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || !email || password.length < 8 || confirm !== password || !terms} />
+        <Button title={t("auth.createAccount")} onPress={handleSignup} loading={loading} disabled={!name || !phone.text || !email || password.length < 8 || confirm !== password || !terms || !cnicUri || !selfieUri} />
       </ScrollView>
       </KeyboardAvoidingView>
     </View>
   );
 }
 
+function DocPick({ label, uri, onPress }: { label: string; uri: string | null; onPress: () => void }) {
+  const t = useT();
+  return (
+    <Pressable onPress={onPress} style={styles.docRow}>
+      {uri ? <Image source={{ uri }} style={styles.docThumb} /> : <View style={[styles.docThumb, { backgroundColor: "rgba(255,255,255,0.06)" }]} />}
+      <Text style={styles.docLabel}>{label}</Text>
+      <Text style={[styles.docStatus, uri && { color: colors.success }]}>{uri ? t("kyc.uploaded") : t("kyc.upload")}</Text>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
+  docsTitle: { color: colors.text, fontSize: 16, fontWeight: "800", marginTop: 6 },
+  docsSub: { color: colors.textMuted, fontSize: 12.5, lineHeight: 18, marginBottom: 10 },
+  docRow: { flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderColor: "rgba(255,255,255,0.12)", borderRadius: 14, padding: 10, marginBottom: 10, backgroundColor: "rgba(0,0,0,0.25)" },
+  docThumb: { width: 44, height: 44, borderRadius: 10 },
+  docLabel: { flex: 1, color: colors.text, fontSize: 13.5, fontWeight: "600" },
+  docStatus: { color: colors.accent, fontSize: 12.5, fontWeight: "800" },
+  consentRow: { flexDirection: "row", alignItems: "flex-start", gap: 10, marginBottom: 18 },
+  checkbox: { width: 20, height: 20, borderRadius: 6, borderWidth: 1.5, borderColor: colors.textMuted, alignItems: "center", justifyContent: "center", marginTop: 1 },
+  checkboxOn: { backgroundColor: colors.accent, borderColor: colors.accent },
+  consentText: { flex: 1, color: colors.textMuted, fontSize: 11.5, lineHeight: 16 },
   header: { flexDirection: "row", alignItems: "center", gap: 14, paddingHorizontal: 18, paddingBottom: 10 },
   back: { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.06)", alignItems: "center", justifyContent: "center" },
   headerTitle: { color: colors.text, fontSize: 17, fontWeight: "700" },

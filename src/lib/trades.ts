@@ -21,4 +21,5 @@ export const TRADE_LABELS: Record<string, { name: string; icon: string }> = {
   GLASS_REPAIR: { name: "Glass Repair", icon: "🪟" },
   WELDING: { name: "Welding", icon: "🔥" },
   UPHOLSTERY: { name: "Upholstery", icon: "🛋️" },
+  TOWING: { name: "Car Towing & Roadside", icon: "🚛" },
 };

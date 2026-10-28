@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
   if (parsed.data.isOnline) {
-    const current = await prisma.providerProfile.findUnique({ where: { userId: auth.session.user.id }, select: { faceVerifiedAt: true, faceReviewAt: true } });
+    const current = await prisma.providerProfile.findUnique({ where: { userId: auth.session.user.id }, select: { faceVerifiedAt: true, faceReviewAt: true, cnicUrl: true, selfieUrl: true } });
     const block = current ? await faceBlock(auth.session.user.id, current) : null;
     if (block) return NextResponse.json({ error: block.message, code: block.code }, { status: 403 });
   }

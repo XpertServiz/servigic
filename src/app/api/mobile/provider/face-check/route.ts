@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
-import { faceCheckRequired, faceIsFresh, FACE_MAX_FAILS } from "@/lib/faceCheck";
+import { faceCheckRequired, faceIsFresh, hasFaceReference, FACE_MAX_FAILS } from "@/lib/faceCheck";
 import { faceDescriptor, faceDistance, matchScore } from "@/lib/faceMatch";
 
 export const maxDuration = 60;
@@ -36,9 +36,10 @@ async function referenceFaces(p: { id: string; cnicUrl: string | null; selfieUrl
 export async function GET() {
   const auth = await requireRole("PROVIDER");
   if (!auth.ok) return auth.response;
-  const p = await prisma.providerProfile.findUnique({ where: { userId: auth.session.user.id }, select: { faceVerifiedAt: true, faceFailCount: true, faceReviewAt: true, selfieUrl: true } });
+  const p = await prisma.providerProfile.findUnique({ where: { userId: auth.session.user.id }, select: { faceVerifiedAt: true, faceFailCount: true, faceReviewAt: true, selfieUrl: true, cnicUrl: true } });
   if (!p) return NextResponse.json({ required: false });
-  const required = await faceCheckRequired(auth.session.user.id);
+  // No ID card / profile photo uploaded yet: nothing to compare with, so no face check (he is asked for the documents first).
+  const required = hasFaceReference(p) && (await faceCheckRequired(auth.session.user.id));
   return NextResponse.json({ required, locked: Boolean(p.faceReviewAt), attemptsLeft: Math.max(0, FACE_MAX_FAILS - p.faceFailCount), recentlyVerified: faceIsFresh(p) });
 }
 
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
   const userId = auth.session.user.id;
   const p = await prisma.providerProfile.findUnique({ where: { userId } });
   if (!p) return NextResponse.json({ error: "No profile" }, { status: 404 });
-  if (!(await faceCheckRequired(userId))) return NextResponse.json({ ok: true, skipped: true });
+  if (!hasFaceReference(p) || !(await faceCheckRequired(userId))) return NextResponse.json({ ok: true, skipped: true });
   if (p.faceReviewAt) return NextResponse.json({ ok: false, code: "REVIEW", message: "Your face check is waiting for approval by Servigic support.", attemptsLeft: 0 }, { status: 423 });
 
   const formData = await req.formData();

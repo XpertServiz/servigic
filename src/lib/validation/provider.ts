@@ -23,6 +23,7 @@ export const TRADES = [
   "GLASS_REPAIR",
   "WELDING",
   "UPHOLSTERY",
+  "TOWING",
 ] as const;
 
 // Partial on purpose: the provider profile row is created (with just a

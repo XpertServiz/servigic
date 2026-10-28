@@ -728,6 +728,7 @@ export const en = {
   "trade.GLASS_REPAIR": "Glass Repair",
   "trade.WELDING": "Welding",
   "trade.UPHOLSTERY": "Upholstery",
+  "trade.TOWING": "Car Towing & Roadside",
   "profile.photoRequiredTitle": "Add your profile photo",
   "profile.photoRequiredBody": "Customers recognise you at the door by your photo. Open Account > Edit profile and add a clear, recent photo of yourself (face visible, no sunglasses). Until then you will not receive jobs or be able to bid.",
   "hours.title": "Working hours",
@@ -818,6 +819,13 @@ export const en = {
   "bids.finishingOther": "Finishing another job first",
   "bid.etaAfterJob": "When can you arrive? (you are finishing another job)",
   "face.consent": "By continuing you agree to the face recognition terms in the Pro Agreement. Your selfie is compared with your ID photo and is not saved.",
+  "signup.docsTitle": "Your ID and selfie",
+  "signup.docsSub": "Add your ID and a clear selfie now. They verify who you are and are what the face check compares you with each time you open the app.",
+  "signup.idLabel": "ID card, Iqama or driving licence",
+  "signup.selfieLabel": "Your selfie (clear face)",
+  "signup.takePhoto": "Take a photo",
+  "signup.fromGallery": "Choose from gallery",
+  "signup.cameraNeeded": "Camera permission is needed to take the photo.",
 } as const;
 
 export type TKey = keyof typeof en;

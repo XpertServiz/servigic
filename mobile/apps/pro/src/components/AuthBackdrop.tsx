@@ -1,71 +1,58 @@
-// Soft animated background behind the sign-in / sign-up screens: hand-drawn chalk doodles of the trades (electrician: bulb,
-// plug, screwdriver; AC technician: AC unit, fan, wrench) in the brand amber on a transparent background, "boiling" like a
-// hand-drawn animation, at a low opacity. The two scenes cross-fade every few seconds. The 3D logo, the card and the colours
-// of the screen stay exactly as they are. Plain image frames: no video player, light on any phone.
-// Shared verbatim by apps/customer and apps/pro.
-import React, { useEffect, useRef, useState } from "react";
-import { Animated, Easing, Image, StyleSheet, View, useWindowDimensions } from "react-native";
+// Photo slideshow behind the sign-in / sign-up screens: a new picture every second, cross-fading, for the country of the phone
+// number (Saudi Arabia, Pakistan, UAE, Qatar, Canada, USA, otherwise neutral home-service pictures). The pictures of each app are
+// listed in src/lib/authSlides.ts. They fill the top of the screen and fade into the app background so the form stays readable.
+// Shared verbatim by apps/customer, apps/pro and apps/admin (the Admin app shows every picture, whatever the country).
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Animated, Image, StyleSheet, View, useWindowDimensions } from "react-native";
+import { colors } from "../lib/theme";
+import { slidesFor } from "../lib/authSlides";
 
-const SCENES = [
-  [
-    require("../../assets/doodles/elec_0.webp"),
-    require("../../assets/doodles/elec_1.webp"),
-    require("../../assets/doodles/elec_2.webp"),
-    require("../../assets/doodles/elec_3.webp"),
-    require("../../assets/doodles/elec_4.webp"),
-    require("../../assets/doodles/elec_5.webp"),
-    require("../../assets/doodles/elec_6.webp"),
-    require("../../assets/doodles/elec_7.webp"),
-    require("../../assets/doodles/elec_8.webp"),
-  ],
-  [
-    require("../../assets/doodles/ac_0.webp"),
-    require("../../assets/doodles/ac_1.webp"),
-    require("../../assets/doodles/ac_2.webp"),
-    require("../../assets/doodles/ac_3.webp"),
-    require("../../assets/doodles/ac_4.webp"),
-    require("../../assets/doodles/ac_5.webp"),
-    require("../../assets/doodles/ac_6.webp"),
-    require("../../assets/doodles/ac_7.webp"),
-    require("../../assets/doodles/ac_8.webp"),
-  ],
-];
+const EVERY_MS = 1000;
+const FADE_MS = 450;
+const STRIPS = 12;
 
-const FRAME_MS = 170; // the original clips run at ~6 frames a second
-const SCENE_MS = 6000;
-const MAX_OPACITY = 0.2;
-
-export function AuthBackdrop() {
+export function AuthBackdrop({ country, heightFrac = 0.5, dim = 0 }: { country?: string | null; heightFrac?: number; dim?: number }) {
   const { width, height } = useWindowDimensions();
-  const [frame, setFrame] = useState(0);
-  const [scene, setScene] = useState(0);
-  const fades = useRef(SCENES.map((_, i) => new Animated.Value(i === 0 ? MAX_OPACITY : 0))).current;
+  const images = useMemo(() => slidesFor(country), [country]);
+  const [index, setIndex] = useState(0);
+  const [prev, setPrev] = useState<number | null>(null);
+  const shown = useRef(0);
+  const fade = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    const f = setInterval(() => setFrame((x) => x + 1), FRAME_MS);
-    const s = setInterval(() => setScene((x) => (x + 1) % SCENES.length), SCENE_MS);
-    return () => {
-      clearInterval(f);
-      clearInterval(s);
-    };
-  }, []);
+    shown.current = 0;
+    setIndex(0);
+    setPrev(null);
+    if (images.length < 2) return;
+    const timer = setInterval(() => setIndex((x) => (x + 1) % images.length), EVERY_MS);
+    return () => clearInterval(timer);
+  }, [images]);
 
   useEffect(() => {
-    SCENES.forEach((_, i) => {
-      Animated.timing(fades[i], { toValue: i === scene ? MAX_OPACITY : 0, duration: 1600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }).start();
-    });
-  }, [scene, fades]);
+    if (index === shown.current) return;
+    setPrev(shown.current);
+    shown.current = index;
+    fade.setValue(0);
+    Animated.timing(fade, { toValue: 1, duration: FADE_MS, useNativeDriver: true }).start(() => setPrev(null));
+  }, [index, fade]);
 
-  // Cover the screen (the frames are portrait, 9:16).
-  const w = Math.max(width, (height * 9) / 16);
-  const h = (w * 16) / 9;
+  const boxH = Math.round(height * Math.min(1, heightFrac));
+  const full = heightFrac >= 1;
+  const stripH = Math.ceil((boxH * 0.4) / STRIPS);
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      {SCENES.map((frames, i) => (
-        <Animated.View key={i} style={[StyleSheet.absoluteFill, { alignItems: "center", justifyContent: "center", opacity: fades[i] }]}>
-          <Image source={frames[frame % frames.length]} style={{ width: w, height: h }} resizeMode="cover" fadeDuration={0} />
-        </Animated.View>
-      ))}
+    <View style={[StyleSheet.absoluteFill, { overflow: "hidden" }]} pointerEvents="none">
+      <View style={{ width, height: boxH }}>
+        {prev != null && images[prev] != null && <Image source={images[prev]} style={{ width, height: boxH, position: "absolute" }} resizeMode="cover" fadeDuration={0} />}
+        <Animated.Image source={images[index]} style={{ width, height: boxH, position: "absolute", opacity: fade }} resizeMode="cover" fadeDuration={0} />
+        {dim > 0 && <View style={[StyleSheet.absoluteFill, { backgroundColor: "#000", opacity: dim }]} />}
+        {!full && (
+          <View style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}>
+            {Array.from({ length: STRIPS }, (_, i) => (
+              <View key={i} style={{ height: stripH, backgroundColor: colors.bg, opacity: (i + 1) / STRIPS }} />
+            ))}
+          </View>
+        )}
+      </View>
     </View>
   );
 }

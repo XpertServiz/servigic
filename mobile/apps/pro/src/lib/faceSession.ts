@@ -5,7 +5,19 @@ let passed = false;
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 
+const rechecks = new Set<() => void>();
+
 export const faceSession = {
+  /** Documents were just uploaded: the face gate asks the server again (a check may now be required). */
+  requestRecheck() {
+    rechecks.forEach((f) => f());
+  },
+  onRecheck(cb: () => void) {
+    rechecks.add(cb);
+    return () => {
+      rechecks.delete(cb);
+    };
+  },
   isPassed: () => passed,
   pass() {
     passed = true;

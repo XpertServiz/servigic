@@ -65,7 +65,7 @@
         "expo-image-picker",
         {
           "photosPermission": "Servigic Pro needs access to your photos to upload verification documents and photos of finished work.",
-          "cameraPermission": "Servigic Pro uses the camera to take a photo of your finished work."
+          "cameraPermission": "Servigic Pro uses the camera to take your selfie and ID photo and photos of your finished work."
         }
       ],
       [

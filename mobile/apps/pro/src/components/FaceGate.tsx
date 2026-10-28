@@ -55,6 +55,16 @@ export function FaceGate() {
     if (!faceSession.isPassed()) check();
   }, [userId, check]);
 
+  // Documents were just uploaded (sign-up or the documents screen): ask the server again.
+  useEffect(
+    () =>
+      faceSession.onRecheck(() => {
+        faceSession.reset();
+        if (userId) check();
+      }),
+    [userId, check],
+  );
+
   // Back after a long time in the background: ask again.
   useEffect(() => {
     const sub = AppState.addEventListener("change", (s) => {

@@ -20,12 +20,22 @@ export async function faceCheckRequired(userId: string): Promise<boolean> {
   return market?.countryCode === "SA";
 }
 
+/** The face check compares the live selfie with the ID card photo and the profile photo: without either there is nothing to compare with. */
+export function hasFaceReference(p: { cnicUrl: string | null; selfieUrl: string | null }): boolean {
+  return Boolean(p.cnicUrl || p.selfieUrl);
+}
+
 export function faceIsFresh(p: { faceVerifiedAt: Date | null }, now = Date.now()): boolean {
   return p.faceVerifiedAt != null && now - p.faceVerifiedAt.getTime() <= FACE_VALID_MS;
 }
 
 /** null = fine; otherwise the reason the pro may not go online or bid right now. */
-export async function faceBlock(userId: string, p: { faceVerifiedAt: Date | null; faceReviewAt: Date | null }): Promise<{ code: "FACE_REQUIRED" | "FACE_REVIEW"; message: string } | null> {
+export async function faceBlock(
+  userId: string,
+  p: { faceVerifiedAt: Date | null; faceReviewAt: Date | null; cnicUrl: string | null; selfieUrl: string | null },
+): Promise<{ code: "FACE_REQUIRED" | "FACE_REVIEW"; message: string } | null> {
+  // Documents still to come: the verification flow (documents, then an admin) handles that, not the face check.
+  if (!hasFaceReference(p)) return null;
   if (!(await faceCheckRequired(userId))) return null;
   if (p.faceReviewAt) return { code: "FACE_REVIEW", message: "Your face check is waiting for approval by Servigic support." };
   if (!faceIsFresh(p)) return { code: "FACE_REQUIRED", message: "Please do the face check first: close and open the app, then take the selfie." };
