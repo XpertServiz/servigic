@@ -1,7 +1,7 @@
 "use client";
 
 import { PasswordInput } from "@/components/ui/PasswordInput";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useMemo, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { clsx } from "clsx";
@@ -28,6 +28,13 @@ function SignupInner({ ctx }: { ctx: AuthContext }) {
   const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", confirmPassword: "", city: current?.cities[0] ?? "" });
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  // Pro: the trades he works in (every category, including ones an admin created).
+  const [trades, setTrades] = useState<string[]>([]);
+  const [tradeOptions, setTradeOptions] = useState<{ trade: string; name: string; icon: string }[]>([]);
+  useEffect(() => {
+    fetch("/api/mobile/trades").then((r) => r.json()).then((d) => setTradeOptions(d.trades ?? [])).catch(() => {});
+  }, []);
+  const toggleTrade = (x: string) => setTrades((cur) => (cur.includes(x) ? cur.filter((y) => y !== x) : cur.length >= 3 ? cur : [...cur, x]));
   // The e-signed acceptance of the Customer Terms / Pro Agreement for the chosen country; no account without it.
   const [terms, setTerms] = useState<TermsAcceptance | null>(null);
 
@@ -75,12 +82,16 @@ function SignupInner({ ctx }: { ctx: AuthContext }) {
       setError(tl("required"));
       return;
     }
+    if (role === "PROVIDER" && trades.length === 0) {
+      setError("Please pick the work you do (up to 3).");
+      return;
+    }
     setPending(true);
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, role, country, terms }),
+        body: JSON.stringify({ ...form, role, country, terms, ...(role === "PROVIDER" ? { trades } : {}) }),
       });
       // The server always answers with JSON; if it does not (a proxy error page), say so instead of "network error".
       const data = await res.json().catch(() => null);
@@ -196,6 +207,28 @@ function SignupInner({ ctx }: { ctx: AuthContext }) {
           <PasswordInput id="confirmPassword" required autoComplete="new-password" minLength={8} value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} className={authInput} />
           {form.confirmPassword && form.confirmPassword !== form.password && <p className="mt-1.5 text-xs text-danger">{t("passwordMismatch")}</p>}
         </div>
+        {role === "PROVIDER" && (
+          <div>
+            <label className="mb-1.5 block text-sm font-semibold text-text-muted">What work do you do? (pick up to 3)</label>
+            <div className="flex flex-wrap gap-2">
+              {tradeOptions.map((x) => {
+                const on = trades.includes(x.trade);
+                return (
+                  <button
+                    key={x.trade}
+                    type="button"
+                    onClick={() => toggleTrade(x.trade)}
+                    aria-pressed={on}
+                    className={`rounded-full border px-3.5 py-2 text-sm font-semibold ${on ? "border-accent bg-accent text-accent-foreground" : "border-border-subtle text-text-muted"}`}
+                  >
+                    {x.icon} {x.name}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-1.5 text-xs text-text-muted">An admin approves your trades together with your documents.</p>
+          </div>
+        )}
         <AcceptAgreement key={`${role}-${country}`} role={role} country={country} name={form.name} onChange={setTerms} />
         {error && (
           <p role="alert" className="text-sm text-danger">

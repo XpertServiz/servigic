@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { TRADE_LABELS } from "@/lib/trades";
+import { EmojiPicker } from "@/components/admin/EmojiPicker";
 
 function slugify(name: string) {
   return name
@@ -18,6 +19,7 @@ export function AddCategoryButton({ availableTrades }: { availableTrades: readon
   const [open, setOpen] = useState(false);
   const [trade, setTrade] = useState(availableTrades[0] ?? "");
   const [name, setName] = useState("");
+  const [icon, setIcon] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [pending, setPending] = useState(false);
@@ -41,7 +43,7 @@ export function AddCategoryButton({ availableTrades }: { availableTrades: readon
           trade,
           name: name.trim(),
           slug: slugify(name),
-          icon: TRADE_LABELS[trade]?.icon ?? "🛠️",
+          icon: icon.trim() || TRADE_LABELS[trade]?.icon || "🛠️",
           minPricePKR: minPrice ? Number(minPrice) : undefined,
           maxPricePKR: maxPrice ? Number(maxPrice) : undefined,
           activeCities: [],
@@ -55,6 +57,7 @@ export function AddCategoryButton({ availableTrades }: { availableTrades: readon
       toast.success("Category added");
       setOpen(false);
       setName("");
+      setIcon("");
       setMinPrice("");
       setMaxPrice("");
       router.refresh();
@@ -77,7 +80,7 @@ export function AddCategoryButton({ availableTrades }: { availableTrades: readon
           <div className="w-full max-w-sm rounded-[14px] border border-border-subtle bg-bg-elevated p-6">
             <h3 className="mb-4 font-bold">Add category</h3>
 
-            <label className="mb-1.5 block text-xs font-semibold text-text-muted">Trade</label>
+            <label className="mb-1.5 block text-xs font-semibold text-text-muted">Trade (pick a "Custom category" slot for a brand-new one)</label>
             <select
               value={trade}
               onChange={(e) => setTrade(e.target.value)}
@@ -85,7 +88,7 @@ export function AddCategoryButton({ availableTrades }: { availableTrades: readon
             >
               {availableTrades.map((t) => (
                 <option key={t} value={t}>
-                  {TRADE_LABELS[t]?.icon} {TRADE_LABELS[t]?.name ?? t}
+                  {TRADE_LABELS[t]?.icon} {t.startsWith("CUSTOM_") ? `New category (slot ${t.slice(7)})` : (TRADE_LABELS[t]?.name ?? t)}
                 </option>
               ))}
             </select>
@@ -97,6 +100,11 @@ export function AddCategoryButton({ availableTrades }: { availableTrades: readon
               placeholder={TRADE_LABELS[trade]?.name}
               className="mb-3 w-full rounded-[8px] border border-border-subtle bg-bg-elevated-2 px-3 py-2 text-sm"
             />
+
+            <label className="mb-1.5 block text-xs font-semibold text-text-muted">Icon (emoji)</label>
+            <div className="mb-3">
+              <EmojiPicker value={icon || TRADE_LABELS[trade]?.icon || ""} onChange={setIcon} />
+            </div>
 
             <label className="mb-1.5 block text-xs font-semibold text-text-muted">Price range (PKR, optional)</label>
             <div className="mb-4 flex items-center gap-2">

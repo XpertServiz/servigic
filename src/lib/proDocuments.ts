@@ -90,6 +90,7 @@ export async function refreshDocumentBlock(providerId: string, now = new Date())
       title: "Job access paused: document expired",
       body: "A required document has expired, so you will not get new jobs or be able to bid for now. Upload the renewed document in Account > My documents; access comes back as soon as it is approved.",
       linkUrl: "/pro/profile",
+      channels: ["email"],
     }).catch(() => null);
   } else if (lapsed.length === 0 && profile.documentsBlockedAt) {
     await prisma.providerProfile.update({ where: { id: providerId }, data: { documentsBlockedAt: null, documentsBlockedReason: null } });

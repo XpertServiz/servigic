@@ -9,6 +9,8 @@ export interface IdOcr {
   fullName?: string;
   idNumber?: string;
   dob?: string;
+  /** Expiry date of the document as yyyy-mm-dd (the latest date printed on it). */
+  expiry?: string;
   address?: string;
   rawLines?: string[];
 }
@@ -37,6 +39,17 @@ function findDob(lines: string[]): string | undefined {
   return dates[0]?.raw;
 }
 
+/** Expiry = the latest date on the card (issue date and birth date are earlier). Reads dd-mm-yyyy and yyyy-mm-dd; returns yyyy-mm-dd. */
+function findExpiry(lines: string[]): string | undefined {
+  const found: string[] = [];
+  for (const line of lines) {
+    for (const m of line.matchAll(/\b(\d{2})[./-](\d{2})[./-](\d{4})\b/g)) found.push(`${m[3]}-${m[2]}-${m[1]}`);
+    for (const m of line.matchAll(/\b(\d{4})[./-](\d{2})[./-](\d{2})\b/g)) found.push(`${m[1]}-${m[2]}-${m[3]}`);
+  }
+  const valid = found.filter((d) => Number(d.slice(0, 4)) >= 2000 && Number(d.slice(5, 7)) >= 1 && Number(d.slice(5, 7)) <= 12 && Number(d.slice(8, 10)) >= 1 && Number(d.slice(8, 10)) <= 31).sort();
+  return valid.length > 1 ? valid[valid.length - 1] : undefined;
+}
+
 function valueAfterLabel(lines: string[], label: RegExp, take = 1): string | undefined {
   const i = lines.findIndex((l) => label.test(l));
   if (i < 0) return undefined;
@@ -55,7 +68,7 @@ export function parseIdLines(rawLines: string[]): IdOcr {
   const idNumber = findIdNumber(joined);
   const dob = findDob(lines);
   const address = valueAfterLabel(lines, /^(present|permanent)? ?address$/i, 3);
-  return { fullName, idNumber, dob, address, rawLines: lines.slice(0, 40).map((l) => l.slice(0, 200)) };
+  return { fullName, idNumber, dob, expiry: findExpiry(lines), address, rawLines: lines.slice(0, 40).map((l) => l.slice(0, 200)) };
 }
 
 /** Reads an ID photo on-device. Returns null when OCR isn't available or finds no text. */

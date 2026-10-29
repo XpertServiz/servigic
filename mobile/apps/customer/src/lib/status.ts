@@ -27,8 +27,12 @@ type EnumGroup = "booking" | "job" | "bid" | "urgency" | "trade" | "method" | "l
  * translation yet still renders as readable words ("On my way"), never as a
  * raw ENUM_STRING.
  */
+/** Names of categories an admin created (loaded from the server at start): trade key -> name. */
+export const runtimeTradeNames: Record<string, string> = {};
+
 export function enumLabel(td: TDynamic, group: EnumGroup, value: string | undefined | null): string {
   if (!value) return "";
+  if (group === "trade" && runtimeTradeNames[value]) return runtimeTradeNames[value];
   return td(`${group}.${value}`) ?? humanize(value);
 }
 

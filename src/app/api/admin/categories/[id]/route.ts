@@ -7,6 +7,8 @@ const updateSchema = z.object({
   minPricePKR: z.number().int().min(0).optional(),
   maxPricePKR: z.number().int().min(0).optional(),
   activeCities: z.array(z.string()).optional(),
+  name: z.string().trim().min(2).max(60).optional(),
+  icon: z.string().trim().min(1).max(16).optional(),
 });
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {

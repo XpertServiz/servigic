@@ -12,6 +12,8 @@ import { AuthProvider } from "./src/lib/auth";
 import { I18nProvider } from "./src/lib/i18n";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { UpdateGate } from "./src/components/AppNotices";
+import * as api from "./src/lib/api";
+import { runtimeTradeNames } from "./src/lib/status";
 import { TermsGate } from "./src/components/TermsGate";
 import { FaceGate } from "./src/components/FaceGate";
 import { configureApiClient } from "./src/lib/api";
@@ -56,6 +58,14 @@ export default function App() {
     Cairo_400Regular,
     NotoSansDevanagari_400Regular,
   });
+
+  // Categories an admin created show up by their own name.
+  useEffect(() => {
+    api
+      .getPublicTrades()
+      .then(({ trades }) => trades.forEach((x) => x.trade.startsWith("CUSTOM_") && (runtimeTradeNames[x.trade] = x.name)))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {

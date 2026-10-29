@@ -22,4 +22,10 @@ export const TRADE_LABELS: Record<string, { name: string; icon: string }> = {
   WELDING: { name: "Welding", icon: "🔥" },
   UPHOLSTERY: { name: "Upholstery", icon: "🛋️" },
   TOWING: { name: "Car Towing & Roadside", icon: "🚛" },
+  CUSTOM_1: { name: "Custom category 1", icon: "✨" },
+  CUSTOM_2: { name: "Custom category 2", icon: "✨" },
+  CUSTOM_3: { name: "Custom category 3", icon: "✨" },
+  CUSTOM_4: { name: "Custom category 4", icon: "✨" },
+  CUSTOM_5: { name: "Custom category 5", icon: "✨" },
+  CUSTOM_6: { name: "Custom category 6", icon: "✨" },
 };

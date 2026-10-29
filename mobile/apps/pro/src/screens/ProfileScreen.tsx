@@ -38,12 +38,13 @@ function requestAccountDeletion(phone?: string) {
 }
 
 
-import { TRADES } from "../lib/tradeList";
+import { useTradeOptions } from "../lib/tradeList";
 
 export default function ProfileScreen() {
   const { t, td, lang } = useI18n();
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
+  const tradeOptions = useTradeOptions();
   const [displayName, setDisplayName] = useState("");
   const [trades, setTrades] = useState<string[]>([]); // approved + pending selection
   const [tradeRequests, setTradeRequests] = useState<api.TradeRequest[]>([]);
@@ -371,7 +372,7 @@ export default function ProfileScreen() {
 
           <Text style={styles.fieldLabel}>{t("account.trades")}</Text>
           <View style={[styles.wrapRow, { marginBottom: 16 }]}>
-            {TRADES.map((trade) => {
+            {tradeOptions.map((trade) => {
               // A trade that is switched off in this market can be kept if already chosen, but not newly added.
               const off = config != null && !config.legacyOpen && config.trades[trade] === false && !trades.includes(trade);
               // At the cap, unselected trades are locked until one is removed.
@@ -391,7 +392,7 @@ export default function ProfileScreen() {
           <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: -8, marginBottom: 14 }}>
             {t("trades.limit", { n: maxTrades })} {trades.length >= maxTrades ? t("trades.full") : ""}
           </Text>
-          {config != null && !config.legacyOpen && TRADES.some((x) => config.trades[x] === false) && (
+          {config != null && !config.legacyOpen && tradeOptions.some((x) => config.trades[x] === false) && (
             <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: -8, marginBottom: 14 }}>{t("pro.tradesComingSoon")}</Text>
           )}
 

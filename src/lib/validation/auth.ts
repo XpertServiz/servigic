@@ -36,6 +36,8 @@ export const registerSchema = z.object({
   // sign-ups from one device can be spotted. Both optional - the web form sends neither.
   referralCode: z.string().trim().max(20).optional(),
   deviceId: z.string().trim().max(100).optional(),
+  // Pro only: the trades he works in (up to the admin's limit); each waits for approval together with his documents.
+  trades: z.array(z.string().trim().max(30)).max(10).optional(),
   // The e-signed acceptance of the Customer Terms / Pro Agreement for the user's country (version + fingerprint of the exact
   // text shown, and the full name typed as the signature). Required: no account is created without it.
   terms: z.object({ version: z.string(), hash: z.string(), signedName: z.string().trim().max(120), locale: z.string().max(10).optional() }).optional(),

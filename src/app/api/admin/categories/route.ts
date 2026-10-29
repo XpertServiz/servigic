@@ -8,7 +8,7 @@ const createSchema = z.object({
   trade: z.enum(TRADES),
   name: z.string().trim().min(2).max(60),
   slug: z.string().trim().min(2).max(60),
-  icon: z.string().trim().min(1).max(8),
+  icon: z.string().trim().min(1).max(16),
   description: z.string().trim().max(300).optional(),
   minPricePKR: z.number().int().min(0).optional(),
   maxPricePKR: z.number().int().min(0).optional(),

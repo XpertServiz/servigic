@@ -1,3 +1,6 @@
+import { requestTradeSelection } from "@/lib/providerTrades";
+import { TRADES } from "@/lib/validation/provider";
+import type { Trade } from "@prisma/client";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
@@ -119,9 +122,14 @@ export async function POST(req: Request) {
   await signTerms(user.id);
 
   if (role === "PROVIDER") {
-    await prisma.providerProfile.create({
+    const profile = await prisma.providerProfile.create({
       data: { userId: user.id, displayName: name },
     });
+    const wanted = (parsed.data.trades ?? []).filter((x): x is Trade => (TRADES as readonly string[]).includes(x));
+    if (wanted.length > 0) {
+      const max = (await prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { maxTradesPerPro: true } }))?.maxTradesPerPro ?? 3;
+      await requestTradeSelection(profile.id, wanted, max).catch((e) => console.error("[register trades]", e));
+    }
   }
 
   // Referral code + device check. A bad code or a blocked (abusive) referral never stops the sign-up itself.

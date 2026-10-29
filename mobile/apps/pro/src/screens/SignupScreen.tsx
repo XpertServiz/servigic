@@ -8,7 +8,7 @@ import * as api from "../lib/api";
 import { Button, Field, PhoneField, usePhoneInput } from "../components/ui";
 import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
-import { useT } from "../lib/i18n";
+import { useT, useI18n } from "../lib/i18n";
 import { loadMarketConfig } from "../lib/market";
 import { getDeviceId } from "../lib/device";
 import { GlowBackground } from "../components/ds";
@@ -18,13 +18,15 @@ import { authErrorMessage } from "../lib/authErrors";
 import { AcceptAgreement, type TermsAcceptance } from "../components/AcceptAgreement";
 import { savePendingDocs } from "../lib/pendingDocs";
 import { idDocKind } from "../lib/idDoc";
-import { TRADES, MAX_SIGNUP_TRADES } from "../lib/tradeList";
+import { useTradeOptions, MAX_SIGNUP_TRADES } from "../lib/tradeList";
+import { enumLabel } from "../lib/status";
 import { SelfieCaptureModal } from "../components/SelfieCaptureModal";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Signup">;
 
 export default function SignupScreen({ navigation }: Props) {
   const t = useT();
+  const { td } = useI18n();
   const insets = useSafeAreaInsets();
   const [name, setName] = useState("");
   const phone = usePhoneInput();
@@ -46,6 +48,7 @@ export default function SignupScreen({ navigation }: Props) {
   const [cnicBackUri, setCnicBackUri] = useState<string | null>(null);
   const [selfieOpen, setSelfieOpen] = useState(false);
   const [trades, setTrades] = useState<string[]>([]);
+  const tradeOptions = useTradeOptions();
   const toggleTrade = (x: string) => setTrades((cur) => (cur.includes(x) ? cur.filter((y) => y !== x) : cur.length >= MAX_SIGNUP_TRADES ? cur : [...cur, x]));
   const docName = t(`signup.doc.${idDocKind(phone.country)}` as "signup.doc.id");
 
@@ -157,11 +160,11 @@ export default function SignupScreen({ navigation }: Props) {
         <Text style={styles.docsTitle}>{t("signup.trades")}</Text>
         <Text style={styles.docsSub}>{t("signup.tradesSub")}</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-          {TRADES.map((x) => {
+          {tradeOptions.map((x) => {
             const on = trades.includes(x);
             return (
               <Pressable key={x} onPress={() => toggleTrade(x)} style={[styles.chip, on && styles.chipOn]}>
-                <Text style={{ color: on ? colors.accentForeground : colors.textSecondary, fontSize: 12.5, fontWeight: "700" }}>{t(`trade.${x}` as "trade.PLUMBER")}</Text>
+                <Text style={{ color: on ? colors.accentForeground : colors.textSecondary, fontSize: 12.5, fontWeight: "700" }}>{enumLabel(td, "trade", x)}</Text>
               </Pressable>
             );
           })}

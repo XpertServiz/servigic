@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { ALL_MARKET_CITIES } from "@/lib/markets";
+import { getLeadPlaces } from "@/lib/leadPlaces";
 import { TRADES } from "@/lib/validation/provider";
 import { CategoryRow } from "./CategoryRow";
 import { AddCategoryButton } from "./AddCategoryButton";
 
 export default async function AdminCategoriesPage() {
+  const places = await getLeadPlaces();
   const categories = await prisma.serviceCategory.findMany({
     orderBy: { name: "asc" },
     include: { subServices: true },
@@ -28,7 +29,7 @@ export default async function AdminCategoriesPage() {
 
       <div className="flex flex-col gap-4">
         {categories.map((c) => (
-          <CategoryRow key={c.id} category={c} allCities={ALL_MARKET_CITIES} />
+          <CategoryRow key={c.id} category={c} places={places} />
         ))}
         {categories.length === 0 && (
           <div className="rounded-[12px] border border-dashed border-border-subtle p-10 text-center text-text-muted">

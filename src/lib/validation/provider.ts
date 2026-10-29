@@ -24,6 +24,12 @@ export const TRADES = [
   "WELDING",
   "UPHOLSTERY",
   "TOWING",
+  "CUSTOM_1",
+  "CUSTOM_2",
+  "CUSTOM_3",
+  "CUSTOM_4",
+  "CUSTOM_5",
+  "CUSTOM_6",
 ] as const;
 
 // Partial on purpose: the provider profile row is created (with just a

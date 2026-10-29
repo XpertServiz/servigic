@@ -63,6 +63,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return data as T;
 }
 
+/** Names and icons of every category, public (also before sign-in). */
+export function getPublicTrades() {
+  return request<{ trades: { trade: string; name: string; icon: string }[] }>("/api/mobile/trades");
+}
+
 // ─── Language ───
 // Public (works before login): which language to *suggest* for this country.
 export function getMarket() {

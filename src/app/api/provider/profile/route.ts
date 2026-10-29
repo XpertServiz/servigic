@@ -103,6 +103,16 @@ export async function PUT(req: Request) {
     },
   });
 
+  // The expiry date read off the ID (on the phone) is saved on the identity document, so the expiry reminders and the grace-period
+  // rules of Admin > Documents work without anyone typing the date.
+  const expiry = (cnicOcr as { expiry?: string } | undefined)?.expiry;
+  if (cnicUrl && expiry && /^\d{4}-\d{2}-\d{2}$/.test(expiry)) {
+    const expiresAt = new Date(`${expiry}T00:00:00Z`);
+    const doc = await prisma.providerDocument.findFirst({ where: { providerId: profile.id, type: "ID", status: { not: "SUPERSEDED" } } });
+    if (doc) await prisma.providerDocument.update({ where: { id: doc.id }, data: { expiresAt, fileUrl: cnicUrl, lastExpiryAlert: null } });
+    else await prisma.providerDocument.create({ data: { providerId: profile.id, type: "ID", label: "Identity document", fileUrl: cnicUrl, status: profile.isVerified ? "APPROVED" : "PENDING", expiresAt } });
+  }
+
   // Trades are requests: each new one waits for an admin to approve it (max per pro is an admin setting).
   if (requestedTrades) {
     const result = await requestTradeSelection(profile.id, requestedTrades, settings?.maxTradesPerPro ?? 3);

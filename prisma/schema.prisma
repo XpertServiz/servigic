@@ -73,6 +73,12 @@ enum Trade {
   GLASS_REPAIR
   WELDING
   UPHOLSTERY
+  CUSTOM_1 // Categories an admin creates by typing a name and an emoji (Admin > Categories); each uses one slot
+  CUSTOM_2
+  CUSTOM_3
+  CUSTOM_4
+  CUSTOM_5
+  CUSTOM_6
   TOWING // Car towing and roadside assistance (tow truck, flat tyre, jump start, fuel, lockout, recovery)
 }
 
