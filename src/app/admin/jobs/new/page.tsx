@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PostJobForm } from "./PostJobForm";
+import { getLeadPlaces } from "@/lib/leadPlaces";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPostJobPage() {
+  const places = await getLeadPlaces();
   const [categories, markets] = await Promise.all([
     prisma.serviceCategory.findMany({
       orderBy: { name: "asc" },
@@ -24,7 +26,7 @@ export default async function AdminPostJobPage() {
         For customers who call or message instead of using the app. The job goes to matching pros exactly like an app job; you then see the bids and can confirm one for
         the customer. When they later sign up with the same phone number, this job appears in their history.
       </p>
-      <PostJobForm categories={categories} cities={cities} />
+      <PostJobForm categories={categories} cities={cities} places={places} />
     </div>
   );
 }

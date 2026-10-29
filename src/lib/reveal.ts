@@ -13,6 +13,6 @@ const MASKED_STATUSES = ["CONFIRMED"];
 
 export function computeRevealStage(bookingStatus: string, jobUrgency: string): RevealStage {
   if (FULL_STATUSES.includes(bookingStatus)) return "FULL";
-  if (MASKED_STATUSES.includes(bookingStatus)) return jobUrgency === "EMERGENCY" ? "FULL" : "MASKED";
+  if (MASKED_STATUSES.includes(bookingStatus)) return "MASKED"; // never earlier than "On my way", emergency or not
   return "LOCKED";
 }

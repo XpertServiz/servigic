@@ -19,7 +19,7 @@ type FeedJob = Awaited<ReturnType<typeof api.getProviderJobFeed>>["jobs"][number
 type Booking = Awaited<ReturnType<typeof api.getMyBookings>>["bookings"][number];
 
 const POLL_MS = 15000;
-type Segment = "AVAILABLE" | "BOOKED" | "DONE";
+type Segment = "AVAILABLE" | "BOOKED" | "DONE" | "CANCELLED";
 const BOOKED_STATUSES = ["CONFIRMED", "PENDING_PAYMENT", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE"];
 
 function SkeletonCard() {
@@ -87,11 +87,13 @@ export default function JobsScreen({ navigation }: Props) {
   const boostActive = !!boostedUntil && new Date(boostedUntil).getTime() > Date.now();
   const bookedList = bookings.filter((b) => BOOKED_STATUSES.includes(b.status));
   const doneList = bookings.filter((b) => b.status === "COMPLETED");
+  const cancelledList = bookings.filter((b) => b.status === "CANCELLED");
 
   const segments: { value: Segment; label: string }[] = [
     { value: "AVAILABLE", label: t("jobs.available") },
     { value: "BOOKED", label: t("jobs.booked") },
     { value: "DONE", label: t("jobs.done") },
+    { value: "CANCELLED", label: t("jobs.cancelled") },
   ];
 
   async function claimBoost() {
@@ -186,6 +188,28 @@ export default function JobsScreen({ navigation }: Props) {
                 </View>
                 <View style={{ marginTop: 6 }}>
                   <PriceText pkr={item.payoutPKR} size="sm" color={colors.textMuted} />
+                </View>
+              </View>
+            </Pressable>
+          )}
+        />
+      )}
+
+      {segment === "CANCELLED" && (
+        <FlatList
+          data={cancelledList}
+          keyExtractor={(b) => b.id}
+          refreshControl={refresh}
+          contentContainerStyle={[listPadding, { paddingTop: 16 }]}
+          ListEmptyComponent={<EmptyState icon="🚫" title={t("jobs.noCancelled")} />}
+          renderItem={({ item }) => (
+            <Pressable onPress={() => navigation.navigate("BookingDetail", { bookingId: item.id })}>
+              <View style={styles.card}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                  <Text style={styles.cardTitle}>
+                    {item.categoryIcon} {item.jobTitle}
+                  </Text>
+                  <Badge label={enumLabel(td, "booking", "CANCELLED")} tone="muted" />
                 </View>
               </View>
             </Pressable>

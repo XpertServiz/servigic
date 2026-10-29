@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { notify } from "@/lib/notify";
-import { postJournalEntry, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
+import { postJournalEntryInPkr, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole("ADMIN");
@@ -24,7 +24,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   // Escrow received: cash comes in, but it's owed to the provider until the
   // job completes, so it's a liability, not revenue yet.
-  await postJournalEntry({
+  await postJournalEntryInPkr({
     memo: `Escrow received — booking ${payment.bookingId.slice(0, 8)}`,
     source: "AUTO_PAYMENT_VERIFIED",
     referenceId: payment.bookingId,

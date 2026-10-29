@@ -131,8 +131,21 @@ export default function BookingDetailScreen({ route, navigation }: Props) {
     };
   }, [tracked, bookingId]);
 
-  async function pickProof() {
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 });
+  function pickProof() {
+    Alert.alert(t("post.addPhoto"), undefined, [
+      { text: t("signup.takePhoto"), onPress: () => pickProofFrom("camera") },
+      { text: t("signup.fromGallery"), onPress: () => pickProofFrom("library") },
+      { text: t("common.cancel"), style: "cancel" },
+    ]);
+  }
+
+  async function pickProofFrom(source: "camera" | "library") {
+    if (source === "camera") {
+      const perm = await ImagePicker.requestCameraPermissionsAsync();
+      if (!perm.granted) return;
+    }
+    const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ["images"], quality: 0.7 };
+    const result = source === "camera" ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
     if (result.canceled || !result.assets[0]) return;
     const asset = result.assets[0];
     const url = await api.uploadFile(asset.uri, asset.fileName ?? "proof.jpg", asset.mimeType ?? "image/jpeg");

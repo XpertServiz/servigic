@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { CancelReferralButton } from "./CancelReferralButton";
+import { ReferralToggle } from "./ReferralToggle";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,8 @@ export default async function AdminReferralsPage() {
         {settings?.referralCustomerCreditPKR ?? 200} each, after the new customer&apos;s first completed and paid job. Pro bonus: PKR {settings?.referralProBonusPKR ?? 500} after{" "}
         {settings?.referralProJobsRequired ?? 5} completed jobs. Change these in Settings.
       </p>
+
+      <ReferralToggle enabled={Boolean(settings?.referralsEnabled)} />
 
       <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
         {[

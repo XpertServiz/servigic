@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { notify } from "@/lib/notify";
-import { postJournalEntry, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
+import { postJournalEntryInPkr, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
 
 const schema = z.object({ accountRef: z.string().trim().max(80).optional() });
 
@@ -34,7 +34,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const isFullNormalPayout = payout.amountPKR === payout.booking.payoutPKR;
 
   if (isFullNormalPayout) {
-    await postJournalEntry({
+    await postJournalEntryInPkr({
       memo: `Payout sent + commission recognized — booking ${payout.bookingId.slice(0, 8)}`,
       source: "AUTO_PAYOUT_SENT",
       referenceId: payout.bookingId,
@@ -45,7 +45,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       ],
     });
   } else {
-    await postJournalEntry({
+    await postJournalEntryInPkr({
       memo: `Payout sent (dispute-reduced, no commission recognized) — booking ${payout.bookingId.slice(0, 8)}`,
       source: "AUTO_PAYOUT_SENT",
       referenceId: payout.bookingId,

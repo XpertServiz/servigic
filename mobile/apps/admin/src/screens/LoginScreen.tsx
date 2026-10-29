@@ -4,9 +4,11 @@ import { colors, radius } from "../lib/theme";
 import { useAuth } from "../lib/auth";
 import { ApiError } from "../lib/api";
 import { AuthBackdrop } from "../components/AuthBackdrop";
+import { useAuthDesign } from "../lib/authDesigns";
 
 export function LoginScreen() {
   const { signIn } = useAuth();
+  const design = useAuthDesign();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +32,7 @@ export function LoginScreen() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <AuthBackdrop heightFrac={1} dim={0.62} />
+      <AuthBackdrop image={design.image} heightFrac={1} dim={0.62} />
       <Image source={require("../../assets/icon.png")} style={styles.logo} resizeMode="contain" />
       <Text style={styles.title}>Servigic Admin</Text>
       <Text style={styles.subtitle}>Approve payments and manage the platform from anywhere.</Text>

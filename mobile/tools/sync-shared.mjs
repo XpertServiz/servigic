@@ -58,9 +58,10 @@ const SHARED = [
   "src/lib/areaExamples.ts",
   "src/lib/scheduleSlots.ts",
   "src/lib/defaultCenter.ts",
-  // Country photos behind sign-in / sign-up (AuthBackdrop.tsx); each app keeps its own Saudi artwork in assets/auth/sa
-  "assets/auth/world",
+  // Each app keeps its own designs (src/lib/authDesigns.ts) and artwork (assets/auth/sa)
+  "src/components/AuthExtras.tsx",
   "src/lib/currency.ts",
+  "src/lib/idleLogout.ts",
   "src/screens/ForgotPasswordScreen.tsx",
 ];
 
@@ -79,7 +80,6 @@ for (const [src, dst] of [
   [join(from, "src/components/AuthBackdrop.tsx"), join(admin, "src/components/AuthBackdrop.tsx")],
   [join(from, "assets/auth/sa"), join(admin, "assets/auth/pro")],
   [join(to, "assets/auth/sa"), join(admin, "assets/auth/customer")],
-  [join(from, "assets/auth/world"), join(admin, "assets/auth/world")],
 ]) {
   mkdirSync(dirname(dst), { recursive: true });
   cpSync(src, dst, { recursive: true });

@@ -7,6 +7,8 @@ import { useAuth } from "../lib/auth";
 import { Button, Field, PhoneField, usePhoneInput } from "../components/ui";
 import { GlowBackground } from "../components/ds";
 import { AuthBackdrop } from "../components/AuthBackdrop";
+import { AuthExtras } from "../components/AuthExtras";
+import { useAuthDesign } from "../lib/authDesigns";
 import { authErrorMessage } from "../lib/authErrors";
 import { APP_ROLE } from "../lib/appRole";
 import { SplashLogo } from "../components/SplashLogo";
@@ -21,6 +23,7 @@ export default function LoginScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { signIn } = useAuth();
   const phone = usePhoneInput();
+  const design = useAuthDesign();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -45,7 +48,7 @@ export default function LoginScreen({ navigation }: Props) {
   return (
     <View style={styles.root}>
       <GlowBackground cx="30%" cy="15%" r="70%" opacity={0.14} />
-      <AuthBackdrop country={phone.country} />
+      <AuthBackdrop image={design.image} />
       <View style={[styles.topBar, { top: insets.top + 12 }]}>
         <HeaderActions showBell={false} />
       </View>
@@ -91,6 +94,8 @@ export default function LoginScreen({ navigation }: Props) {
             </View>
             <Image source={require("../../assets/face/people.webp")} style={styles.bannerImg} resizeMode="cover" />
           </View>
+
+          <AuthExtras kind={design.extras} />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

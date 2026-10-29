@@ -1,0 +1,21 @@
+name: Exchange rates
+
+# Every Monday: fetches the latest exchange rates (PKR against SAR, AED, QAR, USD, CAD, EUR, PLN) from a free source and saves them
+# for prices and the accounting journal. Needs the CRON_SECRET repo secret (same value as on the web host).
+on:
+  schedule:
+    - cron: "5 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call the exchange-rate endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: https://www.servigic.com
+        run: |
+          if [ -z "$CRON_SECRET" ]; then echo "CRON_SECRET repo secret is not set"; exit 1; fi
+          curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" "$SITE_URL/api/cron/exchange-rates"

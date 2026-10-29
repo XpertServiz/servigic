@@ -16,9 +16,13 @@ interface Category {
 const input = "w-full rounded-[10px] border border-border-subtle bg-bg-elevated px-4 py-3 text-sm outline-none focus:border-accent";
 const label = "mb-1.5 block text-sm font-semibold text-text-muted";
 
-export function PostJobForm({ categories, cities }: { categories: Category[]; cities: string[] }) {
+export function PostJobForm({ categories, cities, places }: { categories: Category[]; cities: string[]; places: { code: string; name: string; cities: { name: string; areas: string[] }[] }[] }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  // Country -> city -> area: every country and city known to the platform (starter list, Areas, Markets), not just the live markets.
+  const firstCountry = places.find((p) => p.cities.some((c) => cities.includes(c.name)))?.code ?? places[0]?.code ?? "";
+  const [country, setCountry] = useState(firstCountry);
+  const countryCities = places.find((p) => p.code === country)?.cities ?? [];
   const [f, setF] = useState({
     customerName: "",
     phone: "",
@@ -110,18 +114,43 @@ export function PostJobForm({ categories, cities }: { categories: Category[]; ci
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className={label}>Zone / city</label>
-          <select className={input} required value={f.city} onChange={(e) => set({ city: e.target.value })}>
-            {cities.map((c) => (
-              <option key={c} value={c}>
-                {c}
+          <label className={label}>Country</label>
+          <select
+            className={input}
+            value={country}
+            onChange={(e) => {
+              setCountry(e.target.value);
+              set({ city: places.find((p) => p.code === e.target.value)?.cities[0]?.name ?? "", areaLabel: "" });
+            }}
+          >
+            {places.map((p) => (
+              <option key={p.code} value={p.code}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          <label className={`${label} mt-3`}>City</label>
+          <select className={input} required value={f.city} onChange={(e) => set({ city: e.target.value, areaLabel: "" })}>
+            {countryCities.map((c) => (
+              <option key={c.name} value={c.name}>
+                {c.name}
               </option>
             ))}
           </select>
         </div>
         <div>
           <label className={label}>Area / neighbourhood</label>
-          <input className={input} required placeholder={`e.g. ${areaExample(f.city, "en") ?? "the neighbourhood"}`} value={f.areaLabel} onChange={(e) => set({ areaLabel: e.target.value })} />
+          {(countryCities.find((c) => c.name === f.city)?.areas.length ?? 0) > 0 && (
+            <select className={`${input} mb-2`} value="" onChange={(e) => e.target.value && set({ areaLabel: e.target.value })}>
+              <option value="">Pick a major area / zone…</option>
+              {countryCities.find((c) => c.name === f.city)?.areas.map((a) => (
+                <option key={a} value={a}>
+                  {a}
+                </option>
+              ))}
+            </select>
+          )}
+          <input className={input} required placeholder={`or type it, e.g. ${areaExample(f.city, "en") ?? "the neighbourhood"}`} value={f.areaLabel} onChange={(e) => set({ areaLabel: e.target.value })} />
         </div>
       </div>
 

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { notify } from "@/lib/notify";
-import { postJournalEntry, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
+import { postJournalEntryInPkr, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
 import { recomputeProviderStanding } from "@/lib/providerStanding";
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -39,7 +39,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     }),
   ]);
 
-  await postJournalEntry({
+  await postJournalEntryInPkr({
     memo: `Top-up verified — wallet ${topUp.walletId.slice(0, 8)}`,
     source: "AUTO_TOPUP_VERIFIED",
     referenceId: topUp.walletId,

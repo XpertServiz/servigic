@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { notify } from "@/lib/notify";
-import { postJournalEntry, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
+import { postJournalEntryInPkr, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole("ADMIN");
@@ -39,7 +39,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   // Same treatment as the initial escrow payment: cash comes in now, but it's
   // owed to the provider until the job (and this extra work) is confirmed
   // done, so it's a liability, not revenue yet.
-  await postJournalEntry({
+  await postJournalEntryInPkr({
     memo: `Change-order escrow received — booking ${changeOrder.bookingId.slice(0, 8)}`,
     source: "AUTO_CHANGE_ORDER_PAYMENT_VERIFIED",
     referenceId: changeOrder.bookingId,

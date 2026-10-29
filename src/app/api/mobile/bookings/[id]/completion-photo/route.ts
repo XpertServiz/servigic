@@ -6,8 +6,8 @@ import { fileKeyOf } from "@/lib/directUpload";
 import { mb } from "@/lib/mediaLimits";
 
 // "Photo of finished work": one optional photo the pro adds while the job is in progress or right after. Kept small
-// (2 MB) to stay inside UploadThing's free storage, and deleted with the job's other media 24 hours after the job ends.
-const COMPLETION_PHOTO_MAX_BYTES = 2 * 1024 * 1024;
+// (4 MB) to stay inside UploadThing's free storage, and deleted with the job's other media 24 hours after the job ends.
+const COMPLETION_PHOTO_MAX_BYTES = 4 * 1024 * 1024;
 const utapi = new UTApi();
 
 async function ownBooking(id: string, userId: string) {

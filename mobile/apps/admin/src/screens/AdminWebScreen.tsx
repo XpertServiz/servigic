@@ -65,7 +65,7 @@ export function AdminWebScreen({ initialPath = "/admin/payments" }: { initialPat
   // last sign-in) — attempt auto-login exactly once per screen visit.
   const autoLoginAttempted = useRef(false);
   const baseUrl = getApiBaseUrl();
-  const startUrl = `${baseUrl}/login?callbackUrl=${encodeURIComponent(initialPath)}`;
+  const startUrl = `${baseUrl}/login?callbackUrl=${encodeURIComponent(initialPath)}&_=${Date.now()}`;
 
   useFocusEffect(
     useCallback(() => {
@@ -121,6 +121,8 @@ export function AdminWebScreen({ initialPath = "/admin/payments" }: { initialPat
         source={{ uri: startUrl }}
         style={styles.webview}
         sharedCookiesEnabled
+        cacheEnabled={false}
+        cacheMode="LOAD_NO_CACHE"
         thirdPartyCookiesEnabled
         domStorageEnabled
         javaScriptEnabled

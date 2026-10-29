@@ -15,7 +15,7 @@ type Props = NativeStackScreenProps<JobsStackParamList, "MyJobs">;
 type Job = Awaited<ReturnType<typeof api.getMyJobs>>["jobs"][number];
 type Booking = Awaited<ReturnType<typeof api.getMyBookings>>["bookings"][number];
 
-type Segment = "OPEN" | "BOOKED" | "COMPLETED";
+type Segment = "OPEN" | "BOOKED" | "COMPLETED" | "CANCELLED";
 const BOOKED_STATUSES = ["CONFIRMED", "PENDING_PAYMENT", "ON_MY_WAY", "ARRIVED", "WORKING", "DONE"];
 
 export default function MyJobsScreen({ navigation }: Props) {
@@ -48,12 +48,21 @@ export default function MyJobsScreen({ navigation }: Props) {
 
   const bookedList = useMemo(() => bookings.filter((b) => BOOKED_STATUSES.includes(b.status)), [bookings]);
   const completedList = useMemo(() => bookings.filter((b) => b.status === "COMPLETED"), [bookings]);
+  // Cancelled: bookings cancelled after acceptance, and requests cancelled before anyone was booked.
+  const cancelledList = useMemo(
+    () => [
+      ...bookings.filter((b) => b.status === "CANCELLED").map((b) => ({ key: "b" + b.id, title: `${b.categoryIcon} ${b.jobTitle}`, bookingId: b.id as string | null, jobId: null as string | null })),
+      ...jobs.filter((j) => j.status === "CANCELLED").map((j) => ({ key: "j" + j.id, title: `${j.category.icon} ${j.title}`, bookingId: null as string | null, jobId: j.id as string | null })),
+    ],
+    [bookings, jobs],
+  );
   const openList = useMemo(() => jobs.filter((j) => j.status === "OPEN"), [jobs]);
 
   const segments: { value: Segment; label: string }[] = [
     { value: "OPEN", label: t("myjobs.open") },
     { value: "BOOKED", label: t("myjobs.booked") },
     { value: "COMPLETED", label: t("myjobs.completed") },
+    { value: "CANCELLED", label: t("myjobs.cancelled") },
   ];
   const refresh = <RefreshControl refreshing={refreshing} onRefresh={load} tintColor={colors.accent} />;
   const listStyle = { padding: 18, paddingTop: 16, gap: 10 };
@@ -107,6 +116,26 @@ export default function MyJobsScreen({ navigation }: Props) {
                 </View>
                 <View style={{ marginTop: 6 }}>
                   <PriceText pkr={item.totalPKR} size="sm" color={colors.textMuted} />
+                </View>
+              </Card>
+            </Pressable>
+          )}
+        />
+      )}
+
+      {segment === "CANCELLED" && (
+        <FlatList
+          data={cancelledList}
+          keyExtractor={(x) => x.key}
+          refreshControl={refresh}
+          contentContainerStyle={listStyle}
+          ListEmptyComponent={<EmptyState icon="🚫" title={t("myjobs.noCancelled")} />}
+          renderItem={({ item }) => (
+            <Pressable onPress={() => (item.bookingId ? navigation.navigate("BookingDetail", { bookingId: item.bookingId }) : navigation.navigate("JobDetail", { jobId: item.jobId as string }))}>
+              <Card>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                  <Text style={{ color: colors.text, fontWeight: "700", fontSize: 15, flex: 1 }}>{item.title}</Text>
+                  <Badge label={enumLabel(td, "booking", "CANCELLED")} tone="muted" />
                 </View>
               </Card>
             </Pressable>

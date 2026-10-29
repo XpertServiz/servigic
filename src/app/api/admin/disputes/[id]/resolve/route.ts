@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { disputeResolveSchema } from "@/lib/validation/booking";
 import { notify } from "@/lib/notify";
-import { postJournalEntry, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
+import { postJournalEntryInPkr, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
 import { recomputeCancellationRate } from "@/lib/cancellationRate";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -89,7 +89,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   // route once admin actually sends that money — this is the only place the
   // full-refund cash movement gets recorded. Zero commission recognized.
   if (resolution === "FULL_REFUND") {
-    await postJournalEntry({
+    await postJournalEntryInPkr({
       memo: `Full refund to customer — dispute on booking ${dispute.bookingId.slice(0, 8)}`,
       source: "AUTO_DISPUTE_REFUND",
       referenceId: dispute.bookingId,

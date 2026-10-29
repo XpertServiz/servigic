@@ -14,7 +14,7 @@ import { colors } from "../../lib/theme";
 import { useT } from "../../lib/i18n";
 import type { BookingActions, BookingData } from "./types";
 
-const PHOTO_MAX_BYTES = 2 * 1024 * 1024;
+const PHOTO_MAX_BYTES = 4 * 1024 * 1024;
 
 function formatElapsed(ms: number): string {
   const total = Math.max(0, Math.floor(ms / 1000));

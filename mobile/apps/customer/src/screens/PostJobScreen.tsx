@@ -152,8 +152,21 @@ export default function PostJobScreen({ navigation, route }: Props) {
     return info.exists && "size" in info ? (info.size ?? 0) : 0;
   }
 
-  async function pickPhoto() {
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.6 });
+  function pickPhoto() {
+    Alert.alert(t("post.addPhoto"), undefined, [
+      { text: t("signup.takePhoto"), onPress: () => pickPhotoFrom("camera") },
+      { text: t("signup.fromGallery"), onPress: () => pickPhotoFrom("library") },
+      { text: t("common.cancel"), style: "cancel" },
+    ]);
+  }
+
+  async function pickPhotoFrom(source: "camera" | "library") {
+    if (source === "camera") {
+      const perm = await ImagePicker.requestCameraPermissionsAsync();
+      if (!perm.granted) return;
+    }
+    const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ["images"], quality: 0.6 };
+    const result = source === "camera" ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
     if (result.canceled || !result.assets[0]) return;
     const asset = result.assets[0];
     const size = await sizeOf(asset);

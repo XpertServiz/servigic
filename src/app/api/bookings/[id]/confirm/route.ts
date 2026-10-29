@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { notify } from "@/lib/notify";
 import { getPaymentMode } from "@/lib/featureFlags";
-import { postJournalEntry, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
+import { postJournalEntryInPkr, SYSTEM_ACCOUNTS } from "@/lib/accounting/postJournalEntry";
 import { recomputeProviderStanding } from "@/lib/providerStanding";
 import { onBookingCompleted } from "@/lib/referrals";
 
@@ -80,7 +80,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
           },
         }),
       ]);
-      await postJournalEntry({
+      await postJournalEntryInPkr({
         memo: `Commission recognized (cash-after-job) — booking ${booking.id.slice(0, 8)}`,
         source: "AUTO_CASH_WALLET_COMMISSION_DEBIT",
         referenceId: booking.id,
@@ -103,7 +103,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
           },
         }),
       ]);
-      await postJournalEntry({
+      await postJournalEntryInPkr({
         memo: `Customer discount funded by Servigic — booking ${booking.id.slice(0, 8)}`,
         source: "AUTO_REFERRAL_DISCOUNT",
         referenceId: booking.id,

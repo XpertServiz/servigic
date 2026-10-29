@@ -8,6 +8,7 @@ import * as api from "../lib/api";
 import { Button, Field, PhoneField, usePhoneInput } from "../components/ui";
 import { GlowBackground } from "../components/ds";
 import { AuthBackdrop } from "../components/AuthBackdrop";
+import { useAuthDesign } from "../lib/authDesigns";
 import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
 import { useT } from "../lib/i18n";
@@ -20,6 +21,7 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
   const t = useT();
   const insets = useSafeAreaInsets();
   const phone = usePhoneInput();
+  const design = useAuthDesign();
   const [step, setStep] = useState<"phone" | "code">("phone");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
@@ -67,7 +69,7 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <GlowBackground cx="30%" cy="15%" r="70%" opacity={0.14} />
-      <AuthBackdrop country={phone.country} heightFrac={0.4} dim={0.5} />
+      <AuthBackdrop image={design.image} heightFrac={0.4} dim={0.5} />
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Pressable onPress={() => navigation.goBack()} style={styles.back} accessibilityLabel={t("common.back")}>
           <Icon name="back" size={16} />

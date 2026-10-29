@@ -12,6 +12,7 @@ import { loadMarketConfig } from "../lib/market";
 import { getDeviceId } from "../lib/device";
 import { GlowBackground } from "../components/ds";
 import { AuthBackdrop } from "../components/AuthBackdrop";
+import { useAuthDesign } from "../lib/authDesigns";
 import { authErrorMessage } from "../lib/authErrors";
 import { AcceptAgreement, type TermsAcceptance } from "../components/AcceptAgreement";
 
@@ -25,6 +26,7 @@ export default function SignupScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const [name, setName] = useState("");
   const phone = usePhoneInput();
+  const design = useAuthDesign();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -77,7 +79,7 @@ export default function SignupScreen({ navigation }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <GlowBackground cx="30%" cy="15%" r="70%" opacity={0.12} />
-      <AuthBackdrop country={phone.country} heightFrac={0.4} dim={0.5} />
+      <AuthBackdrop image={design.image} heightFrac={0.4} dim={0.5} />
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Pressable onPress={() => navigation.goBack()} style={styles.back} accessibilityLabel={t("common.back")}>
           <Icon name="back" size={16} />

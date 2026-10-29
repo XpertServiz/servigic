@@ -108,6 +108,7 @@ export default function HomeScreen() {
 
   async function toggleOnline() {
     if (!profile || toggling) return;
+    if (profile.verificationLevel < 1) return; // not approved yet: the message below explains
     setToggling(true);
     haptic.heavy();
     try {
@@ -216,6 +217,10 @@ export default function HomeScreen() {
 
         {profile.verificationLevel < 1 ? (
           <View style={{ marginBottom: 14 }}>
+            <View style={{ backgroundColor: colors.accentTint, borderWidth: 1, borderColor: colors.accentBorder, borderRadius: 18, padding: 18, marginBottom: 12 }}>
+              <Text style={{ color: colors.accent, fontSize: 24, fontWeight: "800", marginBottom: 6 }}>{t("home.stayPatientTitle")}</Text>
+              <Text style={{ color: colors.textSecondary, fontSize: 15, lineHeight: 22 }}>{t("home.stayPatientBody")}</Text>
+            </View>
             <VerificationNotice />
           </View>
         ) : status?.activation === "WAITING" || (status && status.market && !status.market.open) ? (

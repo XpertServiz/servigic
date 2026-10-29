@@ -1,5 +1,7 @@
+import { View } from "react-native";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as Notifications from "expo-notifications";
+import { useIdleLogout } from "./idleLogout";
 import * as api from "./api";
 import { loadMarketConfig } from "./market";
 import { useI18n } from "./i18n";
@@ -90,7 +92,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }
 
-  return <AuthContext.Provider value={{ user, loading, signIn, signOut }}>{children}</AuthContext.Provider>;
+  // Signed out after an hour without use; the next sign-in asks for the face check again (pros).
+  const touch = useIdleLogout(Boolean(user), () => {
+    signOut();
+  });
+  return (
+    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
+      <View style={{ flex: 1 }} onStartShouldSetResponderCapture={() => { touch(); return false; }}>
+        {children}
+      </View>
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

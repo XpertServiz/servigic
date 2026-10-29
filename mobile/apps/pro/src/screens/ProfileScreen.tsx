@@ -37,20 +37,8 @@ function requestAccountDeletion(phone?: string) {
   );
 }
 
-const TRADES = [
-  "PLUMBER",
-  "ELECTRICIAN",
-  "AC_TECHNICIAN",
-  "SOLAR_INSTALLER",
-  "CARPENTER",
-  "PAINTER",
-  "APPLIANCE_REPAIR",
-  "CAR_MECHANIC",
-  "MOVERS",
-  "CLEANER",
-  "MASON",
-  "HANDYMAN",
-];
+
+import { TRADES } from "../lib/tradeList";
 
 export default function ProfileScreen() {
   const { t, td, lang } = useI18n();
