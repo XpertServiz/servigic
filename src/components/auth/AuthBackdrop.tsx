@@ -9,7 +9,8 @@ const IMAGES = [...Array.from({ length: 9 }, (_, i) => `/auth-designs/p${i + 1}.
 export function AuthBackdrop() {
   const [src, setSrc] = useState<string | null>(null);
   useEffect(() => {
-    setSrc(IMAGES[Math.floor(Math.random() * IMAGES.length)]);
+    const timer = setTimeout(() => setSrc(IMAGES[Math.floor(Math.random() * IMAGES.length)]), 0);
+    return () => clearTimeout(timer);
   }, []);
   return (
     <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>

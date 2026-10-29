@@ -80,7 +80,7 @@ export function AddCategoryButton({ availableTrades }: { availableTrades: readon
           <div className="w-full max-w-sm rounded-[14px] border border-border-subtle bg-bg-elevated p-6">
             <h3 className="mb-4 font-bold">Add category</h3>
 
-            <label className="mb-1.5 block text-xs font-semibold text-text-muted">Trade (pick a "Custom category" slot for a brand-new one)</label>
+            <label className="mb-1.5 block text-xs font-semibold text-text-muted">Trade (pick a &quot;New category&quot; slot to create a brand-new one)</label>
             <select
               value={trade}
               onChange={(e) => setTrade(e.target.value)}
