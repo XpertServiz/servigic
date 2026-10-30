@@ -10,7 +10,7 @@ import { HeaderActions } from "../components/HeaderActions";
 import { Icon } from "../components/Icon";
 import { colors } from "../lib/theme";
 import { useAuth } from "../lib/auth";
-import { readIdCard, type IdOcr } from "../lib/idOcr";
+import { readIdCard, looksLikeIdDocument, type IdOcr } from "../lib/idOcr";
 import { useI18n, useT } from "../lib/i18n";
 import { countryFromPhone, idDocKind } from "../lib/idDoc";
 import { SelfieCaptureModal } from "../components/SelfieCaptureModal";
@@ -49,6 +49,10 @@ export default function KycOnboardingScreen({ onSubmitted, rejectedReason }: { o
   async function pickDoc(kind: "cnic" | "cnicBack" | "selfie" | "police", setUrl: (url: string) => void) {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 });
     if (result.canceled || !result.assets[0]) return;
+    if ((kind === "cnic" || kind === "cnicBack") && !(await looksLikeIdDocument(result.assets[0].uri, kind === "cnic" ? "front" : "back"))) {
+      setError(t("signup.notAnId"));
+      return;
+    }
     await uploadAsset(kind, result.assets[0], setUrl);
   }
 

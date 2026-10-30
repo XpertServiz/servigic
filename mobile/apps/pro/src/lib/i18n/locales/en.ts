@@ -859,6 +859,7 @@ export const en = {
   "auth.badgePros": "Professional Technicians",
   "auth.badgePrices": "Affordable Prices",
   "auth.badgeSupport": "24/7 Support",
+  "signup.notAnId": "This does not look like an ID document. Please upload a clear photo of the card itself (ID card, Iqama or driving licence), not a selfie or another picture.",
 } as const;
 
 export type TKey = keyof typeof en;

@@ -8,7 +8,7 @@ import { ReviewCard, type ReviewItem } from "./ReviewCard";
 export default async function VerificationQueuePage() {
   const candidates = await prisma.providerProfile.findMany({
     where: { isVerified: false, verificationLevel: 0, cnicUrl: { not: null }, cnicBackUrl: { not: null }, selfieUrl: { not: null } },
-    include: { user: { select: { name: true, phone: true, city: true } } },
+    include: { user: { select: { name: true, phone: true, city: true } }, tradeRequests: { where: { status: "PENDING" }, select: { trade: true } } },
     orderBy: { verificationSubmittedAt: "asc" },
   });
   const pending = candidates.filter(isAwaitingReview);
@@ -23,6 +23,7 @@ export default async function VerificationQueuePage() {
       city: p.user.city,
       cnicUrl: p.cnicUrl as string,
       cnicBackUrl: p.cnicBackUrl,
+      trades: p.tradeRequests.map((t) => t.trade.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())),
       selfieUrl: p.selfieUrl as string,
       policeCertUrl: p.policeCertUrl,
       ocr: (p.cnicOcr as ReviewItem["ocr"]) ?? null,

@@ -72,6 +72,27 @@ export function parseIdLines(rawLines: string[]): IdOcr {
 }
 
 /** Reads an ID photo on-device. Returns null when OCR isn't available or finds no text. */
+/**
+ * Does this photo look like an ID document (ID card, Iqama, driving licence)? A card is covered in printed text: names, dates, numbers,
+ * the country, "licence" / "identity". A selfie or an ordinary picture has almost none. Checked on the phone with the text reader; if
+ * the phone cannot read text, the photo is accepted and the admin checks it. Front: ID-like words, dates or a number. Back: printed text.
+ */
+export async function looksLikeIdDocument(uri: string, side: "front" | "back"): Promise<boolean> {
+  try {
+    if (!isSupported) return true;
+    const lines = clean((await extractTextFromImage(uri)) ?? []);
+    const text = lines.join(" ");
+    const letters = text.replace(/[^\p{L}\p{N}]/gu, "").length;
+    if (side === "back") return lines.length >= 3 && letters >= 20;
+    const hasNumber = Boolean(findIdNumber(text)) || /\b\d{9,12}\b/.test(text);
+    const hasDate = /\b\d{2}[./-]\d{2}[./-]\d{4}\b|\b\d{4}[./-]\d{2}[./-]\d{2}\b/.test(text);
+    const hasWords = /(identity|national|card|licen[cs]e|driver|driving|kingdom|republic|islamic|pakistan|saudi|iqama|resident|permit|date of|birth|expiry|issue|holder|nationality|الإقامة|اقامة|هوية|بطاقة|رخصة|المملكة|وزارة|شناختی|کارڈ|پاکستان|اسلامی|لائسنس)/i.test(text);
+    return lines.length >= 4 && letters >= 25 && (hasNumber || hasDate || hasWords);
+  } catch {
+    return true;
+  }
+}
+
 export async function readIdCard(uri: string): Promise<IdOcr | null> {
   try {
     if (!isSupported) return null;

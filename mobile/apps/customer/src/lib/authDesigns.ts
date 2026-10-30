@@ -1,6 +1,6 @@
 // The sign-in / sign-up designs. One is chosen at random each time the screen opens, so the app looks different every time.
 // Pictures: the Servigic artwork (assets/auth/sa). To add a design, add its picture and a line below.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ImageSourcePropType } from "react-native";
 import type { AuthExtrasKind } from "../components/AuthExtras";
 
@@ -19,6 +19,14 @@ export const AUTH_DESIGNS: AuthDesign[] = [
   { image: require("../../assets/auth/sa/10.webp"), headline: "Comfort at Home", headlineAr: "راحة في منزلك", extras: "trades" },
 ];
 
+/** How long each picture stays before the next one fades in (the design starts at a random one each time the screen opens). */
+export const SLIDE_MS = 2000;
+
 export function useAuthDesign(): AuthDesign {
-  return useState(() => AUTH_DESIGNS[Math.floor(Math.random() * AUTH_DESIGNS.length)])[0];
+  const [i, setI] = useState(() => Math.floor(Math.random() * AUTH_DESIGNS.length));
+  useEffect(() => {
+    const timer = setInterval(() => setI((x) => (x + 1) % AUTH_DESIGNS.length), SLIDE_MS);
+    return () => clearInterval(timer);
+  }, []);
+  return AUTH_DESIGNS[i];
 }

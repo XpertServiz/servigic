@@ -42,15 +42,15 @@ export async function requestTradeSelection(profileId: string, desired: Trade[],
   return { ok: true, pending: toRequest };
 }
 
-/** On document approval: a pro with no approved trade yet gets the trades they signed up with approved too. */
+/** On document approval: the trades the pro signed up with (waiting, no certificate asked) are approved too, so he need not pick them again. */
 export async function approveInitialTrades(profileId: string): Promise<number> {
   const profile = await prisma.providerProfile.findUnique({ where: { id: profileId }, select: { trades: true } });
-  if (!profile || profile.trades.length > 0) return 0;
+  if (!profile) return 0;
   const pending = await prisma.providerTrade.findMany({ where: { providerId: profileId, status: "PENDING", certificateRequested: false } });
   if (pending.length === 0) return 0;
   await prisma.$transaction([
     prisma.providerTrade.updateMany({ where: { id: { in: pending.map((p) => p.id) } }, data: { status: "APPROVED", reviewedAt: new Date() } }),
-    prisma.providerProfile.update({ where: { id: profileId }, data: { trades: pending.map((p) => p.trade) } }),
+    prisma.providerProfile.update({ where: { id: profileId }, data: { trades: Array.from(new Set([...profile.trades, ...pending.map((p) => p.trade)])) } }),
   ]);
   return pending.length;
 }

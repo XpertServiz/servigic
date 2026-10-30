@@ -11,6 +11,7 @@ export interface ReviewItem {
   city: string | null;
   cnicUrl: string;
   cnicBackUrl: string | null;
+  trades?: string[];
   selfieUrl: string;
   policeCertUrl: string | null;
   ocr: { fullName?: string; idNumber?: string; dob?: string; address?: string; rawLines?: string[] } | null;
@@ -76,6 +77,11 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
         </span>
       </div>
 
+      {item.trades && item.trades.length > 0 && (
+        <p className="mb-3 text-sm text-text-muted">
+          Trades he chose at sign-up (approved together with the documents): <b className="text-text">{item.trades.join(", ")}</b>
+        </p>
+      )}
       <div className="grid gap-4 md:grid-cols-2">
         <figure>
           <figcaption className="mb-1 text-xs font-semibold uppercase tracking-wide text-text-muted">ID photo</figcaption>

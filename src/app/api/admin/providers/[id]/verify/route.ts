@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { notify } from "@/lib/notify";
+import { approveInitialTrades } from "@/lib/providerTrades";
 
 const schema = z.object({ verificationLevel: z.number().int().min(0).max(3) });
 
@@ -27,6 +28,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       verifiedAt: parsed.data.verificationLevel >= 1 ? new Date() : null,
     },
   });
+
+  // The trades he signed up with are approved together with his documents (the same as in the verification queue).
+  if (parsed.data.verificationLevel >= 1) await approveInitialTrades(profile.id).catch((e) => console.error("[trades]", e));
 
   await notify({
     userId: profile.userId,

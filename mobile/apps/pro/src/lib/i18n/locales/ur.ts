@@ -751,4 +751,5 @@ export const ur: Partial<Record<TKey, string>> = {
   "auth.badgePros": "پیشہ ور ماہرین",
   "auth.badgePrices": "مناسب قیمتیں",
   "auth.badgeSupport": "24/7 مدد",
+  "signup.notAnId": "یہ شناختی دستاویز نہیں لگتی۔ براہ کرم کارڈ کی صاف تصویر اپ لوڈ کریں (شناختی کارڈ، اقامہ یا ڈرائیونگ لائسنس)، سیلفی یا کوئی اور تصویر نہیں۔",
 };

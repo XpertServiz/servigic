@@ -6,6 +6,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { colors } from "../lib/theme";
 import { useAuth } from "../lib/auth";
 import { getApiBaseUrl } from "../lib/api";
+import * as api from "../lib/api";
 
 // Deliberately not a native re-implementation of every admin page — the web
 // admin panel already has every feature (Payments, Disputes, Payouts, Job
@@ -65,7 +66,21 @@ export function AdminWebScreen({ initialPath = "/admin/payments" }: { initialPat
   // last sign-in) — attempt auto-login exactly once per screen visit.
   const autoLoginAttempted = useRef(false);
   const baseUrl = getApiBaseUrl();
-  const startUrl = `${baseUrl}/login?callbackUrl=${encodeURIComponent(initialPath)}&_=${Date.now()}`;
+  // The page the web view opens: a one-time signed-in link from the server; if that cannot be had, the website's own sign-in page
+  // (with the old automatic fill-in as a fallback).
+  const fallbackUrl = `${baseUrl}/login?callbackUrl=${encodeURIComponent(initialPath)}&_=${Date.now()}`;
+  const [startUrl, setStartUrl] = useState<string | null>(null);
+  React.useEffect(() => {
+    let alive = true;
+    api
+      .createWebSession(initialPath)
+      .then((r) => alive && setStartUrl(r.url))
+      .catch(() => alive && setStartUrl(fallbackUrl));
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialPath]);
 
   useFocusEffect(
     useCallback(() => {
@@ -116,6 +131,7 @@ export function AdminWebScreen({ initialPath = "/admin/payments" }: { initialPat
       </View>
       )}
 
+      {startUrl && (
       <WebView
         ref={webRef}
         source={{ uri: startUrl }}
@@ -139,6 +155,7 @@ export function AdminWebScreen({ initialPath = "/admin/payments" }: { initialPat
           </View>
         )}
       />
+      )}
 
       {loggingIn && (
         <View style={styles.loadingOverlay} pointerEvents="none">

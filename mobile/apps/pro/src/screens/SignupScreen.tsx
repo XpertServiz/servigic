@@ -18,6 +18,7 @@ import { authErrorMessage } from "../lib/authErrors";
 import { AcceptAgreement, type TermsAcceptance } from "../components/AcceptAgreement";
 import { savePendingDocs } from "../lib/pendingDocs";
 import { idDocKind } from "../lib/idDoc";
+import { looksLikeIdDocument } from "../lib/idOcr";
 import { useTradeOptions, MAX_SIGNUP_TRADES } from "../lib/tradeList";
 import { enumLabel } from "../lib/status";
 import { SelfieCaptureModal } from "../components/SelfieCaptureModal";
@@ -63,7 +64,10 @@ export default function SignupScreen({ navigation }: Props) {
           if (!perm.granted) return setError(t("signup.cameraNeeded"));
         }
         const res = gallery ? await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 }) : await ImagePicker.launchCameraAsync({ mediaTypes: ["images"], quality: 0.7 });
-        if (!res.canceled && res.assets[0]) set(res.assets[0].uri);
+        if (res.canceled || !res.assets[0]) return;
+        // Only a real ID document is accepted here: a selfie or any other picture is refused.
+        if (!(await looksLikeIdDocument(res.assets[0].uri, side))) return setError(t("signup.notAnId"));
+        set(res.assets[0].uri);
       } catch {
         setError(t("kyc.uploadFailed"));
       }

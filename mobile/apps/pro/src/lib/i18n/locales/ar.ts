@@ -751,4 +751,5 @@ export const ar: Partial<Record<TKey, string>> = {
   "auth.badgePros": "فنيون محترفون",
   "auth.badgePrices": "أسعار مناسبة",
   "auth.badgeSupport": "دعم 24/7",
+  "signup.notAnId": "لا تبدو هذه الصورة وثيقة هوية. يرجى رفع صورة واضحة للبطاقة نفسها (بطاقة هوية أو إقامة أو رخصة قيادة) وليس صورة شخصية أو صورة أخرى.",
 };

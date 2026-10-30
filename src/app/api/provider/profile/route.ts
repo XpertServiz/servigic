@@ -1,3 +1,4 @@
+import { approveInitialTrades } from "@/lib/providerTrades";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
@@ -117,6 +118,8 @@ export async function PUT(req: Request) {
   if (requestedTrades) {
     const result = await requestTradeSelection(profile.id, requestedTrades, settings?.maxTradesPerPro ?? 3);
     if (!result.ok) return NextResponse.json({ error: result.error, code: result.code }, { status: 422 });
+    // Already verified but no approved trade yet (he named his trades after the documents were approved): approve them now.
+    if (profile.isVerified && profile.trades.length === 0) await approveInitialTrades(profile.id).catch((e) => console.error("[trades]", e));
     // An already-approved pro asking for another skill: tell the admins, so it does not sit unseen (Admin > Trade approvals).
     if (result.pending.length > 0 && profile.trades.length > 0) {
       const pretty = result.pending.map((t) => t.replace(/_/g, " ").toLowerCase()).join(", ");

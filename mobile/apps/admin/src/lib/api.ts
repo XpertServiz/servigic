@@ -61,6 +61,11 @@ export function login(phone: string, password: string) {
   );
 }
 
+/** A one-time link that opens the admin website already signed in (see /api/mobile/web-session on the server). */
+export function createWebSession(to: string) {
+  return request<{ url: string }>("/api/mobile/web-session", { method: "POST", body: JSON.stringify({ to }) });
+}
+
 export function getMe() {
   return request<{ user: Record<string, unknown> }>("/api/mobile/me");
 }
