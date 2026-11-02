@@ -6,6 +6,12 @@ import * as api from "./api";
 import { loadMarketConfig } from "./market";
 import { useI18n } from "./i18n";
 import { setupNotificationChannels } from "./notifications";
+import { APP_ROLE } from "./appRole";
+
+// The Pro app asks for the password again every time it is opened after being closed (and after 10 minutes away), then the face check
+// follows. The Customer app keeps its sign-in (it still signs out after an hour unused).
+const PRO_APP = (APP_ROLE as string) === "PROVIDER";
+const BACKGROUND_LIMIT_MS = 10 * 60 * 1000;
 
 type User = { id: string; name: string; role: "CUSTOMER"; phone: string; language?: string };
 
@@ -28,7 +34,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setupNotificationChannels();
     (async () => {
       const token = await api.loadStoredToken();
-      if (token) {
+      if (token && PRO_APP) {
+        await api.setAuthToken(null); // closed and opened again: sign in first, then the face check
+      } else if (token) {
         try {
           const { user: me } = await api.getMe();
           setUser(me as unknown as User);
@@ -93,9 +101,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Signed out after an hour without use; the next sign-in asks for the face check again (pros).
-  const touch = useIdleLogout(Boolean(user), () => {
-    signOut();
-  });
+  const touch = useIdleLogout(
+    Boolean(user),
+    () => {
+      signOut();
+    },
+    PRO_APP ? BACKGROUND_LIMIT_MS : undefined,
+  );
   return (
     <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
       <View style={{ flex: 1 }} onStartShouldSetResponderCapture={() => { touch(); return false; }}>
