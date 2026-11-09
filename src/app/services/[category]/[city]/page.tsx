@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
-import { prisma } from "@/lib/prisma";
+import { getCategoryBySlug } from "@/lib/publicData";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/Button";
@@ -27,10 +27,7 @@ export const dynamic = "force-dynamic";
 async function getData(categorySlug: string, citySlug: string) {
   const cityLabel = await slugToLiveCity(citySlug);
   if (!cityLabel) return null;
-  const category = await prisma.serviceCategory.findUnique({
-    where: { slug: categorySlug },
-    include: { subServices: true },
-  });
+  const category = await getCategoryBySlug(categorySlug);
   if (!category) return null;
 
   const [benchmark] = await Promise.all([getPriceBenchmark(category.id, cityLabel)]);

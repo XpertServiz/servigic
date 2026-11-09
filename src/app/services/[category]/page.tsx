@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
-import { prisma } from "@/lib/prisma";
+import { getCategoryBySlug } from "@/lib/publicData";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Eyebrow } from "@/components/landing/Eyebrow";
@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 // /services/plumber: the service on its own, with every city it is offered in. Google and visitors reach this URL through
 // breadcrumbs and by trimming the address; it used to be a 404. Also the page that can rank for "plumber services" in general.
 async function getCategory(slug: string) {
-  return prisma.serviceCategory.findUnique({ where: { slug }, select: { trade: true, name: true, slug: true } }).catch(() => null);
+  return getCategoryBySlug(slug).catch(() => null);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {

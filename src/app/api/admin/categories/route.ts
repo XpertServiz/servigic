@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -23,7 +24,7 @@ export async function GET() {
   return NextResponse.json({ categories });
 }
 
-export async function POST(req: Request) {
+async function postHandler(req: Request) {
   const auth = await requireRole("ADMIN");
   if (!auth.ok) return auth.response;
 
@@ -33,4 +34,10 @@ export async function POST(req: Request) {
 
   const category = await prisma.serviceCategory.create({ data: parsed.data });
   return NextResponse.json({ category });
+}
+
+export async function POST(req: Request) {
+  const res = await postHandler(req);
+  if (res.ok) revalidateTag("categories", "max");
+  return res;
 }

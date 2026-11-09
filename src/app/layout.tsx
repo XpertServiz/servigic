@@ -18,7 +18,7 @@ import { getDemoMoney } from "@/lib/money";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { detectVisitorMarket } from "@/lib/geoDetect";
 import { localeForCountry } from "@/i18n/locales";
-import { prisma } from "@/lib/prisma";
+import { getSiteSettingsPublic } from "@/lib/publicData";
 import "./globals.css";
 
 // Same pairing as the OAQS Consultants site: Poppins for everything, Geist Mono for labels/figures.
@@ -67,7 +67,7 @@ export default async function RootLayout({
   // The assistant opens in the language of the visitor's country (Arabic in Saudi Arabia, Urdu in Pakistan), English one tap away.
   const vm = await detectVisitorMarket(locale);
   const chatLang = vm.known ? localeForCountry(vm.country) : (locale as string);
-  const supportNumber = await prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { whatsappSupportNumber: true } }).then((s) => whatsappDigits(s?.whatsappSupportNumber)).catch(() => null);
+  const supportNumber = await getSiteSettingsPublic().then((s) => whatsappDigits(s?.whatsappSupportNumber)).catch(() => null);
   const dir = RTL_LOCALES.includes(locale as Locale) ? "rtl" : "ltr";
 
   return (

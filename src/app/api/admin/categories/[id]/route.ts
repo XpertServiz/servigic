@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -11,7 +12,7 @@ const updateSchema = z.object({
   icon: z.string().trim().min(1).max(16).optional(),
 });
 
-export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+async function putHandler(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole("ADMIN");
   if (!auth.ok) return auth.response;
 
@@ -24,7 +25,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   return NextResponse.json({ category });
 }
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+async function deleteHandler(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole("ADMIN");
   if (!auth.ok) return auth.response;
 
@@ -43,4 +44,16 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
   await prisma.serviceCategory.delete({ where: { id } });
   return NextResponse.json({ ok: true });
+}
+
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const res = await putHandler(req, { params });
+  if (res.ok) revalidateTag("categories", "max");
+  return res;
+}
+
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const res = await deleteHandler(_req, { params });
+  if (res.ok) revalidateTag("categories", "max");
+  return res;
 }

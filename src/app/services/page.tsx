@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+import { getCategoryList } from "@/lib/publicData";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Eyebrow } from "@/components/landing/Eyebrow";
@@ -28,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getCategories() {
   try {
-    const rows = await prisma.serviceCategory.findMany({ orderBy: { name: "asc" }, select: { trade: true, name: true, slug: true, minPricePKR: true } });
+    const rows = await getCategoryList();
     if (rows.length > 0) return rows.map((r) => ({ trade: r.trade as string, name: r.name, slug: r.slug, minPricePKR: r.minPricePKR }));
   } catch {
     // static catalog below

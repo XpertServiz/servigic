@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 // "Online now" = pinged within this window. The browser heartbeats every 45s,
 // so 2 minutes tolerates one missed beat without flapping.
-export const ONLINE_WINDOW_MS = 120_000;
+export const ONLINE_WINDOW_MS = 300_000; // a little over two heartbeats
 
 export interface VisitorStats {
   online: number;

@@ -1,12 +1,12 @@
 name: Job health (no-bids reminders)
 
-# Every 10 minutes: customers whose open job still has no bids get a message with
+# Every 15 minutes: customers whose open job still has no bids get a message with
 # the option to widen the search, and the (flag-gated, currently stubbed)
 # SMS/WhatsApp fallback runs. Needs the same CRON_SECRET repo secret as
 # verification-sla.yml. Scheduled workflows only run from the default branch.
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 
 jobs:

@@ -1,13 +1,13 @@
 name: Verification SLA reminder
 
-# Every hour: if a Pro's CNIC/selfie submission has been waiting for review for
+# Every 6 hours (the review limit is 24 hours): if a Pro's CNIC/selfie submission has been waiting for review for
 # more than 24 hours, the site notifies all admins/reviewers (once per
 # submission). Needs the CRON_SECRET repo secret, and the SAME value set as the
 # CRON_SECRET environment variable on the web host. Scheduled workflows only run
 # from the repository's default branch.
 on:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "17 */6 * * *"
   workflow_dispatch:
 
 jobs:

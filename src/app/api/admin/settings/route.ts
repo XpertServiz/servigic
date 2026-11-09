@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { toE164 } from "@/lib/phone";
 import { z } from "zod";
@@ -69,7 +70,7 @@ const schema = z.object({
     .optional(),
 });
 
-export async function PUT(req: Request) {
+async function putHandler(req: Request) {
   const auth = await requireRole("ADMIN");
   if (!auth.ok) return auth.response;
 
@@ -97,4 +98,10 @@ export async function PUT(req: Request) {
   });
 
   return NextResponse.json({ settings });
+}
+
+export async function PUT(req: Request) {
+  const res = await putHandler(req);
+  if (res.ok) revalidateTag("site-settings", "max");
+  return res;
 }

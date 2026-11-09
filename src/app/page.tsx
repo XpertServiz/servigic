@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getLiveCities, getCountryCities } from "@/lib/liveCities";
 import { whatsappDigits } from "@/lib/phone";
 import { detectMarket } from "@/lib/geoDetect";
+import { getSiteSettingsPublic, getCategoryList } from "@/lib/publicData";
 import { getPaymentMode } from "@/lib/featureFlags";
 import { pageMetadata, localBusinessJsonLd, faqJsonLd } from "@/lib/seo";
 import type { Locale } from "@/i18n/locales";
@@ -48,7 +49,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getWhatsappNumber() {
   try {
-    const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
+    const settings = await getSiteSettingsPublic();
     return whatsappDigits(settings?.whatsappSupportNumber);
   } catch {
     return null;
@@ -62,19 +63,16 @@ const PLAN_TEASER_TRADES = [
 ];
 
 export default async function LandingPage() {
-  const [whatsappNumber, categories, planCategories, market, paymentMode, tDesc, tFaq, tSim] = await Promise.all([
+  const [whatsappNumber, categories, market, paymentMode, tDesc, tFaq, tSim] = await Promise.all([
     getWhatsappNumber(),
-    prisma.serviceCategory.findMany({ select: { id: true, name: true, trade: true, icon: true }, orderBy: { name: "asc" } }),
-    prisma.serviceCategory.findMany({
-      where: { trade: { in: PLAN_TEASER_TRADES.map((t) => t.trade) } },
-      select: { trade: true, name: true, icon: true, minPricePKR: true },
-    }),
+    getCategoryList(),
     detectMarket(),
     getPaymentMode(),
     getTranslations("meta.home"),
     getTranslations("faq"),
     getTranslations("sim"),
   ]);
+  const planCategories = categories.filter((c) => PLAN_TEASER_TRADES.some((t) => t.trade === c.trade));
   const liveCities = await getLiveCities(market.country);
   // The price widget lists only the visitor's own country's cities.
   const ownCities = await getCountryCities(market.country);

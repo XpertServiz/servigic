@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-const HEARTBEAT_MS = 45_000;
+const HEARTBEAT_MS = 120_000;
 
 function ping(view: boolean) {
   const body = JSON.stringify({ view });
