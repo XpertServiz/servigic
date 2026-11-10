@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 
 // Pre-launch configuration. Admin > Settings wins; the environment variables (PRO_APP_LIVE, CUSTOMER_APP_LIVE,
-// PRO_TESTER_GROUP_URL, PRO_TESTING_OPTIN_URL, CUSTOMER_PREREG_URL) are the fallback. A link that is empty stays empty,
+// PRO_TESTER_GROUP_URL, PRO_TESTING_OPTIN_URL, CUSTOMER_PREREG_URL, CUSTOMER_TESTER_GROUP_URL, CUSTOMER_TESTING_OPTIN_URL,
+// CUSTOMER_PLAY_STORE_URL) are the fallback. A link that is empty stays empty,
 // and anything that needs it stays hidden, so the site never shows a dead button.
 export interface PrelaunchConfig {
   proAppLive: boolean;
@@ -31,10 +32,10 @@ export async function getPrelaunchConfig(): Promise<PrelaunchConfig> {
     proTesterGroupUrl: clean(s?.proTesterGroupUrl) ?? clean(process.env.PRO_TESTER_GROUP_URL),
     proTestingOptInUrl: clean(s?.proTestingOptInUrl) ?? clean(process.env.PRO_TESTING_OPTIN_URL),
     customerPreregUrl: clean(s?.customerPreregUrl) ?? clean(process.env.CUSTOMER_PREREG_URL),
-    customerTesterGroupUrl: clean(s?.customerTesterGroupUrl),
-    customerTestingOptInUrl: clean(s?.customerTestingOptInUrl),
+    customerTesterGroupUrl: clean(s?.customerTesterGroupUrl) ?? clean(process.env.CUSTOMER_TESTER_GROUP_URL),
+    customerTestingOptInUrl: clean(s?.customerTestingOptInUrl) ?? clean(process.env.CUSTOMER_TESTING_OPTIN_URL),
     proStoreUrl: clean(s?.storeUrlPro) ?? clean(process.env.PRO_PLAY_STORE_URL),
-    customerStoreUrl: clean(s?.storeUrlCustomer),
+    customerStoreUrl: clean(s?.storeUrlCustomer) ?? clean(process.env.CUSTOMER_PLAY_STORE_URL),
     notifyEmail: (s?.signupNotifyEmail ?? process.env.SIGNUP_NOTIFY_EMAIL ?? "xpertserviz@gmail.com").trim(),
   };
 }
