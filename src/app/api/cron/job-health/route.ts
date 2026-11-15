@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { sweepProjectSla } from "@/lib/bigProjects";
 import { prisma } from "@/lib/prisma";
 import { notifyJobsWithoutBids } from "@/lib/jobHealth";
 import { sendUnbidJobFallbacks } from "@/lib/jobAlertFallback";
@@ -18,6 +19,7 @@ export async function POST(req: Request) {
 
   // Called every 15 minutes. The job sweeps only run when there is a job in progress (otherwise they would find nothing); the slow-moving
   // ones (founding-pro reminders, document expiry, media cleanup) run once an hour.
+  const projectReminders = await sweepProjectSla().catch(() => 0);
   const hourly = new Date().getUTCMinutes() < 15;
   const activeJobs = await prisma.job.count({ where: { status: { in: ["OPEN", "BOOKED", "IN_PROGRESS", "DISPUTED"] } } });
 
@@ -45,5 +47,5 @@ export async function POST(req: Request) {
     // Job photos/videos are deleted 24 hours after the job ended (keeps UploadThing storage small).
     mediaCleanup = await cleanupJobMedia().catch((e) => (console.error("[media-cleanup]", e), null));
   }
-  return NextResponse.json({ activeJobs, hourly, noBidsNotified: noBids, fallback, foundingReminders, scheduleReminders, closingSoonWarned, documents, mediaCleanup });
+  return NextResponse.json({ projectReminders, activeJobs, hourly, noBidsNotified: noBids, fallback, foundingReminders, scheduleReminders, closingSoonWarned, documents, mediaCleanup });
 }

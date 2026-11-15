@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { bigProjectsEnabled } from "@/lib/bigProjects";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
 const NAV = [
@@ -6,6 +7,7 @@ const NAV = [
   { href: "/admin/verification", label: "Verification queue" },
   { href: "/admin/providers", label: "Providers" },
   { href: "/admin/jobs", label: "Jobs" },
+  { href: "/admin/projects", label: "Big Projects" },
   { href: "/admin/payments", label: "Payments" },
   { href: "/admin/cancel-fees", label: "Cancellation fees" },
   { href: "/admin/payouts", label: "Payouts" },
@@ -42,7 +44,7 @@ const NAV = [
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   // Reviewers (SUPPORT) only see the verification queue.
-  const navItems = session?.user?.role === "SUPPORT" ? NAV.filter((n) => n.href === "/admin/verification") : NAV;
+  const navItems = session?.user?.role === "SUPPORT" ? NAV.filter((n) => n.href === "/admin/verification") : NAV.filter((n) => n.href !== "/admin/projects" || bigProjectsEnabled());
   return (
     <DashboardShell brand="Servigic Admin" navItems={navItems} userLabel={session?.user?.name ?? ""}>
       {children}

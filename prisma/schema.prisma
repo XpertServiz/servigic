@@ -1579,3 +1579,64 @@ model ProviderDocument {
   @@index([providerId, status])
   @@index([status, expiresAt])
 }
+
+// Big Projects (whole-house wiring, plumbing...). Admin-mediated: the customer asks for an estimate, Servigic calls, visits the site
+// (free), agrees a CONTRACT AMOUNT with the customer (set after the visit; there is no commission on these) and uses verified pros for labour.
+model BigProject {
+  id              String            @id @default(cuid())
+  reference       String            @unique // SP-YYMM-NNNN
+  status          String            @default("new") // new | contacted | site_visit_scheduled | estimate_sent | negotiating | accepted | pros_assigned | in_progress | completed | on_hold | lost | cancelled
+  source          String            @default("web") // web | app
+  locale          String?
+  country         String            @default("PK")
+  city            String?
+  area            String?
+  address         String?
+  customerUserId  String?
+  customerName    String
+  customerPhone   String
+  customerEmail   String
+  preferredContact String?          // call | whatsapp | both
+  bestTime        String?           // morning | afternoon | evening | anytime
+  projectType     String?
+  propertyStage   String?
+  areaSqft        Int?
+  floors          Int?
+  budgetBand      String?
+  startWindow     String?
+  notes           String?           @db.Text
+  trades          String[]
+  answers         Json?
+  consentAt       DateTime
+  ipHash          String?
+  duplicateOf     String?
+  // After the site visit: what Servigic and the customer agreed.
+  contractAmount  Decimal?          @db.Decimal(14, 2)
+  currency        String            @default("PKR")
+  warrantyDays    Int               @default(15)
+  lostReason      String?
+  firstContactedAt DateTime?
+  slaReminderAt   DateTime?
+  siteVisitAt     DateTime?
+  siteVisitNotes  String?           @db.Text
+  followUpAt      DateTime?
+  events          BigProjectEvent[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([status, createdAt])
+  @@index([customerPhone])
+}
+
+model BigProjectEvent {
+  id        String     @id @default(cuid())
+  projectId String
+  project   BigProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  actor     String // an admin user id, "customer" or "system"
+  type      String // created | status | note | call | visit | amount | email
+  body      String?    @db.Text
+  data      Json?
+  createdAt DateTime   @default(now())
+
+  @@index([projectId, createdAt])
+}
