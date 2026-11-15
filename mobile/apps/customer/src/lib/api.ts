@@ -521,3 +521,25 @@ export function getLegalStatus() {
 export function acceptTerms(input: TermsInput) {
   return request<{ ok: true }>("/api/legal/accept", { method: "POST", body: JSON.stringify(input) });
 }
+
+// ─── Big Projects ───
+export type BigProjectListItem = { id: string; reference: string; status: string; trades: string[]; city: string | null; area: string | null; createdAt: string; contractAmount: number | null; currency: string };
+export type BigProjectDetail = {
+  id: string; reference: string; status: string; trades: string[]; city: string | null; area: string | null; siteVisitAt: string | null; contractAmount: number | null; currency: string; warrantyDays: number;
+  timeline: { type: string; body: string | null; at: string }[];
+  estimate: { id: string; version: number; status: string; total: number; subtotal: number; discount: number; currency: string; validUntil: string | null; terms: string | null; items: { description: string; unit: string; qty: number; unitPrice: number; materialsBy: string }[]; link: string } | null;
+  team: { name: string; trades: string[]; role: string; avatarUrl: string | null; verified: boolean }[];
+  milestones: { id: string; title: string; status: string; dueDate: string | null; readyNote: string | null; photos: string[] }[];
+};
+export function getMyProjects() {
+  return request<{ enabled: boolean; projects: BigProjectListItem[] }>("/api/mobile/projects");
+}
+export function getProject(id: string) {
+  return request<{ project: BigProjectDetail }>(`/api/mobile/projects/${id}`);
+}
+export function createProject(input: Record<string, unknown>) {
+  return request<{ ok: true; reference: string; id: string }>("/api/mobile/projects", { method: "POST", body: JSON.stringify(input) });
+}
+export function answerProjectEstimate(id: string, action: "accept" | "revise" | "decline", comment?: string) {
+  return request<{ ok: true }>(`/api/mobile/projects/${id}/estimate`, { method: "POST", body: JSON.stringify({ action, comment }) });
+}

@@ -634,3 +634,17 @@ export function getLegalStatus() {
 export function acceptTerms(input: TermsInput) {
   return request<{ ok: true }>("/api/legal/accept", { method: "POST", body: JSON.stringify(input) });
 }
+
+// ─── Big Projects (labour invitations) ───
+export type ProProjectItem = {
+  id: string; status: string; role: string; scope: string; payoutAmount: number; plannedStart: string | null; plannedEnd: string | null; respondBy: string;
+  project: { reference: string; city: string | null; area: string | null; trades: string[]; areaSqft: number | null; floors: number | null };
+  contact: { address: string; name: string; phone: string } | null;
+  milestones: { id: string; title: string; amount: number | null; dueDate: string | null; status: string; paidAmount: number | null }[];
+};
+export function getProProjects() {
+  return request<{ enabled: boolean; items: ProProjectItem[] }>("/api/mobile/provider/projects");
+}
+export function answerProProject(id: string, body: { action: "accept" | "decline" } | { action: "ready"; milestoneId: string; note?: string }) {
+  return request<{ ok: true }>(`/api/mobile/provider/projects/${id}`, { method: "POST", body: JSON.stringify(body) });
+}

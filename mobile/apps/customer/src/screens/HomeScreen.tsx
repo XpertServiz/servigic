@@ -16,6 +16,7 @@ import { colors, accentGradientStops } from "../lib/theme";
 import { enumLabel } from "../lib/status";
 import { useI18n } from "../lib/i18n";
 import { tradeLabel } from "../lib/status";
+import { navigateRoot } from "../navigation/ref";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "Home">;
 type Category = Awaited<ReturnType<typeof api.getCategories>>["categories"][number];
@@ -27,6 +28,8 @@ export default function HomeScreen({ navigation }: Props) {
   const { t, td } = useI18n();
   const insets = useSafeAreaInsets();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [projectsOn, setProjectsOn] = useState(false);
+  useEffect(() => { api.getMyProjects().then((r) => setProjectsOn(r.enabled)).catch(() => {}); }, []);
   const [acceptingJobs, setAcceptingJobs] = useState(true);
   const [comingSoon, setComingSoon] = useState<Category | null>(null);
   const market = useMarketConfig({ useGps: true });
@@ -88,6 +91,13 @@ export default function HomeScreen({ navigation }: Props) {
           </View>
           <HeaderActions />
         </View>
+
+        {projectsOn && (
+          <Pressable onPress={() => navigateRoot("Projects")} style={{ marginHorizontal: 16, marginBottom: 12, padding: 16, borderRadius: 16, backgroundColor: colors.accentTint, borderWidth: 1, borderColor: colors.accentBorder }}>
+            <Text style={{ color: colors.text, fontWeight: "800", fontSize: 16 }}>Big Projects</Text>
+            <Text style={{ color: colors.textSecondary, marginTop: 4, fontSize: 13 }}>Building or renovating? Get a free estimate for the whole job.</Text>
+          </Pressable>
+        )}
 
         {activeBooking && (
           <Pressable onPress={() => navigation.navigate("BookingDetail", { bookingId: activeBooking.id })} style={styles.activeCard}>

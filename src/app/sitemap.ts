@@ -1,3 +1,5 @@
+import { bigProjectsEnabled } from "@/lib/bigProjects";
+import { SEO_CITIES, SEO_TRADES } from "@/lib/projectsContent";
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { SERVICE_CATALOG } from "@/lib/catalog";
@@ -45,6 +47,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...slugs.map((slug) => ({ path: `/services/${slug}`, priority: 0.85, changeFrequency: "weekly" as const, locales: HUB_LOCALES })),
     // A city page is listed only in English and the languages people in that country use (see lib/seoLocales.ts).
     ...slugs.flatMap((slug) => CITY_SLUGS.map((c) => ({ path: `/services/${slug}/${c.slug}`, priority: 0.8, changeFrequency: "weekly" as const, locales: localesForCountry(countryOf.get(c.slug)) }))),
+    ...(bigProjectsEnabled()
+      ? [
+          { path: "/projects", priority: 0.9, changeFrequency: "weekly" as const, locales: ["en", "ur"] },
+          ...SEO_TRADES.flatMap((t) => SEO_CITIES.map((c) => ({ path: `/projects/${t.slug}/${c.slug}`, priority: 0.7, changeFrequency: "monthly" as const, locales: ["en"] }))),
+        ]
+      : []),
   ];
 
   // One URL per language, each pointing at all its siblings (hreflang) so Google serves the right language per country.

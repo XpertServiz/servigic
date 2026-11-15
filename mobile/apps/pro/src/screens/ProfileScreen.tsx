@@ -45,6 +45,8 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
   const tradeOptions = useTradeOptions();
+  const [projectsOn, setProjectsOn] = useState(false);
+  useEffect(() => { api.getProProjects().then((r) => setProjectsOn(r.enabled)).catch(() => {}); }, []);
   const [displayName, setDisplayName] = useState("");
   const [trades, setTrades] = useState<string[]>([]); // approved + pending selection
   const [tradeRequests, setTradeRequests] = useState<api.TradeRequest[]>([]);
@@ -353,6 +355,12 @@ export default function ProfileScreen() {
 
       <SupportRow rowStyle={styles.row} textStyle={styles.rowText} />
 
+      {projectsOn && (
+        <Pressable onPress={() => navigateRoot("Projects")} style={styles.row}>
+          <Text style={styles.rowText}>Projects (big jobs)</Text>
+          <Icon name="chevron-right" size={14} color={colors.textFaint} />
+        </Pressable>
+      )}
       <Pressable onPress={() => navigateRoot("Language")} style={styles.row}>
         <Icon name="globe" size={18} />
         <Text style={styles.rowText}>{t("lang.title")}</Text>

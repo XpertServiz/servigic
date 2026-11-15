@@ -13,6 +13,7 @@ function countryWords(country: string | null | undefined) {
   }
   return out;
 }
+import { bigProjectsEnabled } from "@/lib/bigProjects";
 import { whatsappDigits } from "@/lib/phone";
 import { headers } from "next/headers";
 import { acceptsJobs, getMarkets, marketForCity, marketForCountry, marketForPoint } from "@/lib/marketConfig";
@@ -31,6 +32,7 @@ async function appControls() {
     storeUrls: { pro: s?.storeUrlPro ?? null, customer: s?.storeUrlCustomer ?? null },
     supportWhatsapp: whatsappDigits(s?.whatsappSupportNumber),
     minTopUpPKR: s?.minTopUpPKR ?? 500,
+    bigProjects: bigProjectsEnabled(),
   };
 }
 

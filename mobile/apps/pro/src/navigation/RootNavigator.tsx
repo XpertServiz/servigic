@@ -31,6 +31,7 @@ import EarningsScreen from "../screens/EarningsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import LanguageScreen from "../screens/LanguageScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
+import ProjectsScreen from "../screens/ProjectsScreen";
 import BidAcceptedScreen from "../screens/BidAcceptedScreen";
 import NeverMissJobScreen, { hasSeenNeverMiss } from "../screens/NeverMissJobScreen";
 import { useNotificationTaps } from "../lib/notificationNav";
@@ -68,6 +69,7 @@ export type RootStackParamList = {
   Language: undefined;
   Notifications: undefined;
   NeverMiss: undefined;
+  Projects: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -229,6 +231,7 @@ function MainRoot() {
       <RootStack.Screen name="Language" component={LanguageScreen} options={{ presentation: "modal" }} />
       <RootStack.Screen name="Notifications" component={NotificationsScreen} options={{ presentation: "modal" }} />
       <RootStack.Screen name="NeverMiss" component={NeverMissJobScreen} options={{ presentation: "modal" }} />
+      <RootStack.Screen name="Projects" component={ProjectsScreen} options={{ presentation: "modal" }} />
     </RootStack.Navigator>
   );
 }

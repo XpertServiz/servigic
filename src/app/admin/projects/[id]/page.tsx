@@ -3,13 +3,16 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { BUDGET_BANDS, PROJECT_TRADES, PROJECT_TYPES, PROPERTY_STAGES, START_WINDOWS, label } from "@/lib/bigProjectsOptions";
 import { ProjectActions } from "./ProjectActions";
+import { ProjectFlow } from "./ProjectFlow";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const p = await prisma.bigProject.findUnique({ where: { id }, include: { events: { orderBy: { createdAt: "desc" } } } });
+  const p = await prisma.bigProject.findUnique({ where: { id }, include: { events: { orderBy: { createdAt: "desc" } }, estimates: { orderBy: { version: "asc" } }, assignments: { orderBy: { invitedAt: "asc" } }, milestones: { orderBy: { dueDate: "asc" } } } });
   if (!p) notFound();
+  const pros = await prisma.providerProfile.findMany({ where: { isVerified: true }, select: { id: true, displayName: true, trades: true }, orderBy: { displayName: "asc" }, take: 300 });
+  const proName = (pid: string) => pros.find((x) => x.id === pid)?.displayName ?? "Pro";
   const wa = `https://wa.me/${p.customerPhone.replace(/\D/g, "")}`;
   const rows: [string, string][] = [
     ["Trades", p.trades.map((t) => label(PROJECT_TRADES, t)).join(", ")],
@@ -47,6 +50,14 @@ export default async function AdminProjectPage({ params }: { params: Promise<{ i
         currency={p.currency}
         siteVisitAt={p.siteVisitAt ? p.siteVisitAt.toISOString().slice(0, 16) : ""}
         siteVisitNotes={p.siteVisitNotes ?? ""}
+      />
+      <ProjectFlow
+        id={p.id}
+        currency={p.currency}
+        estimates={p.estimates.map((e) => ({ id: e.id, version: e.version, status: e.status, total: Number(e.total), sentAt: e.sentAt.toISOString() }))}
+        pros={pros.map((x) => ({ id: x.id, name: x.displayName, trades: x.trades.map(String) }))}
+        assignments={p.assignments.map((a) => ({ id: a.id, proName: proName(a.proId), role: a.role, scope: a.scope, payout: Number(a.payoutAmount), status: a.status }))}
+        milestones={p.milestones.map((m) => ({ id: m.id, title: m.title, status: m.status, amount: m.amount ? Number(m.amount) : null, assignmentId: m.assignmentId, photos: m.photos, note: m.readyNote }))}
       />
       <h2 className="mb-3 mt-8 text-lg font-bold">Timeline</h2>
       <ul className="flex flex-col gap-2 text-sm">

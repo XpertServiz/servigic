@@ -32,6 +32,7 @@ import BookingDetailScreen from "../screens/BookingDetailScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import LanguageScreen from "../screens/LanguageScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
+import ProjectsScreen from "../screens/ProjectsScreen";
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -69,6 +70,7 @@ export type RootStackParamList = {
   Main: undefined;
   Language: undefined;
   Notifications: undefined;
+  Projects: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -193,6 +195,7 @@ function MainRoot() {
       <RootStack.Screen name="Main" component={MainTabs} />
       <RootStack.Screen name="Language" component={LanguageScreen} options={{ presentation: "modal" }} />
       <RootStack.Screen name="Notifications" component={NotificationsScreen} options={{ presentation: "modal" }} />
+      <RootStack.Screen name="Projects" component={ProjectsScreen} options={{ presentation: "modal" }} />
     </RootStack.Navigator>
   );
 }
