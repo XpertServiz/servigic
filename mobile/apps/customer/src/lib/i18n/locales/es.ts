@@ -637,4 +637,5 @@ export const es: Partial<Record<TKey, string>> = {
   "proj.pro.entry": "Proyectos (trabajos grandes)",
   "proj.home": "Proyectos grandes",
   "home.click": "Ver",
+  "auth.construction": "Construcción",
 };

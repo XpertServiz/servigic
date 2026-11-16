@@ -853,4 +853,5 @@ export const ur: Partial<Record<TKey, string>> = {
   "proj.pro.entry": "پراجیکٹس (بڑے کام)",
   "proj.home": "بڑے پراجیکٹس",
   "home.click": "کلک",
+  "auth.construction": "تعمیرات",
 };

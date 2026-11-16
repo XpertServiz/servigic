@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, KeyboardAvoidingView, ScrollView, Image } from "react-native";
+import { View, Text, StyleSheet, KeyboardAvoidingView, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../navigation/RootNavigator";
@@ -7,12 +7,12 @@ import { useAuth } from "../lib/auth";
 import { Button, Field, PhoneField, usePhoneInput } from "../components/ui";
 import { GlowBackground } from "../components/ds";
 import { AuthBackdrop } from "../components/AuthBackdrop";
-import { AuthExtras } from "../components/AuthExtras";
-import { useAuthDesign } from "../lib/authDesigns";
+import { AuthTradeRow, AuthBadgeRow, AuthSkyline } from "../components/AuthTrust";
+import { LangChip } from "../components/LangChip";
+import { useAuthHero } from "../lib/authHero";
 import { authErrorMessage } from "../lib/authErrors";
 import { APP_ROLE } from "../lib/appRole";
 import { SplashLogo } from "../components/SplashLogo";
-import { HeaderActions } from "../components/HeaderActions";
 import { colors } from "../lib/theme";
 import { useT } from "../lib/i18n";
 
@@ -23,7 +23,7 @@ export default function LoginScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { signIn } = useAuth();
   const phone = usePhoneInput();
-  const design = useAuthDesign();
+  const hero = useAuthHero(phone.country);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,9 +48,9 @@ export default function LoginScreen({ navigation }: Props) {
   return (
     <View style={styles.root}>
       <GlowBackground cx="30%" cy="15%" r="70%" opacity={0.14} />
-      <AuthBackdrop image={design.image} />
+      {hero && <AuthBackdrop image={hero} heightFrac={0.5} />}
       <View style={[styles.topBar, { top: insets.top + 12 }]}>
-        <HeaderActions showBell={false} />
+        <LangChip country={phone.country} />
       </View>
 
       {/* Edge-to-edge: Android no longer resizes the window for the keyboard, so pad for it on both platforms. */}
@@ -67,6 +67,7 @@ export default function LoginScreen({ navigation }: Props) {
           <Text style={styles.brand}>SERVIGIC PRO</Text>
           <Text style={styles.title}>{t("auth.welcomeBack")}</Text>
           <Text style={styles.subtitle}>{t("auth.proTagline")}</Text>
+          <AuthTradeRow />
 
           <PhoneField phone={phone} />
           <Field label={t("auth.password")} secureTextEntry value={password} onChangeText={setPassword} placeholder="••••••••" />
@@ -78,7 +79,9 @@ export default function LoginScreen({ navigation }: Props) {
 
           <Button title={t("auth.logIn")} onPress={handleLogin} loading={loading} disabled={!phone.text || !password} />
 
-          <View style={{ marginTop: 22, alignItems: "center" }}>
+          <AuthBadgeRow />
+          <AuthSkyline country={phone.country} />
+          <View style={{ marginTop: 14, alignItems: "center" }}>
             <Text style={{ color: colors.textMuted, fontSize: 13 }}>
               {t("auth.newToServigic")}{" "}
               <Text style={{ color: colors.accent, fontWeight: "700" }} onPress={() => navigation.navigate("Signup")}>
@@ -86,16 +89,6 @@ export default function LoginScreen({ navigation }: Props) {
               </Text>
             </Text>
           </View>
-
-          <View style={styles.banner}>
-            <View style={{ flex: 1, paddingEnd: 8 }}>
-              <Text style={styles.bannerTitle}>{t("brand.realPeople")}</Text>
-              <Text style={styles.bannerSub}>{t("brand.verifiedPros")}</Text>
-            </View>
-            <Image source={require("../../assets/face/people.webp")} style={styles.bannerImg} resizeMode="cover" />
-          </View>
-
-          <AuthExtras kind={design.extras} />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -106,9 +99,9 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
   topBar: { position: "absolute", right: 18, zIndex: 5 },
   container: { flexGrow: 1, justifyContent: "flex-end", padding: 26, paddingBottom: 40 },
-  brand: { color: colors.accent, fontSize: 15, fontWeight: "800", letterSpacing: 1.3, marginBottom: 10 },
-  title: { color: colors.text, fontSize: 30, fontWeight: "800", marginBottom: 8 },
-  subtitle: { color: colors.textSecondary, fontSize: 14, marginBottom: 26 },
+  brand: { color: colors.accent, fontSize: 15, fontWeight: "800", letterSpacing: 1.3, marginBottom: 10, textAlign: "center" },
+  title: { color: colors.text, fontSize: 30, fontWeight: "800", marginBottom: 6, textAlign: "center" },
+  subtitle: { color: colors.textSecondary, fontSize: 14, marginBottom: 8, textAlign: "center" },
   error: { color: colors.dangerSoft, marginBottom: 12, fontSize: 13 },
   banner: { marginTop: 26, flexDirection: "row", alignItems: "center", backgroundColor: colors.bgElevated, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,166,35,0.2)", overflow: "hidden", paddingStart: 16, minHeight: 120 },
   bannerTitle: { color: colors.text, fontSize: 18, fontWeight: "800", marginBottom: 4 },

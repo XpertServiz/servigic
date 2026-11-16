@@ -34,6 +34,7 @@ export class ApiError extends Error {
 let apiBaseUrl = "http://localhost:3000";
 let authToken: string | null = null;
 
+export const getApiBaseUrl = () => apiBaseUrl;
 export function configureApiClient(baseUrl: string) {
   apiBaseUrl = baseUrl;
 }
@@ -71,7 +72,7 @@ export function getPublicTrades() {
 // ─── Language ───
 // Public (works before login): which language to *suggest* for this country.
 export function getMarket() {
-  return request<{ country: string; countryName: string; suggestedLocale: string; chatLanguage?: string }>("/api/mobile/market");
+  return request<{ country: string; countryName: string; suggestedLocale: string; chatLanguage?: string; hero?: string | null }>("/api/mobile/market");
 }
 
 // Persists the chosen language on the user's account.

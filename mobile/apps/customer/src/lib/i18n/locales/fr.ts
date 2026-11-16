@@ -802,4 +802,5 @@ export const fr: Partial<Record<TKey, string>> = {
   "proj.pro.entry": "Projets (gros chantiers)",
   "proj.home": "Grands projets",
   "home.click": "Voir",
+  "auth.construction": "Construction",
 };

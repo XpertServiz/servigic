@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     backgroundColor: colors.bgElevated,
     borderTopWidth: 1,
-    borderTopColor: "rgba(245,166,35,0.1)",
+    borderTopColor: "rgba(245,166,35,0.55)",
   },
   item: { flex: 1, alignItems: "center", gap: 4 },
   label: { fontSize: 11 },
