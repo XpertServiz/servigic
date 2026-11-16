@@ -33,6 +33,8 @@ export const requestSchema = z.object({
   bestTime: z.enum(["morning", "afternoon", "evening", "anytime"]).optional(),
   consent: z.literal(true),
   language: text(8).optional(),
+  answers: z.record(z.string().max(60), z.string().trim().max(120)).refine((o) => Object.keys(o).length <= 40).optional(),
+  files: z.array(z.object({ url: z.string().url().max(500).refine((u) => /^https:\/\/([a-z0-9-]+\.)*(ufs\.sh|utfs\.io|uploadthing\.com)\//.test(u)), name: z.string().max(120).optional(), kind: z.enum(["image", "pdf"]) })).max(6).optional(),
   website: z.string().optional(), // honeypot
   cf: z.string().max(4096).optional(), // Cloudflare Turnstile token (only checked when TURNSTILE_SECRET_KEY is set)
 });
@@ -69,7 +71,7 @@ export async function submitProject(d: ProjectRequest, meta: { source: "web" | "
           city: d.city, area: d.area || null, customerUserId: meta.userId ?? null, customerName: d.name, customerPhone: phone, customerEmail: d.email.toLowerCase(),
           preferredContact: d.preferredContact ?? null, bestTime: d.bestTime ?? null, projectType: d.projectType ?? null, propertyStage: d.propertyStage ?? null,
           areaSqft: d.areaSqft ?? null, floors: d.floors ?? null, budgetBand: d.budgetBand ?? null, startWindow: d.startWindow ?? null, notes: d.notes || null,
-          trades: d.trades, consentAt: new Date(), ipHash: sha(meta.ipKey), duplicateOf: dup?.id ?? null,
+          trades: d.trades, answers: d.answers ?? undefined, files: d.files ?? undefined, consentAt: new Date(), ipHash: sha(meta.ipKey), duplicateOf: dup?.id ?? null,
           events: { create: { actor: "customer", type: "created", body: dup ? "Possible duplicate of an earlier request" : null } },
         },
       });
@@ -157,10 +159,20 @@ export async function customerProjectView(projectId: string) {
   const est = p.estimates[0];
   return {
     id: p.id, reference: p.reference, status: p.status, trades: p.trades, city: p.city, area: p.area, createdAt: p.createdAt, siteVisitAt: p.siteVisitAt,
-    contractAmount: p.contractAmount ? Number(p.contractAmount) : null, currency: p.currency, warrantyDays: p.warrantyDays,
+    contractAmount: p.contractAmount ? Number(p.contractAmount) : null, currency: p.currency, warrantyDays: p.warrantyDays, rating: p.rating, ratingComment: p.ratingComment,
     timeline: p.events.map((e) => ({ type: e.type, body: e.type === "status" || e.type === "created" || e.type === "visit" || e.type === "estimate" ? e.body : null, at: e.createdAt })),
     estimate: est ? { id: est.id, version: est.version, status: est.status, total: Number(est.total), subtotal: Number(est.subtotal), discount: Number(est.discount), currency: est.currency, validUntil: est.validUntil, terms: est.terms, items: est.items, link: estimateLink(est.token) } : null,
     team: p.assignments.map((a) => { const pr = pros.find((x) => x.id === a.proId); return { name: (pr?.displayName ?? "Pro").split(" ")[0], trades: pr?.trades ?? [], role: a.role, avatarUrl: pr?.user.avatarUrl ?? null, verified: !!pr?.isVerified }; }),
     milestones: p.milestones.map((m) => ({ id: m.id, title: m.title, status: m.status, dueDate: m.dueDate, readyNote: m.readyNote, photos: m.photos })),
   };
+}
+
+export const ratingSchema = z.object({ rating: z.number().int().min(1).max(5), comment: z.string().trim().max(1000).optional() });
+
+/** The customer rates a completed project once (1-5 stars and an optional comment). */
+export async function rateProject(projectId: string, rating: number, comment?: string) {
+  const c = await prisma.bigProject.updateMany({ where: { id: projectId, status: "completed", rating: null }, data: { rating, ratingComment: comment || null, ratedAt: new Date() } });
+  if (c.count !== 1) return { ok: false as const, error: "This project cannot be rated (not completed, or already rated)." };
+  await prisma.bigProjectEvent.create({ data: { projectId, actor: "customer", type: "note", body: `Customer rated ${rating}/5${comment ? `: ${comment}` : ""}` } });
+  return { ok: true as const };
 }

@@ -94,7 +94,7 @@ export default function HomeScreen({ navigation }: Props) {
 
         {projectsOn && (
           <Pressable onPress={() => navigateRoot("Projects")} style={{ marginHorizontal: 16, marginBottom: 12, padding: 16, borderRadius: 16, backgroundColor: colors.accentTint, borderWidth: 1, borderColor: colors.accentBorder }}>
-            <Text style={{ color: colors.text, fontWeight: "800", fontSize: 16 }}>Big Projects</Text>
+            <Text style={{ color: colors.text, fontWeight: "800", fontSize: 16 }}>{t("proj.home")}</Text>
             <Text style={{ color: colors.textSecondary, marginTop: 4, fontSize: 13 }}>Building or renovating? Get a free estimate for the whole job.</Text>
           </Pressable>
         )}

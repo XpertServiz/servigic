@@ -5,7 +5,7 @@ import { sendEmailChannel } from "@/lib/notify/channels/email";
 // Big Projects (whole-house wiring, plumbing...). Shipped dark: nothing shows until FEATURE_BULK_PROJECTS=true.
 export const bigProjectsEnabled = () => ["true", "1"].includes((process.env.FEATURE_BULK_PROJECTS ?? "").toLowerCase());
 
-import { PROJECT_TRADES, PROJECT_TYPES, PROPERTY_STAGES, BUDGET_BANDS, START_WINDOWS, label } from "@/lib/bigProjectsOptions";
+import { PROJECT_TRADES, PROJECT_TYPES, PROPERTY_STAGES, BUDGET_BANDS, START_WINDOWS, label, answerLines } from "@/lib/bigProjectsOptions";
 export * from "@/lib/bigProjectsOptions";
 
 export async function nextReference(): Promise<string> {
@@ -39,6 +39,9 @@ function shell(title: string, inner: string): string {
 const btn = (href: string, text: string) => `<a href="${esc(href)}" style="display:inline-block;margin:6px 8px 6px 0;padding:11px 18px;border-radius:999px;background:#F5A623;color:#1a1208;text-decoration:none;font-weight:700;font-size:14px">${esc(text)}</a>`;
 const row = (k: string, v: unknown) => `<tr><td style="padding:5px 12px 5px 0;color:#a89d92;font-size:13px;vertical-align:top">${esc(k)}</td><td style="padding:5px 0;font-size:14px">${esc(v)}</td></tr>`;
 
+const rowHtml = (k: string, html: string) => `<tr><td style="padding:5px 12px 5px 0;color:#a89d92;font-size:13px;vertical-align:top">${esc(k)}</td><td style="padding:5px 0;font-size:14px">${html}</td></tr>`;
+const fileLinks = (p: { files: unknown }) => (Array.isArray(p.files) ? (p.files as { url: string; name?: string }[]).map((f, i) => `<a href="${esc(f.url)}" style="color:#F5A623">${esc(f.name || `File ${i + 1}`)}</a>`).join(" &middot; ") : "");
+
 type P = NonNullable<Awaited<ReturnType<typeof prisma.bigProject.findUnique>>>;
 
 function summaryRows(p: P): string {
@@ -54,7 +57,9 @@ function summaryRows(p: P): string {
     row("Budget", label(BUDGET_BANDS, p.budgetBand)),
     row("Start", label(START_WINDOWS, p.startWindow)),
     row("Contact via", `${p.preferredContact ?? "-"} / ${p.bestTime ?? "-"}`),
+    ...answerLines(p.answers).map(([k, v]) => row(k, v)),
     row("Notes", p.notes || "-"),
+    ...(fileLinks(p) ? [rowHtml("Files", fileLinks(p))] : []),
   ].join("");
 }
 
@@ -111,4 +116,38 @@ export async function sweepProjectInvites(): Promise<number> {
     n++;
   }
   return n;
+}
+
+/** Email to a pro for a new project: everything the pro needs to decide, but no address, phone or full name (they appear in the app only once Servigic confirms the team). */
+export async function emailProInvite(a: { scope: string; role: string; payoutAmount: unknown; plannedStart: Date | null; plannedEnd: Date | null; respondBy: Date }, p: P, to: string, proName: string): Promise<void> {
+  const d = (x: Date | null) => (x ? x.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "-");
+  const first = esc(p.customerName.split(" ")[0]);
+  const rows = [
+    row("Project", p.reference),
+    row("Customer", first),
+    row("Area", [p.area, p.city].filter(Boolean).join(", ")),
+    row("Trades", p.trades.map((t) => label(PROJECT_TRADES, t)).join(", ")),
+    row("Type", `${label(PROJECT_TYPES, p.projectType)}${p.propertyStage ? ` / ${label(PROPERTY_STAGES, p.propertyStage)}` : ""}`),
+    row("Size", p.areaSqft ? `${p.areaSqft} sq ft${p.floors ? `, ${p.floors} floor(s)` : ""}` : "-"),
+    row("Start", label(START_WINDOWS, p.startWindow)),
+    ...answerLines(p.answers).map(([k, v]) => row(k, v)),
+    row("Notes", p.notes || "-"),
+  ].join("");
+  const html = shell("New project for you", `<p style="font-size:15px;line-height:1.5;margin:0 0 14px">Hello ${esc(proName)}, Servigic invites you to work on a project.</p>
+<div style="background:#1f1814;border:1px solid #2a211c;border-radius:12px;padding:14px 16px;margin-bottom:14px"><div style="color:#a89d92;font-size:12px;text-transform:uppercase;letter-spacing:.5px">Your work (${esc(a.role)})</div><div style="font-size:16px;font-weight:700;margin:4px 0 10px">${esc(a.scope)}</div><div style="color:#a89d92;font-size:12px;text-transform:uppercase;letter-spacing:.5px">Your payout</div><div style="font-size:22px;font-weight:800;color:#F5A623">${esc(p.currency)} ${Number(a.payoutAmount).toLocaleString("en-US")}</div><div style="font-size:13px;color:#a89d92;margin-top:8px">Planned: ${d(a.plannedStart)} to ${d(a.plannedEnd)}</div></div>
+<table style="border-collapse:collapse;width:100%">${rows}</table>
+<p style="margin:16px 0 4px">${btn(`${appUrl()}/projects`, "Open the Servigic Pro app")}</p>
+<p style="font-size:13px;color:#f5c26b;margin:8px 0">Please answer before ${esc(a.respondBy.toLocaleString("en-GB"))}.</p>
+<p style="color:#a89d92;font-size:12px;line-height:1.5">The address and the customer's contact are shared in the app after you accept and Servigic confirms the team. All communication and payment stay with Servigic.</p>`);
+  await sendEmailChannel({ to, subject: `New project for you: ${p.trades.map((t) => label(PROJECT_TRADES, t)).join(", ")} in ${p.city ?? "your city"} - ${p.reference}`, body: `New project ${p.reference} in ${p.city ?? ""}: ${a.scope}. Payout ${p.currency} ${Number(a.payoutAmount).toLocaleString("en-US")}. Open the Servigic Pro app to accept before ${a.respondBy.toLocaleString("en-GB")}.`, html }).catch((e) => console.error("[projects:email]", e));
+}
+
+/** Asks the customer to rate a completed project; the private estimate link also carries the rating form. */
+export async function emailRateRequest(projectId: string): Promise<void> {
+  const p = await prisma.bigProject.findUnique({ where: { id: projectId }, include: { estimates: { orderBy: { version: "desc" }, take: 1, select: { token: true } } } });
+  const token = p?.estimates[0]?.token;
+  if (!p || !token) return;
+  const link = `${appUrl()}/e/${token}`;
+  const html = shell("How did we do?", `<p style="font-size:15px;line-height:1.5">Hello ${esc(p.customerName)}, your project <b>${esc(p.reference)}</b> is complete. Please rate it - it takes 10 seconds and helps us improve.</p><p>${btn(link, "Rate your project")}</p><p style="color:#a89d92;font-size:12px">Any problem within ${p.warrantyDays} days, Servigic comes back and fixes it.</p>`);
+  await sendEmailChannel({ to: p.customerEmail, subject: `Your project ${p.reference} is complete - please rate it`, body: `Your project ${p.reference} is complete. Rate it here: ${link}`, html }).catch(() => null);
 }

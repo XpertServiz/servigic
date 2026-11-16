@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/requireRole";
 import { notify } from "@/lib/notify";
+import { emailProInvite, emailRateRequest } from "@/lib/bigProjects";
 import { ALL_STATUSES, LOST_REASONS, canMove } from "@/lib/bigProjectsOptions";
 import { estimateItemSchema, sendEstimate } from "@/lib/bigProjectsFlow";
 
@@ -45,6 +46,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     await log("status", `${p.status} -> ${d.status}${d.lostReason ? ` (${d.lostReason})` : ""}`);
     if (d.status === "completed") {
       await prisma.bigProjectAssignment.updateMany({ where: { projectId: id, status: "active" }, data: { status: "completed" } });
+      await emailRateRequest(id).catch(() => null);
       await tell(p.customerUserId, "Your project is complete", `${p.reference}: thank you for choosing Servigic. Any problem within ${p.warrantyDays} days, we will come and fix it.`);
     } else if (d.status === "in_progress") await tell(p.customerUserId, "Work has started", p.reference);
   } else if (d.action === "note") {
@@ -67,7 +69,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const respondBy = new Date(Date.now() + RESPONSE_HOURS() * 3600_000);
     await prisma.bigProjectAssignment.create({ data: { projectId: id, proId: d.proId, role: d.role, scope: d.scope, payoutAmount: d.payoutAmount, plannedStart: d.plannedStart ? new Date(d.plannedStart) : null, plannedEnd: d.plannedEnd ? new Date(d.plannedEnd) : null, respondBy } });
     await log("assign", `Invited ${pro.displayName} (${d.role}): ${d.scope} - payout ${p.currency} ${d.payoutAmount}`);
-    await notify({ userId: pro.userId, type: "STATUS_UPDATE", title: "New project invitation", body: `${p.city ?? ""}: ${d.scope}. Reply within ${RESPONSE_HOURS()} hours.`, linkUrl: "/projects", channels: ["email"] }).catch(() => null);
+    await notify({ userId: pro.userId, type: "STATUS_UPDATE", title: "New project invitation", body: `${p.city ?? ""}: ${d.scope}. Reply within ${RESPONSE_HOURS()} hours.`, linkUrl: "/projects" }).catch(() => null);
+    // Always email the full brief (online or offline), without address or phone.
+    const u = await prisma.user.findUnique({ where: { id: pro.userId }, select: { email: true } });
+    if (u?.email) await emailProInvite({ scope: d.scope, role: d.role, payoutAmount: d.payoutAmount, plannedStart: d.plannedStart ? new Date(d.plannedStart) : null, plannedEnd: d.plannedEnd ? new Date(d.plannedEnd) : null, respondBy }, p, u.email, pro.displayName);
   } else if (d.action === "assign_remove") {
     const a = await prisma.bigProjectAssignment.findFirst({ where: { id: d.assignmentId, projectId: id } });
     if (!a) return NextResponse.json({ error: "Not found" }, { status: 404 });

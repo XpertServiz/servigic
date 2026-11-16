@@ -2,10 +2,24 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { auth } from "@/lib/auth";
 import { storedBytes } from "@/lib/directUpload";
 import { STORAGE_GUARD_BYTES } from "@/lib/mediaLimits";
+import { checkRateLimit, clientKey } from "@/lib/rateLimit";
+import { bigProjectsEnabled } from "@/lib/bigProjects";
 
 const f = createUploadthing();
 
 export const ourFileRouter = {
+  // Big Projects request form (no account needed): up to 5 photos and 1 PDF plan. Limited per connection and paused when storage is nearly full.
+  projectFiles: f({ image: { maxFileSize: "4MB", maxFileCount: 5 }, pdf: { maxFileSize: "8MB", maxFileCount: 1 } })
+    .middleware(async ({ req }) => {
+      if (!bigProjectsEnabled()) throw new Error("Unavailable");
+      const hit = await checkRateLimit(`projfiles:${clientKey(req)}`, 12, 3600);
+      if (!hit.ok) throw new Error("Too many uploads. Please try again later.");
+      const used = await storedBytes();
+      if (used !== null && used > STORAGE_GUARD_BYTES) throw new Error("Uploads are paused for a while. You can send files on the call instead.");
+      return {};
+    })
+    .onUploadComplete(async ({ file }) => ({ url: file.ufsUrl })),
+
   jobPhotos: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
     .middleware(async () => {
       const session = await auth();

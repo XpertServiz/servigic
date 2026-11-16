@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { BUDGET_BANDS, PROJECT_TRADES, PROJECT_TYPES, PROPERTY_STAGES, START_WINDOWS, label } from "@/lib/bigProjectsOptions";
+import { BUDGET_BANDS, PROJECT_TRADES, PROJECT_TYPES, PROPERTY_STAGES, START_WINDOWS, label, answerLines } from "@/lib/bigProjectsOptions";
 import { ProjectActions } from "./ProjectActions";
 import { ProjectFlow } from "./ProjectFlow";
 
@@ -23,7 +23,9 @@ export default async function AdminProjectPage({ params }: { params: Promise<{ i
     ["Start", label(START_WINDOWS, p.startWindow)],
     ["Contact via", `${p.preferredContact ?? "-"} / ${p.bestTime ?? "-"}`],
     ["Email", p.customerEmail],
+    ...answerLines(p.answers),
     ["Notes", p.notes || "-"],
+    ...(p.rating ? ([["Customer rating", `${p.rating} / 5${p.ratingComment ? ` - ${p.ratingComment}` : ""}`]] as [string, string][]) : []),
     ["Submitted", p.createdAt.toLocaleString()],
   ];
   return (
@@ -41,6 +43,12 @@ export default async function AdminProjectPage({ params }: { params: Promise<{ i
         <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-[150px_1fr]">
           {rows.map(([k, v]) => (<div key={k} className="contents"><dt className="text-text-muted">{k}</dt><dd>{v}</dd></div>))}
         </dl>
+        {Array.isArray(p.files) && p.files.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-3 text-sm">
+            <span className="text-text-muted">Files from the customer:</span>
+            {(p.files as { url: string; name?: string; kind: string }[]).map((f, i) => (<a key={f.url} href={f.url} target="_blank" rel="noopener noreferrer" className="text-accent underline">{f.name || `${f.kind === "pdf" ? "PDF" : "Photo"} ${i + 1}`}</a>))}
+          </div>
+        )}
       </div>
       <ProjectActions
         id={p.id}

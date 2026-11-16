@@ -12,6 +12,7 @@ import { COPY, SEO_CITIES, SEO_TRADES, type Lang } from "@/lib/projectsContent";
 import { absoluteUrl, breadcrumbJsonLd, pageMetadata, SITE_NAME } from "@/lib/seo";
 import type { Locale } from "@/i18n/locales";
 import { ProjectForm } from "./ProjectForm";
+import { WaitlistForm } from "./WaitlistForm";
 
 export const revalidate = 3600;
 
@@ -102,6 +103,7 @@ export default async function ProjectsPage() {
         <section id="estimate" className="container-x max-w-[760px] scroll-mt-20 py-10">
           <h2 className="mb-5 text-center text-xl font-bold md:text-2xl">{c.formTitle}</h2>
           <ProjectForm whatsapp={settings?.whatsappSupportNumber ?? null} />
+          <WaitlistForm />
         </section>
 
         <section className="container-x max-w-[760px] pb-10 text-center text-sm text-text-muted">

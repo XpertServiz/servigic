@@ -24,6 +24,7 @@ export default async function AdminProjectsPage({ searchParams }: { searchParams
     take: 300,
   });
   const counts = await prisma.bigProject.groupBy({ by: ["status"], _count: true });
+  const waitlist = await prisma.bigProjectWaitlist.findMany({ orderBy: { createdAt: "desc" }, take: 100 });
   const waiting = counts.find((c) => c.status === "new")?._count ?? 0;
 
   return (
@@ -61,6 +62,25 @@ export default async function AdminProjectsPage({ searchParams }: { searchParams
               );
             })}
             {rows.length === 0 && <tr><td colSpan={8} className="p-6 text-center text-text-muted">No projects yet.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      <h2 className="mb-2 mt-10 font-display text-xl font-bold">Waitlist (outside Pakistan) - {waitlist.length}</h2>
+      <div className="overflow-x-auto rounded-[14px] border border-border-subtle">
+        <table className="w-full min-w-[700px] text-sm">
+          <thead className="bg-bg-elevated text-left text-xs uppercase tracking-wide text-text-muted"><tr><th className="p-3">When</th><th className="p-3">Name</th><th className="p-3">Country</th><th className="p-3">Contact</th><th className="p-3">Trades</th><th className="p-3">Notes</th></tr></thead>
+          <tbody>
+            {waitlist.map((w) => (
+              <tr key={w.id} className="border-t border-border-subtle">
+                <td className="p-3 text-text-muted">{w.createdAt.toLocaleDateString("en-GB")}</td>
+                <td className="p-3">{w.name}</td>
+                <td className="p-3 text-text-muted">{[w.city, w.country].filter(Boolean).join(", ")}</td>
+                <td className="p-3 text-text-muted" dir="ltr">{w.email}{w.phone ? ` / ${w.phone}` : ""}</td>
+                <td className="p-3 text-text-muted">{w.trades.map((t) => label(PROJECT_TRADES, t)).join(", ")}</td>
+                <td className="p-3 text-text-muted">{w.notes ?? ""}</td>
+              </tr>
+            ))}
+            {waitlist.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-text-muted">Nobody yet.</td></tr>}
           </tbody>
         </table>
       </div>

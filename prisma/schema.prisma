@@ -1620,6 +1620,10 @@ model BigProject {
   siteVisitAt     DateTime?
   siteVisitNotes  String?           @db.Text
   followUpAt      DateTime?
+  files           Json?             // [{url,name,kind}] plans and photos from the request form
+  rating          Int?              // 1-5, from the customer after completion
+  ratingComment   String?           @db.Text
+  ratedAt         DateTime?
   events          BigProjectEvent[]
   estimates       BigProjectEstimate[]
   assignments     BigProjectAssignment[]
@@ -1709,4 +1713,21 @@ model BigProjectMilestone {
 
   @@index([projectId])
   @@index([assignmentId])
+}
+
+// People outside Pakistan who want Big Projects in their country.
+model BigProjectWaitlist {
+  id        String   @id @default(cuid())
+  country   String
+  city      String?
+  name      String
+  email     String
+  phone     String?
+  trades    String[]
+  notes     String?  @db.Text
+  language  String?
+  ipHash    String?
+  createdAt DateTime @default(now())
+
+  @@index([country, createdAt])
 }

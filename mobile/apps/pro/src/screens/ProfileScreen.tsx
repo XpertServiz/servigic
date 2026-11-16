@@ -357,7 +357,7 @@ export default function ProfileScreen() {
 
       {projectsOn && (
         <Pressable onPress={() => navigateRoot("Projects")} style={styles.row}>
-          <Text style={styles.rowText}>Projects (big jobs)</Text>
+          <Text style={styles.rowText}>{t("proj.pro.entry")}</Text>
           <Icon name="chevron-right" size={14} color={colors.textFaint} />
         </Pressable>
       )}

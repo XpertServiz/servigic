@@ -530,6 +530,7 @@ export type BigProjectDetail = {
   estimate: { id: string; version: number; status: string; total: number; subtotal: number; discount: number; currency: string; validUntil: string | null; terms: string | null; items: { description: string; unit: string; qty: number; unitPrice: number; materialsBy: string }[]; link: string } | null;
   team: { name: string; trades: string[]; role: string; avatarUrl: string | null; verified: boolean }[];
   milestones: { id: string; title: string; status: string; dueDate: string | null; readyNote: string | null; photos: string[] }[];
+  rating: number | null; ratingComment: string | null;
 };
 export function getMyProjects() {
   return request<{ enabled: boolean; projects: BigProjectListItem[] }>("/api/mobile/projects");
@@ -542,4 +543,8 @@ export function createProject(input: Record<string, unknown>) {
 }
 export function answerProjectEstimate(id: string, action: "accept" | "revise" | "decline", comment?: string) {
   return request<{ ok: true }>(`/api/mobile/projects/${id}/estimate`, { method: "POST", body: JSON.stringify({ action, comment }) });
+}
+
+export function rateProject(id: string, rating: number, comment?: string) {
+  return request<{ ok: true }>(`/api/mobile/projects/${id}/rate`, { method: "POST", body: JSON.stringify({ rating, comment }) });
 }

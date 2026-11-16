@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Script from "next/script";
-import { BUDGET_BANDS, PROJECT_TRADES, PROJECT_TYPES, PROPERTY_STAGES, START_WINDOWS } from "@/lib/bigProjectsOptions";
+import { UploadButton } from "@/lib/uploadthing";
+import { TRADE_QUESTIONS, PROJECT_TRADES as TRADES_ALL, BUDGET_BANDS, PROJECT_TRADES, PROJECT_TYPES, PROPERTY_STAGES, START_WINDOWS } from "@/lib/bigProjectsOptions";
 
 const inputCls = "w-full rounded-xl border border-border-subtle bg-bg-elevated-2 px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent";
 const TS_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
@@ -12,8 +13,9 @@ type Form = {
   trades: string[]; projectType: string; city: string; area: string; name: string; phone: string; email: string;
   propertyStage: string; size: string; unit: keyof typeof UNIT_SQFT; floors: string; budgetBand: string; startWindow: string; notes: string;
   preferredContact: string; bestTime: string; consent: boolean; website: string;
+  answers: Record<string, string>;
 };
-const EMPTY: Form = { trades: [], projectType: "", city: "Karachi", area: "", name: "", phone: "", email: "", propertyStage: "", size: "", unit: "sqft", floors: "", budgetBand: "", startWindow: "", notes: "", preferredContact: "both", bestTime: "anytime", consent: false, website: "" };
+const EMPTY: Form = { trades: [], projectType: "", city: "Karachi", area: "", name: "", phone: "", email: "", propertyStage: "", size: "", unit: "sqft", floors: "", budgetBand: "", startWindow: "", notes: "", preferredContact: "both", bestTime: "anytime", consent: false, website: "", answers: {} };
 
 function Select({ value, onChange, options, placeholder }: { value: string; onChange: (v: string) => void; options: readonly (readonly [string, string])[]; placeholder: string }) {
   return (
@@ -31,6 +33,7 @@ export function ProjectForm({ whatsapp }: { whatsapp: string | null }) {
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState<string | null>(null);
   const [cf, setCf] = useState("");
+  const [files, setFiles] = useState<{ url: string; name: string; kind: "image" | "pdf" }[]>([]);
   useEffect(() => {
     (window as unknown as { svTsOk?: (t: string) => void }).svTsOk = (t) => setCf(t);
   }, []);
@@ -62,7 +65,7 @@ export function ProjectForm({ whatsapp }: { whatsapp: string | null }) {
           trades: f.trades, projectType: f.projectType || undefined, city: f.city.trim(), area: f.area.trim() || undefined, name: f.name.trim(), phone: f.phone.trim(), email: f.email.trim(),
           propertyStage: f.propertyStage || undefined, areaSqft: size > 0 ? Math.round(size * UNIT_SQFT[f.unit]) : undefined, floors: Number(f.floors) > 0 ? Number(f.floors) : undefined,
           budgetBand: f.budgetBand || undefined, startWindow: f.startWindow || undefined, notes: f.notes.trim() || undefined,
-          preferredContact: f.preferredContact, bestTime: f.bestTime, consent: true, language: document.documentElement.lang || "en", website: f.website, cf: cf || undefined,
+          preferredContact: f.preferredContact, bestTime: f.bestTime, consent: true, language: document.documentElement.lang || "en", website: f.website, cf: cf || undefined, answers: Object.fromEntries(Object.entries(f.answers).filter(([k, v]) => v.trim() && f.trades.includes(k.split(".")[0]))), files: files.length ? files : undefined,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -127,6 +130,38 @@ export function ProjectForm({ whatsapp }: { whatsapp: string | null }) {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Select value={f.budgetBand} onChange={(v) => set("budgetBand", v)} options={BUDGET_BANDS} placeholder="Budget (PKR)" />
             <Select value={f.startWindow} onChange={(v) => set("startWindow", v)} options={START_WINDOWS} placeholder="When to start" />
+          </div>
+          {f.trades.filter((t) => TRADE_QUESTIONS[t]).map((t) => (
+            <fieldset key={t} className="rounded-xl border border-border-subtle p-3">
+              <legend className="px-2 text-sm font-semibold text-accent">{TRADES_ALL.find((x) => x[0] === t)?.[1]}</legend>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {TRADE_QUESTIONS[t].map((q) => q.options ? (
+                  <select key={q.key} aria-label={q.label} value={f.answers[`${t}.${q.key}`] ?? ""} onChange={(e) => setF((x) => ({ ...x, answers: { ...x.answers, [`${t}.${q.key}`]: e.target.value } }))} className={inputCls}>
+                    <option value="">{q.label}</option>
+                    {q.options.map((o) => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                ) : (
+                  <input key={q.key} type="number" min={0} aria-label={q.label} placeholder={q.label} value={f.answers[`${t}.${q.key}`] ?? ""} onChange={(e) => setF((x) => ({ ...x, answers: { ...x.answers, [`${t}.${q.key}`]: e.target.value } }))} className={inputCls} />
+                ))}
+              </div>
+            </fieldset>
+          ))}
+          <div>
+            <p className="mb-2 text-sm font-semibold text-text">Plans or photos (optional)</p>
+            {files.length > 0 && (
+              <ul className="mb-2 flex flex-wrap gap-2 text-xs text-text-muted">
+                {files.map((x) => (<li key={x.url} className="flex items-center gap-2 rounded-full border border-border-subtle px-3 py-1">{x.name}<button type="button" aria-label={`Remove ${x.name}`} onClick={() => setFiles((l) => l.filter((y) => y.url !== x.url))} className="text-danger">x</button></li>))}
+              </ul>
+            )}
+            {files.length < 6 && (
+              <UploadButton
+                endpoint="projectFiles"
+                appearance={{ container: "w-auto items-start", button: "h-10 rounded-full bg-bg-elevated-2 border border-border-subtle px-5 text-sm font-semibold text-text after:hidden", allowedContent: "text-[11px] text-text-muted" }}
+                content={{ button: ({ isUploading }) => (isUploading ? "Uploading..." : "+ Add photos or a PDF plan") }}
+                onClientUploadComplete={(res) => setFiles((l) => [...l, ...res.map((r) => ({ url: r.ufsUrl, name: r.name.slice(0, 60), kind: (r.type === "application/pdf" ? "pdf" : "image") as "pdf" | "image" }))].slice(0, 6))}
+                onUploadError={(e) => setError(e.message)}
+              />
+            )}
           </div>
           <textarea rows={4} maxLength={1000} placeholder="Anything else we should know" value={f.notes} onChange={(e) => set("notes", e.target.value)} className={inputCls} />
         </>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { EstimateActions } from "./EstimateActions";
+import { RateBox } from "./RateBox";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Your estimate | Servigic", robots: { index: false, follow: false } };
@@ -13,7 +14,7 @@ const money = (n: number, c: string) => `${c} ${Math.round(n).toLocaleString("en
 // Private link from the email: the written estimate, readable and printable (Print > Save as PDF), with Accept / Ask for changes / Decline.
 export default async function EstimatePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const e = await prisma.bigProjectEstimate.findUnique({ where: { token }, include: { project: { select: { reference: true, customerName: true, city: true, area: true, warrantyDays: true } } } });
+  const e = await prisma.bigProjectEstimate.findUnique({ where: { token }, include: { project: { select: { status: true, rating: true, reference: true, customerName: true, city: true, area: true, warrantyDays: true } } } });
   if (!e) notFound();
   const items = e.items as unknown as Item[];
   const expired = isExpired(e.validUntil);
@@ -41,6 +42,9 @@ export default async function EstimatePage({ params }: { params: Promise<{ token
       </div>
       {e.terms && <p className="mt-6 whitespace-pre-wrap text-sm text-text-muted">{e.terms}</p>}
       <p className="mt-6 text-sm text-text-muted">Servigic is responsible for the whole job. Any problem within {e.project.warrantyDays} days, we come back and fix it.</p>
+      {e.project.status === "completed" && (
+        <div className="mt-8 print:hidden">{e.project.rating ? <p className="rounded-xl border border-border-subtle p-4 text-sm">You rated this project {e.project.rating} / 5. Thank you.</p> : <RateBox token={token} />}</div>
+      )}
       <div className="mt-8 print:hidden">
         {e.status === "sent" && !expired ? <EstimateActions token={token} /> : <p className="rounded-xl border border-border-subtle p-4 text-sm">{expired && e.status === "sent" ? "This estimate has expired. Please contact Servigic for a new one." : e.status === "superseded" ? "A newer estimate was sent. Please use the latest link." : `You answered this estimate: ${e.status.replace("_", " ")}.`}</p>}
       </div>
