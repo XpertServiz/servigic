@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { MobileMenu } from "./MobileMenu";
 import type { Locale } from "@/i18n/locales";
+import { bigProjectsEnabled } from "@/lib/bigProjects";
 
 export async function Navbar() {
   const [t, locale] = await Promise.all([getTranslations("nav"), getLocale() as Promise<Locale>]);
@@ -13,6 +14,8 @@ export async function Navbar() {
     { href: "/services", label: t("services") },
     { href: "/pro", label: t("forPros") },
     { href: "/trust-and-safety", label: t("trust") },
+    // Shown only while the feature flag is on, so the tab never leads to a page that is switched off.
+    ...(bigProjectsEnabled() ? [{ href: "/projects", label: t("bigProjects") }] : []),
   ];
 
   // The glass effect lives on a pseudo-element: backdrop-filter on the header itself

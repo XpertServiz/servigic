@@ -31,6 +31,9 @@ import { FinalCta } from "@/components/landing/FinalCta";
 import { Footer } from "@/components/landing/Footer";
 import { WhatsappFab } from "@/components/landing/WhatsappFab";
 import { SectionHead } from "@/components/ui/SectionHead";
+import { AutoVideo } from "@/components/media/AutoVideo";
+import { Reveal } from "@/components/ui/Reveal";
+import { getDemoVideos } from "@/lib/siteVideos";
 
 export const dynamic = "force-dynamic";
 
@@ -63,7 +66,7 @@ const PLAN_TEASER_TRADES = [
 ];
 
 export default async function LandingPage() {
-  const [whatsappNumber, categories, market, paymentMode, tDesc, tFaq, tSim] = await Promise.all([
+  const [whatsappNumber, categories, market, paymentMode, tDesc, tFaq, tSim, videos, tCust, tPro] = await Promise.all([
     getWhatsappNumber(),
     getCategoryList(),
     detectMarket(),
@@ -71,6 +74,9 @@ export default async function LandingPage() {
     getTranslations("meta.home"),
     getTranslations("faq"),
     getTranslations("sim"),
+    getDemoVideos(),
+    getTranslations("servicesPage"),
+    getTranslations("pro"),
   ]);
   const planCategories = categories.filter((c) => PLAN_TEASER_TRADES.some((t) => t.trade === c.trade));
   const liveCities = await getLiveCities(market.country);
@@ -101,9 +107,26 @@ export default async function LandingPage() {
         <HowItWorks />
         <Features paymentMode={paymentMode} />
         <ServicesGrid />
+        {/* The same demo videos as the Services and For Pros pages (set in Admin > Settings); a section only appears when its video is set. */}
+        {videos.customer && (
+          <section className="container-x max-w-[960px] pb-10" aria-label={tCust("videoTitle")}>
+            <Reveal>
+              <h2 className="mb-5 text-center text-xl font-bold md:text-2xl">{tCust("videoTitle")}</h2>
+              <AutoVideo videoId={videos.customer} title={tCust("videoTitle")} />
+            </Reveal>
+          </section>
+        )}
         <Results />
         <FeaturedPros />
         <ForPros />
+        {videos.pro && (
+          <section className="container-x max-w-[960px] pb-10" aria-label={tPro("videoTitle")}>
+            <Reveal>
+              <h2 className="mb-5 text-center text-xl font-bold md:text-2xl">{tPro("videoTitle")}</h2>
+              <AutoVideo videoId={videos.pro} title={tPro("videoTitle")} />
+            </Reveal>
+          </section>
+        )}
         <WhySection />
         <PlansTeaser cards={planTeaserCards} />
         <Faq />
