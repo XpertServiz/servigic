@@ -960,6 +960,7 @@ export const en = {
   "proj.pro.couldNot": "Could not save",
   "proj.pro.entry": "Projects (big jobs)",
   "proj.home": "Big Projects",
+  "home.click": "Click",
 } as const;
 
 export type TKey = keyof typeof en;

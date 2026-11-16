@@ -67,7 +67,7 @@ export function ForgotForm({ ctx }: { ctx: AuthContext }) {
   }
 
   return (
-    <AuthShell>
+    <AuthShell hero={ctx.hero}>
       <h1 className="mb-2 text-3xl font-bold tracking-[-0.018em]">{t("forgotTitle")}</h1>
       <p className="mb-6 text-text-muted">{t("forgotSub")}</p>
 

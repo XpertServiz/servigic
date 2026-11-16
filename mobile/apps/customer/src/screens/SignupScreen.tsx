@@ -12,7 +12,8 @@ import { loadMarketConfig } from "../lib/market";
 import { getDeviceId } from "../lib/device";
 import { GlowBackground } from "../components/ds";
 import { AuthBackdrop } from "../components/AuthBackdrop";
-import { useAuthDesign } from "../lib/authDesigns";
+import { useAuthHero } from "../lib/authHero";
+import { LangChip } from "../components/LangChip";
 import { authErrorMessage } from "../lib/authErrors";
 import { AcceptAgreement, type TermsAcceptance } from "../components/AcceptAgreement";
 
@@ -26,7 +27,7 @@ export default function SignupScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const [name, setName] = useState("");
   const phone = usePhoneInput();
-  const design = useAuthDesign();
+  const hero = useAuthHero(phone.country);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -79,12 +80,13 @@ export default function SignupScreen({ navigation }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <GlowBackground cx="30%" cy="15%" r="70%" opacity={0.12} />
-      <AuthBackdrop image={design.image} heightFrac={0.4} dim={0.5} />
+      {hero && <AuthBackdrop image={hero} heightFrac={0.4} dim={0.35} />}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Pressable onPress={() => navigation.goBack()} style={styles.back} accessibilityLabel={t("common.back")}>
           <Icon name="back" size={16} />
         </Pressable>
-        <Text style={styles.headerTitle}>{t("auth.createAccountHeader")}</Text>
+        <Text style={[styles.headerTitle, { flex: 1 }]}>{t("auth.createAccountHeader")}</Text>
+        <LangChip country={phone.country} />
       </View>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <ScrollView

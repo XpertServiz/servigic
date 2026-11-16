@@ -633,4 +633,5 @@ export const pl: Partial<Record<TKey, string>> = {
   "proj.pro.couldNot": "Nie udało się zapisać",
   "proj.pro.entry": "Projekty (duże zlecenia)",
   "proj.home": "Duże projekty",
+  "home.click": "Wybierz",
 };

@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { authHeroFor } from "@/lib/authHero";
 import { detectMarket } from "@/lib/geoDetect";
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from "@/i18n/request";
 import { localeForCountry } from "@/i18n/locales";
@@ -8,8 +10,12 @@ import { localeForCountry } from "@/i18n/locales";
 // (Vercel's x-vercel-ip-country), so there's no third-party IP lookup and no
 // extra privacy surface. The app only ever suggests — it never switches
 // languages silently.
+const chipLocales = (local: string) => (local && local !== "en" ? [local, "en"] : ["en"]);
+
 export async function GET() {
   const market = await detectMarket();
+  const h = await headers();
+  const city = decodeURIComponent(h.get("x-vercel-ip-city") ?? "");
   const suggestedLocale = SUPPORTED_LOCALES.includes(market.suggestedLocale) ? market.suggestedLocale : DEFAULT_LOCALE;
   return NextResponse.json({
     country: market.country,
@@ -17,5 +23,8 @@ export async function GET() {
     suggestedLocale,
     // The assistant (chatbot) opens in the language of the user's country: Arabic in Saudi Arabia, Urdu in Pakistan, ...
     chatLanguage: localeForCountry(market.country),
+    // Sign-in picture (static file in /auth-heroes) and the two languages the chip shows.
+    hero: authHeroFor(market.country, city),
+    chipLocales: chipLocales(localeForCountry(market.country)),
   });
 }

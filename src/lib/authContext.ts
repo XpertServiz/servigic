@@ -1,4 +1,6 @@
+import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { authHeroFor } from "@/lib/authHero";
 import { detectVisitorMarket } from "@/lib/geoDetect";
 import { PROFILES, cityName, profileFor } from "@/lib/countryProfile";
 import { getCountryCallingCode, type CountryCode } from "libphonenumber-js/mobile";
@@ -15,6 +17,8 @@ export interface AuthCountry {
 export interface AuthContext {
   selected: string;
   countries: AuthCountry[];
+  /** Sign-in picture key (a file in public/auth-heroes) or null. */
+  hero: string | null;
 }
 
 function regionName(code: string, locale: string): string {
@@ -56,7 +60,8 @@ export async function getAuthContext(locale: string): Promise<AuthContext> {
     };
   });
   countries.sort((a, b) => a.name.localeCompare(b.name, locale));
-  return { selected: vm.country, countries };
+  const city = decodeURIComponent((await headers()).get("x-vercel-ip-city") ?? "");
+  return { selected: vm.country, countries, hero: authHeroFor(vm.country, city) };
 }
 
 export { cityName };

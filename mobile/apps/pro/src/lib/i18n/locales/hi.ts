@@ -635,4 +635,5 @@ export const hi: Partial<Record<TKey, string>> = {
   "proj.pro.couldNot": "सहेजा नहीं जा सका",
   "proj.pro.entry": "प्रोजेक्ट (बड़े काम)",
   "proj.home": "बड़े प्रोजेक्ट",
+  "home.click": "क्लिक",
 };

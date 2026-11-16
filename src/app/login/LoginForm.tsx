@@ -79,7 +79,7 @@ function LoginInner({ ctx }: { ctx: AuthContext }) {
 
 export function LoginForm({ ctx }: { ctx: AuthContext }) {
   return (
-    <AuthShell>
+    <AuthShell hero={ctx.hero}>
       <Suspense fallback={null}>
         <LoginInner ctx={ctx} />
       </Suspense>

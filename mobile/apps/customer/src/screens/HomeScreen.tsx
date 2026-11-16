@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, Pressable, StyleSheet, ActivityIndicator, ScrollView, Animated } from "react-native";
+import { View, Text, Pressable, StyleSheet, ActivityIndicator, ScrollView, Animated, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
@@ -17,6 +17,7 @@ import { enumLabel } from "../lib/status";
 import { useI18n } from "../lib/i18n";
 import { tradeLabel } from "../lib/status";
 import { navigateRoot } from "../navigation/ref";
+import { TRADE_ART } from "../lib/tradeArt";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "Home">;
 type Category = Awaited<ReturnType<typeof api.getCategories>>["categories"][number];
@@ -188,19 +189,26 @@ export default function HomeScreen({ navigation }: Props) {
           </View>
         ) : (
           <View style={styles.grid}>
-            {categories.map((item) => (
-              <Pressable
-                key={item.id}
-                style={[styles.tile, !item.available && { opacity: 0.55 }]}
-                onPress={() => (item.available ? navigation.navigate("PostJob", { categoryId: item.id }) : setComingSoon(item))}
-              >
-                <AnimatedTradeIcon icon={item.icon} trade={item.trade} size={26} />
-                <Text style={styles.tileLabel} numberOfLines={2}>
-                  {tradeLabel(t, item.trade, item.name)}
-                </Text>
-                {!item.available && <Text style={styles.soon}>{t("market.comingSoon")}</Text>}
-              </Pressable>
-            ))}
+            {categories.map((item) => {
+              const art = TRADE_ART[item.trade];
+              return (
+                <Pressable
+                  key={item.id}
+                  style={[styles.tile, item.available ? styles.tileOn : styles.tileOff]}
+                  onPress={() => (item.available ? navigation.navigate("PostJob", { categoryId: item.id }) : setComingSoon(item))}
+                >
+                  {art ? <Image source={art} style={[styles.art, !item.available && { opacity: 0.5 }]} resizeMode="contain" /> : <View style={styles.art}><AnimatedTradeIcon icon={item.icon} trade={item.trade} size={30} /></View>}
+                  <Text style={[styles.tileLabel, !item.available && { color: colors.textMuted }]} numberOfLines={2}>
+                    {tradeLabel(t, item.trade, item.name)}
+                  </Text>
+                  {item.available ? (
+                    <View style={styles.pill}><Text style={styles.pillText}>{t("home.click")} {"\u203A"}</Text></View>
+                  ) : (
+                    <Text style={styles.soon}>{t("market.comingSoon")}</Text>
+                  )}
+                </Pressable>
+              );
+            })}
           </View>
         )}
         {comingSoon && !outsideArea && (
@@ -222,7 +230,7 @@ export default function HomeScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   header: { paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  greeting: { color: colors.text, fontSize: 21, fontWeight: "800" },
+  greeting: { color: colors.text, fontSize: 30, fontWeight: "800" },
   headerSub: { color: colors.textMuted, fontSize: 13, marginTop: 2 },
   activeCard: {
     flexDirection: "row",
@@ -263,27 +271,32 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: colors.dangerTint,
     borderWidth: 1,
-    borderColor: "rgba(220,60,60,0.3)",
+    borderColor: "rgba(255,80,70,0.85)",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 12,
     gap: 8,
   },
   emergencyText: { color: colors.dangerSoft, fontWeight: "800", fontSize: 13, textAlign: "center" },
-  sectionTitle: { color: "#D9D2C4", fontSize: 14, fontWeight: "700", paddingHorizontal: 18, paddingTop: 18, paddingBottom: 10 },
+  sectionTitle: { color: colors.text, fontSize: 22, fontWeight: "800", paddingHorizontal: 18, paddingTop: 18, paddingBottom: 10 },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 10, paddingHorizontal: 18 },
   tile: {
     width: "31.2%",
-    backgroundColor: colors.bgElevated,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.05)",
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 8,
+    backgroundColor: "#0B0A08",
+    borderRadius: 18,
+    paddingTop: 6,
+    paddingBottom: 10,
+    paddingHorizontal: 6,
     alignItems: "center",
-    gap: 8,
+    gap: 4,
+    borderWidth: 1.5,
   },
+  tileOn: { borderColor: "rgba(245,166,35,0.75)", shadowColor: colors.accent, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 0 }, elevation: 3 },
+  tileOff: { borderColor: "rgba(255,255,255,0.08)" },
+  art: { width: "100%", height: 66, alignItems: "center", justifyContent: "center" },
+  pill: { borderWidth: 1.5, borderColor: colors.accent, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 3 },
+  pillText: { color: colors.accent, fontSize: 12, fontWeight: "800" },
   soon: { color: colors.accent, fontSize: 9, fontWeight: "800", textTransform: "uppercase", letterSpacing: 0.4 },
-  tileLabel: { color: colors.textSecondary, fontSize: 11, fontWeight: "600", textAlign: "center" },
+  tileLabel: { color: colors.text, fontSize: 12.5, fontWeight: "700", textAlign: "center", minHeight: 32 },
 });
 

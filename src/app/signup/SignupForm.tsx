@@ -252,7 +252,7 @@ function SignupInner({ ctx }: { ctx: AuthContext }) {
 
 export function SignupForm({ ctx }: { ctx: AuthContext }) {
   return (
-    <AuthShell width={460}>
+    <AuthShell width={460} hero={ctx.hero}>
       <Suspense fallback={null}>
         <SignupInner ctx={ctx} />
       </Suspense>

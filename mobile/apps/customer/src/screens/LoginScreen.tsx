@@ -7,12 +7,12 @@ import { useAuth } from "../lib/auth";
 import { Button, Field, PhoneField, usePhoneInput } from "../components/ui";
 import { GlowBackground } from "../components/ds";
 import { AuthBackdrop } from "../components/AuthBackdrop";
-import { AuthExtras } from "../components/AuthExtras";
-import { useAuthDesign } from "../lib/authDesigns";
+import { AuthTradeRow, AuthBadgeRow, AuthSkyline } from "../components/AuthTrust";
+import { LangChip } from "../components/LangChip";
+import { useAuthHero } from "../lib/authHero";
 import { authErrorMessage } from "../lib/authErrors";
 import { APP_ROLE } from "../lib/appRole";
 import { SplashLogo } from "../components/SplashLogo";
-import { HeaderActions } from "../components/HeaderActions";
 import { colors } from "../lib/theme";
 import { useT } from "../lib/i18n";
 
@@ -23,7 +23,7 @@ export default function LoginScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { signIn } = useAuth();
   const phone = usePhoneInput();
-  const design = useAuthDesign();
+  const hero = useAuthHero(phone.country);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,9 +48,9 @@ export default function LoginScreen({ navigation }: Props) {
   return (
     <View style={styles.root}>
       <GlowBackground cx="30%" cy="15%" r="70%" opacity={0.14} />
-      <AuthBackdrop image={design.image} />
+      {hero && <AuthBackdrop image={hero} heightFrac={0.5} />}
       <View style={[styles.topBar, { top: insets.top + 12 }]}>
-        <HeaderActions showBell={false} />
+        <LangChip country={phone.country} />
       </View>
 
       {/* Edge-to-edge: Android no longer resizes the window for the keyboard, so pad for it on both platforms. */}
@@ -65,9 +65,9 @@ export default function LoginScreen({ navigation }: Props) {
             <SplashLogo size={92} />
           </View>
           <Text style={styles.brand}>SERVIGIC</Text>
-          <Text style={styles.title}>{design.headline ?? t("auth.welcomeBack")}</Text>
-          {["SA", "AE", "QA", "KW", "BH", "OM"].includes(phone.country) && design.headlineAr ? <Text style={[styles.subtitle, { marginTop: -4, color: colors.accent }]}>{design.headlineAr}</Text> : null}
+          <Text style={styles.title}>{t("auth.welcomeBack")}</Text>
           <Text style={styles.subtitle}>{t("auth.customerTagline")}</Text>
+          <AuthTradeRow />
 
           <PhoneField phone={phone} />
           <Field label={t("auth.password")} secureTextEntry value={password} onChangeText={setPassword} placeholder="••••••••" />
@@ -79,7 +79,9 @@ export default function LoginScreen({ navigation }: Props) {
 
           <Button title={t("auth.logIn")} onPress={handleLogin} loading={loading} disabled={!phone.text || !password} />
 
-          <View style={{ marginTop: 22, alignItems: "center" }}>
+          <AuthBadgeRow />
+          <AuthSkyline country={phone.country} />
+          <View style={{ marginTop: 14, alignItems: "center" }}>
             <Text style={{ color: colors.textMuted, fontSize: 13 }}>
               {t("auth.noAccount")}{" "}
               <Text style={{ color: colors.accent, fontWeight: "700" }} onPress={() => navigation.navigate("Signup")}>
@@ -88,7 +90,6 @@ export default function LoginScreen({ navigation }: Props) {
             </Text>
           </View>
 
-          <AuthExtras kind={design.extras} />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -99,8 +100,8 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
   topBar: { position: "absolute", right: 18, zIndex: 5 },
   container: { flexGrow: 1, justifyContent: "flex-end", padding: 26, paddingBottom: 40 },
-  brand: { color: colors.accent, fontSize: 15, fontWeight: "800", letterSpacing: 1.3, marginBottom: 10 },
-  title: { color: colors.text, fontSize: 30, fontWeight: "800", marginBottom: 8 },
-  subtitle: { color: colors.textSecondary, fontSize: 14, marginBottom: 26 },
+  brand: { color: colors.accent, fontSize: 15, fontWeight: "800", letterSpacing: 1.3, marginBottom: 10, textAlign: "center" },
+  title: { color: colors.text, fontSize: 30, fontWeight: "800", marginBottom: 6, textAlign: "center" },
+  subtitle: { color: colors.textSecondary, fontSize: 14, marginBottom: 8, textAlign: "center" },
   error: { color: colors.dangerSoft, marginBottom: 12, fontSize: 13 },
 });

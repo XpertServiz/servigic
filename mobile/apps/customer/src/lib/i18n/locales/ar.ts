@@ -852,4 +852,5 @@ export const ar: Partial<Record<TKey, string>> = {
   "proj.pro.couldNot": "تعذّر الحفظ",
   "proj.pro.entry": "المشاريع (الأعمال الكبيرة)",
   "proj.home": "المشاريع الكبيرة",
+  "home.click": "اضغط",
 };
