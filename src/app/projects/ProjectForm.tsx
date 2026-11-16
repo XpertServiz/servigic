@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Script from "next/script";
 import { BUDGET_BANDS, PROJECT_TRADES, PROJECT_TYPES, PROPERTY_STAGES, START_WINDOWS } from "@/lib/bigProjectsOptions";
 
 const inputCls = "w-full rounded-xl border border-border-subtle bg-bg-elevated-2 px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent";
+const TS_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
 const UNIT_SQFT = { sqft: 1, marla: 272.25, kanal: 5445 } as const;
 
 type Form = {
@@ -28,6 +30,10 @@ export function ProjectForm({ whatsapp }: { whatsapp: string | null }) {
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState<string | null>(null);
+  const [cf, setCf] = useState("");
+  useEffect(() => {
+    (window as unknown as { svTsOk?: (t: string) => void }).svTsOk = (t) => setCf(t);
+  }, []);
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setF((p) => ({ ...p, [k]: v }));
   const toggleTrade = (k: string) => set("trades", f.trades.includes(k) ? f.trades.filter((t) => t !== k) : [...f.trades, k]);
@@ -56,12 +62,12 @@ export function ProjectForm({ whatsapp }: { whatsapp: string | null }) {
           trades: f.trades, projectType: f.projectType || undefined, city: f.city.trim(), area: f.area.trim() || undefined, name: f.name.trim(), phone: f.phone.trim(), email: f.email.trim(),
           propertyStage: f.propertyStage || undefined, areaSqft: size > 0 ? Math.round(size * UNIT_SQFT[f.unit]) : undefined, floors: Number(f.floors) > 0 ? Number(f.floors) : undefined,
           budgetBand: f.budgetBand || undefined, startWindow: f.startWindow || undefined, notes: f.notes.trim() || undefined,
-          preferredContact: f.preferredContact, bestTime: f.bestTime, consent: true, language: document.documentElement.lang || "en", website: f.website,
+          preferredContact: f.preferredContact, bestTime: f.bestTime, consent: true, language: document.documentElement.lang || "en", website: f.website, cf: cf || undefined,
         }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error === "rate" ? "Too many requests from this connection. Please try again later or WhatsApp us." : data.field === "phone" ? "That mobile number does not look right." : "Something went wrong. Please check the details and try again.");
+        setError(data.error === "captcha" ? "Please complete the check below and try again." : data.error === "rate" ? "Too many requests from this connection. Please try again later or WhatsApp us." : data.field === "phone" ? "That mobile number does not look right." : "Something went wrong. Please check the details and try again.");
         return;
       }
       setDone(data.reference);
@@ -85,6 +91,7 @@ export function ProjectForm({ whatsapp }: { whatsapp: string | null }) {
   return (
     <form onSubmit={submit} className="sv-card flex flex-col gap-5 p-5 md:p-7" data-testid="project-form">
       <div className="flex items-center justify-between text-sm text-text-muted"><span>Step {step} of 3</span><span className="h-1.5 w-32 overflow-hidden rounded-full bg-bg-elevated-2"><span className="block h-full bg-accent" style={{ width: `${(step / 3) * 100}%` }} /></span></div>
+      {TS_KEY && (<><Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" /><div className="cf-turnstile" data-sitekey={TS_KEY} data-callback="svTsOk" /></>)}
       <input type="text" name="website" tabIndex={-1} autoComplete="off" value={f.website} onChange={(e) => set("website", e.target.value)} className="hidden" aria-hidden />
 
       {step === 1 && (

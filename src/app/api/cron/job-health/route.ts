@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { sweepProjectSla } from "@/lib/bigProjects";
+import { sweepProjectSla, sweepProjectInvites } from "@/lib/bigProjects";
 import { prisma } from "@/lib/prisma";
 import { notifyJobsWithoutBids } from "@/lib/jobHealth";
 import { sendUnbidJobFallbacks } from "@/lib/jobAlertFallback";
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
   // Called every 15 minutes. The job sweeps only run when there is a job in progress (otherwise they would find nothing); the slow-moving
   // ones (founding-pro reminders, document expiry, media cleanup) run once an hour.
-  const projectReminders = await sweepProjectSla().catch(() => 0);
+  const projectReminders = (await sweepProjectSla().catch(() => 0)) + (await sweepProjectInvites().catch(() => 0));
   const hourly = new Date().getUTCMinutes() < 15;
   const activeJobs = await prisma.job.count({ where: { status: { in: ["OPEN", "BOOKED", "IN_PROGRESS", "DISPUTED"] } } });
 

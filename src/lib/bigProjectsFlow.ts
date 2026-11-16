@@ -8,6 +8,7 @@ import { sendEmailChannel } from "@/lib/notify/channels/email";
 import {
   BUDGET_BANDS, PROJECT_TRADES, PROJECT_TYPES, PROPERTY_STAGES, START_WINDOWS,
   adminRecipients, emailCustomerReceived, emailNewProject, nextReference,
+  notifyAdmins,
 } from "@/lib/bigProjects";
 
 const keys = (l: readonly (readonly [string, string])[]) => l.map(([k]) => k) as [string, ...string[]];
@@ -33,8 +34,21 @@ export const requestSchema = z.object({
   consent: z.literal(true),
   language: text(8).optional(),
   website: z.string().optional(), // honeypot
+  cf: z.string().max(4096).optional(), // Cloudflare Turnstile token (only checked when TURNSTILE_SECRET_KEY is set)
 });
 export type ProjectRequest = z.infer<typeof requestSchema>;
+
+/** Cloudflare Turnstile: passes when no secret key is configured (honeypot + rate limits still apply). */
+export async function verifyTurnstile(token: string | undefined, ip: string): Promise<boolean> {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return true;
+  if (!token) return false;
+  try {
+    const r = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: new URLSearchParams({ secret, response: token, remoteip: ip }) });
+    const j = (await r.json()) as { success?: boolean };
+    return j.success === true;
+  } catch { return false; }
+}
 
 export const sha = (s: string) => createHash("sha256").update(`${s}|${process.env.AUTH_SECRET ?? "servigic"}`).digest("hex").slice(0, 32);
 
@@ -63,7 +77,7 @@ export async function submitProject(d: ProjectRequest, meta: { source: "web" | "
       if (i === 4) throw e;
     }
   }
-  await Promise.all([emailNewProject(project!), emailCustomerReceived(project!)]);
+  await Promise.all([emailNewProject(project!), emailCustomerReceived(project!), notifyAdmins(project!)]);
   return project!;
 }
 

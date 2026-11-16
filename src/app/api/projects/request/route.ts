@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, clientKey } from "@/lib/rateLimit";
 import { bigProjectsEnabled } from "@/lib/bigProjects";
-import { requestSchema, submitProject } from "@/lib/bigProjectsFlow";
+import { requestSchema, submitProject, verifyTurnstile } from "@/lib/bigProjectsFlow";
 import { toE164 } from "@/lib/phone";
 
 // Public: a visitor asks for a Big Project estimate (no account needed). Honeypot + per-IP and per-phone limits.
@@ -11,6 +11,7 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "invalid", field: String(parsed.error.issues[0]?.path[0] ?? "") }, { status: 400 });
   const d = parsed.data;
   if (d.website && d.website.trim() !== "") return NextResponse.json({ ok: true, reference: "SP-0000-0000" });
+  if (!(await verifyTurnstile(d.cf, clientKey(req)))) return NextResponse.json({ error: "captcha" }, { status: 400 });
   const phone = toE164(d.phone, "PK");
   if (!phone) return NextResponse.json({ error: "phone", field: "phone" }, { status: 400 });
   const [ip, ph] = await Promise.all([checkRateLimit(`proj:ip:${clientKey(req)}`, 5, 3600), checkRateLimit(`proj:phone:${phone}`, 3, 86400)]);

@@ -22,6 +22,13 @@ export async function adminRecipients(): Promise<string[]> {
   return cfg.notifyEmail ? [cfg.notifyEmail] : [];
 }
 
+/** In-app + push alert to every admin account (the admin app gets a push), on top of the email. */
+export async function notifyAdmins(p: P): Promise<void> {
+  const { notify } = await import("@/lib/notify");
+  const admins = await prisma.user.findMany({ where: { role: "ADMIN" }, select: { id: true }, take: 20 });
+  for (const a of admins) await notify({ userId: a.id, type: "STATUS_UPDATE", title: `New big project ${p.reference}`, body: `${p.customerName}, ${p.city ?? ""} - ${p.trades.join(", ")}`, linkUrl: `/admin/projects/${p.id}`, push: true }).catch(() => null);
+}
+
 const ENT: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 const esc = (s: unknown) => String(s ?? "").replace(/[&<>"']/g, (c) => ENT[c]);
 const appUrl = () => (process.env.NEXT_PUBLIC_APP_URL || "https://www.servigic.com").replace(/\/$/, "");
@@ -77,4 +84,31 @@ export async function sweepProjectSla(): Promise<number> {
     await prisma.bigProjectEvent.create({ data: { projectId: p.id, actor: "system", type: "email", body: "Reminder sent: not contacted yet" } });
   }
   return due.length;
+}
+
+/** Pro invitations: remind the pro in the last 3 hours, then mark unanswered ones expired and tell the admin. Called by the job-health cron. */
+export async function sweepProjectInvites(): Promise<number> {
+  if (!bigProjectsEnabled()) return 0;
+  const { notify } = await import("@/lib/notify");
+  const now = Date.now();
+  const soon = await prisma.bigProjectAssignment.findMany({ where: { status: "invited", respondBy: { gt: new Date(now), lt: new Date(now + 3 * 3600_000) } }, include: { project: { select: { id: true, reference: true } } }, take: 50 });
+  let n = 0;
+  for (const a of soon) {
+    const tag = `Invite reminder ${a.id}`;
+    const done = await prisma.bigProjectEvent.findFirst({ where: { projectId: a.projectId, body: tag }, select: { id: true } });
+    if (done) continue;
+    const pro = await prisma.providerProfile.findUnique({ where: { id: a.proId }, select: { userId: true } });
+    if (pro) await notify({ userId: pro.userId, type: "STATUS_UPDATE", title: "Project invitation ending soon", body: `${a.project.reference}: please answer before ${a.respondBy.toLocaleString("en-GB")}`, push: true }).catch(() => null);
+    await prisma.bigProjectEvent.create({ data: { projectId: a.projectId, actor: "system", type: "note", body: tag } });
+    n++;
+  }
+  const late = await prisma.bigProjectAssignment.findMany({ where: { status: "invited", respondBy: { lt: new Date(now) } }, include: { project: { select: { id: true, reference: true } } }, take: 50 });
+  for (const a of late) {
+    const c = await prisma.bigProjectAssignment.updateMany({ where: { id: a.id, status: "invited" }, data: { status: "expired" } });
+    if (c.count !== 1) continue;
+    await prisma.bigProjectEvent.create({ data: { projectId: a.projectId, actor: "system", type: "note", body: `Invitation expired (no answer): assignment ${a.id}` } });
+    for (const addr of await adminRecipients()) await sendEmailChannel({ to: addr, subject: `Pro did not answer: ${a.project.reference}`, body: `An invitation on ${a.project.reference} expired. Invite someone else: ${appUrl()}/admin/projects/${a.project.id}` }).catch(() => null);
+    n++;
+  }
+  return n;
 }

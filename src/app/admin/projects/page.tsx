@@ -37,6 +37,7 @@ export default async function AdminProjectsPage({ searchParams }: { searchParams
           {ALL_STATUSES.map((s) => <option key={s} value={s}>{s.replaceAll("_", " ")} ({counts.find((c) => c.status === s)?._count ?? 0})</option>)}
         </select>
         <button className="min-h-[44px] rounded-full bg-accent px-6 text-sm font-semibold text-accent-foreground">Filter</button>
+        <a href={`/api/admin/projects/export${status ? `?status=${status}` : ""}`} className="inline-flex min-h-[44px] items-center rounded-full border border-border-subtle px-5 text-sm font-semibold">Download CSV</a>
       </form>
       <div className="overflow-x-auto rounded-[14px] border border-border-subtle">
         <table className="w-full min-w-[900px] text-sm">
